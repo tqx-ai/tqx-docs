@@ -1,0 +1,26 @@
+/* TQX docs — acid lemon accent on a monochrome base.
+   Mirrors tqx-web: #FFF200 is a fill, never a hairline or body text.
+   On the ink background it can be text; on paper it can only be a block. */
+
+:root {
+  --tqx-yellow: #fff200;
+  --tqx-ink: #08090b;
+}
+
+/* Light mode: the accent lives in the active nav item as a solid chip.
+   docs.json keeps `primary` ink so underlines and borders stay crisp. */
+html:not(.dark) .sidebar-group .text-primary {
+  color: var(--tqx-ink) !important;
+  background-color: var(--tqx-yellow) !important;
+}
+
+html:not(.dark) .sidebar-group .text-primary:hover {
+  background-color: #f5e800 !important;
+}
+
+/* Any surface filled with the brand yellow takes ink text, never white. */
+.bg-primary,
+.bg-primary-dark,
+.bg-primary-light {
+  color: var(--tqx-ink) !important;
+}

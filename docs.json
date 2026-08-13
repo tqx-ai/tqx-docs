@@ -3,9 +3,15 @@
   "theme": "almond",
   "name": "TQX Docs",
   "colors": {
-    "primary": "#2563eb",
-    "light": "#2563eb",
-    "dark": "#2563eb"
+    "primary": "#1A1A17",
+    "light": "#FFF200",
+    "dark": "#FFF200"
+  },
+  "background": {
+    "color": {
+      "light": "#FAF9F5",
+      "dark": "#08090B"
+    }
   },
   "appearance": {
     "default": "dark"
