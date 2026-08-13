@@ -26,6 +26,7 @@
 - Use sentence case for headings
 - Bold for UI elements: Click **Settings**
 - Code formatting for file names, commands, paths, and code references
+- Localize all user-visible copy according to the active language. Translate user-provided text into natural, idiomatic wording for each supported language instead of reusing one language's copy across locales. Configure language-specific labels through Mintlify's `navigation.languages` structure.
 
 ## Content boundaries
 

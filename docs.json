@@ -1,41 +1,86 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "Mintlify Starter Kit",
+  "name": "TQX Docs",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#2563eb",
+    "light": "#2563eb",
+    "dark": "#2563eb"
+  },
+  "appearance": {
+    "default": "dark"
   },
   "favicon": "/favicon.svg",
   "navigation": {
-    "pages": [
+    "languages": [
       {
-        "group": "Getting Started",
-        "pages": [
-          "index",
-          "quickstart"
-        ]
-      }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
+        "language": "en",
+        "default": true,
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": ["index"]
+          },
+          {
+            "group": "Research",
+            "pages": ["research"]
+          },
+          {
+            "group": "Trading",
+            "pages": ["trading"]
+          }
+        ],
+        "global": {
+          "anchors": [
+            {
+              "anchor": "Qube",
+              "href": "https://www.tqx.ai/agent_quant",
+              "icon": "book-open-cover"
+            },
+            {
+              "anchor": "Competitions",
+              "href": "https://www.tqx.ai/competition-manage?catalog=2",
+              "icon": "newspaper"
+            }
+          ]
         }
-      ]
-    }
+      },
+      {
+        "language": "zh-Hant",
+        "groups": [
+          {
+            "group": "\u958b\u59cb\u4f7f\u7528",
+            "pages": ["hk/index"]
+          },
+          {
+            "group": "\u6295\u7814",
+            "pages": ["hk/research"]
+          },
+          {
+            "group": "\u4ea4\u6613",
+            "pages": ["hk/trading"]
+          }
+        ],
+        "global": {
+          "anchors": [
+            {
+              "anchor": "Qube",
+              "href": "https://www.tqx.ai/agent_quant",
+              "icon": "book-open-cover"
+            },
+            {
+              "anchor": "\u53c3\u8cfd",
+              "href": "https://www.tqx.ai/competition-manage?catalog=2",
+              "icon": "newspaper"
+            }
+          ]
+        }
+      }
+    ]
   },
   "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
+    "light": "/logo/tqx-black.png",
+    "dark": "/logo/tqx-white.png"
   },
   "navbar": {
     "links": [
@@ -43,12 +88,7 @@
         "label": "Support",
         "href": "mailto:hi@mintlify.com"
       }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Dashboard",
-      "href": "https://app.mintlify.com"
-    }
+    ]
   },
   "contextual": {
     "options": [
@@ -64,9 +104,9 @@
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
+      "x": "https://x.com/tqx_trade",
+      "github": "https://github.com/tqx-ai",
+      "linkedin": "https://www.linkedin.com/company/tqx-trade/?viewAsMember=true"
     }
   }
 }
