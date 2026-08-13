@@ -1,6 +1,6 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
+  "theme": "almond",
   "name": "TQX Docs",
   "colors": {
     "primary": "#2563eb",
@@ -86,7 +86,7 @@
     "links": [
       {
         "label": "Support",
-        "href": "mailto:hi@mintlify.com"
+        "href": "mailto:cuiyanzhe@pandaai.online"
       }
     ]
   },
