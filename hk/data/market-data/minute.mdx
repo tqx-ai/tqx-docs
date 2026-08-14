@@ -1,13 +1,13 @@
----
+﻿---
 title: "分鐘數據"
 description: "取得港股與美股的歷史分鐘線資料。"
 ---
 
-### 3. 取得港股分鐘線數據
+## 取得港股分鐘線數據
 
-#### 3.1. 方法名稱：get_hk_min
+### 方法名稱：get_hk_min
 
-#### 3.2. 入參
+### 入參
 
 | 欄位 | 類型 | 說明 | 是否必填 |
 |:---|:---|:---|:---|
@@ -18,7 +18,7 @@ description: "取得港股與美股的歷史分鐘線資料。"
 | time_zone | Optional\[tuple\] | 時段過濾,格式為("HH:MM", "HH:MM")，例如("10:00", "23:00") | 非必填 |
 | frequency | Optional\[str\] | 頻率, 支援 "1m", "5m", "10m", "60m",預設為"1m" | 非必填 |
 
-#### 3.3. 回應參數
+### 回應參數
 
 | 字段 | 類型 | 描述 |
 |:-----------|:-------|:---------------------|
@@ -53,9 +53,9 @@ description: "取得港股與美股的歷史分鐘線資料。"
 | mid_open | double | 開盤中間價 |
 | mid_price | double | 收盤中間價 |
 
-#### 3.4. 使用範例
+### 使用範例
 
-##### 3.4.1. 取得單一股票的1分鐘線資料並使用fields
+#### 取得單一股票的1分鐘線資料並使用fields
 
 ```python
 import tqx_data
@@ -87,7 +87,7 @@ symbol date num_trades ... volume datetime minute
 1280 0700.HK 20260130 140.0 ... 62900.0 2026-01-30 11:00:00 110000
 ```
 
-##### 3.4.2. 取得多支股票的10分鐘線數據
+#### 取得多支股票的10分鐘線數據
 
 ```python
 import tqx_data
@@ -119,11 +119,11 @@ symbol date datetime ... close volume amount
 293 0700.HK 20260130 2026-01-30 11:00:00 ... 614.50 296100.0 181953450.0
 ```
 
-### 4. 取得美股分鐘線數
+## 取得美股分鐘線數
 
-#### 4.1. 方法名稱：get_us_min
+### 方法名稱：get_us_min
 
-#### 4.2. 入參
+### 入參
 
 | 欄位 | 類型 | 說明 | 是否必填 |
 |:---|:---|:---|:---|
@@ -134,7 +134,7 @@ symbol date datetime ... close volume amount
 | time_zone | Optional\[tuple\] | 時段過濾,格式為("HH:MM", "HH:MM")，例如("10:00", "23:00") | 非必填 |
 | frequency | Optional\[str\] | 頻率, 支援 "1m", "5m", "10m", "60m",預設為"1m" | 非必填 |
 
-#### 4.3. 回應參數
+### 回應參數
 
 | 字段 | 類型 | 描述 |
 |:------------|:-------|:---------------------------|
@@ -168,9 +168,9 @@ symbol date datetime ... close volume amount
 | ask | double | 收盤賣盤價 |
 | ask_nummov | double | 賣盤變動次數 |
 
-#### 4.4. 使用範例
+### 使用範例
 
-##### 4.4.1. 取得單一股票的1分鐘線資料並使用fields
+#### 取得單一股票的1分鐘線資料並使用fields
 
 ```python
 import tqx_data
@@ -202,7 +202,7 @@ symbol us_date num_trades ... volume us_datetime us_minute
 1219 AAPL.NB 20260130 504.0 ... 100017.0 2026-01-30 11:00:00 110000
 ```
 
-##### 4.4.2. 取得多檔股票的10分鐘線數據
+#### 取得多檔股票的10分鐘線數據
 
 ```python
 import tqx_data
@@ -235,3 +235,4 @@ symbol us_date ... us_datetime us_minute
 ```
 
 5\. **取得港美股即時分鐘線數據**
+

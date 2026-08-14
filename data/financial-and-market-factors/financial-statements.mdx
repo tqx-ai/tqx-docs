@@ -1,13 +1,13 @@
----
+﻿---
 title: "Financial statements"
 description: "Retrieve point-in-time quarterly financial statements for research and backtesting."
 ---
 
-### 2. Get quarterly financial reports
+## Get quarterly financial reports
 
-#### 2.1. Method name: get_financial_statement
+### Method name: get_financial_statement
 
-#### 2.2. Enter parameters
+### Enter parameters
 
 | Field | Type | Description | Is it required |
 |:---|:---|:---|:---|
@@ -20,7 +20,7 @@ description: "Retrieve point-in-time quarterly financial statements for research
 | fields | Optional\[Union\[str, list\]\] | Return fields; it is recommended to pass the list explicitly. The interface will automatically add `symbol`, `fy_period`, `date` | Optional |
 | interim_type | str | Report caliber, optional `cumulative` (cumulative, default) or `single` (single quarter) | Optional |
 
-#### 2.2.1. `is_latest` selection rules (actual test in production environment)
+### `is_latest` selection rules (actual test in production environment)
 
 The granularity of `is_latest` is **each stock**, not "each financial period for each stock":
 
@@ -41,7 +41,7 @@ The granularity of `is_latest` is **each stock**, not "each financial period for
 After omitting `date` in the same test, the US stock market returned the record with the announcement date of `20260225/20260609`, and the Hong Kong stock market returned
 Records of `20260526/20260601`. If the strategy is backtested in 2025, these records will not be visible at that time and are therefore prohibited from being used for historical decision-making.
 
-#### 2.2.2. Full parameter production testing experience
+### Full parameter production testing experience
 
 2026-07-25 All parameters were verified one by one on the production computing power node. The usage experience is as follows:
 
@@ -58,7 +58,7 @@ Records of `20260526/20260601`. If the strategy is backtested in 2025, these rec
 Silent ignoring of `fields` is particularly dangerous. For example, requesting `fields=["not_a_real_field"]` did not report an error, but only returned the automatically supplemented
 `symbol`, `fy_period`, `date`. Therefore the Agent must perform a `required_fields <= set(df.columns)` check before calculation.
 
-#### 2.2.3. Dynamic timing rules for one-year backtesting
+### Dynamic timing rules for one-year backtesting
 
 Financial reports are generally disclosed on a quarterly basis, but different companies have different announcement dates. If fundamentals determine stock qualification, the one-year backtest must be repeated on each rebalancing date.
 Calculate point-in-time financial factors; the qualified bond pool at the starting point of the backtest cannot be fixed for one year. Production testing results in:
@@ -82,9 +82,9 @@ This is not a future data problem, but a static coupon pool using expired fundam
 The order cannot be changed to "first deduplicate all the data on the end date of the backtest, and then filter by the rebalancing date", otherwise the subsequent restatement version may cover the earlier visible data at that time.
 version. Each section must verify `max(source_date) <= rebalance_date`.
 
-#### 2.3. Response parameters
+### Response parameters
 
-##### 2.3.1. Response parameters
+#### Response parameters
 
 | Field | Type | Description |
 |:----------|:-------|:---------------------------------|
@@ -1497,9 +1497,9 @@ Income statement(is)
 | is_effective_tax_rate | Double | Actual effective tax rate |
 | is_statutory_tax_rate | Double | Normal effective statutory tax rate |
 
-#### 2.4. Usage examples
+### Usage examples
 
-##### 2.4.1. Obtain the financial quarterly report of a certain stock in a certain quarter
+#### Obtain the financial quarterly report of a certain stock in a certain quarter
 
 ```python
 import tqx_data
@@ -1525,7 +1525,7 @@ symbol fy_period date ... is_write_off_real_estate is_zakat quarter
 14 0700.HK FY2023Q3 20231115 ... None None 2023q3
 ```
 
-##### 2.4.2. Get the latest financial quarterly report of a certain stock in a certain quarter and use fields
+#### Get the latest financial quarterly report of a certain stock in a certain quarter and use fields
 
 ```python
 import tqx_data
@@ -1553,7 +1553,7 @@ symbol fy_period date bs_asset_accruals
 The "latest" here means the largest row of `0700.HK` in `20241014` and the previous announcement date. It does not return the respective
 latest version and therefore cannot be used directly for year-over-year calculations.
 
-##### 2.4.3. Historical cross-section and year-on-year calculation
+#### Historical cross-section and year-on-year calculation
 
 ```python
 import re
@@ -1663,7 +1663,7 @@ Revenue, gross profit, and operating cash flow may only populate one of the comp
 After selecting the field, first use `pd.to_numeric(..., errors="coerce")` to convert, delete empty strings, `NaN` and plus or minus infinity; the income is year-on-year
 Revenue for the same fiscal period last year must be greater than 0. Fiscal periods should be matched by the actual suffix of the `fy_period` returned, do not assume that all markets only return quarterly format.
 
-##### 2.4.4. Constructing a dynamic financial panel without future data for one-year backtesting
+#### Constructing a dynamic financial panel without future data for one-year backtesting
 
 The following demonstrates the key sequence of prefetching and slicing on a bin-by-bin basis. `period_sort_key`, `previous_year_period` and field cleaning can be reused
 Functions in the previous section:
@@ -1736,6 +1736,4 @@ If the rebalancing frequency is every 5 trading days, the panel is also generate
 The judgment must be updated on the next rebalancing day after the new announcement. Do not re-query the interface in `handle_data` for each bar. It should be done in the offline phase or
 Build and cache the panel once in `initialize`.
 
-**4. Trading Tools**
 
-**1. Get exchange rate data**

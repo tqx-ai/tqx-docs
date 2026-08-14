@@ -1,13 +1,13 @@
----
+﻿---
 title: "市場事件"
 description: "取得股息、市場活動、公司、披露與投資者關係事件。"
 ---
 
-### 3. 取得股票股利相關的事件
+## 取得股票股利相關的事件
 
-#### 3.1. 方法名稱：get_event_devidend
+### 方法名稱：get_event_devidend
 
-#### 3.2. 入參
+### 入參
 
 | 欄位 | 類型 | 說明 | 是否必填 |
 |:---|:---|:---|:---|
@@ -17,7 +17,7 @@ description: "取得股息、市場活動、公司、披露與投資者關係事
 | fields | Optional\[Union\[str, List\[str\]\]\] | 傳回欄位 | 非必填 |
 | market | str | 市場，支持"hk" ,"us"，預設為"hk" | 必填 |
 
-#### 3.3. 回應參數
+### 回應參數
 
 | 字段 | 類型 | 描述 |
 |:-------------|:-----|:---------------------------------|
@@ -29,9 +29,9 @@ description: "取得股息、市場活動、公司、披露與投資者關係事
 | currency | str | 交易幣種 |
 | event | str | 事件 |
 
-#### 3.4. 使用範例
+### 使用範例
 
-##### 3.4.1. 取得某一港股分紅在一定時間內股股相關的事件
+#### 取得某一港股分紅在一定時間內股股相關的事件
 
 ```python
 import tqx_data
@@ -56,7 +56,7 @@ symbol publish_date ... currency event
 4 9999.HK 20260313 ... USD 9999.HK Final Cash Dividend of gross USD 0.232...
 ```
 
-##### 3.4.2. 取得某段時間全部美股分紅相關的事件
+#### 取得某段時間全部美股分紅相關的事件
 
 ```python
 import tqx_data
@@ -87,11 +87,11 @@ symbol publish_date ... currency event
 14437 ZWS.NB 20260220 ... USD ZWS.NB Interim Cash Dividend of gross USD 0.11...
 ```
 
-### 4. 與市場活動相關的事件
+## 與市場活動相關的事件
 
-#### 4.1. 方法名稱：get_event_capital_market
+### 方法名稱：get_event_capital_market
 
-#### 4.2. 入參
+### 入參
 
 | 欄位 | 類型 | 說明 | 是否必填 |
 |:---|:---|:---|:---|
@@ -101,7 +101,7 @@ symbol publish_date ... currency event
 | fields | Optional\[Union\[str, List\[str\]\]\] | 傳回欄位 | 非必填 |
 | market | str | 市場，支持"hk" ,"us"，預設為"hk" | 必填 |
 
-#### 4.3. 回應參數
+### 回應參數
 
 | 字段 | 類型 | 描述 |
 |:---------------|:-----|:-------------------------------------------|
@@ -113,9 +113,9 @@ symbol publish_date ... currency event
 | fiscal_quarter | str | 財政年度季度（若事件不涉及財年季度則此列為空） |
 | event | str | 事件 |
 
-#### 4.4. 使用範例
+### 使用範例
 
-##### 4.4.1. 取得某段時間全部港股市場活動相關的事件
+#### 取得某段時間全部港股市場活動相關的事件
 
 ```python
 import tqx_data
@@ -146,11 +146,11 @@ symbol start_date ... event_type fiscal_quarter
 282 9981.HK 20260213 ... SecondaryPricings None
 ```
 
-### 5. 取得公司會議相關的事件
+## 取得公司會議相關的事件
 
-#### 5.1. 方法名稱：get_event_corporate_actions
+### 方法名稱：get_event_corporate_actions
 
-#### 5.2. 入參
+### 入參
 
 | 欄位 | 類型 | 說明 | 是否必填 |
 |:---|:---|:---|:---|
@@ -160,7 +160,7 @@ symbol start_date ... event_type fiscal_quarter
 | fields | Optional\[Union\[str, List\[str\]\]\] | 傳回欄位 | 非必填 |
 | market | str | 市場，支持"hk" ,"us"，預設為"hk" | 必填 |
 
-#### 5.3. 回應參數
+### 回應參數
 
 | 字段 | 類型 | 描述 |
 |:---------------|:-----|:-------------------------------------------|
@@ -172,9 +172,9 @@ symbol start_date ... event_type fiscal_quarter
 | fiscal_quarter | str | 財政年度季度（若事件不涉及財年季度則此列為空） |
 | event | str | 事件 |
 
-#### 5.4. 使用範例
+### 使用範例
 
-##### 5.4.1. 取得某段時間全部港股公司會議相關的事件
+#### 取得某段時間全部港股公司會議相關的事件
 
 ```python
 import tqx_data
@@ -205,11 +205,11 @@ symbol start_date ... event_type fiscal_quarter
 5202 9999.HK 20250625 ... ShareholderAndAnnualMeetings None
 ```
 
-### 6. 取得財務揭露相關的事件
+## 取得財務揭露相關的事件
 
-#### 6.1. 方法名稱：get_event_fina_disclosure
+### 方法名稱：get_event_fina_disclosure
 
-#### 6.2. 入參
+### 入參
 
 | 欄位 | 類型 | 說明 | 是否必填 |
 |:---|:---|:---|:---|
@@ -219,7 +219,7 @@ symbol start_date ... event_type fiscal_quarter
 | fields | Optional\[Union\[str, List\[str\]\]\] | 傳回欄位 | 非必填 |
 | market | str | 市場，支持"hk" ,"us"，預設為"hk" | 必填 |
 
-#### 6.3. 回應參數
+### 回應參數
 
 | 字段 | 類型 | 描述 |
 |:---------------|:-----|:-------------------------------------------|
@@ -231,9 +231,9 @@ symbol start_date ... event_type fiscal_quarter
 | fiscal_quarter | str | 財政年度季度（若事件不涉及財年季度則此列為空） |
 | event | str | 事件 |
 
-#### 6.4. 使用範例
+### 使用範例
 
-##### 6.4.1. 取得某一時間內全部港股財務批量相關的事件
+#### 取得某一時間內全部港股財務批量相關的事件
 
 ```python
 import tqx_data
@@ -264,11 +264,11 @@ symbol start_date ... event_type fiscal_quarter
 9251 9999.HK 20260211 ... EarningsCallsAndPresentations 2025q4
 ```
 
-### 7. 取得投資者關係活動相關的事件
+## 取得投資者關係活動相關的事件
 
-#### 7.1. 方法名稱：get_event_investor_relation_activities
+### 方法名稱：get_event_investor_relation_activities
 
-#### 7.2. 入參
+### 入參
 
 | 欄位 | 類型 | 說明 | 是否必填 |
 |:---|:---|:---|:---|
@@ -278,7 +278,7 @@ symbol start_date ... event_type fiscal_quarter
 | fields | Optional\[Union\[str, List\[str\]\]\] | 傳回欄位 | 非必填 |
 | market | str | 市場，支持"hk" ,"us"，預設為"hk" | 必填 |
 
-#### 7.3. 回應參數
+### 回應參數
 
 | 字段 | 類型 | 描述 |
 |:---------------|:-----|:-------------------------------------------|
@@ -290,9 +290,9 @@ symbol start_date ... event_type fiscal_quarter
 | fiscal_quarter | str | 財政年度季度（若事件不涉及財年季度則此列為空） |
 | event | str | 事件 |
 
-#### 7.4. 使用範例
+### 使用範例
 
-##### 7.4.1. 取得某一時間內全部港股財務批量相關的事件
+#### 取得某一時間內全部港股財務批量相關的事件
 
 ```python
 import tqx_data
@@ -322,3 +322,4 @@ symbol start_date ... event_type fiscal_quarter
 744 9987.HK 20251113 ... ConferencePresentations None
 745 9988.HK 20250917 ... ConferencePresentations None
 ```
+

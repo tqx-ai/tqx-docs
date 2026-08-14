@@ -1,18 +1,20 @@
----
+﻿---
 title: "Tick 數據"
 description: "取得港股與美股的最新 Tick 資料。"
 ---
 
-#### 6.1. 方法名稱：get_tick_data
+## 取得 Tick 資料
 
-#### 6.2. 入參
+### 方法名稱：get_tick_data
+
+### 入參
 
 | 字段 | 類型 | 描述 |
 |:---|:---|:---|
 | symbol | Optional\[Union\[str, List\[str\]\]\] | 股票代號 |
 | market | Optional\[str\] | 市場，預設為‘hk’, 可選‘hk’，‘nb’ |
 
-#### 6.3. 回應參數
+### 回應參數
 
 | 字段 | 類型 | 描述 |
 |:-------------|:-------|:---------------|
@@ -22,9 +24,9 @@ description: "取得港股與美股的最新 Tick 資料。"
 | price_change | double | 價格變動 |
 | percentage | double | 價格百分比變化 |
 
-#### 6.4. 使用範例
+### 使用範例
 
-##### 6.4.1. 取得1檔股票的最新tick數據
+#### 取得1檔股票的最新tick數據
 
 ```python
 import tqx_data
@@ -42,7 +44,7 @@ symbol last_price date
 0 0700.HK 516.0 2026-03-24 15:59:59.000
 ```
 
-##### 6.4.2. 取得全港股的最新tick數據
+#### 取得全港股的最新tick數據
 
 ```python
 import tqx_data
@@ -69,7 +71,7 @@ symbol date last_price
 2735 9999.HK 2026-03-24 15:59:53.000 177.300
 ```
 
-##### 6.4.3. 取得全美股的最新tick數據
+#### 取得全美股的最新tick數據
 
 ```python
 import tqx_data
@@ -97,3 +99,4 @@ symbol date last_price
 ```
 
 **7.指標計算介面**
+

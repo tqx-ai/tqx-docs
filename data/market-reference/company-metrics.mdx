@@ -1,13 +1,13 @@
----
+﻿---
 title: "Company metrics"
 description: "Retrieve standardized operating, financial, industry, and price-volume metrics."
 ---
 
-### 14. Obtain the company's standardized operating indicators
+## Obtain the company's standardized operating indicators
 
-#### 14.1. Method name: get_company_oper_metrics
+### Method name: get_company_oper_metrics
 
-#### 14.2. Enter parameters
+### Enter parameters
 
 | Field | Type | Description | Is it required |
 |:---|:---|:---|:---|
@@ -17,7 +17,7 @@ description: "Retrieve standardized operating, financial, industry, and price-vo
 | fields | Optional\[Union\[str, List\[str\]\]\] | Return fields | Optional |
 | market | str | Market, supports "hk", "us", default is "hk" | required |
 
-#### 14.3. Response parameters
+### Response parameters
 
 | Field | Type | Description |
 |:--------------------------|:-------|:----------------------|
@@ -36,9 +36,9 @@ description: "Retrieve standardized operating, financial, industry, and price-vo
 | item_currency | str | Indicator currency unit |
 | item_num | double | indicator value |
 
-#### 14.4. Usage examples
+### Usage examples
 
-##### 14.4.1. Obtain the standardized operating indicators of all Hong Kong stock companies in a certain fiscal year
+#### Obtain the standardized operating indicators of all Hong Kong stock companies in a certain fiscal year
 
 ```python
 import tqx_data
@@ -69,11 +69,11 @@ symbol is_final financial_year ... item_unit item_currency item_num
 3277 9993.HK 0 2025 ... Units CNY 7914.030000
 ```
 
-### 15. Obtain the company’s latest market financial statistical indicators
+## Obtain the company’s latest market financial statistical indicators
 
-#### 15.1. Method name: get_company_current
+### Method name: get_company_current
 
-#### 15.2. Enter parameters
+### Enter parameters
 
 | Field | Type | Description | Is it required |
 |:---|:---|:---|:---|
@@ -81,7 +81,7 @@ symbol is_final financial_year ... item_unit item_currency item_num
 | fields | Optional\[Union\[str, List\[str\]\]\] | Return fields | Optional |
 | market | str | Market, supports "hk", "us", default is "hk" | required |
 
-#### 15.3. Response parameters
+### Response parameters
 
 Note: The data is refreshed daily. For each field of each symbol, the latest known date data will be returned as much as possible.
 
@@ -236,9 +236,9 @@ Note: The data is refreshed daily. For each field of each symbol, the latest kno
 | curr_low_to_pb | double | 52-week low price/book value per share |
 | curr_low_to_pb_issue | double | 52-week low price/book value per share (issue specific) |
 
-#### 15.4. Usage examples
+### Usage examples
 
-##### 15.4.1. Obtain the latest partial market financial statistical indicators of all Hong Kong stock companies
+#### Obtain the latest partial market financial statistical indicators of all Hong Kong stock companies
 
 ```python
 import tqx_data
@@ -267,11 +267,11 @@ symbol date curr_price_to_dps_issue_ttm curr_div_yld_gross_issue_ratio curr_fcf_
 5655 9999.HK 20260422 37.359101 2.677018 NaN
 ```
 
-### 16. Get the company’s latest industry median statistics
+## Get the company’s latest industry median statistics
 
-#### 16.1. Method name: get_company_imed
+### Method name: get_company_imed
 
-#### 16.2. Enter parameters
+### Enter parameters
 
 | Field | Type | Description | Is it required |
 |:---|:---|:---|:---|
@@ -279,7 +279,7 @@ symbol date curr_price_to_dps_issue_ttm curr_div_yld_gross_issue_ratio curr_fcf_
 | fields | Optional\[Union\[str, List\[str\]\]\] | Return fields | Optional |
 | market | str | Market, supports "hk", "us", default is "hk" | required |
 
-#### 16.3. Response parameters
+### Response parameters
 
 | Field | Type | Description |
 |:---|:---|:---|
@@ -491,9 +491,9 @@ symbol date curr_price_to_dps_issue_ttm curr_div_yld_gross_issue_ratio curr_fcf_
 | imed_fwd_ps_ntm | double | Forward share price/sales per share, industry median - next twelve months |
 | imed_fwd_total_debt_to_ebitda_ntm | double | Forward-looking total debt/EBITDA, industry median - next twelve months |
 
-#### 16.4. Usage examples
+### Usage examples
 
-##### 16.4.1. Obtain the latest median statistical data of some industries for all Hong Kong stock companies
+#### Obtain the latest median statistical data of some industries for all Hong Kong stock companies
 
 ```python
 import tqx_data
@@ -522,11 +522,11 @@ symbol date imed_net_trade_cycle_days_ttm imed_pretax_roa_ratio_ttm
 535 9991.HK 20260421 NaN 5.831199
 ```
 
-### 17. Obtain the company’s latest price and volume indicator data
+## Obtain the company’s latest price and volume indicator data
 
-#### 17.1. Method name: get_company_price_vol
+### Method name: get_company_price_vol
 
-#### 17.2. Enter parameters
+### Enter parameters
 
 | Field | Type | Description | Is it required |
 |:---|:---|:---|:---|
@@ -534,7 +534,7 @@ symbol date imed_net_trade_cycle_days_ttm imed_pretax_roa_ratio_ttm
 | fields | Optional\[Union\[str, List\[str\]\]\] | Return fields | Optional |
 | market | str | Market, supports "hk", "us", default is "hk" | required |
 
-#### 17.3. Response parameters
+### Response parameters
 
 | Field | Type | Description |
 |:-----------------------|:-------|:--------------------------------|
@@ -567,9 +567,9 @@ symbol date imed_net_trade_cycle_days_ttm imed_pretax_roa_ratio_ttm
 | pv_avg_vol_90d | double | 90-day average trading volume |
 | pv_avg_val_3m | double | 3-month average daily transaction amount |
 
-#### 17.4. Usage examples
+### Usage examples
 
-##### 17.4.1. Obtain the shareholder shareholding report of a certain Hong Kong stock company within a certain period of time
+#### Obtain the shareholder shareholding report of a certain Hong Kong stock company within a certain period of time
 
 ```python
 import tqx_data
@@ -597,3 +597,4 @@ symbol pv_beta_5y pv_rel_return_26w
 2853 9998.HK 0.748572 -16.618340
 2854 9999.HK 0.883445 -23.775904
 ```
+

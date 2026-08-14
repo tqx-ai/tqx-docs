@@ -1,13 +1,13 @@
----
+﻿---
 title: "Stock details"
 description: "Retrieve reference information for listed stocks."
 ---
 
-### 1. Get detailed information of stocks
+## Get detailed information of stocks
 
-#### 1.1. Method name: get_stock_detail
+### Method name: get_stock_detail
 
-#### 1.2. Enter parameters
+### Enter parameters
 
 | **Field** | **Type** | **Description** | **Is it required** |
 |:---|:---|:---|:---|
@@ -16,9 +16,9 @@ description: "Retrieve reference information for listed stocks."
 | market | Optional\[str\] | Market, supports hk, us, default hk | Optional |
 | status | Optional\[int\] | Whether in the market, 1 - in the market, 0 - delisted, -1 - unknown | Optional |
 
-#### 1.3. Response parameters
+### Response parameters
 
-##### 1.3.1. hk corresponding parameters
+#### hk corresponding parameters
 
 | Field | Type | Description |
 |:------------------------|:-----|:-----------------|
@@ -45,7 +45,7 @@ description: "Retrieve reference information for listed stocks."
 | website | str | company website |
 | listed_date | str | listing date |
 
-##### 1.3.2. us corresponding parameters
+#### us corresponding parameters
 
 | Field | Type | Description |
 |:------------------------|:-----|:-----------------|
@@ -73,9 +73,9 @@ description: "Retrieve reference information for listed stocks."
 | postal_code | str | Headquarters postal code |
 | website | str | company website |
 
-#### 1.4. Usage examples
+### Usage examples
 
-##### 1.4.1. Hong Kong stocks
+#### Hong Kong stocks
 
 ```python
 import tqx_data
@@ -97,7 +97,7 @@ symbol abbrev_symbol ... status trading_code
 2 0003.HK HKCNG ... 1 0003|864603
 ```
 
-##### 1.4.2. US stocks
+#### US stocks
 
 ```python
 import tqx_data
@@ -119,7 +119,7 @@ symbol abbrev_symbol ... status trading_code
 2 ZYXIQ.NB ZYXIQ ... 0 None
 ```
 
-##### 1.4.3. Get all Hong Kong stock codes
+#### Get all Hong Kong stock codes
 
 ```python
 import tqx_data
@@ -149,7 +149,7 @@ symbol
 3228 UNTX.HK
 ```
 
-##### 1.4.4. Get all US stock codes
+#### Get all US stock codes
 
 ```python
 import tqx_data
@@ -178,3 +178,4 @@ symbol
 7795 ZYRX.NB
 7796 ZYXIQ.NB
 ```
+

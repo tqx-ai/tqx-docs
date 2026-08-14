@@ -1,11 +1,13 @@
----
+﻿---
 title: "Live minute data"
 description: "Retrieve live minute bars for Hong Kong and US stocks."
 ---
 
-#### 5.1. Method name: get_min_data
+## Retrieve live minute data
 
-#### 5.2. Enter parameters
+### Method name: get_min_data
+
+### Enter parameters
 
 | Field | Type | Description | Is it required |
 |:---|:---|:---|:---|
@@ -14,7 +16,7 @@ description: "Retrieve live minute bars for Hong Kong and US stocks."
 | market | Optional\[str\] | Market, default is ‘hk’, optional ‘hk’, ‘nb’ | Optional |
 | frequency | Optional\[str\] | Frequency, supports "1m", "5m", "10m", "60m", default is "1m" | Optional |
 
-#### 5.3. Response parameters
+### Response parameters
 
 | Field | Type | Description |
 |:-------|:-------|:-------------|
@@ -27,9 +29,9 @@ description: "Retrieve live minute bars for Hong Kong and US stocks."
 | volume | double | minute volume |
 | amount | double | minute transaction amount |
 
-#### 5.4. Usage examples
+### Usage examples
 
-##### 5.4.1. Get real-time minute line data of 2 stocks
+#### Get real-time minute line data of 2 stocks
 
 ```python
 import tqx_data
@@ -57,7 +59,7 @@ symbol date open ... close volume amount
 999 AAPL.NB 2026-03-18 23:17:00 252.38 ... 252.5082 16155.0 4.078721e+06
 ```
 
-##### 5.4.2. Obtain real-time minute line data of all Hong Kong stocks
+#### Obtain real-time minute line data of all Hong Kong stocks
 
 ```python
 import tqx_data
@@ -86,7 +88,7 @@ symbol date open ... close volume amount
 1365652 0855.HK 2026-03-18 15:59:00 5.340 ... 5.340 2000.0 10680.0
 ```
 
-##### 5.4.3. Obtain real-time minute line data of U.S. stocks
+#### Obtain real-time minute line data of U.S. stocks
 
 ```python
 import tqx_data
@@ -115,7 +117,7 @@ symbol date open ... close volume amount
 3241079 WDH.NB 2026-03-18 23:24:00 1.7200 ... 1.7100 0.0 0.00
 ```
 
-##### 5.4.4. Obtain real-time 10-minute line data of all Hong Kong stocks
+#### Obtain real-time 10-minute line data of all Hong Kong stocks
 
 ```python
 import tqx_data
@@ -145,7 +147,7 @@ symbol date amount ... low open volume
 1356079 9999.HK 2026-04-16 14:10:00 24277210.0 ... 185.90 186.0 130500.0
 ```
 
-##### 5.4.5. Get real-time 5-minute line data of U.S. stocks
+#### Get real-time 5-minute line data of U.S. stocks
 
 ```python
 import tqx_data
@@ -176,3 +178,4 @@ symbol date open ... close volume amount
 ```
 
 **6. Obtain the latest tick data of Hong Kong and US stocks**
+

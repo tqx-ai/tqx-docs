@@ -1,11 +1,13 @@
----
+﻿---
 title: "技術指標"
 description: "從行情資料計算技術指標。"
 ---
 
-#### 7.1. 方法名稱：calculate_indicators
+## 計算技術指標
 
-#### 7.2. 入參
+### 方法名稱：calculate_indicators
+
+### 入參
 
 
 | 字段 | 類型 | 描述 |
@@ -14,7 +16,7 @@ description: "從行情資料計算技術指標。"
 | indicator_params | Dict[str, Dict] | 指標參數字典。格式：`{"rsi": {"period": 7, "limit": 30}, "macd": {"period": 26, "limit": 30}}`。`period` 為必填；MACD 的 `period` 代表慢線週期。`limit` 為選填，預設等於 `period`。支援的指標：rsi、macd、atr、ema、boll |
 
 
-#### 7.3 回應參數
+### 回應參數
 
 | 字段 | 類型 | 描述 |
 |:---------------|:-------|:------------------|
@@ -25,7 +27,7 @@ description: "從行情資料計算技術指標。"
 | ema\_{period} | Double | EMA 指標結果清單 |
 | boll\_{period} | Double | BOLL 指標結果清單 |
 
-#### 7.4 使用範例
+### 使用範例
 
 ```python
 import tqx_data
@@ -62,3 +64,4 @@ print(result)
 }
 }
 ```
+

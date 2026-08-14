@@ -1,13 +1,13 @@
----
+﻿---
 title: "Backtest factors"
 description: "Retrieve financial and market factors for Hong Kong and US backtests."
 ---
 
-### 1. Get backtest factors for Hong Kong and US stocks
+## Get backtest factors for Hong Kong and US stocks
 
-#### 1.1. Method name: get_factor
+### Method name: get_factor
 
-#### 1.2. Enter parameters
+### Enter parameters
 
 | Field | Type | Description | Is it required |
 |:---|:---|:---|:---|
@@ -17,7 +17,7 @@ description: "Retrieve financial and market factors for Hong Kong and US backtes
 | factors | Union\[str, List\[str\]\] | Factor list | Required |
 | type | Optional\[str\] | Product type, supports "hk", "nb", default is "hk" | Optional |
 
-#### 1.3. Response parameters
+### Response parameters
 
 Basic factor class:
 
@@ -33,9 +33,9 @@ Basic factor class:
 | amount | double | transaction amount |
 | pre_close | double | previous day's closing price |
 
-#### 1.4. Usage examples
+### Usage examples
 
-##### 1.4.1. Obtain some backtest factors of a single Hong Kong stock
+#### Obtain some backtest factors of a single Hong Kong stock
 
 ```python
 import tqx_data
@@ -76,7 +76,7 @@ symbol date close
 20 0700.HK 20260102 697.9786
 ```
 
-##### 1.4.2. Obtain some backtest factors of a single US stock
+#### Obtain some backtest factors of a single US stock
 
 ```python
 import tqx_data
@@ -115,3 +115,4 @@ symbol date volume
 18 AAPL.NB 20260105 45647190.0
 19 AAPL.NB 20260102 37838054.0
 ```
+

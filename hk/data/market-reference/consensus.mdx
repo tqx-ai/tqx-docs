@@ -1,13 +1,13 @@
----
+﻿---
 title: "一致預期"
 description: "取得一致預期與分析師買賣建議。"
 ---
 
-### 18. 取得非週期性指標一致預期
+## 取得非週期性指標一致預期
 
-#### 18.1. 方法名稱：get_consensus_nonperiod
+### 方法名稱：get_consensus_nonperiod
 
-#### 18.2. 入參
+### 入參
 
 | 欄位 | 類型 | 說明 | 是否必填 |
 |:---|:---|:---|:---|
@@ -15,7 +15,7 @@ description: "取得一致預期與分析師買賣建議。"
 | fields | Optional\[Union\[str, List\[str\]\]\] | 傳回欄位 | 非必填 |
 | market | str | 市場，支持"hk" ,"us"，預設為"hk" | 必填 |
 
-#### 18.3. 回應參數
+### 回應參數
 
 註：對於除symbol，currency，indicator外的參數預設是最新日期的預測，且有歷史維度衍生字段，衍生後綴有week，1month~12month對每個字段構成共十三個衍生字段，表示對應字段在一周，一個月~十二個月前的預測值
 
@@ -34,9 +34,9 @@ description: "取得一致預期與分析師買賣建議。"
 | estimates_num | double | 預測數 |
 | included_estimates_num | double | 納入統計的預測數 |
 
-#### 18.4. 使用範例
+### 使用範例
 
-##### 18.4.1. 取得全港股非週期性指標的部分一致預期
+#### 取得全港股非週期性指標的部分一致預期
 
 ```python
 import tqx_data
@@ -65,11 +65,11 @@ symbol indicator mean std_6month high_week
 976 9999.HK TP 235.88571 46.77894 289.00
 ```
 
-### 19. 取得買賣建議一致預期
+## 取得買賣建議一致預期
 
-#### 19.1. 方法名稱：get_consensus_recommend
+### 方法名稱：get_consensus_recommend
 
-#### 19.2. 入參
+### 入參
 
 | 欄位 | 類型 | 說明 | 是否必填 |
 |:---|:---|:---|:---|
@@ -77,7 +77,7 @@ symbol indicator mean std_6month high_week
 | fields | Optional\[Union\[str, List\[str\]\]\] | 傳回欄位 | 非必填 |
 | market | str | 市場，支持"hk" ,"us"，預設為"hk" | 必填 |
 
-#### 19.3. 回應參數
+### 回應參數
 
 註1：對於除symbol，currency外的參數預設是最新日期的預測，且有歷史維度衍生字段，衍生後綴有week，1month~12month對每個字段構成共十三個衍生字段，表示對應字段在一周，一個月~十二個月前的預測值
 
@@ -100,9 +100,9 @@ symbol indicator mean std_6month high_week
 | no_opinion_num | double | 無意見數 |
 | recommendations_num | double | 推薦總數 |
 
-#### 19.4. 使用範例
+### 使用範例
 
-##### 19.4.1. 取得全港股買賣建議的部分一致預期
+#### 取得全港股買賣建議的部分一致預期
 
 ```python
 import tqx_data
@@ -134,3 +134,4 @@ symbol strong_buy_num buy_num_week
 **三. 財務與市場因子**
 
 **1.取得港美股回測因子**
+

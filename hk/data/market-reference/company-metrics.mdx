@@ -1,13 +1,13 @@
----
+﻿---
 title: "公司指標"
 description: "取得標準化營運、財務、行業與價量指標。"
 ---
 
-### 14. 取得公司標準化營運指標
+## 取得公司標準化營運指標
 
-#### 14.1. 方法名稱：get_company_oper_metrics
+### 方法名稱：get_company_oper_metrics
 
-#### 14.2. 入參
+### 入參
 
 | 欄位 | 類型 | 說明 | 是否必填 |
 |:---|:---|:---|:---|
@@ -17,7 +17,7 @@ description: "取得標準化營運、財務、行業與價量指標。"
 | fields | Optional\[Union\[str, List\[str\]\]\] | 傳回欄位 | 非必填 |
 | market | str | 市場，支持"hk" ,"us"，預設為"hk" | 必填 |
 
-#### 14.3. 回應參數
+### 回應參數
 
 | 字段 | 類型 | 描述 |
 |:--------------------------|:-------|:----------------------|
@@ -36,9 +36,9 @@ description: "取得標準化營運、財務、行業與價量指標。"
 | item_currency | str | 指標貨幣單位 |
 | item_num | double | 指標值 |
 
-#### 14.4. 使用範例
+### 使用範例
 
-##### 14.4.1. 取得某財政年度全部港股公司標準化營運指標
+#### 取得某財政年度全部港股公司標準化營運指標
 
 ```python
 import tqx_data
@@ -69,11 +69,11 @@ symbol is_final financial_year ... item_unit item_currency item_num
 3277 9993.HK 0 2025 ... Units CNY 7914.030000
 ```
 
-### 15. 取得公司最新市場財務統計指標
+## 取得公司最新市場財務統計指標
 
-#### 15.1. 方法名稱：get_company_current
+### 方法名稱：get_company_current
 
-#### 15.2. 入參
+### 入參
 
 | 欄位 | 類型 | 說明 | 是否必填 |
 |:---|:---|:---|:---|
@@ -81,7 +81,7 @@ symbol is_final financial_year ... item_unit item_currency item_num
 | fields | Optional\[Union\[str, List\[str\]\]\] | 傳回欄位 | 非必填 |
 | market | str | 市場，支持"hk" ,"us"，預設為"hk" | 必填 |
 
-#### 15.3. 回應參數
+### 回應參數
 
 備註：資料每日刷新，對於每個symbol的每個欄位會盡可能傳回已知的最新日期的資料
 
@@ -236,9 +236,9 @@ symbol is_final financial_year ... item_unit item_currency item_num
 | curr_low_to_pb | double | 52週最低價/每股帳面價值 |
 | curr_low_to_pb_issue | double | 52週最低價/每股帳面價值（發行特定） |
 
-#### 15.4. 使用範例
+### 使用範例
 
-##### 15.4.1. 取得全港股公司最新的部分市場財務統計指標
+#### 取得全港股公司最新的部分市場財務統計指標
 
 ```python
 import tqx_data
@@ -267,11 +267,11 @@ symbol date curr_price_to_dps_issue_ttm curr_div_yld_gross_issue_ratio curr_fcf_
 5655 9999.HK 20260422 37.359101 2.677018 NaN
 ```
 
-### 16. 取得公司最新行業中位數統計數據
+## 取得公司最新行業中位數統計數據
 
-#### 16.1. 方法名稱：get_company_imed
+### 方法名稱：get_company_imed
 
-#### 16.2. 入參
+### 入參
 
 | 欄位 | 類型 | 說明 | 是否必填 |
 |:---|:---|:---|:---|
@@ -279,7 +279,7 @@ symbol date curr_price_to_dps_issue_ttm curr_div_yld_gross_issue_ratio curr_fcf_
 | fields | Optional\[Union\[str, List\[str\]\]\] | 傳回欄位 | 非必填 |
 | market | str | 市場，支持"hk" ,"us"，預設為"hk" | 必填 |
 
-#### 16.3. 回應參數
+### 回應參數
 
 | 字段 | 類型 | 描述 |
 |:---|:---|:---|
@@ -491,9 +491,9 @@ symbol date curr_price_to_dps_issue_ttm curr_div_yld_gross_issue_ratio curr_fcf_
 | imed_fwd_ps_ntm | double | 前瞻股價 / 每股銷售額，產業中位數 - 未來十二個月 |
 | imed_fwd_total_debt_to_ebitda_ntm | double | 前瞻總債務 / EBITDA，產業中位數 - 未來十二個月 |
 
-#### 16.4. 使用範例
+### 使用範例
 
-##### 16.4.1. 取得全港股公司最新的部分產業中位數統計數據
+#### 取得全港股公司最新的部分產業中位數統計數據
 
 ```python
 import tqx_data
@@ -522,11 +522,11 @@ symbol date imed_net_trade_cycle_days_ttm imed_pretax_roa_ratio_ttm
 535 9991.HK 20260421 NaN 5.831199
 ```
 
-### 17. 取得公司最新價量指標數據
+## 取得公司最新價量指標數據
 
-#### 17.1. 方法名稱：get_company_price_vol
+### 方法名稱：get_company_price_vol
 
-#### 17.2. 入參
+### 入參
 
 | 欄位 | 類型 | 說明 | 是否必填 |
 |:---|:---|:---|:---|
@@ -534,7 +534,7 @@ symbol date imed_net_trade_cycle_days_ttm imed_pretax_roa_ratio_ttm
 | fields | Optional\[Union\[str, List\[str\]\]\] | 傳回欄位 | 非必填 |
 | market | str | 市場，支持"hk" ,"us"，預設為"hk" | 必填 |
 
-#### 17.3. 回應參數
+### 回應參數
 
 | 字段 | 類型 | 描述 |
 |:-----------------------|:-------|:--------------------------------|
@@ -567,9 +567,9 @@ symbol date imed_net_trade_cycle_days_ttm imed_pretax_roa_ratio_ttm
 | pv_avg_vol_90d | double | 90日平均成交量 |
 | pv_avg_val_3m | double | 3個月平均日成交金額 |
 
-#### 17.4. 使用範例
+### 使用範例
 
-##### 17.4.1. 取得某一港股公司股東持股報告
+#### 取得某一港股公司股東持股報告
 
 ```python
 import tqx_data
@@ -597,3 +597,4 @@ symbol pv_beta_5y pv_rel_return_26w
 2853 9998.HK 0.748572 -16.618340
 2854 9999.HK 0.883445 -23.775904
 ```
+

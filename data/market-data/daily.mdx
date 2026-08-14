@@ -1,13 +1,13 @@
----
+﻿---
 title: "Daily market data"
 description: "Retrieve daily OHLCV data for Hong Kong and US stocks."
 ---
 
-### 1. Obtain daily data of Hong Kong stocks
+## Obtain daily data of Hong Kong stocks
 
-#### 1.1. Method name: get_hk_daily
+### Method name: get_hk_daily
 
-#### 1.2. Enter parameters
+### Enter parameters
 
 | Field | Type | Description | Is it required |
 |:---|:---|:---|:---|
@@ -16,7 +16,7 @@ description: "Retrieve daily OHLCV data for Hong Kong and US stocks."
 | symbol | Optional\[Union\[str, List\[str\]\]\] | Stock code | Optional |
 | fields | Optional\[Union\[str, List\[str\]\]\] | Return fields | Optional |
 
-#### 1.3. Response parameters
+### Response parameters
 
 | Field | Type | Description |
 |:-------------|:-------|:----------------------|
@@ -49,9 +49,9 @@ description: "Retrieve daily OHLCV data for Hong Kong and US stocks."
 | lolimit_3 | double | Level three price lower limit |
 | cls_aucvol | double | Closing auction period trading volume |
 
-#### 1.4. Usage examples
+### Usage examples
 
-##### 1.4.1. Obtain daily data of all Hong Kong stocks within a certain date
+#### Obtain daily data of all Hong Kong stocks within a certain date
 
 ```python
 import tqx_data
@@ -81,7 +81,7 @@ symbol date alt_close ... volume vwap vwap_vol
 55263 9999.HK 20250128 161.00 ... 3836508.0 160.9322 3628800.0
 ```
 
-##### 1.4.2. Obtain the daily data of some Hong Kong stocks within a certain date and limit the return fields
+#### Obtain the daily data of some Hong Kong stocks within a certain date and limit the return fields
 
 ```python
 import tqx_data
@@ -121,11 +121,11 @@ symbol date ask bid vwap
 20 0003.HK 20250102 6.11 6.10 6.1050
 ```
 
-### 2. Get daily data of US stocks
+## Get daily data of US stocks
 
-#### 2.1. Method name: get_us_daily
+### Method name: get_us_daily
 
-#### 2.2. Enter parameters
+### Enter parameters
 
 | Field | Type | Description | Is it required |
 |:---|:---|:---|:---|
@@ -134,7 +134,7 @@ symbol date ask bid vwap
 | symbol | Optional\[Union\[str, List\[str\]\]\] | Stock code | Optional |
 | fields | Optional\[Union\[str, List\[str\]\]\] | Return fields | Optional |
 
-#### 2.3. Response parameters
+### Response parameters
 
 | Field | Type | Description |
 |:-------------|:-------|:-----------------|
@@ -156,9 +156,9 @@ symbol date ask bid vwap
 | num_moves | double | number of transactions |
 | amount | double | transaction amount |
 
-#### 2.4. Usage examples
+### Usage examples
 
-##### 2.4.1. Obtain daily data of all US stocks within a certain date
+#### Obtain daily data of all US stocks within a certain date
 
 ```python
 import tqx_data
@@ -188,7 +188,7 @@ symbol date amount ... trade_status volume vwap
 128774 ZYME.NB 20260130 8614917.0 ... 0.0 560163.0 22.5178
 ```
 
-##### 2.4.2. Obtain the daily data of some US stocks within a certain date and limit the return fields
+#### Obtain the daily data of some US stocks within a certain date and limit the return fields
 
 ```python
 import tqx_data
@@ -246,3 +246,4 @@ symbol date volume close pre_close
 38 AAPL.NB 20250130 55658279.0 237.59 239.36
 39 AAPL.NB 20250131 101075128.0 236.00 237.59
 ```
+

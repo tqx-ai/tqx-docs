@@ -1,13 +1,13 @@
----
+﻿---
 title: "Consensus estimates"
 description: "Retrieve consensus estimates and analyst recommendations."
 ---
 
-### 18. Obtain consensus expectations of non-cyclical indicators
+## Obtain consensus expectations of non-cyclical indicators
 
-#### 18.1. Method name: get_consensus_nonperiod
+### Method name: get_consensus_nonperiod
 
-#### 18.2. Enter parameters
+### Enter parameters
 
 | Field | Type | Description | Is it required |
 |:---|:---|:---|:---|
@@ -15,7 +15,7 @@ description: "Retrieve consensus estimates and analyst recommendations."
 | fields | Optional\[Union\[str, List\[str\]\]\] | Return fields | Optional |
 | market | str | Market, supports "hk", "us", default is "hk" | required |
 
-#### 18.3. Response parameters
+### Response parameters
 
 Note: For parameters other than symbol, currency, and indicator, the default is the prediction of the latest date, and there are historical dimension derived fields. The derived suffix is ​​week, and 1month~12month constitutes a total of thirteen derived fields for each field, indicating the predicted value of the corresponding field one week, one month to twelve months ago.
 
@@ -34,9 +34,9 @@ Example: mean_week represents the predicted mean one week ago, std_6month repres
 | estimates_num | double | forecast number |
 | included_estimates_num | double | Number of forecasts included in statistics |
 
-#### 18.4. Usage examples
+### Usage examples
 
-##### 18.4.1. Obtain some consensus expectations of all Hong Kong stock non-cyclical indicators
+#### Obtain some consensus expectations of all Hong Kong stock non-cyclical indicators
 
 ```python
 import tqx_data
@@ -65,11 +65,11 @@ symbol indicator mean std_6month high_week
 976 9999.HK TP 235.88571 46.77894 289.00
 ```
 
-### 19. Obtain consensus expectations for buying and selling recommendations
+## Obtain consensus expectations for buying and selling recommendations
 
-#### 19.1. Method name: get_consensus_recommend
+### Method name: get_consensus_recommend
 
-#### 19.2. Enter parameters
+### Enter parameters
 
 | Field | Type | Description | Is it required |
 |:---|:---|:---|:---|
@@ -77,7 +77,7 @@ symbol indicator mean std_6month high_week
 | fields | Optional\[Union\[str, List\[str\]\]\] | Return fields | Optional |
 | market | str | Market, supports "hk", "us", default is "hk" | required |
 
-#### 19.3. Response parameters
+### Response parameters
 
 Note 1: For parameters other than symbol and currency, the default is the prediction of the latest date, and there are historical dimension derived fields. The derived suffix is ​​week, and 1month~12month constitutes a total of thirteen derived fields for each field, indicating the predicted value of the corresponding field one week, one month to twelve months ago.
 
@@ -100,9 +100,9 @@ Note 2: Strong sell, sell, hold, buy, and strong buy are scored as 5, 4, 3, 2, a
 | no_opinion_num | double | No opinion number |
 | recommendations_num | double | total number of recommendations |
 
-#### 19.4. Usage examples
+### Usage examples
 
-##### 19.4.1. Obtain some consensus expectations for all Hong Kong stock trading recommendations
+#### Obtain some consensus expectations for all Hong Kong stock trading recommendations
 
 ```python
 import tqx_data
@@ -134,3 +134,4 @@ symbol strong_buy_num buy_num_week
 **3. Financial and market factors**
 
 **1. Obtain Hong Kong and US stock backtest factors**
+

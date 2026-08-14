@@ -1,18 +1,20 @@
----
+﻿---
 title: "Tick data"
 description: "Retrieve the latest tick data for Hong Kong and US stocks."
 ---
 
-#### 6.1. Method name: get_tick_data
+## Retrieve tick data
 
-#### 6.2. Enter parameters
+### Method name: get_tick_data
+
+### Enter parameters
 
 | Field | Type | Description |
 |:---|:---|:---|
 | symbol | Optional\[Union\[str, List\[str\]\]\] | Stock code |
 | market | Optional\[str\] | Market, default is ‘hk’, optional ‘hk’, ‘nb’ |
 
-#### 6.3. Response parameters
+### Response parameters
 
 | Field | Type | Description |
 |:-------------|:-------|:---------------|
@@ -22,9 +24,9 @@ description: "Retrieve the latest tick data for Hong Kong and US stocks."
 | price_change | double | price change |
 | percentage | double | price percentage change |
 
-#### 6.4. Usage examples
+### Usage examples
 
-##### 6.4.1. Get the latest tick data of a stock
+#### Get the latest tick data of a stock
 
 ```python
 import tqx_data
@@ -42,7 +44,7 @@ symbol last_price date
 0 0700.HK 516.0 2026-03-24 15:59:59.000
 ```
 
-##### 6.4.2. Get the latest tick data of all Hong Kong stocks
+#### Get the latest tick data of all Hong Kong stocks
 
 ```python
 import tqx_data
@@ -69,7 +71,7 @@ symbol date last_price
 2735 9999.HK 2026-03-24 15:59:53.000 177.300
 ```
 
-##### 6.4.3. Get the latest tick data of U.S. stocks
+#### Get the latest tick data of U.S. stocks
 
 ```python
 import tqx_data
@@ -97,3 +99,4 @@ symbol date last_price
 ```
 
 **7.Indicator calculation interface**
+

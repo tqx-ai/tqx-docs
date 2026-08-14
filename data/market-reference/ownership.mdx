@@ -1,13 +1,13 @@
----
+﻿---
 title: "Ownership data"
 description: "Retrieve investor concentration, rankings, insider transactions, and shareholder reports."
 ---
 
-### 8. Obtain the company’s investor concentration ratio
+## Obtain the company’s investor concentration ratio
 
-#### 8.1. Method name: get_company_concentration
+### Method name: get_company_concentration
 
-#### 8.2. Enter parameters
+### Enter parameters
 
 | Field | Type | Description | Is it required |
 |:---|:---|:---|:---|
@@ -15,7 +15,7 @@ description: "Retrieve investor concentration, rankings, insider transactions, a
 | fields | Optional\[Union\[str, List\[str\]\]\] | Return fields | Optional |
 | market | str | Market, supports "hk", "us", default is "hk" | required |
 
-#### 8.3. Response parameters
+### Response parameters
 
 | Field | Type | Description |
 |:---------------------------|:-------|:-------------------------|
@@ -26,9 +26,9 @@ description: "Retrieve investor concentration, rankings, insider transactions, a
 | total_sharehold | double | total shareholding |
 | total_holdings_value | double | Total holdings value |
 
-#### 8.4. Usage examples
+### Usage examples
 
-##### 8.4.1. Obtain investor concentration data of all Hong Kong stock companies
+#### Obtain investor concentration data of all Hong Kong stock companies
 
 ```python
 import tqx_data
@@ -57,11 +57,11 @@ symbol currency ... total_sharehold total_holdings_value
 2711 9999.HK CNY ... 2.200467e+09 4.651509e+10
 ```
 
-### 9. Obtain the concentration ratio of the top 20 investors in the company
+## Obtain the concentration ratio of the top 20 investors in the company
 
-#### 9.1. Method name: get_company_top_concentration
+### Method name: get_company_top_concentration
 
-#### 9.2. Enter parameters
+### Enter parameters
 
 | Field | Type | Description | Is it required |
 |:---|:---|:---|:---|
@@ -69,7 +69,7 @@ symbol currency ... total_sharehold total_holdings_value
 | fields | Optional\[Union\[str, List\[str\]\]\] | Return fields | Optional |
 | market | str | Market, supports "hk", "us", default is "hk" | required |
 
-#### 9.3. Response parameters
+### Response parameters
 
 | Field | Type | Description |
 |:---|:---|:---|
@@ -80,9 +80,9 @@ symbol currency ... total_sharehold total_holdings_value
 | sharehold | double | Total shareholdings of the top n investors |
 | holdings_value | double | The total stock market value of the top n investors |
 
-#### 9.4. Usage examples
+### Usage examples
 
-##### 9.4.1. Obtain investor concentration data of all Hong Kong stock companies
+#### Obtain investor concentration data of all Hong Kong stock companies
 
 ```python
 import tqx_data
@@ -111,11 +111,11 @@ symbol currency ... sharehold holdings_value
 2711 9999.HK CNY ... 1.847153e+09 3.801278e+10
 ```
 
-### 10. Obtain the ranking of company investors
+## Obtain the ranking of company investors
 
-#### 10.1. Method name: get_company_investor
+### Method name: get_company_investor
 
-#### 10.2. Enter parameters
+### Enter parameters
 
 | Field | Type | Description | Is it required |
 |:---|:---|:---|:---|
@@ -124,7 +124,7 @@ symbol currency ... sharehold holdings_value
 | market | str | Market, supports "hk", "us", default is "hk" | required |
 | max_rank | Optional\[int\] | The maximum returned ranking (a positive integer less than or equal to 20), the default is empty to return the top 20 | Optional |
 
-#### 10.3. Response parameters
+### Response parameters
 
 | Field | Type | Description |
 |:---------------------------|:-------|:---------------------------|
@@ -139,9 +139,9 @@ symbol currency ... sharehold holdings_value
 | currency | str | Transaction currency |
 | rank | int | ranking |
 
-#### 10.4. Usage examples
+### Usage examples
 
-##### 10.4.1. Obtain the top 10 investor data of all Hong Kong stock companies
+#### Obtain the top 10 investor data of all Hong Kong stock companies
 
 ```python
 import tqx_data
@@ -171,11 +171,11 @@ symbol investor_name ... rank currency
 18256 9999.HK Norges Bank Investment Management (NBIM) ... 10 CNY
 ```
 
-### 11. Obtain company insider trading activity
+## Obtain company insider trading activity
 
-#### 11.1. Method name: get_company_insider_transaction
+### Method name: get_company_insider_transaction
 
-#### 11.2. Enter parameters
+### Enter parameters
 
 | Field | Type | Description | Is it required |
 |:---|:---|:---|:---|
@@ -185,7 +185,7 @@ symbol investor_name ... rank currency
 | fields | Optional\[Union\[str, List\[str\]\]\] | Return fields | Optional |
 | market | str | Market, supports "hk", "us", default is "hk" | required |
 
-#### 11.3. Response parameters
+### Response parameters
 
 | Field | Type | Description |
 |:---|:---|:---|
@@ -213,9 +213,9 @@ symbol investor_name ... rank currency
 | reported_indirect_sharehold | double | reported number of indirect shares held |
 | currency | str | Transaction currency |
 
-#### 11.4. Usage examples
+### Usage examples
 
-##### 11.4.1. Obtain insider trading activities of a Hong Kong stock company within a certain period of time
+#### Obtain insider trading activities of a Hong Kong stock company within a certain period of time
 
 ```python
 import tqx_data
@@ -241,11 +241,11 @@ symbol investor_name info_date ... adjusted_indirect_sharehold reported_indirect
 5 0004.HK Fang (Kang Vincent) 20250506 ... NaN NaN HKD
 ```
 
-### 12. Obtain the company’s shareholder shareholding report
+## Obtain the company’s shareholder shareholding report
 
-#### 12.1. Method name: get_company_shareholder_report
+### Method name: get_company_shareholder_report
 
-#### 12.2. Enter parameters
+### Enter parameters
 
 | Field | Type | Description | Is it required |
 |:---|:---|:---|:---|
@@ -255,7 +255,7 @@ symbol investor_name info_date ... adjusted_indirect_sharehold reported_indirect
 | fields | Optional\[Union\[str, List\[str\]\]\] | Return fields | Optional |
 | market | str | Market, supports "hk", "us", default is "hk" | required |
 
-#### 12.3. Response parameters
+### Response parameters
 
 | Field | Type | Description |
 |:---|:---|:---|
@@ -284,9 +284,9 @@ symbol investor_name info_date ... adjusted_indirect_sharehold reported_indirect
 | prev_filing_type | str | Previous reporting type |
 | currency | str | Transaction currency |
 
-#### 12.4. Usage examples
+### Usage examples
 
-##### 12.4.1. Obtain the shareholder shareholding report of a certain Hong Kong stock company within a certain period of time
+#### Obtain the shareholder shareholding report of a certain Hong Kong stock company within a certain period of time
 
 ```python
 import tqx_data
@@ -308,3 +308,4 @@ symbol currency investor_name ... prev_sharehold_value prev_holding_date prev_fi
 1 8510.HK HKD Chuan (Hng Bok) ... 328943.66 20241231 Shareholder Report
 2 8510.HK HKD Lau (Wing Kee) ... 228433.10 20241231 Shareholder Report NaN HKD
 ```
+

@@ -1,13 +1,13 @@
----
+﻿---
 title: "交易日曆"
 description: "查詢各市場的交易日與非交易日。"
 ---
 
-### 2. 取得交易行事曆
+## 取得交易行事曆
 
-#### 2.1. 方法名稱：get_trading_calendar
+### 方法名稱：get_trading_calendar
 
-#### 2.2. 入參
+### 入參
 
 | 欄位 | 類型 | 說明 | 是否必填 |
 |:---|:---|:---|:---|
@@ -17,7 +17,7 @@ description: "查詢各市場的交易日與非交易日。"
 | is_trading_day | Optional\[int\] | 是否為交易日，1=交易日，0=非交易日，None=全部 | 非必填 |
 | fields | Optional\[Union\[str, List\[str\]\]\] | 需要傳回的欄位清單 | 非必填 |
 
-#### 2.3. 回應參數
+### 回應參數
 
 | 字段 | 類型 | 描述 |
 |:----------------|:-----|:-----------------------------------------|
@@ -27,9 +27,9 @@ description: "查詢各市場的交易日與非交易日。"
 | pretrade_date | str | 目前日期前一個交易日 |
 | next_trade_date | str | 目前日期後一個交易日 |
 
-#### 2.4. 使用範例
+### 使用範例
 
-##### 2.4.1. 取得一段時間內港股交易日曆
+#### 取得一段時間內港股交易日曆
 
 ```python
 import tqx_data
@@ -64,7 +64,7 @@ nature_date exchange is_trade next_trade_date pretrade_date
 14 20250115 HK 1 20250116 20250114
 ```
 
-##### 2.4.2. 取得一段時間內美股非交易日且使用fields
+#### 取得一段時間內美股非交易日且使用fields
 
 ```python
 import tqx_data
@@ -94,7 +94,7 @@ nature_date is_trade next_trade_date pretrade_date
 9 20250109 0 20250110 20250108
 ```
 
-##### 2.4.3. 取得一段時間內港股交易日
+#### 取得一段時間內港股交易日
 
 ```python
 import tqx_data
@@ -126,3 +126,4 @@ nature_date exchange is_trade next_trade_date pretrade_date
 11 20250117 HK 1 20250120 20250116
 12 20250120 HK 1 20250121 20250117
 ```
+

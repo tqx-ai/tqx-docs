@@ -1,13 +1,13 @@
----
+﻿---
 title: "Trading calendar"
 description: "Query trading days and non-trading days for each market."
 ---
 
-### 2. Get trading calendar
+## Get trading calendar
 
-#### 2.1. Method name: get_trading_calendar
+### Method name: get_trading_calendar
 
-#### 2.2. Enter parameters
+### Enter parameters
 
 | Field | Type | Description | Is it required |
 |:---|:---|:---|:---|
@@ -17,7 +17,7 @@ description: "Query trading days and non-trading days for each market."
 | is_trading_day | Optional\[int\] | Whether it is a trading day, 1=trading day, 0=non-trading day, None=all | Optional |
 | fields | Optional\[Union\[str, List\[str\]\]\] | List of fields to be returned | Optional |
 
-#### 2.3. Response parameters
+### Response parameters
 
 | Field | Type | Description |
 |:----------------|:-----|:-----------------------------------------|
@@ -27,9 +27,9 @@ description: "Query trading days and non-trading days for each market."
 | pretrade_date | str | The trading day before the current date |
 | next_trade_date | str | One trading day after the current date |
 
-#### 2.4. Usage examples
+### Usage examples
 
-##### 2.4.1. Obtain the Hong Kong stock trading calendar within a period of time
+#### Obtain the Hong Kong stock trading calendar within a period of time
 
 ```python
 import tqx_data
@@ -64,7 +64,7 @@ nature_date exchange is_trade next_trade_date pretrade_date
 14 20250115 HK 1 20250116 20250114
 ```
 
-##### 2.4.2. Get US stock non-trading days within a period of time and use fields
+#### Get US stock non-trading days within a period of time and use fields
 
 ```python
 import tqx_data
@@ -94,7 +94,7 @@ nature_date is_trade next_trade_date pretrade_date
 9 20250109 0 20250110 20250108
 ```
 
-##### 2.4.3. Get Hong Kong stock trading days within a period of time
+#### Get Hong Kong stock trading days within a period of time
 
 ```python
 import tqx_data
@@ -126,3 +126,4 @@ nature_date exchange is_trade next_trade_date pretrade_date
 11 20250117 HK 1 20250120 20250116
 12 20250120 HK 1 20250121 20250117
 ```
+

@@ -1,13 +1,13 @@
----
+﻿---
 title: "股票詳情"
 description: "取得上市股票的參考資料。"
 ---
 
-### 1. 取得股票的詳細信息
+## 取得股票的詳細信息
 
-#### 1.1. 方法名稱：get_stock_detail
+### 方法名稱：get_stock_detail
 
-#### 1.2. 入參
+### 入參
 
 | **欄位** | **類型** | **描述** | **是否必填** |
 |:---|:---|:---|:---|
@@ -16,9 +16,9 @@ description: "取得上市股票的參考資料。"
 | market | Optional\[str\] | 市場，支援hk,us，預設hk | 非必填 |
 | status | Optional\[int\] | 是否在市，1 -在市，0 -退市，-1 -未知 | 非必填 |
 
-#### 1.3. 回應參數
+### 回應參數
 
-##### 1.3.1. hk對應參數
+#### hk對應參數
 
 | 字段 | 類型 | 描述 |
 |:------------------------|:-----|:-----------------|
@@ -45,7 +45,7 @@ description: "取得上市股票的參考資料。"
 | website | str | 公司網站 |
 | listed_date | str | 上市日期 |
 
-##### 1.3.2. us對應參數
+#### us對應參數
 
 | 字段 | 類型 | 描述 |
 |:------------------------|:-----|:-----------------|
@@ -73,9 +73,9 @@ description: "取得上市股票的參考資料。"
 | postal_code | str | 總部郵遞區號 |
 | website | str | 公司網站 |
 
-#### 1.4. 使用範例
+### 使用範例
 
-##### 1.4.1. 港股
+#### 港股
 
 ```python
 import tqx_data
@@ -97,7 +97,7 @@ symbol abbrev_symbol ... status trading_code
 2 0003.HK HKCNG ... 1 0003|864603
 ```
 
-##### 1.4.2. 美股
+#### 美股
 
 ```python
 import tqx_data
@@ -119,7 +119,7 @@ symbol abbrev_symbol ... status trading_code
 2 ZYXIQ.NB ZYXIQ ... 0 None
 ```
 
-##### 1.4.3. 取得全部港股股票代碼
+#### 取得全部港股股票代碼
 
 ```python
 import tqx_data
@@ -149,7 +149,7 @@ symbol
 3228 UNTX.HK
 ```
 
-##### 1.4.4. 取得全部美股股票代碼
+#### 取得全部美股股票代碼
 
 ```python
 import tqx_data
@@ -178,3 +178,4 @@ symbol
 7795 ZYRX.NB
 7796 ZYXIQ.NB
 ```
+

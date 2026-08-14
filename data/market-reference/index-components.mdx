@@ -1,13 +1,13 @@
----
+﻿---
 title: "Index components"
 description: "Retrieve Hong Kong and US index constituent information."
 ---
 
-### 13. Obtain information on Hong Kong and US stock index constituents
+## Obtain information on Hong Kong and US stock index constituents
 
-#### 13.1. Method name: get_index_component
+### Method name: get_index_component
 
-#### 13.2. Enter parameters
+### Enter parameters
 
 | Field | Type | Description | Is it required |
 |:---|:---|:---|:---|
@@ -106,7 +106,7 @@ Supported index list:
 | IXIC | Nasdaq Composite Index |
 | NBI | Nasdaq Biotechnology Index |
 
-#### 13.3. Response parameters
+### Response parameters
 
 | Field | Type | Description |
 |:-------------|:-----|:---------------|
@@ -115,9 +115,9 @@ Supported index list:
 | added_date | str | date of inclusion into constituent stocks |
 | deleted_date | str | date of deletion of constituent stocks |
 
-#### 13.4. Usage examples
+### Usage examples
 
-##### 13.4.1. Obtain information on all Hong Kong stock index constituent stocks
+#### Obtain information on all Hong Kong stock index constituent stocks
 
 ```python
 import tqx_data
@@ -145,3 +145,4 @@ index_symbol stock_symbol added_date deleted_date
 6656 SPHKL 9992.HK 20210118 None
 6657 SPHKL 9999.HK 20210118 None
 ```
+

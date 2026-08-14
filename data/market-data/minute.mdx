@@ -1,13 +1,13 @@
----
+﻿---
 title: "Minute market data"
 description: "Retrieve historical minute bars for Hong Kong and US stocks."
 ---
 
-### 3. Obtain Hong Kong stock minute line data
+## Obtain Hong Kong stock minute line data
 
-#### 3.1. Method name: get_hk_min
+### Method name: get_hk_min
 
-#### 3.2. Enter parameters
+### Enter parameters
 
 | Field | Type | Description | Is it required |
 |:---|:---|:---|:---|
@@ -18,7 +18,7 @@ description: "Retrieve historical minute bars for Hong Kong and US stocks."
 | time_zone | Optional\[tuple\] | Time zone filtering, the format is ("HH:MM", "HH:MM"), such as ("10:00", "23:00") | Optional |
 | frequency | Optional\[str\] | Frequency, supports "1m", "5m", "10m", "60m", default is "1m" | Optional |
 
-#### 3.3. Response parameters
+### Response parameters
 
 | Field | Type | Description |
 |:-----------|:-------|:---------------------|
@@ -53,9 +53,9 @@ description: "Retrieve historical minute bars for Hong Kong and US stocks."
 | mid_open | double | opening mid price |
 | mid_price | double | closing mid price |
 
-#### 3.4. Usage examples
+### Usage examples
 
-##### 3.4.1. Get the 1-minute line data of a single stock and use fields
+#### Get the 1-minute line data of a single stock and use fields
 
 ```python
 import tqx_data
@@ -87,7 +87,7 @@ symbol date num_trades ... volume datetime minute
 1280 0700.HK 20260130 140.0 ... 62900.0 2026-01-30 11:00:00 110000
 ```
 
-##### 3.4.2. Obtain 10-minute line data of multiple stocks
+#### Obtain 10-minute line data of multiple stocks
 
 ```python
 import tqx_data
@@ -119,11 +119,11 @@ symbol date datetime ... close volume amount
 293 0700.HK 20260130 2026-01-30 11:00:00 ... 614.50 296100.0 181953450.0
 ```
 
-### 4. Get the minute line number of US stocks
+## Get the minute line number of US stocks
 
-#### 4.1. Method name: get_us_min
+### Method name: get_us_min
 
-#### 4.2. Enter parameters
+### Enter parameters
 
 | Field | Type | Description | Is it required |
 |:---|:---|:---|:---|
@@ -134,7 +134,7 @@ symbol date datetime ... close volume amount
 | time_zone | Optional\[tuple\] | Time zone filtering, the format is ("HH:MM", "HH:MM"), such as ("10:00", "23:00") | Optional |
 | frequency | Optional\[str\] | Frequency, supports "1m", "5m", "10m", "60m", default is "1m" | Optional |
 
-#### 4.3. Response parameters
+### Response parameters
 
 | Field | Type | Description |
 |:------------|:-------|:---------------------------|
@@ -168,9 +168,9 @@ symbol date datetime ... close volume amount
 | ask | double | closing selling price |
 | ask_nummov | double | Number of sell order changes |
 
-#### 4.4. Usage examples
+### Usage examples
 
-##### 4.4.1. Get the 1-minute line data of a single stock and use fields
+#### Get the 1-minute line data of a single stock and use fields
 
 ```python
 import tqx_data
@@ -202,7 +202,7 @@ symbol us_date num_trades ... volume us_datetime us_minute
 1219 AAPL.NB 20260130 504.0 ... 100017.0 2026-01-30 11:00:00 110000
 ```
 
-##### 4.4.2. Obtain 10-minute line data of multiple stocks
+#### Obtain 10-minute line data of multiple stocks
 
 ```python
 import tqx_data
@@ -235,3 +235,4 @@ symbol us_date ... us_datetime us_minute
 ```
 
 5\. **Get real-time minute line data of Hong Kong and US stocks**
+
