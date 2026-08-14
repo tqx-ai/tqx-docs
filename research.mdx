@@ -17,3 +17,16 @@ TQX's investment research product is Qube.
     You can visit [https://www.tqx.ai/agent\_quant/](https://www.tqx.ai/agent_quant/) to use Qube.
   </Tab>
 </Tabs>
+
+```text
+股票池：S&P 500 成分股。
+因子名称：HK 12-1M momentum。
+定义：使用日线收盘价计算 12-1 月价格动量；
+      DELAY(close, 21) / DELAY(close, 273) - 1。
+解释：因子值越高，代表动量越强。
+分组：每次调仓时按因子值从低到高分为 5 组，组内等权。
+方向：仅做多，重点观察高动量组的累计收益。
+调仓：月频调仓，使用可交易的历史成分股。
+回测：2018-01-01 至 2026-07-30，日线。
+输出：五组累计收益、因子收益、IC、Rank IC、ICIR、夏普和最大回撤。
+```
