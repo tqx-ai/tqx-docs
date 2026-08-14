@@ -1,3 +1,238 @@
+﻿---
+title: "Minute market data"
+description: "Retrieve historical minute bars for Hong Kong and US stocks."
 ---
-title: "Minute data"
----
+
+## Obtain Hong Kong stock minute line data
+
+### Method name: get_hk_min
+
+### Enter parameters
+
+| Field | Type | Description | Is it required |
+|:---|:---|:---|:---|
+| start_date | str | Start date,eg: "20250702" | Required |
+| end_date | str | End date,eg: "20250702" | Required |
+| symbol | Optional\[Union\[str, List\[str\]\]\] | Stock code, when symbol is empty, the start and end dates cannot exceed 1 month | Optional |
+| fields | Optional\[Union\[str, List\[str\]\]\] | Return fields, if not passed, the default is "open", "high", "low", "close", "volume" and "amount" | Optional |
+| time_zone | Optional\[tuple\] | Time zone filtering, the format is ("HH:MM", "HH:MM"), such as ("10:00", "23:00") | Optional |
+| frequency | Optional\[str\] | Frequency, supports "1m", "5m", "10m", "60m", default is "1m" | Optional |
+
+### Response parameters
+
+| Field | Type | Description |
+|:-----------|:-------|:---------------------|
+| date | str | date |
+| datetime | str | date and time |
+| minute | str | time (accurate to minute) |
+| symbol | str | stock code |
+| open | double | minute opening price |
+| high | double | highest price per minute |
+| low | double | lowest price per minute |
+| close | double | minute closing price |
+| volume | double | minute volume |
+| amount | double | minute transaction amount |
+| num_trades | double | Number of transactions per minute |
+| high_yld | double | highest rate of return per minute |
+| low_yld | double | minute minimum rate of return |
+| open_yld | double | minute opening rate of return |
+| yield | double | minute closing yield |
+| vwap | double | minute volume weighted average price |
+| bid_high | double | Highest bid price |
+| bid_low | double | lowest bid price |
+| open_bid | double | opening bid price |
+| bid | double | closing bid price |
+| bid_nummov | double | Number of bid changes |
+| ask_high | double | Highest selling price |
+| ask_low | double | Lowest selling price |
+| open_ask | double | opening ask price |
+| ask | double | closing selling price |
+| ask_nummov | double | Number of sell order changes |
+| mid_high | double | the highest value of the middle price |
+| mid_low | double | the lowest value of the middle price |
+| mid_open | double | opening mid price |
+| mid_price | double | closing mid price |
+
+### Usage examples
+
+#### Get the 1-minute line data of a single stock and use fields
+
+```python
+import tqx_data
+result = tqx_data.get_hk_min(
+    symbol="0700.HK",
+    start_date="20260101",
+    end_date="20260131",
+    fields=["symbol", "date", "num_trades", "amount", "volume"],
+    frequency="1m",
+    time_zone=("10:00", "11:00")
+)
+print(result)
+```
+
+**Response Example**
+
+```text
+symbol date num_trades ... volume datetime minute
+0 0700.HK 20260102 415.0 ... 109000.0 2026-01-02 10:00:00 100000
+1 0700.HK 20260102 89.0 ... 26900.0 2026-01-02 10:01:00 100100
+2 0700.HK 20260102 61.0 ... 17200.0 2026-01-02 10:02:00 100200
+3 0700.HK 20260102 250.0 ... 97900.0 2026-01-02 10:03:00 100300
+4 0700.HK 20260102 266.0 ... 182600.0 2026-01-02 10:04:00 100400
+... ... ... ... ... ... ... ...
+1276 0700.HK 20260130 37.0 ... 12700.0 2026-01-30 10:56:00 105600
+1277 0700.HK 20260130 32.0 ... 6900.0 2026-01-30 10:57:00 105700
+1278 0700.HK 20260130 96.0 ... 29800.0 2026-01-30 10:58:00 105800
+1279 0700.HK 20260130 43.0 ... 10300.0 2026-01-30 10:59:00 105900
+1280 0700.HK 20260130 140.0 ... 62900.0 2026-01-30 11:00:00 110000
+```
+
+#### Obtain 10-minute line data of multiple stocks
+
+```python
+import tqx_data
+result = tqx_data.get_hk_min(
+    symbol=["0700.HK","0003.HK"],
+    start_date="20260101",
+    end_date="20260131",
+    fields=[],
+    frequency="10m",
+    time_zone=("10:00", "11:00")
+)
+print(result)
+```
+
+**Response Example**
+
+```text
+symbol date datetime ... close volume amount
+0 0003.HK 20260102 2026-01-02 10:00:00 ... 7.07 305000.0 2156350.0
+1 0003.HK 20260102 2026-01-02 10:10:00 ... 7.09 333000.0 2360970.0
+2 0003.HK 20260102 2026-01-02 10:20:00 ... 7.09 463000.0 3282670.0
+3 0003.HK 20260102 2026-01-02 10:30:00 ... 7.09 324000.0 2297160.0
+4 0003.HK 20260102 2026-01-02 10:40:00 ... 7.09 368000.0 2609120.0
+.. ... ... ... ... ... ... ...
+289 0700.HK 20260130 2026-01-30 10:20:00 ... 613.00 392600.0 240663800.0
+290 0700.HK 20260130 2026-01-30 10:30:00 ... 612.50 797000.0 488162500.0
+291 0700.HK 20260130 2026-01-30 10:40:00 ... 613.50 397200.0 243682200.0
+292 0700.HK 20260130 2026-01-30 10:50:00 ... 614.00 333900.0 205014600.0
+293 0700.HK 20260130 2026-01-30 11:00:00 ... 614.50 296100.0 181953450.0
+```
+
+## Get the minute line number of US stocks
+
+### Method name: get_us_min
+
+### Enter parameters
+
+| Field | Type | Description | Is it required |
+|:---|:---|:---|:---|
+| start_date | str | Start date, eg: "20250702" This is the date in New York, USA) | Required |
+| end_date | str | End date, eg: "20250702" (this is the date in New York, USA) | Required |
+| symbol | Optional\[Union\[str, List\[str\]\]\] | Stock code, when symbol is empty, the start and end dates cannot exceed 1 month | Optional |
+| fields | Optional\[Union\[str, List\[str\]\]\] | Return fields, if not passed, the default is "open", "high", "low", "close", "volume" and "amount" | Optional |
+| time_zone | Optional\[tuple\] | Time zone filtering, the format is ("HH:MM", "HH:MM"), such as ("10:00", "23:00") | Optional |
+| frequency | Optional\[str\] | Frequency, supports "1m", "5m", "10m", "60m", default is "1m" | Optional |
+
+### Response parameters
+
+| Field | Type | Description |
+|:------------|:-------|:---------------------------|
+| us_date | str | New York, USA date |
+| us_datetime | str | New York, USA date and time |
+| us_minute | str | New York time, United States (accurate to minute) |
+| cn_date | str | Chinese date |
+| cn_datetime | str | China date and time |
+| cn_minute | str | China time (accurate to minute) |
+| symbol | str | stock code |
+| open | double | minute opening price |
+| high | double | highest price per minute |
+| low | double | lowest price per minute |
+| close | double | minute closing price |
+| volume | double | minute volume |
+| amount | double | minute transaction amount |
+| num_trades | double | Number of transactions per minute |
+| high_yld | double | highest rate of return in minutes |
+| low_yld | double | minute minimum rate of return |
+| open_yld | double | minute opening yield |
+| yield | double | minute closing yield |
+| vwap | double | minute volume weighted average price |
+| bid_high | double | Highest bid price |
+| bid_low | double | lowest bid price |
+| open_bid | double | opening bid price |
+| bid | double | closing bid price |
+| bid_nummov | double | Number of bid changes |
+| ask_high | double | Highest selling price |
+| ask_low | double | Lowest selling price |
+| open_ask | double | opening ask price |
+| ask | double | closing selling price |
+| ask_nummov | double | Number of sell order changes |
+
+### Usage examples
+
+#### Get the 1-minute line data of a single stock and use fields
+
+```python
+import tqx_data
+result = tqx_data.get_us_min(
+    symbol="AAPL.NB",
+    start_date="20260101",
+    end_date="20260131",
+    fields=["symbol", "date", "num_trades", "amount", "volume"],
+    frequency="1m",
+    time_zone=("10:00", "11:00")
+)
+print(result)
+```
+
+**Response Example**
+
+```text
+symbol us_date num_trades ... volume us_datetime us_minute
+0 AAPL.NB 20260102 557.0 ... 96820.0 2026-01-02 10:00:00 100000
+1 AAPL.NB 20260102 417.0 ... 80610.0 2026-01-02 10:01:00 100100
+2 AAPL.NB 20260102 458.0 ... 88307.0 2026-01-02 10:02:00 100200
+3 AAPL.NB 20260102 429.0 ... 84335.0 2026-01-02 10:03:00 100300
+4 AAPL.NB 20260102 517.0 ... 93921.0 2026-01-02 10:04:00 100400
+... ... ... ... ... ... ... ...
+1215 AAPL.NB 20260130 327.0 ... 72088.0 2026-01-30 10:56:00 105600
+1216 AAPL.NB 20260130 265.0 ... 62458.0 2026-01-30 10:57:00 105700
+1217 AAPL.NB 20260130 507.0 ... 88342.0 2026-01-30 10:58:00 105800
+1218 AAPL.NB 20260130 287.0 ... 51118.0 2026-01-30 10:59:00 105900
+1219 AAPL.NB 20260130 504.0 ... 100017.0 2026-01-30 11:00:00 110000
+```
+
+#### Obtain 10-minute line data of multiple stocks
+
+```python
+import tqx_data
+result = tqx_data.get_us_min(
+    symbol=["AAPL.NB", "TSLE.NB"],
+    start_date="20260101",
+    end_date="20260131",
+    fields=[],
+    frequency="10m",
+    time_zone=("10:00", "11:00")
+)
+print(result)
+```
+
+**Response Example**
+
+```text
+symbol us_date ... us_datetime us_minute
+0 AAPL.NB 20260102 ... 2026-01-02 10:00:00 100000
+1 AAPL.NB 20260102 ... 2026-01-02 10:10:00 101000
+2 AAPL.NB 20260102 ... 2026-01-02 10:20:00 102000
+3 AAPL.NB 20260102 ... 2026-01-02 10:30:00 103000
+4 AAPL.NB 20260102 ... 2026-01-02 10:40:00 104000
+.. ... ... ... ... ...
+275 TSLA.NB 20260130 ... 2026-01-30 10:20:00 102000
+276 TSLA.NB 20260130 ... 2026-01-30 10:30:00 103000
+277 TSLA.NB 20260130 ... 2026-01-30 10:40:00 104000
+278 TSLA.NB 20260130 ... 2026-01-30 10:50:00 105000
+279 TSLA.NB 20260130 ... 2026-01-30 11:00:00 110000
+```
+
+5\. **Get real-time minute line data of Hong Kong and US stocks**
+

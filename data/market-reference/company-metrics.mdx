@@ -1,3 +1,600 @@
----
+﻿---
 title: "Company metrics"
+description: "Retrieve standardized operating, financial, industry, and price-volume metrics."
 ---
+
+## Obtain the company's standardized operating indicators
+
+### Method name: get_company_oper_metrics
+
+### Enter parameters
+
+| Field | Type | Description | Is it required |
+|:---|:---|:---|:---|
+| start_year | str | Start fiscal year, eg: "2025" | Required |
+| end_year | str | Ending fiscal year, eg: "2025" | Required |
+| symbol | Optional\[Union\[str, List\[str\]\]\] | Stock code | Optional |
+| fields | Optional\[Union\[str, List\[str\]\]\] | Return fields | Optional |
+| market | str | Market, supports `hk`, `us`, default is `hk` | required |
+
+### Response parameters
+
+| Field | Type | Description |
+|:--------------------------|:-------|:----------------------|
+| symbol | str | stock code |
+| is_final | int | Whether it is the final report |
+| financial_year | str | fiscal year |
+| financial_period_end_date | str | Financial report deadline |
+| report_type | str | report type (original/restated) |
+| data_type | str | data type |
+| consol_basis | str | Data merging basis |
+| report_source | str | report source |
+| item_name | str | indicator name |
+| is_pershare_item | str | Whether it is a per share indicator |
+| is_percent_item | str | Whether it is a percentage indicator |
+| item_unit | str | indicator unit scaling |
+| item_currency | str | Indicator currency unit |
+| item_num | double | indicator value |
+
+### Usage examples
+
+#### Obtain the standardized operating indicators of all Hong Kong stock companies in a certain fiscal year
+
+```python
+import tqx_data
+result = tqx_data.get_company_oper_metrics(
+    market='hk',
+    symbol=[""],
+    fields=[""],
+    start_year="2023",
+    end_year="2025",
+)
+print(result)
+```
+
+**Response Example**
+
+```text
+symbol is_final financial_year ... item_unit item_currency item_num
+0 0004.HK 1 2023 ... Units HKD 142989.000000
+1 0004.HK 1 2023 ... No scaling HKD 0.000047
+2 0004.HK 1 2023 ... Units HKD 142989.000000
+3 0004.HK 1 2023 ... No scaling HKD 0.000047
+4 0004.HK 1 2024 ... Units HKD 136832.000000
+... ... ... ... ... ... ... ...
+3273 9993.HK 1 2023 ... Units CNY 23952.919000
+3274 9993.HK 1 2024 ... Units CNY 14833.422000
+3275 9993.HK 1 2024 ... Units CNY 14833.422000
+3276 9993.HK 0 2025 ... Units CNY 7914.030000
+3277 9993.HK 0 2025 ... Units CNY 7914.030000
+```
+
+## Obtain the company’s latest market financial statistical indicators
+
+### Method name: get_company_current
+
+### Enter parameters
+
+| Field | Type | Description | Is it required |
+|:---|:---|:---|:---|
+| symbol | Optional\[Union\[str, List\[str\]\]\] | Stock code | Optional |
+| fields | Optional\[Union\[str, List\[str\]\]\] | Return fields | Optional |
+| market | str | Market, supports `hk`, `us`, default is `hk` | required |
+
+### Response parameters
+
+Note: The data is refreshed daily. For each field of each symbol, the latest known date data will be returned as much as possible.
+
+| Field | Type | Description |
+|:---|:---|:---|
+| symbol | str | stock code |
+| date | str | data date |
+| period_end_date | str | Financial report deadline |
+| curr_ebitda_to_ev_ratio | double | EBITDA as a share of enterprise value |
+| curr_ebitda_to_ev_ratio_ttm | double | EBITDA as a share of enterprise value (TTM) |
+| curr_ev_to_ebitda | double | Enterprise value/EBITDA |
+| curr_ev_to_ebitda_ttm | double | Enterprise value/EBITDA (TTM) |
+| curr_ev_to_fcf | double | Enterprise value/free cash flow |
+| curr_ev_to_fcf_ttm | double | Enterprise value/free cash flow (TTM) |
+| curr_ev_to_fcf | double | Enterprise value/free cash flow |
+| curr_ev_to_fcf_ttm | double | Enterprise value/free cash flow (TTM) |
+| curr_ev_to_ocf | double | Enterprise value/operating cash flow |
+| curr_ev_to_ocf_ttm | double | Enterprise value/operating cash flow (TTM) |
+| curr_ev_to_rev | double | Enterprise value/operating income |
+| curr_ev_to_rev_ttm | double | Enterprise value/operating income (TTM) |
+| curr_fcf_to_ev_ratio | double | Free cash flow as a share of enterprise value |
+| curr_fcf_to_ev_ratio_ttm | double | Free cash flow to enterprise value (TTM) |
+| curr_rev_to_ev_ratio | double | Operating income as a proportion of enterprise value |
+| curr_rev_to_ev_ratio_ttm | double | Operating income as a share of enterprise value (TTM) |
+| curr_ev_to_fcf | double | Enterprise value/free cash flow |
+| curr_ev_to_fcf_ttm | double | Enterprise value/free cash flow (TTM) |
+| curr_ev_to_ebit | double | Enterprise value/EBIT |
+| curr_ev_to_ebit_ttm | double | Enterprise value/earnings before interest and tax (TTM) |
+| curr_price_to_fcf_pershr | double | share price/free cash flow per share |
+| curr_price_to_fcf_pershr_ttm | double | Price/free cash flow per share (TTM) |
+| curr_price_to_fcf_pershr_issue | double | Price/free cash flow per share (issue specific) |
+| curr_price_to_fcf_pershr_issue_ttm | double | Price/free cash flow per share (issue specific, TTM) |
+| curr_fcf_to_ev_ratio | double | Free cash flow as a share of enterprise value |
+| curr_fcf_to_ev_ratio_ttm | double | Free cash flow to enterprise value (TTM) |
+| curr_div_yld_issue_ratio | double | Dividend rate - net common stock (issue specific) |
+| curr_div_yld_gross_issue_ratio | double | Dividend rate - gross common stock (issue specific) |
+| curr_div_yld_issue_ratio_ann | double | Dividend rate - net common stock (annualized, issue specific) |
+| curr_div_yld_gross_issue_ratio_ann | double | Dividend rate - gross common stock (annualized, issue specific) |
+| curr_div_yld_issue_ratio_ttm | double | Dividend ratio - net common stock (TTM, issue specific) |
+| curr_div_yld_gross_issue_ratio_ttm | double | Dividend ratio - gross common stock (TTM, issue specific) |
+| curr_cash_to_mcap_ratio | double | The proportion of cash and short-term investments in market capitalization |
+| curr_price_to_cf_pershr | double | share price/cash flow per share |
+| curr_price_to_cf_pershr_ttm | double | share price/cash flow per share (TTM) |
+| curr_price_to_cf_pershr_ann | double | share price/cash flow per share (annualized) |
+| curr_price_to_cf_pershr_issue | double | share price/cash flow per share (issue specific) |
+| curr_price_to_cf_pershr_issue_ttm | double | Price/cash flow per share (issue specific, TTM) |
+| curr_price_to_fcf_pershr_issue | double | Price/free cash flow per share (issue specific) |
+| curr_price_to_fcf_pershr_issue_ttm | double | Price/free cash flow per share (issue specific, TTM) |
+| curr_price_to_ocf_pershr | double | share price/operating cash flow per share |
+| curr_price_to_ocf_pershr_ttm | double | Stock price/operating cash flow per share (TTM) |
+| curr_price_to_ocf_pershr_issue | double | Share price/operating cash flow per share (issue specific) |
+| curr_price_to_ocf_pershr_issue_ttm | double | Share price/operating cash flow per share (issue specific, TTM) |
+| curr_price_to_rev_pershr | double | share price/operating income per share |
+| curr_price_to_rev_pershr_ann | double | Stock price/operating income per share (annualized) |
+| curr_price_to_rev_pershr_ttm | double | share price/operating income per share (TTM) |
+| curr_price_to_rev_pershr_issue | double | Share price/operating income per share (issue specific) |
+| curr_price_to_rev_pershr_issue_ttm | double | Share price/operating income per share (issue specific, TTM) |
+| curr_price_to_fcf_pershr_issue | double | Price/free cash flow per share (issue specific) |
+| curr_price_to_fcf_pershr_issue_ttm | double | Price/free cash flow per share (issue specific, TTM) |
+| curr_price_to_dps_issue | double | Stock price/dividend per share - net common stock (issue specific) |
+| curr_price_to_dps_gross_issue | double | Stock price/dividend per share - gross common stock (issue specific) |
+| curr_price_to_dps_issue_ttm | double | Share price/dividend per share - net common share (TTM, issue specific) |
+| curr_price_to_dps_gross_issue_ttm | double | Stock price/dividend per share - gross common stock (TTM, issue specific) |
+| curr_pe_dil_excl_issue | double | Price-to-earnings ratio - dilution deduction (issue specific) |
+| curr_pe_dil_excl_issue_ttm | double | P/E ratio - dilution net of non-dilution (TTM, issue specific) |
+| curr_pe_dil_excl | double | Price-to-earnings ratio - dilution net of non-dilution |
+| curr_pe_dil_excl_ttm | double | Price-to-earnings ratio - dilution net of non-dilution (TTM) |
+| curr_pe_dil_norm_issue | double | P/E ratio - dilution deduction non-normalized (issue specific) |
+| curr_pe_dil_norm_issue_ttm | double | P/E ratio - dilution net non-normalized (TTM, issue specific) |
+| curr_pe_dil_norm | double | Price-to-earnings ratio - dilution deduction non-normalized |
+| curr_pe_dil_norm_ttm | double | P/E ratio - dilution minus non-normalized (TTM) |
+| curr_pe_dil_incl_issue | double | P/E ratio - diluted with extraordinary items (issue specific) |
+| curr_pe_dil_incl_issue_ttm | double | P/E ratio - diluted with extraordinary items (TTM, issue specific) |
+| curr_pe_dil_incl | double | Price-to-earnings ratio - diluted including extraordinary items |
+| curr_pe_dil_incl_ttm | double | Price-to-earnings ratio - diluted including extraordinary items (TTM) |
+| curr_price_to_ebitda_pershr_issue | double | Price per share/EBITDA per share (issue specific) |
+| curr_price_to_ebitda_pershr_issue_ttm | double | Share price/EBITDA per share (TTM, issue specific) |
+| curr_price_to_ebitda_pershr | double | share price/EBITDA per share |
+| curr_price_to_ebitda_pershr_ttm | double | Price/EBITDA per share (TTM) |
+| curr_pe_basic_excl_issue | double | Price-to-earnings ratio - basic deduction (issue specific) |
+| curr_pe_basic_excl_issue_ttm | double | P/E ratio - basic deduction (TTM, issue specific) |
+| curr_pe_basic_excl | double | Price-earnings ratio-basic deduction |
+| curr_pe_basic_excl_ttm | double | Price-to-earnings ratio - basic deduction (TTM) |
+| curr_pe_basic_incl_issue | double | Price-to-earnings ratio - basic with extraordinary items (issue specific) |
+| curr_pe_basic_incl_issue_ttm | double | P/E ratio - basic with extraordinary items (TTM, issue specific) |
+| curr_pe_basic_incl | double | Price-earnings ratio-basic including extraordinary items |
+| curr_pe_basic_incl_ttm | double | Price-to-earnings ratio-basic including extraordinary items (TTM) |
+| curr_earn_yld_basic_excl_issue_ratio | double | Basic earnings per share (excluding non-profit) as a proportion of stock price (issue specific) |
+| curr_earn_yld_basic_excl_issue_ratio_ttm | double | Basic earnings per share (excluding non-profit) as a proportion of stock price (TTM, issue specific) |
+| curr_earn_yld_basic_excl_ratio | double | Basic earnings per share (excluding non-profit) as a share of stock price |
+| curr_earn_yld_basic_excl_ratio_ttm | double | Basic earnings per share (excluding non-profit) as a share of stock price (TTM) |
+| curr_earn_yld_basic_incl_issue_ratio | double | Basic earnings per share (including extraordinary) as a proportion of stock price (issue specific) |
+| curr_earn_yld_basic_incl_issue_ratio_ttm | double | Basic earnings per share (including extraordinary) as a proportion of stock price (TTM, issue specific) |
+| curr_earn_yld_basic_incl_ratio | double | Basic earnings per share (including extraordinary) as a proportion of stock price |
+| curr_earn_yld_basic_incl_ratio_ttm | double | Basic earnings per share (including extraordinary) as a share of stock price (TTM) |
+| curr_earn_yld_dil_excl_issue_ratio | double | Diluted earnings per share (excluding non-profit) as a proportion of stock price (issue specific) |
+| curr_earn_yld_dil_excl_issue_ratio_ttm | double | Diluted earnings per share (excluding non-profit) as a share of stock price (TTM, issue specific) |
+| curr_earn_yld_dil_excl_ratio | double | Diluted earnings per share (excluding non-profit) as a share of stock price |
+| curr_earn_yld_dil_excl_ratio_ttm | double | Diluted earnings per share (excluding non-profit) as a share of stock price (TTM) |
+| curr_earn_yld_dil_incl_issue_ratio | double | Diluted earnings per share (including extraordinary) as a proportion of stock price (issue specific) |
+| curr_earn_yld_dil_incl_issue_ratio_ttm | double | Diluted earnings per share (including extraordinary) as a share of stock price (TTM, issue specific) |
+| curr_earn_yld_dil_incl_ratio | double | Diluted earnings per share (including extraordinary) as a share of stock price |
+| curr_earn_yld_dil_incl_ratio_ttm | double | Diluted earnings per share (including extraordinary) as a share of stock price (TTM) |
+| curr_rel_pe_dil_excl_issue_ratio | double | Relative P/E quantile (issue specific) |
+| curr_rel_pe_dil_excl_ratio | double | relative price-earnings ratio quantile |
+| curr_peg | double | P/E ratio relative to earnings growth ratio |
+| curr_peg_issue | double | P/E ratio relative to earnings growth ratio (issue specific) |
+| curr_peg_ttm | double | P/E ratio relative to earnings growth ratio (TTM) |
+| curr_peg_issue_ttm | double | P/E relative to earnings growth ratio (TTM, issue specific) |
+| curr_pegy_issue | double | P/E ratio relative to earnings growth and dividend ratio (issue specific) |
+| curr_pegy_issue_ttm | double | P/E ratio relative to earnings growth and dividend ratio (TTM, issue specific) |
+| curr_pe_dil_excl_ttm_incl_neg | double | Price-to-earnings ratio - dilution net of non-dilution (TTM, including negative values) |
+| curr_pe_dil_excl_issue_ttm_incl_neg | double | P/E ratio - dilution net of non (TTM, issue specific, including negative values) |
+| curr_sales_per_emp_ann | double | Sales per capita (annualized) |
+| curr_sales_per_emp_currency_ann | str | Sales per capita - currency unit (annualized) |
+| curr_sales_per_emp_ttm | double | Sales per capita (TTM) |
+| curr_sales_per_emp_currency_ttm | str | Sales per capita - currency unit (TTM) |
+| curr_net_inc_per_emp_ann | double | Net profit after tax per capita (annualized) |
+| curr_net_inc_per_emp_currency_ann | str | Net profit after tax per capita - currency unit (annualized) |
+| curr_net_inc_per_emp_ttm | double | Net profit after tax per capita (TTM) |
+| curr_net_inc_per_emp_currency_ttm | str | Net profit after tax per capita - currency unit (TTM) |
+| curr_ev | double | enterprise value |
+| curr_ev_currency | str | Enterprise value - currency unit |
+| curr_pb | double | price to book ratio |
+| curr_pb_issue | double | price to book ratio (issue specific) |
+| curr_ptb | double | price to book ratio - tangible |
+| curr_ptb_issue | double | Price to Book Ratio - Tangible (issue specific) |
+| curr_ev_excl_lt_inv | double | Enterprise value (excluding long-term investments) |
+| curr_ev_excl_lt_inv_currency | str | Enterprise value - currency units (excluding long-term investments) |
+| curr_cash_to_mcap_ratio_lfy | double | Proportion of cash and short-term investments in market capitalization (last fiscal year) |
+| curr_pb_lfy | double | Price to Book Ratio (last fiscal year) |
+| curr_pb_issue_lfy | double | Price to Book Ratio (last fiscal year, issue specific) |
+| curr_ptb_lfy | double | Price to Book Ratio - Tangible (Last Fiscal Year) |
+| curr_ptb_issue_lfy | double | Price to Book Ratio - Tangible (last fiscal year, issue specific) |
+| curr_ev_out | double | Enterprise value (based on outstanding equity) |
+| curr_ev_out_currency | str | Enterprise value - currency units (based on outstanding equity) |
+| curr_net_debt_to_ev_ratio | double | Net debt to enterprise value |
+| curr_price_to_fcf_pershr | double | share price/free cash flow per share |
+| curr_price_to_fcf_pershr_ttm | double | Price/free cash flow per share (TTM) |
+| curr_price_to_fcf_pershr | double | share price/free cash flow per share |
+| curr_price_to_fcf_pershr_ttm | double | Price/free cash flow per share (TTM) |
+| curr_high_to_pe_dil_excl_ttm | double | 52-week high price/earnings per share (TTM) |
+| curr_high_to_pe_dil_excl_issue_ttm | double | 52-week high price/EPS (TTM, issue specific) |
+| curr_low_to_pe_dil_excl_ttm | double | 52-week low price/earnings per share (TTM) |
+| curr_low_to_pe_dil_excl_issue_ttm | double | 52-week low price/EPS (TTM, issue specific) |
+| curr_earn_yld_dil_excl_issue_to_high_ratio_ttm | double | EPS as a percentage of 52-week high price (issue specific, TTM) |
+| curr_earn_yld_dil_excl_to_high_ratio_ttm | double | Earnings per share as a percentage of 52-week high price (TTM) |
+| curr_earn_yld_dil_excl_issue_to_low_ratio_ttm | double | EPS as a percentage of 52-week low price (issue specific, TTM) |
+| curr_earn_yld_dil_excl_to_low_ratio_ttm | double | Earnings per share as a percentage of 52-week lowest price (TTM) |
+| curr_high_to_pb | double | 52-week high price/book value per share |
+| curr_high_to_pb_issue | double | 52-week high price/book value per share (issue specific) |
+| curr_low_to_pb | double | 52-week low price/book value per share |
+| curr_low_to_pb_issue | double | 52-week low price/book value per share (issue specific) |
+
+### Usage examples
+
+#### Obtain the latest partial market financial statistical indicators of all Hong Kong stock companies
+
+```python
+import tqx_data
+result = tqx_data.get_company_current(
+    market='hk',
+    symbol=[""],
+    fields=["curr_price_to_dps_issue_ttm","curr_div_yld_gross_issue_ratio","curr_fcf_to_ev_ratio_ttm"]
+)
+print(result)
+```
+
+**Response Example**
+
+```text
+symbol date curr_price_to_dps_issue_ttm curr_div_yld_gross_issue_ratio curr_fcf_to_ev_ratio_ttm
+0 0001.HK 20251231 NaN NaN NaN
+1 0001.HK 20260422 NaN NaN 7.405582
+2 0002.HK 20251231 NaN NaN NaN
+3 0002.HK 20260421 26.089543 4.185285 NaN
+4 0002.HK 20260422 NaN NaN 2.373637
+... ... ... ... ... ...
+5651 9998.HK 20260422 NaN NaN NaN
+5652 9999.HK 20251231 NaN NaN NaN
+5653 9999.HK 20260416 NaN NaN 12.294160
+5654 9999.HK 20260421 NaN NaN NaN
+5655 9999.HK 20260422 37.359101 2.677018 NaN
+```
+
+## Get the company’s latest industry median statistics
+
+### Method name: get_company_imed
+
+### Enter parameters
+
+| Field | Type | Description | Is it required |
+|:---|:---|:---|:---|
+| symbol | Optional\[Union\[str, List\[str\]\]\] | Stock code | Optional |
+| fields | Optional\[Union\[str, List\[str\]\]\] | Return fields | Optional |
+| market | str | Market, supports `hk`, `us`, default is `hk` | required |
+
+### Response parameters
+
+| Field | Type | Description |
+|:---|:---|:---|
+| symbol | str | stock code |
+| date | str | date |
+| industry_name | str | industry name |
+| imed_rec_turnover_ttm | double | Accounts receivable turnover rate TTM |
+| imed_asset_turnover_ttm | double | Total asset turnover rate TTM |
+| imed_net_trade_cycle_days_ttm | double | Average net business cycle (days) TTM |
+| imed_gross_div_yield_ttm | double | Current dividend rate (gross profit) TTM |
+| imed_net_div_yield_ttm | double | Current dividend rate (net profit) TTM |
+| imed_price_to_fcf_per_shr_ttm | double | Price/free cash flow per share TTM |
+| imed_gross_div_yield_ttm | double | Dividend rate (gross profit) TTM |
+| imed_retention_ratio_ttm | double | Profit retention rate TTM |
+| imed_fa_turnover_ttm | double | Fixed asset turnover rate TTM |
+| imed_inv_turnover_ttm | double | Inventory turnover rate TTM |
+| imed_inv_ratio_ttm | double | investment ratio TTM |
+| imed_net_debt_to_ebitda_ttm | double | Net debt/EBITDA TTM |
+| imed_pretax_roa_ratio_ttm | double | Pre-tax return on total assets TTM |
+| imed_pretax_roe_ratio_ttm | double | pre-tax return on equity TTM |
+| imed_pe_excl_exord_ttm | double | Price-to-earnings ratio (excluding extraordinary items) TTM |
+| imed_price_to_fcf_net_div_ttm | double | Stock price/FCF per share (excluding dividends) TTM |
+| imed_price_to_cfo_per_shr_ttm | double | Stock price/operating cash flow per share TTM |
+| imed_price_to_rev_per_shr_ttm | double | Stock price/Total revenue per share TTM |
+| imed_loan_loss_prov_to_loans_ratio_ttm | double | Loan loss provision/net loan TTM |
+| imed_reinv_ratio_ttm | double | Reinvestment rate TTM |
+| imed_roe_avg_common_ttm | double | Average common equity ROE TTM |
+| imed_roic_ratio_ttm | double | Return on invested capital TTM |
+| imed_sales_per_emp_ttm | double | Sales per capita TTM |
+| imed_sales_per_emp_ccy_ttm | str | Sales per capita - currency unit TTM |
+| imed_wcap_to_rev_pct_chg_ttm | double | Working capital/revenue (month-on-month change)TTM |
+| imed_pe_ttm | double | Current price-to-earnings ratio TTM |
+| imed_pb_ttm | double | Current price-to-book ratio TTM |
+| imed_pcfo_ttm | double | Current stock price/operating cash flow TTM |
+| imed_ps_ttm | double | Current price-to-sales ratio TTM |
+| imed_core_tier1_ratio_fye_mid | double | core tier 1 capital adequacy ratio |
+| imed_combined_ratio_insur_fye_mid | double | combined ratio-insurance |
+| imed_curr_ratio_fye_mid | double | current ratio |
+| imed_deposits_pct_chg_fye_mid | double | Month-on-month change in deposits |
+| imed_ebitda_margin_ratio_fye_mid | double | EBITDA margin |
+| imed_efficiency_ratio_fye_mid | double | efficiency ratio |
+| imed_expense_ratio_insur_fye_mid | double | expense ratio-insurance |
+| imed_fee_rev_ratio_fye_mid | double | Fee income ratio |
+| imed_gross_margin_ratio_fye_mid | double | gross profit margin |
+| imed_net_income_margin_excl_exord_fye_mid | double | Common stock net profit margin (excluding extraordinary) |
+| imed_tax_rate_ratio_fye_mid | double | income tax rate |
+| imed_insur_reserves_pct_chg_fye_mid | double | Month-on-month change in insurance reserves |
+| imed_int_coverage_ratio_fye_mid | double | interest coverage ratio |
+| imed_net_loans_pct_chg_fye_mid | double | Net loan month-on-month change |
+| imed_nonperf_loans_to_gross_loans_ratio_fye_mid | double | Nonperforming and impaired loans/total loans |
+| imed_loans_to_deposits_ratio_fye_mid | double | loan-to-deposit ratio |
+| imed_loss_ratio_insur_fye_mid | double | loss ratio-insurance |
+| imed_lt_debt_to_tot_cap_ratio_fye_mid | double | long-term debt/total capital |
+| imed_cfo_abs_fye_mid | double | Net cash flow from operating activities (absolute) |
+| imed_cfo_ccy_fye_mid | str | Cash flow from operating activities - monetary unit |
+| imed_nim_ratio_fye_mid | double | net interest margin |
+| imed_net_margin_ratio_fye_mid | double | net profit margin |
+| imed_net_premiums_earned_diff_fye_mid | double | Net premiums earned (month-on-month change) |
+| imed_net_premiums_earned_diff_ccy_fye_mid | str | Net premiums earned - currency unit |
+| imed_nonint_inc_to_op_inc_ratio_fye_mid | double | Non-interest income/operating income |
+| imed_op_lev_fye_mid | double | operating leverage |
+| imed_op_margin_ratio_fye_mid | double | operating profit margin |
+| imed_op_ratio_insur_fye_mid | double | operating ratio-insurance |
+| imed_pb_fye_mid | double | Price-to-book ratio (mid-fiscal year) |
+| imed_prov_doubtful_to_rec_ratio_fye_mid | double | Bad debt provision/accounts receivable |
+| imed_quick_ratio_fye_mid | double | quick ratio |
+| imed_foreclosed_assets_to_loans_ratio_fye_mid | double | Foreclosed real estate/total loan |
+| imed_securities_to_earn_assets_ratio_fye_mid | double | securities/earning assets |
+| imed_tax_complement_fye_mid | double | tax complement rate |
+| imed_assets_to_equity_ratio_fye_mid | double | total assets/total equity |
+| imed_debt_to_equity_ratio_fye_mid | double | Total debt/common equity |
+| imed_rec_turnover_fye | double | Accounts receivable turnover ratio (fiscal year) |
+| imed_asset_turnover_fye | double | Total asset turnover rate (fiscal year) |
+| imed_net_trade_cycle_days_fye | double | Average net operating cycle (fiscal year) |
+| imed_core_tier1_ratio_fye | double | Core tier 1 capital adequacy ratio (fiscal year) |
+| imed_combined_ratio_insur_fye | double | Combined ratio-insurance (fiscal year) |
+| imed_curr_ratio_fye | double | Current ratio (fiscal year) |
+| imed_deposits_pct_chg_fye | double | Month-on-month change in deposits (fiscal year) |
+| imed_gross_div_yield_fye | double | Dividend rate (gross profit - fiscal year) |
+| imed_retention_ratio_fye | double | Earnings retention rate (fiscal year) |
+| imed_ebitda_margin_ratio_fye | double | EBITDA margin (fiscal year) |
+| imed_efficiency_ratio_fye | double | Efficiency ratio (fiscal year) |
+| imed_expense_ratio_insur_fye | double | Expense ratio-insurance (fiscal year) |
+| imed_fee_rev_ratio_fye | double | Fee income ratio (fiscal year) |
+| imed_fa_turnover_fye | double | Fixed asset turnover rate (fiscal year) |
+| imed_gross_margin_ratio_fye | double | Gross profit margin (fiscal year) |
+| imed_net_income_margin_excl_exord_fye | double | Net profit margin on common shares (excluding extraordinary-fiscal year) |
+| imed_tax_rate_ratio_fye | double | Income tax rate (fiscal year) |
+| imed_insur_reserves_pct_chg_fye | double | Month-on-month change in insurance reserves (fiscal year) |
+| imed_int_coverage_ratio_fye | double | Interest coverage ratio (fiscal year) |
+| imed_inv_turnover_fye | double | Inventory turnover rate (fiscal year) |
+| imed_inv_ratio_fye | double | investment ratio (fiscal year) |
+| imed_net_loans_pct_chg_fye | double | Net loan sequential change (fiscal year) |
+| imed_nonperf_loans_to_gross_loans_ratio_fye | double | Nonperforming loan ratio (fiscal year) |
+| imed_loans_to_deposits_ratio_fye | double | loan-to-deposit ratio (fiscal year) |
+| imed_loss_ratio_insur_fye | double | Loss ratio-insurance (fiscal year) |
+| imed_lt_debt_to_tot_cap_ratio_fye | double | Long-term debt/total capital (fiscal year) |
+| imed_cfo_abs_fye | double | Net operating cash flow (fiscal year) |
+| imed_cfo_ccy_fye | str | Operating cash flow - monetary unit (fiscal year) |
+| imed_net_debt_to_ebitda_fye | double | Net debt/EBITDA (fiscal year) |
+| imed_nim_ratio_fye | double | Net interest margin (fiscal year) |
+| imed_net_margin_ratio_fye | double | Net profit margin (fiscal year) |
+| imed_net_premiums_earned_diff_fye | double | Net premiums earned (month-on-month change), industry median - most recent fiscal year |
+| imed_net_premiums_earned_diff_ccy_fye | str | Net premiums earned (month-on-month change) - currency, industry median - most recent fiscal year |
+| imed_nonint_inc_to_op_inc_ratio_fye | double | Noninterest income/operating income, industry median - most recent fiscal year |
+| imed_op_lev_fye | double | Operating leverage, industry median - most recent fiscal year |
+| imed_op_margin_ratio_fye | double | Operating margin (%), industry median - most recent fiscal year |
+| imed_op_ratio_insur_fye | double | Operating ratio - Insurance (%), industry median - most recent fiscal year |
+| imed_pretax_roa_ratio_fye | double | Pretax return on total assets (%), industry median - most recent fiscal year |
+| imed_pretax_roe_ratio_fye | double | Pretax return on equity (%), industry median - most recent fiscal year |
+| imed_pb_fye | double | Stock price / Net assets per share, industry median - most recent fiscal year |
+| imed_pe_excl_exord_fye | double | Share price / diluted earnings per share (excluding extraordinary items), industry median - most recent fiscal year |
+| imed_price_to_fcf_net_div_fye | double | Price / Free Cash Flow per Share (net of dividends), industry median - most recent fiscal year |
+| imed_price_to_cfo_per_shr_fye | double | Price / cash flow from operations per share, industry median - most recent fiscal year |
+| imed_price_to_rev_per_shr_fye | double | Price / Total earnings per share, industry median - most recent fiscal year |
+| imed_prov_doubtful_to_rec_ratio_fye | double | Allowance for bad debts/net receivables (%), industry median - most recent fiscal year |
+| imed_loan_loss_prov_to_loans_ratio_fye | double | Loan loss provision/total net loans (%), industry median - most recent fiscal year |
+| imed_quick_ratio_fye | double | Quick ratio, industry median - most recent fiscal year |
+| imed_foreclosed_assets_to_loans_ratio_fye | double | Foreclosed properties / Total loans (%), industry median - most recent fiscal year |
+| imed_reinv_ratio_fye | double | Reinvestment rate (%), industry median - most recent fiscal year |
+| imed_roe_avg_common_fye | double | Average return on common equity (%), industry median - most recent fiscal year |
+| imed_roic_ratio_fye | double | Return on invested capital (%), industry median - most recent fiscal year |
+| imed_sales_per_emp_fye | double | Sales per employee, industry median - most recent fiscal year |
+| imed_sales_per_emp_ccy_fye | str | Sales per employee - monetary unit, industry median - most recent fiscal year |
+| imed_securities_to_earn_assets_ratio_fye | double | Securities as a share of average earning assets (%), industry median - most recent fiscal year |
+| imed_tax_complement_fye | double | Tax complement rate, industry median - most recent fiscal year |
+| imed_assets_to_equity_ratio_fye | double | Total assets/total equity, industry median - most recent fiscal year |
+| imed_debt_to_equity_ratio_fye | double | Total debt/common equity, industry median - most recent fiscal year |
+| imed_wcap_to_rev_pct_chg_fye | double | Working capital as a percentage of total revenue (quarter-over-quarter change), industry median - most recent fiscal year |
+| imed_rec_turnover_prev_fye | double | Accounts receivable turnover, industry median - last fiscal year |
+| imed_asset_turnover_prev_fye | double | Total asset turnover, industry median - last fiscal year |
+| imed_net_trade_cycle_days_prev_fye | double | Average net operating cycle (days), industry median - last fiscal year |
+| imed_core_tier1_ratio_prev_fye | double | Core tier 1 capital adequacy ratio (%), industry median - last fiscal year |
+| imed_combined_ratio_insur_prev_fye | double | Combined Ratio - Insurance (%), Industry Median - Last Fiscal Year |
+| imed_curr_ratio_prev_fye | double | Current ratio, industry median - last fiscal year |
+| imed_deposits_pct_chg_prev_fye | double | Total deposits (% change month-on-month), industry median - last fiscal year |
+| imed_gross_div_yield_prev_fye | double | Dividend yield (common stock - gross margin - %), industry median - last fiscal year |
+| imed_retention_ratio_prev_fye | double | Earnings retention ratio, industry median - last fiscal year |
+| imed_ebitda_margin_ratio_prev_fye | double | EBITDA margin (%), industry median - last fiscal year |
+| imed_efficiency_ratio_prev_fye | double | Efficiency ratio (%), industry median - last fiscal year |
+| imed_expense_ratio_insur_prev_fye | double | Expense ratio - Insurance (%), industry median - last fiscal year |
+| imed_fee_rev_ratio_prev_fye | double | Fee income proportion (%), industry median - last fiscal year |
+| imed_fa_turnover_prev_fye | double | Fixed asset turnover, industry median - last fiscal year |
+| imed_gross_margin_ratio_prev_fye | double | Gross margin (%), industry median - last fiscal year |
+| imed_net_income_margin_excl_exord_prev_fye | double | Common equity distributable net profit margin (excluding extraordinary items, %), industry median - last fiscal year |
+| imed_tax_rate_ratio_prev_fye | double | Income tax rate (%), industry median - last fiscal year |
+| imed_insur_reserves_pct_chg_prev_fye | double | Total insurance reserves (% change sequentially), industry median - previous fiscal year |
+| imed_int_coverage_ratio_prev_fye | double | Interest coverage ratio, industry median - last fiscal year |
+| imed_inv_turnover_prev_fye | double | Inventory turnover, industry median - last fiscal year |
+| imed_inv_ratio_prev_fye | double | Investment ratio (%), industry median - last fiscal year |
+| imed_net_loans_pct_chg_prev_fye | double | Total net loans (% change sequentially), industry median - last fiscal year |
+| imed_nonperf_loans_to_gross_loans_ratio_prev_fye | double | Nonperforming and impaired loans / total loans (%), industry median - last fiscal year |
+| imed_loans_to_deposits_ratio_prev_fye | double | Loan-to-deposit ratio (end of period), industry median - previous fiscal year |
+| imed_loss_ratio_insur_prev_fye | double | Loss Ratio - Insurance (%), Industry Median - Previous Fiscal Year |
+| imed_lt_debt_to_tot_cap_ratio_prev_fye | double | Long-term debt to total capital (%), industry median - last fiscal year |
+| imed_cfo_abs_prev_fye | double | Net cash flow from operating activities, industry median - last fiscal year |
+| imed_cfo_ccy_prev_fye | str | Net cash flow from operating activities - currency, industry median - last fiscal year |
+| imed_net_debt_to_ebitda_prev_fye | double | Net debt/EBITDA, industry median - last fiscal year |
+| imed_nim_ratio_prev_fye | double | Net interest margin (%), industry median - last fiscal year |
+| imed_net_margin_ratio_prev_fye | double | Net margin (%), industry median - last fiscal year |
+| imed_net_premiums_earned_diff_prev_fye | double | Net premiums earned (qoq change), industry median - last fiscal year |
+| imed_net_premiums_earned_diff_ccy_prev_fye | str | Net premiums earned (month-on-month change) - currency unit, industry median - previous fiscal year |
+| imed_nonint_inc_to_op_inc_ratio_prev_fye | double | Noninterest income/operating income, industry median - last fiscal year |
+| imed_op_lev_prev_fye | double | Operating leverage, industry median - last fiscal year |
+| imed_op_margin_ratio_prev_fye | double | Operating margin (%), industry median - last fiscal year |
+| imed_op_ratio_insur_prev_fye | double | Operating ratio - Insurance (%), industry median - last fiscal year |
+| imed_pretax_roa_ratio_prev_fye | double | Pre-tax return on assets (%), industry median - last fiscal year |
+| imed_pretax_roe_ratio_prev_fye | double | ROE before tax (%), industry median - last fiscal year |
+| imed_pb_prev_fye | double | Share price / Net assets per share, industry median - last fiscal year |
+| imed_pe_excl_exord_prev_fye | double | Share price / diluted earnings per share (excluding extraordinary items), industry median - last fiscal year |
+| imed_price_to_fcf_net_div_prev_fye | double | Price / Free Cash Flow per Share (net of dividends), industry median - last fiscal year |
+| imed_price_to_cfo_per_shr_prev_fye | double | Price / cash flow from operating activities per share, industry median - last fiscal year |
+| imed_price_to_rev_per_shr_prev_fye | double | Price / Total earnings per share, industry median - last fiscal year |
+| imed_prov_doubtful_to_rec_ratio_prev_fye | double | Allowance for bad debts/net receivables (%), industry median - last fiscal year |
+| imed_loan_loss_prov_to_loans_ratio_prev_fye | double | Loan loss provisions/total net loans (%), industry median - last fiscal year |
+| imed_quick_ratio_prev_fye | double | Quick ratio, industry median - last fiscal year |
+| imed_foreclosed_assets_to_loans_ratio_prev_fye | double | Foreclosed properties / Total loans (%), industry median - last fiscal year |
+| imed_reinv_ratio_prev_fye | double | Reinvestment rate (%), industry median - last fiscal year |
+| imed_roe_avg_common_prev_fye | double | Average return on common equity (%), industry median - last fiscal year |
+| imed_roic_ratio_prev_fye | double | Return on invested capital (%), industry median - last fiscal year |
+| imed_sales_per_emp_prev_fye | double | Sales per employee, industry median - last fiscal year |
+| imed_sales_per_emp_ccy_prev_fye | str | Sales per employee - monetary unit, industry median - last fiscal year |
+| imed_securities_to_earn_assets_ratio_prev_fye | double | Securities to average earning assets (%), industry median - last fiscal year |
+| imed_tax_complement_prev_fye | double | Tax complement rate, industry median - last fiscal year |
+| imed_assets_to_equity_ratio_prev_fye | double | Total assets/total equity, industry median - last fiscal year |
+| imed_debt_to_equity_ratio_prev_fye | double | Total debt/common equity, industry median - last fiscal year |
+| imed_wcap_to_rev_pct_chg_prev_fye | double | Working capital as a percentage of total revenue (qoq change), industry median - last fiscal year |
+| imed_dps_yield_cur_fye | double | Dividend per share yield (%), industry median - current fiscal year |
+| imed_fwd_ev_to_ebit_cur_fye | double | Forward enterprise value/EBIT, industry median - current fiscal year |
+| imed_fwd_ev_to_ebitda_cur_fye | double | Forward enterprise value/EBITDA, industry median - current fiscal year |
+| imed_fwd_ev_to_cfo_cur_fye | double | Forward enterprise value/operating cash flow, industry median - current fiscal year |
+| imed_fwd_ev_to_sales_cur_fye | double | Forward enterprise value/sales, industry median - current fiscal year |
+| imed_fwd_net_debt_to_ebitda_cur_fye | double | Forward net debt/EBITDA, industry median - current fiscal year |
+| imed_fwd_pe_cur_fye | double | Forward price-to-earnings (P/E) ratio, industry median - current fiscal year |
+| imed_fwd_peg_cur_fye | double | Forward P/E relative to earnings growth (P/E/G), industry median - current fiscal year |
+| imed_fwd_pb_cur_fye | double | Forward share price / net assets per share, industry median - current fiscal year |
+| imed_fwd_pcfo_cur_fye | double | Forward price/cash flow per share, industry median - current fiscal year |
+| imed_fwd_ps_cur_fye | double | Forward stock price/sales per share, industry median - current fiscal year |
+| imed_fwd_total_debt_to_ebitda_cur_fye | double | Forward total debt/EBITDA, industry median - current fiscal year |
+| imed_dps_yield_ntm | double | Dividend per share yield (%), industry median - next twelve months |
+| imed_fwd_ev_to_ebit_ntm | double | Forward Enterprise Value/EBIT, Industry Median - Next Twelve Months |
+| imed_fwd_ev_to_ebitda_ntm | double | Forward Enterprise Value/EBITDA, Industry Median - Next Twelve Months |
+| imed_fwd_ev_to_cfo_ntm | double | Forward Enterprise Value/Operating Cash Flow, Industry Median - Next Twelve Months |
+| imed_fwd_ev_to_sales_ntm | double | Forward Enterprise Value/Sales, Industry Median - Next Twelve Months |
+| imed_fwd_net_debt_to_ebitda_ntm | double | Forward net debt/EBITDA, industry median - next twelve months |
+| imed_fwd_pe_ntm | double | Forward price-to-earnings (P/E) ratio, industry median - next twelve months |
+| imed_fwd_peg_ntm | double | Forward P/E/G, industry median - next twelve months |
+| imed_fwd_pcfo_ntm | double | Forward price/cash flow per share, industry median - next twelve months |
+| imed_fwd_ps_ntm | double | Forward share price/sales per share, industry median - next twelve months |
+| imed_fwd_total_debt_to_ebitda_ntm | double | Forward-looking total debt/EBITDA, industry median - next twelve months |
+
+### Usage examples
+
+#### Obtain the latest median statistical data of some industries for all Hong Kong stock companies
+
+```python
+import tqx_data
+result = tqx_data.get_company_imed(
+    market='hk',
+    symbol=[""],
+    fields=["imed_net_trade_cycle_days_ttm","imed_pretax_roa_ratio_ttm"]
+)
+print(result)
+```
+
+**Response Example**
+
+```text
+symbol date imed_net_trade_cycle_days_ttm imed_pretax_roa_ratio_ttm
+0 0002.HK 20240920 46.081797 NaN
+1 0002.HK 20260331 NaN NaN
+2 0002.HK 20260421 NaN 1.716472
+3 0018.HK 20240920 23.065888 NaN
+4 0018.HK 20260421 NaN 4.118784
+.. ... ... ... ...
+531 9938.HK 20260421 NaN 5.000255
+532 9977.HK 20240920 67.514588 NaN
+533 9977.HK 20260421 NaN 4.453275
+534 9991.HK 20240920 35.499386 NaN
+535 9991.HK 20260421 NaN 5.831199
+```
+
+## Obtain the company’s latest price and volume indicator data
+
+### Method name: get_company_price_vol
+
+### Enter parameters
+
+| Field | Type | Description | Is it required |
+|:---|:---|:---|:---|
+| symbol | Optional\[Union\[str, List\[str\]\]\] | Stock code | Optional |
+| fields | Optional\[Union\[str, List\[str\]\]\] | Return fields | Optional |
+| market | str | Market, supports `hk`, `us`, default is `hk` | required |
+
+### Response parameters
+
+| Field | Type | Description |
+|:-----------------------|:-------|:--------------------------------|
+| symbol | str | stock code |
+| pv_beta_5y | double | 5-year beta (share price movement relative to the market) |
+| pv_return_mtd | double | Month-to-date increase or decrease (%) |
+| pv_market_cap | double | market capitalization (numeric value) |
+| pv_market_cap_currency | str | Market capitalization (currency unit) |
+| pv_market_cap_date | str | Market capitalization (calculation date) |
+| pv_high_52w | double | 52-week high price |
+| pv_high_52w_date | str | 52-week high price occurrence date |
+| pv_low_52w | double | 52-week low price |
+| pv_low_52w_date | str | 52-week low price occurrence date |
+| pv_rel_return_4w | double | 4-week increase or decrease relative to the benchmark (%) |
+| pv_return_13w | double | 13-week increase or decrease (%) |
+| pv_rel_return_13w | double | Relative to the benchmark 13-week increase or decrease (%) |
+| pv_return_1d | double | 1-day increase or decrease (%) |
+| pv_return_26w | double | 26-week increase or decrease (%) |
+| pv_rel_return_26w | double | Relative to the benchmark 26-week increase or decrease (%) |
+| pv_return_52w | double | 52-week increase or decrease (%) |
+| pv_rel_return_52w | double | Relative to the benchmark 52-week increase or decrease (%) |
+| pv_return_5d | double | 5-day increase or decrease (%) |
+| pv_return_ytd | double | Year-to-date increase or decrease (%) |
+| pv_rel_return_ytd | double | Year-to-date increase or decrease relative to the benchmark (%) |
+| pv_avg_vol_10d | double | 10-day average trading volume |
+| pv_avg_monthly_vol_13w | double | 13-week average monthly volume |
+| pv_close | double | latest closing price |
+| pv_close_date | str | latest closing price date |
+| pv_close_currency | str | Closing price currency unit |
+| pv_avg_vol_90d | double | 90-day average trading volume |
+| pv_avg_val_3m | double | 3-month average daily transaction amount |
+
+### Usage examples
+
+#### Obtain the shareholder shareholding report of a certain Hong Kong stock company within a certain period of time
+
+```python
+import tqx_data
+result = tqx_data.get_company_price_vol(
+    market='hk',
+    symbol=[""],
+    fields=["pv_beta_5y","pv_rel_return_26w"]
+)
+print(result)
+```
+
+**Response Example**
+
+```text
+symbol pv_beta_5y pv_rel_return_26w
+0 0001.HK 0.592207 25.364034
+1 0002.HK 0.244215 12.544505
+2 0003.HK 0.434090 -0.222832
+3 0004.HK 0.451330 11.580112
+4 0005.HK 1.355217 23.942310
+... ... ... ...
+2850 9995.HK 1.052884 21.851235
+2851 9996.HK 1.294652 14.637149
+2852 9997.HK 0.681334 12.775834
+2853 9998.HK 0.748572 -16.618340
+2854 9999.HK 0.883445 -23.775904
+```
+

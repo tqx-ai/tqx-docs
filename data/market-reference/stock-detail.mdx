@@ -1,3 +1,181 @@
----
+﻿---
 title: "Stock details"
+description: "Retrieve reference information for listed stocks."
 ---
+
+## Get detailed information of stocks
+
+### Method name: get_stock_detail
+
+### Enter parameters
+
+| **Field** | **Type** | **Description** | **Is it required** |
+|:---|:---|:---|:---|
+| symbol | Optional\[Union\[str, List\[str\]\]\] | Stock code | Optional |
+| fields | Optional\[Union\[str, List\[str\]\]\] | Return fields | Optional |
+| market | Optional\[str\] | Market, supports hk, us, default hk | Optional |
+| status | Optional\[int\] | Whether in the market, 1 - in the market, 0 - delisted, -1 - unknown | Optional |
+
+### Response parameters
+
+#### hk corresponding parameters
+
+| Field | Type | Description |
+|:------------------------|:-----|:-----------------|
+| symbol | str | stock code |
+| name | str | stock name |
+| cn_name | str | Chinese name |
+| local_name | str | local organization name |
+| status | int | stock status |
+| isin_code | str | International Securities Identification Code |
+| abbrev_symbol | str | Stock abbreviation |
+| min_order_amount | str | How many shares corresponds to one lot |
+| trading_code | str | trading code |
+| asset_state | str | transaction status |
+| rcs_asset_category_name | str | asset category name |
+| business_sector | str | Business sector name |
+| economic_sector | str | Economic sector name |
+| industry_group | str | Industry group name |
+| incorp_date | str | company incorporation date |
+| office_address | str | Company headquarters address |
+| office_city | str | Headquarters city |
+| office_country | str | Headquarters country |
+| office_region | str | Headquarters region |
+| postal_code | str | Headquarters postal code |
+| website | str | company website |
+| listed_date | str | listing date |
+
+#### us corresponding parameters
+
+| Field | Type | Description |
+|:------------------------|:-----|:-----------------|
+| symbol | str | stock code |
+| original_symbol | str | original stock symbol |
+| name | str | stock name |
+| listed_date | str | listing date |
+| local_name | str | local organization name |
+| exchange_name | str | exchange name |
+| status | int | stock status |
+| isin_code | str | International Securities Identification Code |
+| abbrev_symbol | str | Stock abbreviation |
+| min_order_amount | str | How many shares corresponds to one lot |
+| trading_code | str | trading code |
+| asset_state | str | transaction status |
+| rcs_asset_category_name | str | asset category name |
+| business_sector | str | Business sector name |
+| economic_sector | str | Economic sector name |
+| industry_group | str | Industry group name |
+| incorp_date | str | company incorporation date |
+| office_address | str | Company headquarters address |
+| office_city | str | Headquarters city |
+| office_country | str | Headquarters country |
+| office_region | str | Headquarters region |
+| postal_code | str | Headquarters postal code |
+| website | str | company website |
+
+### Usage examples
+
+#### Hong Kong stocks
+
+```python
+import tqx_data
+result = tqx_data.get_stock_detail(
+    symbol=["0001.HK","0002.HK","0003.HK"],
+    market="hk",
+    fields=[""],
+    status=None
+)
+print(result)
+```
+
+**Response Example**
+
+```text
+symbol abbrev_symbol ... status trading_code
+0 0001.HK CKHUH ... 1 0001
+1 0002.HK CLPHL ... 1 0002
+2 0003.HK HKCNG ... 1 0003|864603
+```
+
+#### US stocks
+
+```python
+import tqx_data
+result = tqx_data.get_stock_detail(
+    symbol=["0013.NB", "005490.NB", "ZYXIQ.NB"],
+    market="us",
+    fields=[""],
+    status=None
+)
+print(result)
+```
+
+**Response Example**
+
+```text
+symbol abbrev_symbol ... status trading_code
+0 0013.NB None ... 1 None
+1 005490.NB POSCO ... 1 893094
+2 ZYXIQ.NB ZYXIQ ... 0 None
+```
+
+#### Get all Hong Kong stock codes
+
+```python
+import tqx_data
+result = tqx_data.get_stock_detail(
+    symbol="",
+    fields=["symbol"],
+    market="hk",
+    status=None
+)
+print(result)
+```
+
+**Response Example**
+
+```text
+symbol
+0 0001.HK
+1 0002.HK
+2 0003.HK
+3 0004.HK
+4 0005.HK
+... ...
+3224 SPFH.HK
+3225 SUFH.HK
+3226 TEXH.HK
+3227 TTFH.HK
+3228 UNTX.HK
+```
+
+#### Get all US stock codes
+
+```python
+import tqx_data
+result = tqx_data.get_stock_detail(
+    symbol="",
+    fields=["symbol"],
+    market="us",
+    status=None
+)
+print(result)
+```
+
+**Response Example**
+
+```text
+symbol
+0 0013.NB
+1 005490.NB
+2 015760.NB
+3 017670.NB
+4 030200.NB
+... ...
+7792 ZXZZT.NB
+7793 ZYBT.NB
+7794 ZYME.NB
+7795 ZYRX.NB
+7796 ZYXIQ.NB
+```
+

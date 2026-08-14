@@ -1,3 +1,181 @@
+﻿---
+title: "股票詳情"
+description: "取得上市股票的參考資料。"
 ---
-title: "股票詳細資料"
----
+
+## 取得股票的詳細信息
+
+### 方法名稱：get_stock_detail
+
+### 入參
+
+| **欄位** | **類型** | **描述** | **是否必填** |
+|:---|:---|:---|:---|
+| symbol | Optional\[Union\[str, List\[str\]\]\] | 股票代號 | 非必填 |
+| fields | Optional\[Union\[str, List\[str\]\]\] | 傳回欄位 | 非必填 |
+| market | Optional\[str\] | 市場，支援hk,us，預設hk | 非必填 |
+| status | Optional\[int\] | 是否在市，1 -在市，0 -退市，-1 -未知 | 非必填 |
+
+### 回應參數
+
+#### hk對應參數
+
+| 字段 | 類型 | 描述 |
+|:------------------------|:-----|:-----------------|
+| symbol | str | 檔 |
+| name | str | 股票名稱 |
+| cn_name | str | 中文名稱 |
+| local_name | str | 本地組織名稱 |
+| status | int | 股票狀態 |
+| isin_code | str | 國際證券識別編碼 |
+| abbrev_symbol | str | 股票的名稱縮寫 |
+| min_order_amount | str | 一手對應多少股 |
+| trading_code | str | 交易代號 |
+| asset_state | str | 交易狀態 |
+| rcs_asset_category_name | str | 資產類別名稱 |
+| business_sector | str | 業務領域名稱 |
+| economic_sector | str | 經濟領域名稱 |
+| industry_group | str | 產業組名稱 |
+| incorp_date | str | 公司成立日期 |
+| office_address | str | 公司總部地址 |
+| office_city | str | 總部城市 |
+| office_country | str | 總部所在國家 |
+| office_region | str | 總部所在地區 |
+| postal_code | str | 總部郵遞區號 |
+| website | str | 公司網站 |
+| listed_date | str | 上市日期 |
+
+#### us對應參數
+
+| 字段 | 類型 | 描述 |
+|:------------------------|:-----|:-----------------|
+| symbol | str | 檔 |
+| original_symbol | str | 原始股票代號 |
+| name | str | 股票名稱 |
+| listed_date | str | 上市日期 |
+| local_name | str | 本地組織名稱 |
+| exchange_name | str | 交易所名稱 |
+| status | int | 股票狀態 |
+| isin_code | str | 國際證券識別編碼 |
+| abbrev_symbol | str | 股票的名稱縮寫 |
+| min_order_amount | str | 一手對應多少股 |
+| trading_code | str | 交易代號 |
+| asset_state | str | 交易狀態 |
+| rcs_asset_category_name | str | 資產類別名稱 |
+| business_sector | str | 業務領域名稱 |
+| economic_sector | str | 經濟領域名稱 |
+| industry_group | str | 產業組名稱 |
+| incorp_date | str | 公司成立日期 |
+| office_address | str | 公司總部地址 |
+| office_city | str | 總部城市 |
+| office_country | str | 總部所在國家 |
+| office_region | str | 總部所在地區 |
+| postal_code | str | 總部郵遞區號 |
+| website | str | 公司網站 |
+
+### 使用範例
+
+#### 港股
+
+```python
+import tqx_data
+result = tqx_data.get_stock_detail(
+    symbol=["0001.HK","0002.HK","0003.HK"],
+    market="hk",
+    fields=[""],
+    status=None
+)
+print(result)
+```
+
+**回應範例**
+
+```text
+symbol abbrev_symbol ... status trading_code
+0 0001.HK CKHUH ... 1 0001
+1 0002.HK CLPHL ... 1 0002
+2 0003.HK HKCNG ... 1 0003|864603
+```
+
+#### 美股
+
+```python
+import tqx_data
+result = tqx_data.get_stock_detail(
+    symbol=["0013.NB", "005490.NB", "ZYXIQ.NB"],
+    market="us",
+    fields=[""],
+    status=None
+)
+print(result)
+```
+
+**回應範例**
+
+```text
+symbol abbrev_symbol ... status trading_code
+0 0013.NB None ... 1 None
+1 005490.NB POSCO ... 1 893094
+2 ZYXIQ.NB ZYXIQ ... 0 None
+```
+
+#### 取得全部港股股票代碼
+
+```python
+import tqx_data
+result = tqx_data.get_stock_detail(
+    symbol="",
+    fields=["symbol"],
+    market="hk",
+    status=None
+)
+print(result)
+```
+
+**回應範例**
+
+```text
+symbol
+0 0001.HK
+1 0002.HK
+2 0003.HK
+3 0004.HK
+4 0005.HK
+... ...
+3224 SPFH.HK
+3225 SUFH.HK
+3226 TEXH.HK
+3227 TTFH.HK
+3228 UNTX.HK
+```
+
+#### 取得全部美股股票代碼
+
+```python
+import tqx_data
+result = tqx_data.get_stock_detail(
+    symbol="",
+    fields=["symbol"],
+    market="us",
+    status=None
+)
+print(result)
+```
+
+**回應範例**
+
+```text
+symbol
+0 0013.NB
+1 005490.NB
+2 015760.NB
+3 017670.NB
+4 030200.NB
+... ...
+7792 ZXZZT.NB
+7793 ZYBT.NB
+7794 ZYME.NB
+7795 ZYRX.NB
+7796 ZYXIQ.NB
+```
+

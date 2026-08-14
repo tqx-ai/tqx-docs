@@ -31,7 +31,13 @@
             "group": "Research",
             "pages": [
               "research/info",
-              "research/factor",
+              {
+                "group": "Factor",
+                "pages": [
+                  "research/factor/overview",
+                  "research/factor/operator-reference"
+                ]
+              },
               "research/strategy",
               "research/backtest"
             ]
@@ -131,7 +137,13 @@
             "group": "\u6295\u7814",
             "pages": [
               "hk/research/info",
-              "hk/research/factor",
+              {
+                "group": "因子",
+                "pages": [
+                  "hk/research/factor/overview",
+                  "hk/research/factor/operator-reference"
+                ]
+              },
               "hk/research/strategy",
               "hk/research/backtest"
             ]

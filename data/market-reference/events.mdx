@@ -1,3 +1,325 @@
----
+﻿---
 title: "Market events"
+description: "Retrieve dividend, capital market, corporate, disclosure, and investor-relations events."
 ---
+
+## Get events related to stock dividends
+
+### Method name: get_event_devidend
+
+### Enter parameters
+
+| Field | Type | Description | Is it required |
+|:---|:---|:---|:---|
+| start_date | str | Start date,eg: "20250702" | Required |
+| end_date | str | End date,eg: "20250702" | Required |
+| symbol | Optional\[Union\[str, List\[str\]\]\] | Stock code | Optional |
+| fields | Optional\[Union\[str, List\[str\]\]\] | Return fields | Optional |
+| market | str | Market, supports `hk`, `us`, default is `hk` | required |
+
+### Response parameters
+
+| Field | Type | Description |
+|:-------------|:-----|:---------------------------------|
+| publish_date | str | Event announcement release date (date filtering basis) |
+| symbol | str | stock code |
+| excute_date | str | event execution date |
+| event_type | str | event type |
+| number | str | Amount per share |
+| currency | str | Transaction currency |
+| event | str | event |
+
+### Usage examples
+
+#### Obtain events related to Hong Kong stock dividends within a certain period of time
+
+```python
+import tqx_data
+result = tqx_data.get_event_devidend(
+    market='hk',
+    symbol="9999.HK",
+    fields=[],
+    start_date="20250101",
+    end_date="20260501",
+)
+print(result)
+```
+
+**Response Example**
+
+```text
+symbol publish_date ... currency event
+0 9999.HK 20250305 ... USD 9999.HK Final Cash Dividend of gross USD 0.244...
+1 9999.HK 20250529 ... USD 9999.HK Interim Cash Dividend of gross USD 0.1...
+2 9999.HK 20250827 ... USD 9999.HK Interim Cash Dividend of gross USD 0.1...
+3 9999.HK 20251204 ... USD 9999.HK Interim Cash Dividend of gross USD 0.1...
+4 9999.HK 20260313 ... USD 9999.HK Final Cash Dividend of gross USD 0.232...
+```
+
+#### Obtain all U.S. stock dividend-related events within a certain period of time
+
+```python
+import tqx_data
+result = tqx_data.get_event_devidend(
+    market='us',
+    symbol="",
+    fields=[],
+    start_date="20250101",
+    end_date="20260401",
+)
+print(result)
+```
+
+**Response Example**
+
+```text
+symbol publish_date ... currency event
+0 A.NB 20250401 ... USD A.NB Interim Cash Dividend of gross USD 0.248 ...
+1 A.NB 20250701 ... USD A.NB Interim Cash Dividend of gross USD 0.248 ...
+2 A.NB 20250930 ... USD A.NB Final Cash Dividend of gross USD 0.248 pa...
+3 A.NB 20260106 ... USD A.NB Interim Cash Dividend of gross USD 0.255 ...
+4 A.NB 20260331 ... USD A.NB Interim Cash Dividend of gross USD 0.255 ...
+... ... ... ... ... ...
+14433 ZWS.NB 20250220 ... USD ZWS.NB Interim Cash Dividend of gross USD 0.09...
+14434 ZWS.NB 20250520 ... USD ZWS.NB Interim Cash Dividend of gross USD 0.09...
+14435 ZWS.NB 20250820 ... USD ZWS.NB Interim Cash Dividend of gross USD 0.09...
+14436 ZWS.NB 20251120 ... USD ZWS.NB Final Cash Dividend of gross USD 0.11 p...
+14437 ZWS.NB 20260220 ... USD ZWS.NB Interim Cash Dividend of gross USD 0.11...
+```
+
+## Get events related to marketing activities
+
+### Method name: get_event_capital_market
+
+### Enter parameters
+
+| Field | Type | Description | Is it required |
+|:---|:---|:---|:---|
+| start_date | str | Start date,eg: "20250702" | Required |
+| end_date | str | End date,eg: "20250702" | Required |
+| symbol | Optional\[Union\[str, List\[str\]\]\] | Stock code | Optional |
+| fields | Optional\[Union\[str, List\[str\]\]\] | Return fields | Optional |
+| market | str | Market, supports `hk`, `us`, default is `hk` | required |
+
+### Response parameters
+
+| Field | Type | Description |
+|:---------------|:-----|:-------------------------------------------|
+| info_date | str | Announcement date (date filtering basis) |
+| symbol | str | stock code |
+| start_date | str | event execution date |
+| end_date | str | event completion date |
+| is_estimated | int | Whether the event is expected (0 means no, 1 means yes) |
+| fiscal_quarter | str | Fiscal year quarter (if the event does not involve a fiscal year quarter, this column will be empty) |
+| event | str | event |
+
+### Usage examples
+
+#### Obtain all events related to Hong Kong stock market activities within a certain period of time
+
+```python
+import tqx_data
+result = tqx_data.get_event_capital_market(
+    market='hk',
+    symbol="",
+    fields=[],
+    start_date="20250101",
+    end_date="20260401",
+)
+print(result)
+```
+
+**Response Example**
+
+```text
+symbol start_date ... event_type fiscal_quarter
+0 0020.HK 20260329 ... IpoLockupExpirations None
+1 0092.HK 20260203 ... SecondaryPricings None
+2 0139.HK 20260122 ... SecondaryFilings None
+3 0167.HK 20260213 ... SecondaryFilings None
+4 0167.HK 20260312 ... SecondaryPricings None
+.. ... ... ... ... ...
+278 9887.HK 20260121 ... IpoLockupExpirations None
+279 9958.HK 20260204 ... SecondaryPricings None
+280 9973.HK 20260324 ... IpoLockupExpirations None
+281 9980.HK 20260203 ... SecondaryPricings None
+282 9981.HK 20260213 ... SecondaryPricings None
+```
+
+## Get events related to company meetings
+
+### Method name: get_event_corporate_actions
+
+### Enter parameters
+
+| Field | Type | Description | Is it required |
+|:---|:---|:---|:---|
+| start_date | str | Start date,eg: "20250702" | Required |
+| end_date | str | End date,eg: "20250702" | Required |
+| symbol | Optional\[Union\[str, List\[str\]\]\] | Stock code | Optional |
+| fields | Optional\[Union\[str, List\[str\]\]\] | Return fields | Optional |
+| market | str | Market, supports `hk`, `us`, default is `hk` | required |
+
+### Response parameters
+
+| Field | Type | Description |
+|:---------------|:-----|:-------------------------------------------|
+| info_date | str | Announcement date (date filtering basis) |
+| symbol | str | stock code |
+| start_date | str | event execution date |
+| end_date | str | event completion date |
+| is_estimated | int | Whether the event is expected (0 means no, 1 means yes) |
+| fiscal_quarter | str | Fiscal year quarter (if the event does not involve a fiscal year quarter, this column will be empty) |
+| event | str | event |
+
+### Usage examples
+
+#### Obtain events related to all Hong Kong stock company meetings within a certain period of time
+
+```python
+import tqx_data
+result = tqx_data.get_event_corporate_actions(
+    market='hk',
+    symbol="",
+    fields=[],
+    start_date="20250101",
+    end_date="20260401",
+)
+print(result)
+```
+
+**Response Example**
+
+```text
+symbol start_date ... event_type fiscal_quarter
+0 0001.HK 20250522 ... ShareholderAndAnnualMeetings None
+1 0002.HK 20250509 ... ShareholderAndAnnualMeetings None
+2 0002.HK 20220506 ... ShareholderAndAnnualMeetings None
+3 0003.HK 20250604 ... ShareholderAndAnnualMeetings None
+4 0004.HK 20250513 ... ShareholderAndAnnualMeetings None
+... ... ... ... ... ...
+5198 9997.HK 20250523 ... ShareholderAndAnnualMeetings None
+5199 9997.HK 20251110 ... ShareholderAndAnnualMeetings None
+5200 9997.HK 20251110 ... ExtraordinaryShareholdersMeeting None
+5201 9998.HK 20251218 ... ShareholderAndAnnualMeetings None
+5202 9999.HK 20250625 ... ShareholderAndAnnualMeetings None
+```
+
+## Get financial disclosure related events
+
+### Method name: get_event_fina_disclosure
+
+### Enter parameters
+
+| Field | Type | Description | Is it required |
+|:---|:---|:---|:---|
+| start_date | str | Start date,eg: "20250702" | Required |
+| end_date | str | End date,eg: "20250702" | Required |
+| symbol | Optional\[Union\[str, List\[str\]\]\] | Stock code | Optional |
+| fields | Optional\[Union\[str, List\[str\]\]\] | Return fields | Optional |
+| market | str | Market, supports `hk`, `us`, default is `hk` | required |
+
+### Response parameters
+
+| Field | Type | Description |
+|:---------------|:-----|:-------------------------------------------|
+| info_date | str | Announcement date (date filtering basis) |
+| symbol | str | stock code |
+| start_date | str | event execution date |
+| end_date | str | event completion date |
+| is_estimated | int | Whether the event is expected (0 means no, 1 means yes) |
+| fiscal_quarter | str | Fiscal year quarter (if the event does not involve a fiscal year quarter, this column will be empty) |
+| event | str | event |
+
+### Usage examples
+
+#### Obtain all Hong Kong stock financial batch-related events within a certain period of time
+
+```python
+import tqx_data
+result = tqx_data.get_event_fina_disclosure(
+    market='hk',
+    symbol="",
+    fields=[],
+    start_date="20250101",
+    end_date="20260401",
+)
+print(result)
+```
+
+**Response Example**
+
+```text
+symbol start_date ... event_type fiscal_quarter
+0 0001.HK 20250320 ... EarningsReleases 2024q4
+1 0001.HK 20250814 ... EarningsReleases 2025q2
+2 0001.HK 20250814 ... EarningsPresentation 2025q2
+3 0001.HK 20250320 ... EarningsPresentation 2024q4
+4 0001.HK 20260319 ... EarningsReleases 2025q4
+... ... ... ... ... ...
+9247 9999.HK 20050803 ... EarningsCallsAndPresentations None
+9248 9999.HK 20051108 ... EarningsCallsAndPresentations None
+9249 9999.HK 20031029 ... EarningsCallsAndPresentations None
+9250 9999.HK 20260211 ... EarningsReleases 2025q4
+9251 9999.HK 20260211 ... EarningsCallsAndPresentations 2025q4
+```
+
+## Get events related to investor relations activities
+
+### Method name: get_event_investor_relation_activities
+
+### Enter parameters
+
+| Field | Type | Description | Is it required |
+|:---|:---|:---|:---|
+| start_date | str | Start date,eg: "20250702" | Required |
+| end_date | str | End date,eg: "20250702" | Required |
+| symbol | Optional\[Union\[str, List\[str\]\]\] | Stock code | Optional |
+| fields | Optional\[Union\[str, List\[str\]\]\] | Return fields | Optional |
+| market | str | Market, supports `hk`, `us`, default is `hk` | required |
+
+### Response parameters
+
+| Field | Type | Description |
+|:---------------|:-----|:-------------------------------------------|
+| info_date | str | Announcement date (date filtering basis) |
+| symbol | str | stock code |
+| start_date | str | event execution date |
+| end_date | str | event completion date |
+| is_estimated | int | Whether the event is expected (0 means no, 1 means yes) |
+| fiscal_quarter | str | Fiscal year quarter (if the event does not involve a fiscal year quarter, this column will be empty) |
+| event | str | event |
+
+### Usage examples
+
+#### Obtain all Hong Kong stock financial batch-related events within a certain period of time
+
+```python
+import tqx_data
+result = tqx_data.get_event_investor_relation_activities(
+    market='hk',
+    symbol="",
+    fields=[],
+    start_date="20250101",
+    end_date="20260401",
+)
+print(result)
+```
+
+**Response Example**
+
+```text
+symbol start_date ... event_type fiscal_quarter
+0 0002.HK 20250225 ... CorporateInvestorRoadshow None
+1 0002.HK 20250227 ... CorporateInvestorRoadshow None
+2 0002.HK 20250303 ... CorporateInvestorRoadshow None
+3 0002.HK 20250114 ... ConferencePresentations None
+4 0002.HK 20250326 ... ConferencePresentations None
+.. ... ... ... ... ...
+741 9987.HK 20251126 ... ConferencePresentations None
+742 9987.HK 20251127 ... ConferencePresentations None
+743 9987.HK 20251117 ... CorporateAnalystMeetings None
+744 9987.HK 20251113 ... ConferencePresentations None
+745 9988.HK 20250917 ... ConferencePresentations None
+```
+

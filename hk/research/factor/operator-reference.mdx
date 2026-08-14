@@ -1,0 +1,174 @@
+---
+title: "算子參考"
+description: "TQX 因子公式算子及其表達式簽名參考。"
+---
+
+本頁列出 TQX 因子可使用的公式算子。欄位使用 `close`、`volume` 等小寫名稱，算子使用 `MA`、`RANK` 等大寫名稱。
+
+<Warning>
+因子公式會拒絕 `FUTURE_RETURNS(X, N)`，因為它會引入前視偏差。歷史收益請使用 `RETURNS(X, N)`。
+</Warning>
+
+## 數學算子
+
+| 算子 | 表達式 | 說明 |
+|---|---|---|
+| `ABS` | `ABS(X)` | 絕對值 |
+| `LOG` | `LOG(X)` | 自然對數 |
+| `LOGABS` | `LOGABS(X)` | 絕對值的自然對數 |
+| `AS_FLOAT` | `AS_FLOAT(X)` | 將布林序列轉換為 `0.0` 或 `1.0` |
+| `RD` | `RD(X, N)` | 四捨五入至 `N` 位小數 |
+| `SIGN` | `SIGN(X)` | 回傳 `-1`、`0` 或 `1` |
+| `SIN` | `SIN(X)` | 正弦 |
+| `COS` | `COS(X)` | 餘弦 |
+| `TAN` | `TAN(X)` | 正切 |
+| `ARCSIN` | `ARCSIN(X)` | 反正弦 |
+| `ARCCOS` | `ARCCOS(X)` | 反餘弦 |
+| `ARCTAN` | `ARCTAN(X)` | 反正切 |
+| `POWER` | `POWER(X, N)` | `X` 的 `N` 次方 |
+| `SIGNEDPOWER` | `SIGNEDPOWER(X, N)` | 保留正負號的次方運算 |
+
+## 截面算子
+
+| 算子 | 表達式 | 說明 |
+|---|---|---|
+| `RANK` | `RANK(X)` | 截面分位排名，範圍為 `[0, 1]` |
+| `SCALE` | `SCALE(X)` | 將截面縮放至 `[-1, 1]` |
+| `ZSCORE` | `ZSCORE(X)` | 截面 z-score 標準化 |
+
+## 時序算子
+
+| 算子 | 表達式 | 說明 |
+|---|---|---|
+| `CONST` | `CONST(X)` | 使用序列最後一個值填充 |
+| `BARSLAST` | `BARSLAST(X)` | 距離上一次條件為真的期數 |
+| `BARSLASTCOUNT` | `BARSLASTCOUNT(X)` | 連續滿足條件的期數 |
+| `REF` | `REF(X, N)` | `N` 期前的值 |
+| `DELAY` | `DELAY(X, N)` | `REF` 的別名 |
+| `DIFF` | `DIFF(X, N)` | 與 `N` 期前值的差 |
+| `DELTA` | `DELTA(X, N)` | `DIFF` 的別名 |
+| `MA` | `MA(X, N)` | 簡單移動平均 |
+| `TS_MEAN` | `TS_MEAN(X, N)` | `MA` 的別名 |
+| `SUM` | `SUM(X, N)` | 滾動求和 |
+| `PRODUCT` | `PRODUCT(X, N)` | 滾動乘積 |
+| `ROC` | `ROC(X, N)` | 相對 `N` 期前的百分比變化 |
+| `PCT_CHANGE` | `PCT_CHANGE(X, N)` | `ROC` 的別名 |
+| `STD` | `STD(X, N)` | 滾動標準差 |
+| `STDDEV` | `STDDEV(X, N)` | `STD` 的別名 |
+| `VAR` | `VAR(X, N)` | 滾動方差 |
+| `TS_MAX` | `TS_MAX(X, N)` | 滾動最大值 |
+| `TS_MIN` | `TS_MIN(X, N)` | 滾動最小值 |
+| `TS_MIDDLE` | `TS_MIDDLE(X, N)` | 滾動最大值和最小值的平均 |
+| `TS_MAD` | `TS_MAD(X, N)` | 滾動平均絕對偏差 |
+| `TS_RANK` | `TS_RANK(X, N)` | 滾動視窗內的分位排名 |
+| `TS_ARGMAX` | `TS_ARGMAX(X, N)` | 滾動最大值的位置 |
+| `TS_ARGMIN` | `TS_ARGMIN(X, N)` | 滾動最小值的位置 |
+| `HHV` | `HHV(X, N)` | `TS_MAX` 的別名 |
+| `LLV` | `LLV(X, N)` | `TS_MIN` 的別名 |
+| `HHVBARS` | `HHVBARS(X, N)` | 距離滾動最大值的期數 |
+| `LLVBARS` | `LLVBARS(X, N)` | 距離滾動最小值的期數 |
+| `COUNT` | `COUNT(X, N)` | 統計視窗內為真的值 |
+| `EVERY` | `EVERY(X, N)` | 判斷視窗內是否全部為真 |
+| `EXIST` | `EXIST(X, N)` | 判斷視窗內是否至少有一個真值 |
+| `BARSSINCEN` | `BARSSINCEN(X, N)` | 視窗內首次為真距今的期數 |
+| `SLOPE` | `SLOPE(X, N)` | 滾動線性回歸斜率 |
+| `ANGLE` | `ANGLE(X, N)` | 滾動線性回歸角度 |
+| `INTERCEPT` | `INTERCEPT(X, N)` | 滾動線性回歸截距 |
+| `FORCAST` | `FORCAST(X, N)` | 滾動線性回歸預測值 |
+| `DECAYLINEAR` | `DECAYLINEAR(X, N)` | 線性衰減加權平均 |
+| `TS_ZSCORE` | `TS_ZSCORE(X, N)` | 滾動 z-score |
+| `TS_SKEW` | `TS_SKEW(X, N)` | 滾動偏度 |
+| `TS_KURT` | `TS_KURT(X, N)` | 滾動峰度 |
+| `TS_MEDIAN` | `TS_MEDIAN(X, N)` | 滾動中位數 |
+| `AVEDEV` | `AVEDEV(X, N)` | 滾動平均絕對偏差 |
+| `EMA` | `EMA(X, N)` | 指數移動平均 |
+| `DMA` | `DMA(X, A)` | 動態移動平均 |
+| `WMA` | `WMA(X, N)` | 加權移動平均 |
+| `RETURNS` | `RETURNS(X, N)` | 相對 `N` 期前的歷史百分比變化 |
+| `SHARPE` | `SHARPE(X, N)` | 滾動平均除以滾動標準差 |
+| `SUM_ABS_PRICE_CHANGE` | `SUM_ABS_PRICE_CHANGE(X, N)` | 滾動價格絕對變化總和 |
+| `MEAN_ABS_PRICE_CHANGE` | `MEAN_ABS_PRICE_CHANGE(X, N)` | 滾動價格絕對變化平均 |
+| `SMA` | `SMA(X, N, M)` | 中式加權移動平均 |
+
+## 比較和條件算子
+
+| 算子 | 表達式 | 說明 |
+|---|---|---|
+| `MAX` | `MAX(A, B)` | 逐元素取最大值 |
+| `MIN` | `MIN(A, B)` | 逐元素取最小值 |
+| `MEAN` | `MEAN(A, B)` | 逐元素取平均值 |
+| `EQUAL` | `EQUAL(A, B)` | 逐元素判斷相等 |
+| `VALUEWHEN` | `VALUEWHEN(A, B)` | 條件 `A` 為真時取 `B` |
+| `CROSS` | `CROSS(X, Y)` | 判斷 `X` 是否上穿 `Y` |
+| `LONGCROSS` | `LONGCROSS(A, B, N)` | `A` 連續低於 `B` `N` 期後上穿 |
+| `LAST` | `LAST(X, N, M)` | 判斷 `X` 在 `N` 至 `M` 期是否都為真 |
+| `IF` | `IF(X, A, B)` | `X` 為真取 `A`，否則取 `B` |
+
+## 統計和關聯算子
+
+| 算子 | 表達式 | 說明 |
+|---|---|---|
+| `CORR` | `CORR(A, B, N)` | 滾動相關係數 |
+| `CORRELATION` | `CORRELATION(A, B, N)` | `CORR` 的別名 |
+| `COV` | `COV(A, B, N)` | 滾動協方差 |
+| `COVARIANCE` | `COVARIANCE(A, B, N)` | `COV` 的別名 |
+| `TS_REGRESSION` | `TS_REGRESSION(A, B, N)` | 滾動回歸斜率 |
+| `SUMIF` | `SUMIF(A, B, N)` | `A` 為真時累加 `B` |
+
+## 受限制算子
+
+| 算子 | 表達式 | 狀態 |
+|---|---|---|
+| `FUTURE_RETURNS` | `FUTURE_RETURNS(X, N)` | 不可用於因子公式，因為它會讀取未來資料 |
+
+## 技術指標
+
+| 指標 | 表達式 |
+|---|---|
+| 平均成交量 | `ADV(VOLUME, N)` |
+| MACD | `MACD_DIF(CLOSE, SHORT, LONG, M)`、`MACD_DEA(CLOSE, SHORT, LONG, M)`、`MACD(CLOSE, SHORT, LONG, M)` |
+| KDJ | `KDJ_K(CLOSE, HIGH, LOW, N, M1, M2)`、`KDJ_D(CLOSE, HIGH, LOW, N, M1, M2)`、`KDJ_J(CLOSE, HIGH, LOW, N, M1, M2)` |
+| RSI 和威廉指標 | `RSI(X, N)`、`WR(X, N)` |
+| 布林帶 | `BOLL_UPPER(CLOSE, N, P)`、`BOLL_MID(CLOSE, N, P)`、`BOLL_LOWER(CLOSE, N, P)`、`BOLL_WIDTH(X, N)` |
+| 乖離率、PSY 和 CCI | `BIAS(CLOSE, N)`、`PSY(CLOSE, N)`、`PSYMA(CLOSE, N, M)`、`CCI(X, N)` |
+| ATR | `ATR(X, N)` |
+| BBI | `BBI(CLOSE, M1, M2, M3, M4)` |
+| DMI | `DMI_PDI(CLOSE, HIGH, LOW, M1, M2)`、`DMI_MDI(CLOSE, HIGH, LOW, M1, M2)`、`DMI_ADX(CLOSE, HIGH, LOW, M1, M2)`、`DMI_ADXR(CLOSE, HIGH, LOW, M1, M2)` |
+| 進階移動平均 | `DEMA(X, N)`、`TEMA(CLOSE, N)`、`KAMA(X, N)`、`T3(X, N)` |
+| 振盪指標 | `PPO(A, B)`、`AROONOSC(X, N)`、`ADXR(X, N)`、`CMO(X, N)`、`STOCHASTIC(X, N)` |
+| 成交量指標 | `OBV(CLOSE, VOL)`、`VR(CLOSE, VOLUME, M1)`、`MFI(CLOSE, HIGH, LOW, VOLUME, N)` |
+| EMV | `EMV(HIGH, LOW, VOL, N, M)`、`EMVMA(HIGH, LOW, VOL, N, M)` |
+| TRIX | `TRIX(CLOSE, M1, M2)`、`TRIMA(CLOSE, M1, M2)` |
+| DPO | `DPO(CLOSE, M1, M2, M3)`、`DPOMA(CLOSE, M1, M2, M3)` |
+| BRAR | `BRAR(OPEN, CLOSE, HIGH, LOW, M1)`、`ARBR(OPEN, CLOSE, HIGH, LOW, M1)` |
+| 動量 | `MTM(CLOSE, N, M)`、`MTMMA(CLOSE, N, M)`、`ROCMA(CLOSE, N, M)` |
+| MASS | `MASS(HIGH, LOW, N1, N2, M)`、`MASSMA(HIGH, LOW, N1, N2, M)` |
+| EXPMA | `EXPMA(CLOSE, N1, N2)`、`EXPMA2(CLOSE, N1, N2)` |
+| ASI | `ASI(OPEN, CLOSE, HIGH, LOW, M1, M2)`、`ASIT(OPEN, CLOSE, HIGH, LOW, M1, M2)` |
+| DIF | `DIF(CLOSE, N1, N2, M)`、`DFMA(CLOSE, N1, N2, M)` |
+| 布林差值 | `BOLLINGERDIFF(A, B)` |
+
+## 市場相容性
+
+算子集合在不同市場共用，但可用欄位會依市場而變化：
+
+| 市場 | 常用欄位 | 限制 |
+|---|---|---|
+| A 股 | `open`、`close`、`high`、`low`、`volume`、`amount`、`turnover`、`market_cap` 及財務欄位 | 財務欄位須由因子資料來源提供 |
+| 港股 | `open`、`close`、`high`、`low`、`volume`、`amount`、`turnover`、`market_cap` | 不可使用 A 股財務欄位 |
+| 美股 | `open`、`close`、`high`、`low`、`volume`、`amount`、`turnover`、`market_cap` | 不可使用 A 股財務欄位 |
+| 期貨 | `open`、`close`、`high`、`low`、`volume`、`amount`、`oi` | 不提供股票財務欄位 |
+
+## 範例
+
+```text
+RANK(close / DELAY(close, 20) - 1)
+```
+
+```text
+(ZSCORE(oper_roe_ttm) + ZSCORE(-1 * ratio_pb_ttm)) / 2
+```
+
+```text
+CORR(close, volume, 10)
+```

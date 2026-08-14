@@ -1,3 +1,70 @@
+﻿---
+title: "技術指標"
+description: "從行情資料計算技術指標。"
 ---
-title: "指標"
----
+
+## 計算技術指標
+
+### 方法名稱：calculate_indicators
+
+### 入參
+
+
+| 字段 | 類型 | 描述 |
+|:---|:---|:---|
+| market_data | Dict[str, List[Dict]] | 以股票代號分組的即時行情資料字典 |
+| indicator_params | Dict[str, Dict] | 指標參數字典。格式：`{"rsi": {"period": 7, "limit": 30}, "macd": {"period": 26, "limit": 30}}`。`period` 為必填；MACD 的 `period` 代表慢線週期。`limit` 為選填，預設等於 `period`。支援的指標：rsi、macd、atr、ema、boll |
+
+
+### 回應參數
+
+| 字段 | 類型 | 描述 |
+|:---------------|:-------|:------------------|
+| symbol | str | 檔 |
+| rsi\_{period} | Double | RSI 指標結果清單 |
+| macd\_{period} | Double | MACD 指標結果清單 |
+| atr\_{period} | Double | ATR 指標結果清單 |
+| ema\_{period} | Double | EMA 指標結果清單 |
+| boll\_{period} | Double | BOLL 指標結果清單 |
+
+### 使用範例
+
+```python
+import tqx_data
+market_data = tqx_data.get_live_market_data(
+    symbols=["0005.HK"],
+    count=60,
+)
+result = tqx_data.calculate_indicators(
+    market_data = market_data,
+    indicator_params={
+        "rsi": {"period": 7, "limit": 5},
+        "macd": {"period": 26, "limit": 5},
+    },
+)
+print(result)
+```
+
+**回應範例**
+
+```json
+{
+  "0005.HK": {
+    "rsi_7": [
+      51.38758258818659,
+      51.38758258818659,
+      51.38758258818659,
+      59.3371266618274,
+      59.3371266618274
+    ],
+    "macd_26": [
+      0.07868518510328215,
+      0.0743897749055975,
+      0.07015702290236447,
+      0.07528413372823195,
+      0.07831080401081181
+    ]
+  }
+}
+```
+

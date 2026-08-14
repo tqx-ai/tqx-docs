@@ -1,3 +1,137 @@
----
+﻿---
 title: "一致預期"
+description: "取得一致預期與分析師買賣建議。"
 ---
+
+## 取得非週期性指標一致預期
+
+### 方法名稱：get_consensus_nonperiod
+
+### 入參
+
+| 欄位 | 類型 | 說明 | 是否必填 |
+|:---|:---|:---|:---|
+| symbol | Optional\[Union\[str, List\[str\]\]\] | 股票代號 | 非必填 |
+| fields | Optional\[Union\[str, List\[str\]\]\] | 傳回欄位 | 非必填 |
+| market | str | 市場，支持"hk" ,"us"，預設為"hk" | 必填 |
+
+### 回應參數
+
+註：對於除symbol，currency，indicator外的參數預設是最新日期的預測，且有歷史維度衍生字段，衍生後綴有week，1month~12month對每個字段構成共十三個衍生字段，表示對應字段在一周，一個月~十二個月前的預測值
+
+例：mean_week表示一週前的預測平均值，std_6month表示6個月前的預測標準差
+
+| 字段 | 類型 | 描述 |
+|:---|:---|:---|
+| symbol | str | 檔 |
+| currency | str | 貨幣單位 |
+| indicator | str | 指標名稱:LTGROWTH為未來3~5年長期成長，TP為未來1年目標價 |
+| mean | double | 預測平均值 |
+| median | double | 預測中位數 |
+| high | double | 預測最高值 |
+| low | double | 預測最低值 |
+| std | double | 預測標準差 |
+| estimates_num | double | 預測數 |
+| included_estimates_num | double | 納入統計的預測數 |
+
+### 使用範例
+
+#### 取得全港股非週期性指標的部分一致預期
+
+```python
+import tqx_data
+result = tqx_data.get_consensus_nonperiod(
+    market='hk',
+    symbol=[""],
+    fields=["indicator","mean","std_6month","high_week"]
+)
+print(result)
+```
+
+**回應範例**
+
+```text
+symbol indicator mean std_6month high_week
+0 0001.HK LTGROWTH 4.60000 NaN 4.60
+1 0001.HK TP 69.43333 1.50000 78.00
+2 0002.HK LTGROWTH 2.70000 0.00000 2.70
+3 0002.HK TP 77.02000 4.06262 86.64
+4 0003.HK LTGROWTH 6.38000 0.00000 7.30
+.. ... ... ... ... ...
+972 9996.HK TP 9.43200 0.55741 10.66
+973 9997.HK LTGROWTH NaN 0.00000 NaN
+974 9997.HK TP NaN 0.00000 NaN
+975 9999.HK LTGROWTH 4.80000 0.00000 4.80
+976 9999.HK TP 235.88571 46.77894 289.00
+```
+
+## 取得買賣建議一致預期
+
+### 方法名稱：get_consensus_recommend
+
+### 入參
+
+| 欄位 | 類型 | 說明 | 是否必填 |
+|:---|:---|:---|:---|
+| symbol | Optional\[Union\[str, List\[str\]\]\] | 股票代號 | 非必填 |
+| fields | Optional\[Union\[str, List\[str\]\]\] | 傳回欄位 | 非必填 |
+| market | str | 市場，支持"hk" ,"us"，預設為"hk" | 必填 |
+
+### 回應參數
+
+註1：對於除symbol，currency外的參數預設是最新日期的預測，且有歷史維度衍生字段，衍生後綴有week，1month~12month對每個字段構成共十三個衍生字段，表示對應字段在一周，一個月~十二個月前的預測值
+
+例：mean_week表示一週前的預期平均值，low_6month表示6個月前的預期最低值
+註2：強賣，賣，持倉，買，強買依序記為5，4，3，2，1分
+
+| 字段 | 類型 | 描述 |
+|:--------------------|:-------|:-----------|
+| symbol | str | 檔 |
+| currency | str | 貨幣單位 |
+| mean | double | 預期平均數 |
+| median | double | 預期中位數 |
+| high | double | 預期最高值 |
+| low | double | 預期最低值 |
+| strong_buy_num | double | 強買建議數 |
+| buy_num | double | 買進建議數 |
+| hold | double | 持倉建議數 |
+| sell_num | double | 賣出建議數 |
+| strong_sell_num | double | 強賣建議數 |
+| no_opinion_num | double | 無意見數 |
+| recommendations_num | double | 推薦總數 |
+
+### 使用範例
+
+#### 取得全港股買賣建議的部分一致預期
+
+```python
+import tqx_data
+result = tqx_data.get_consensus_recommend(
+    market='hk',
+    symbol=[""],
+    fields=["strong_buy_num","buy_num_week"]
+)
+print(result)
+```
+
+**回應範例**
+
+```text
+symbol strong_buy_num buy_num_week
+0 0001.HK 2.0 5.0
+1 0002.HK 1.0 2.0
+2 0003.HK 1.0 2.0
+3 0004.HK 0.0 2.0
+4 0005.HK 3.0 6.0
+.. ... ... ...
+816 9992.HK 12.0 14.0
+817 9995.HK 6.0 6.0
+818 9996.HK 1.0 3.0
+819 9997.HK NaN NaN
+820 9999.HK 7.0 12.0
+```
+
+**三. 財務與市場因子**
+
+**1.取得港美股回測因子**
+
