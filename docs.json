@@ -40,16 +40,68 @@
             "group": "Trading",
             "pages": [
               "trading/info",
-              "trading/place-order",
-              "trading/cancel-order",
-              "trading/get-positions",
-              "trading/get-assets"
+              {
+                "group": "API",
+                "pages": [
+                  "trading/api/place-order",
+                  "trading/api/list-orders",
+                  "trading/api/get-order",
+                  "trading/api/modify-order",
+                  "trading/api/cancel-order",
+                  "trading/api/get-positions",
+                  "trading/api/get-assets",
+                  "trading/api/list-trades",
+                  "trading/api/get-signal"
+                ]
+              }
             ]
           },
           {
             "group": "Data",
             "pages": [
-              "data/info"
+              "data/info",
+              {
+                "group": "Market data",
+                "pages": [
+                  "data/market-data/daily",
+                  "data/market-data/minute",
+                  "data/market-data/live-minute",
+                  "data/market-data/tick",
+                  "data/market-data/indicators"
+                ]
+              },
+              {
+                "group": "Market reference",
+                "pages": [
+                  "data/market-reference/stock-detail",
+                  "data/market-reference/trading-calendar",
+                  "data/market-reference/events",
+                  "data/market-reference/ownership",
+                  "data/market-reference/index-components",
+                  "data/market-reference/company-metrics",
+                  "data/market-reference/consensus"
+                ]
+              },
+              {
+                "group": "Financial and market factors",
+                "pages": [
+                  "data/financial-and-market-factors/factors",
+                  "data/financial-and-market-factors/financial-statements"
+                ]
+              },
+              {
+                "group": "Utilities",
+                "pages": [
+                  "data/utilities/currency"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "More",
+            "pages": [
+              "more/faq",
+              "more/contact-us"
             ]
           }
         ],
@@ -77,11 +129,80 @@
           },
           {
             "group": "\u6295\u7814",
-            "pages": ["hk/research"]
+            "pages": [
+              "hk/research/info",
+              "hk/research/factor",
+              "hk/research/strategy",
+              "hk/research/backtest"
+            ]
           },
           {
             "group": "\u4ea4\u6613",
-            "pages": ["hk/trading"]
+            "pages": [
+              "hk/trading/info",
+              {
+                "group": "\u4ea4\u6613 API",
+                "pages": [
+                  "hk/trading/api/place-order",
+                  "hk/trading/api/list-orders",
+                  "hk/trading/api/get-order",
+                  "hk/trading/api/modify-order",
+                  "hk/trading/api/cancel-order",
+                  "hk/trading/api/get-positions",
+                  "hk/trading/api/get-assets",
+                  "hk/trading/api/list-trades",
+                  "hk/trading/api/get-signal"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "\u6578\u64da",
+            "pages": [
+              "hk/data/info",
+              {
+                "group": "\u884c\u60c5\u6578\u64da",
+                "pages": [
+                  "hk/data/market-data/daily",
+                  "hk/data/market-data/minute",
+                  "hk/data/market-data/live-minute",
+                  "hk/data/market-data/tick",
+                  "hk/data/market-data/indicators"
+                ]
+              },
+              {
+                "group": "\u5e02\u5834\u53c3\u8003\u6578\u64da",
+                "pages": [
+                  "hk/data/market-reference/stock-detail",
+                  "hk/data/market-reference/trading-calendar",
+                  "hk/data/market-reference/events",
+                  "hk/data/market-reference/ownership",
+                  "hk/data/market-reference/index-components",
+                  "hk/data/market-reference/company-metrics",
+                  "hk/data/market-reference/consensus"
+                ]
+              },
+              {
+                "group": "\u8ca1\u52d9\u8207\u5e02\u5834\u56e0\u5b50",
+                "pages": [
+                  "hk/data/financial-and-market-factors/factors",
+                  "hk/data/financial-and-market-factors/financial-statements"
+                ]
+              },
+              {
+                "group": "\u8f14\u52a9\u5de5\u5177",
+                "pages": [
+                  "hk/data/utilities/currency"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "\u66f4\u591a",
+            "pages": [
+              "hk/more/faq",
+              "hk/more/contact-us"
+            ]
           }
         ],
         "global": {
