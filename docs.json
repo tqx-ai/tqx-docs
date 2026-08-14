@@ -29,11 +29,28 @@
           },
           {
             "group": "Research",
-            "pages": ["research"]
+            "pages": [
+              "research/info",
+              "research/factor",
+              "research/strategy",
+              "research/backtest"
+            ]
           },
           {
             "group": "Trading",
-            "pages": ["trading"]
+            "pages": [
+              "trading/info",
+              "trading/place-order",
+              "trading/cancel-order",
+              "trading/get-positions",
+              "trading/get-assets"
+            ]
+          },
+          {
+            "group": "Data",
+            "pages": [
+              "data/info"
+            ]
           }
         ],
         "global": {
