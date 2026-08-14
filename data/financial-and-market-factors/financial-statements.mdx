@@ -1,3 +1,1741 @@
 ---
 title: "Financial statements"
+description: "Retrieve point-in-time quarterly financial statements for research and backtesting."
 ---
+
+### 2. Get quarterly financial reports
+
+#### 2.1. Method name: get_financial_statement
+
+#### 2.2. Enter parameters
+
+| Field | Type | Description | Is it required |
+|:---|:---|:---|:---|
+| symbol | Optional\[Union\[str, list\]\] | Stock code; Hong Kong stock `.HK`, US stock `.NB`. `None`, empty string or empty list will query the entire market | Optional |
+| start_quarter | str | Starting financial period, the format is `YYYYqN`, both upper and lower case | Required |
+| end_quarter | str | Ending financial period, the format is `YYYYqN`, uppercase or lowercase acceptable; together with the starting financial period, it can cover up to 5 natural years | Required |
+| date | Optional\[str\] | The upper limit of the announcement date, in the format of `YYYYMMDD` or `YYYY-MM-DD`, returns data on and before that day | Optional; required for historical research and backtesting |
+| is_latest | Optional\[bool\] | `True`: Each `symbol` only retains the row with the largest announcement date; `False`: Returns all financial periods and disclosure records within the range. Default is `True` | Optional |
+| market | str | `hk` or `nb`, both upper and lower case are acceptable; the function defaults to `hk`, but the strategy code must be passed in explicitly | Optional |
+| fields | Optional\[Union\[str, list\]\] | Return fields; it is recommended to pass the list explicitly. The interface will automatically add `symbol`, `fy_period`, `date` | Optional |
+| interim_type | str | Report caliber, optional `cumulative` (cumulative, default) or `single` (single quarter) | Optional |
+
+#### 2.2.1. `is_latest` selection rules (actual test in production environment)
+
+The granularity of `is_latest` is **each stock**, not "each financial period for each stock":
+
+- `is_latest=True`: Suitable for querying a single-period snapshot of "the latest financial report disclosed by each stock as of a certain date". Even if the quarterly range contains
+  Multiple fiscal periods, often ending up with only one row per stock.
+- `is_latest=False`: Suitable for year-on-year revenue, month-on-month, multi-period trends, historical sections, dynamic coupon pools and backtesting. After returning the data, still press
+  `(symbol, fy_period)` selects the version with the latest announcement date, and cannot directly use all lines that may have duplicate disclosures.
+- `date=<cross-section or rebalance date>` must be passed in both historical research and backtesting modes. Omitting `date` will use the latest disclosure in the current dataset,
+  Financial reports after the backtest date may be brought into the strategy, causing future data leakage.
+
+2026-07-25 Used `date="20250101"` and `2023q1~2024q4` at the production computing power node to verify the Hong Kong and US stocks:
+
+| Markets and Targets | `is_latest=False` | `is_latest=True` | Latest financial period before deadline |
+|---|---:|---:|---|
+| US stocks `NVDA.NB`, `AVGO.NB` | 16 lines, 8 lines per share | 2 lines, 1 line per share | `FY2024Q4` |
+| Hong Kong stocks `1810.HK`, `3690.HK` | 14 lines, 7 lines per share | 2 lines, 1 line per share | `FY2024Q3` |
+
+After omitting `date` in the same test, the US stock market returned the record with the announcement date of `20260225/20260609`, and the Hong Kong stock market returned
+Records of `20260526/20260601`. If the strategy is backtested in 2025, these records will not be visible at that time and are therefore prohibited from being used for historical decision-making.
+
+#### 2.2.2. Full parameter production testing experience
+
+2026-07-25 All parameters were verified one by one on the production computing power node. The usage experience is as follows:
+
+| Parameters | Measured results | Usage rules |
+|---|---|---|
+| `start_quarter`, `end_quarter` | Required; both `2024q1` and `2024Q1` are acceptable; an error will be reported if it exceeds 5 natural years. The production version ended earlier than the start and returned an empty table | Verify the format, span and `start <= end` by yourself before calling, and cannot rely on the backend to always report an error |
+| `market` | `hk`, `nb` and the uppercase form are successful; `us` reports an error | US stocks must use `nb`, Hong Kong stocks use `hk`, always pass in explicitly |
+| `symbol` | Strings and lists are successful; `None`, `""`, and `[]` have become the whole market, and 5095 U.S. stock samples have been returned this time | It is forbidden to pass null values when the strategy queries the candidate pool; the whole market query must have clear intentions and limit fields and financial periods |
+| `fields` | Both strings and lists are successful; the interface automatically supplements when three columns are missing; `None` or `[]` returns about 1363 columns; non-existing fields are silently ignored | A non-empty list is recommended; after returning, each requested field must be checked to actually exist, not just to check that the call is successful |
+| `date` | The results of `20250101` and `2025-01-01` are consistent; `2025/01/01` reports an error; `None` does not limit the announcement date | The historical strategy must be passed in, and the maximum announcement date returned by the assertion is no later than the decision date |
+| `is_latest` | `True` returns 2 lines for two stocks; `False` returns 8 lines | `True` for single latest announcement; `False` for year-on-year and dynamic multi-issue panels |
+| `interim_type` | `cumulative` returns data; `single` is a legal value, but this time the U.S. stock sample range returns an empty table; other values report an error | `cumulative` is used by default and takes priority; before using `single`, you must verify that the target market, stock and financial period have data |
+
+Silent ignoring of `fields` is particularly dangerous. For example, requesting `fields=["not_a_real_field"]` did not report an error, but only returned the automatically supplemented
+`symbol`, `fy_period`, `date`. Therefore the Agent must perform a `required_fields <= set(df.columns)` check before calculation.
+
+#### 2.2.3. Dynamic timing rules for one-year backtesting
+
+Financial reports are generally disclosed on a quarterly basis, but different companies have different announcement dates. If fundamentals determine stock qualification, the one-year backtest must be repeated on each rebalancing date.
+Calculate point-in-time financial factors; the qualified bond pool at the starting point of the backtest cannot be fixed for one year. Production testing results in:
+
+| Cross-section date | `3690.HK` Latest visible financial period | Year-on-year revenue | Gross profit margin | Operating cash flow | Whether to pass the three hard conditions |
+|---|---|---:|---:|---:|---|
+| `20250101` | `FY2024Q3` | 22.68% | 38.67% | 40,284,393,000 | Yes |
+| `20250701` | `FY2025Q1` | 18.12% | 37.45% | 10,131,128,000 | No |
+| `20251001` | `FY2025Q2` | 14.71% | 35.22% | 14,348,525,000 | No |
+| `20260101` | `FY2025Q3` | 9.95% | 32.13% | -7,243,689,000 | No |
+
+This is not a future data problem, but a static coupon pool using expired fundamentals. The correct dynamic process is:
+
+1. To obtain the multi-period financial reports required for the entire backtest, use `is_latest=False`, and use the end date of the backtest as the maximum interface `date`.
+2. First screen `announcement date <= rebalance date` on each position rebalancing day.
+3. Press `(symbol, fy_period)` to keep the version with the latest announcement date in the visible subset.
+4. Select the latest financial period visible at that time according to the company's financial period, match the same financial period of the previous year and calculate the factor.
+5. Form a panel containing `date`, `symbol`, `fy_period`, `source_date`, each factor, and `eligible`.
+6. Only the latest section of `panel.date <= context.now` is read during transactions; if there is a new announcement, it will be updated on the next rebalancing day, if not, the old value will be used.
+
+The order cannot be changed to "first deduplicate all the data on the end date of the backtest, and then filter by the rebalancing date", otherwise the subsequent restatement version may cover the earlier visible data at that time.
+version. Each section must verify `max(source_date) <= rebalance_date`.
+
+#### 2.3. Response parameters
+
+##### 2.3.1. Response parameters
+
+| Field | Type | Description |
+|:----------|:-------|:---------------------------------|
+| symbol | str | stock code |
+| fields | double | Financial fields to be returned (see database design) |
+| fy_period | str | financial year time period |
+
+The following are financial related fields
+
+cash flow statement (cfs)
+
+| Field | Type | Description |
+|:---|:---|:---|
+| cfs_cash_receipts_business | Double | Cash Receipts - Business Activities - Cash Flow |
+| cfs_cash_receipts_sales | Double | Cash Receipts - Sales of Goods and Services - Cash Flow |
+| cfs_cash_receipts_other_customers | Double | Cash Receipts - Other - Customers - Cash Flow |
+| cfs_premiums_received | Double | Premiums Received - Cash Flow |
+| cfs_reinsurance_recovered | Double | Reinsurance Recovery - Cash Flow |
+| cfs_fees_received | Double | Fees Received - Cash Flow |
+| cfs_inv_income_received | Double | Investment Income - Received - Cash Flow |
+| cfs_cash_receipts_other | Double | Cash Receipts - Other - Cash Flow |
+| cfs_cash_receipts_banking_inv | Double | Cash Receipts - Banking and Investment Related Activities - CF |
+| cfs_cash_payments_business | Double | Cash Payments - Business Activities - Cash Flow |
+| cfs_cash_payments_suppliers | Double | Cash Payments - Suppliers of Goods and Services - Cash Flow |
+| cfs_reinsurance_paid | Double | Paid Reinsurance - Cash Flow |
+| cfs_claims_paid | Double | Claims Paid - Cash Flow |
+| cfs_cash_payments_int_banking_liab | Double | Cash payments - Interest paid on bank-related liabilities - CF |
+| cfs_cash_payments_employees | Double | Cash Payments - Employees - Cash Flow |
+| cfs_fees_paid | Double | Fees paid - cash flow |
+| cfs_cash_payments_other | Double | Cash Payments - Other - Cash Flow |
+| cfs_income_taxes_paid_reimbursed | Double | Income Tax - Paid/(Reimbursed) - Cash Flow |
+| cfs_interest_paid_cash_direct | Double | Interest paid - cash (cash flow - direct) |
+| cfs_int_div_received_cash_direct | Double | Interest and Dividends - Received - Total - Cash Flow - Direct |
+| cfs_cash_receipts_payments_net | Double | Cash Receipts/(Payments)-Net-Cash Flow |
+| cfs_cash_receipts_payments_associates | Double | Cash Receipts/(Payments) - Associates - Cash Flow |
+| cfs_profit_loss_starting | Double | Profit/(Loss) - Starting Line - Cash Flow |
+| cfs_non_cash_adj | Double | Non-Cash Items and Reconciliating Adjustments - Cash Flow |
+| cfs_extraordinary_after_tax_reconcile | Double | After-tax extraordinary items - cash flow - reconciliation |
+| cfs_minority_interest_reconcile | Double | Minority Interest - Cash Flow - Reconciliation |
+| cfs_discontinued_ops_net_tax_reconcile | Double | Discontinued Operations - G/(L) - Net After Tax - CF - Reconciliation |
+| cfs_equity_earnings_reconcile | Double | Equity Company/(Loss) in Net Income - CF - Reconcile |
+| cfs_accounting_change_reconcile | Double | Accounting Change - Cash Flow - Reconciliation |
+| cfs_income_tax_expense_reconcile | Double | Income Tax Expense - Cash Flow - Reconciliation |
+| cfs_financing_income_expense_reconcile | Double | Financial income/(expense)-cash flow-reconciliation |
+| cfs_other_non_cash_adj | Double | Other Non-Cash Items and Adjustments - CF - Reconciliation |
+| cfs_depr_depletion_amort_impair_reconcile | Double | Depreciation, depletion, and amortization, including impairment -CF to reconcile |
+| cfs_depr_depletion_ppe_reconcile | Double | Depreciation and Consumption - PPE - CF - Reconciliation |
+| cfs_accretion_aro_reconcile | Double | Increase in asset retirement obligation - CF - Reconciliation |
+| cfs_impairment_ppe_intang_reconcile | Double | Impairment - PPE, including intangibles - CF - Reconciliation |
+| cfs_impairment_inv_property_reconcile | Double | Impairment - Investment Properties - Cash Flow |
+| cfs_amort_intang_deferred_charges_reconcile | Double | Amortization - Intang and Deferred Chrgs - CF - Reconciliation |
+| cfs_amort_deferred_policy_acq_reconcile | Double | Amortization - Deferred Policy Acquisition Cost - Reconciliation |
+| cfs_amort_other_intang_deferred_reconcile | Double | Amortization - Other Intangibles and Deferred Chrgs - Reconciliation |
+| cfs_loan_loss_provision_impairment_reconcile | Double | Provision for loan losses including impairment - Increment/(Decrease) - CF |
+| cfs_impairment_fin_fixed_assets_reconcile | Double | Impairment of Financial Fixed Assets - CF - Reconciliation |
+| cfs_otti_losses_reconcile | Double | Investment losses - except temporary impairment - CF |
+| cfs_deferred_tax_credits_reconcile | Double | Deferred Corporate Tax and Income Tax Credit - CF - Reconciliation |
+| cfs_asset_sale_gl_reconcile | Double | Asset Sale - Gain/(Loss) - Cash Flow - Reconciliation |
+| cfs_ppe_intang_sale_gl_reconcile | Double | PPE, including intangibles - Gain/(Loss) - CF |
+| cfs_inv_trading_property_realized_gl_reconcile | Double | Investing and Trading Property - Realized G/(L) CF Reconciliation |
+| cfs_inv_sec_gl_reconcile | Double | Investment Securities - Gain/(Loss) - Cash Flow |
+| cfs_fin_assets_unrealized_gl_reconcile | Double | Financial Assets - Unrealized G/(L) - CF - Reconciliation |
+| cfs_inv_property_unrealized_gl_reconcile | Double | Investment properties - Unrealized gains/(losses) - Cash flows |
+| cfs_share_based_payments_reconcile | Double | Share-based payments - cash flow - reconciliation |
+| cfs_income_taxes_paid_reimbursed | Double | Income Tax - Paid/(Reimbursed) - Cash Flow |
+| cfs_interest_paid_cash | Double | Interest paid - cash |
+| cfs_int_div_received_total | Double | Interest and Dividends - Received - Total - Cash Flow |
+| cfs_distributions_non_consolidated_real_estate | Double | Distributions Received - Non-Con Real Estate Entity - CF |
+| cfs_cf_operating_before_wc | Double | Cash flow from operating activities before operating cap change |
+| cfs_wc_increase_decrease | Double | Working Capital - Increase/(Decrease) - Cash Flow |
+| cfs_receivables_finance_lease_change | Double | Accounts Receivable - Finance and Lease - Decrease/(Increase) - CF |
+| cfs_accounts_receivable_change | Double | Accounts Receivable - Decrease/(Increase) - Cash Flow |
+| cfs_inventories_change | Double | Inventory - Decrease/(Increase) - Cash Flow |
+| cfs_segregated_cash_change | Double | Segregated Cash - Decrease/(Increase) - Cash Flow |
+| cfs_lending_deposits_banks_lt_change | Double | Loans and deposits - Bank receivables - LT - Decr/(Incr) - CF |
+| cfs_inv_sec_change_operating | Double | Investment Securities - Decrease/(Increase) - Operating CF |
+| cfs_inv_sec_purchased_operating | Double | Investment Securities - Purchasing - Operating - Cash Flow |
+| cfs_inv_sec_sold_matured_operating | Double | Investment Securities - Sold/Expired - Operating - Cash Flow |
+| cfs_insurance_receivables_change | Double | Insurance Receivables Decrease/(Increase) - Cash Flow |
+| cfs_deferred_policy_acq_costs_change | Double | Deferred policy acquisition costs - decrease/(increase) - CF |
+| cfs_loans_customer_change | Double | Loan - Customer - Decrease/(Increase) - Cash Flow |
+| cfs_loans_origination_purchase | Double | Loans - Origination/Purchase - Cash Flow |
+| cfs_loans_repayments_sales | Double | Loans - Repayments/Sales - Cash Flow |
+| cfs_prepaid_expenses_change | Double | Prepaid expenses - decrease/(increase) - cash flow |
+| cfs_other_assets_change | Double | Other Assets - Decrease/(Increase) - Cash Flow |
+| cfs_collateralized_agreements_assets_change | Double | Collateral Agreement (Asset) - Decr/(Incr) - CF |
+| cfs_accounts_payable_change | Double | Accounts Payable - Increase/(Decrease) - Cash Flow |
+| cfs_accrued_expenses_change | Double | Accrued Expenses - Increase/(Decrease) - Cash Flow |
+| cfs_insurance_provisions_change | Double | Insurance Provisions - Increase/(Decrease) - Cash Flow |
+| cfs_deposits_change_total | Double | Deposits - Increase/(Decrease) - Total - Cash Flow |
+| cfs_deposits_banks_fi_change | Double | Deposits - Deposits to banks and financial institutions - Increment/(Decrement) CF |
+| cfs_deposits_customers_change | Double | Deposits - Customers - Increase/(Decrease) - Cash Flow |
+| cfs_insurance_payables_reinsurance_change | Double | Insurance payables (including reinsurance) - Increment/(Decrement) - CF |
+| cfs_accounts_payable_accrued_change | Double | Accounts Payable and Accrued - Increment/(Decrement) - CF |
+| cfs_trading_liabilities_change | Double | Trading Liabilities - Increase/(Decrease) - Cash Flow |
+| cfs_taxes_payable_change | Double | Taxes Payable - Increase/(Decrease) - Cash Flow |
+| cfs_op_lease_liabilities_change | Double | Operating lease liabilities - increase/(decrease) - CF |
+| cfs_other_liabilities_change_total | Double | Other Liabilities - Increase/(Decrease) - Total - Cash Flow |
+| cfs_collateralized_agreements_liab_change | Double | Collateral Agreement (Liability) - Increment/(Decrement) - CF |
+| cfs_other_assets_liabilities_change_net | Double | Other assets and liabilities - Increase/(Decrease) - Net - CF |
+| cfs_net_cf_operating | Double | Net cash flow from operating activities |
+| cfs_capex_net | Double | Capital Expenditures - Net - Cash Flow |
+| cfs_ppe_purchased_sold_net | Double | Property, Plant and Equipment - Purchase/(Sale) - Net - CF |
+| cfs_ppe_purchased | Double | Property Plant and Equipment - Purchases - Cash Flow |
+| cfs_lease_equipment_purchased | Double | Lease Equipment - Purchase - Cash Flow |
+| cfs_ppe_sold | Double | Property Plant and Equipment Sold - Cash Flow |
+| cfs_lease_equipment_sold | Double | Lease Equipment - Sale - Cash Flow |
+| cfs_inv_property_purchased_sold_net_reit | Double | Investment Property Purchases/(Sales) Net - Total - REIT - CF |
+| cfs_inv_property_purchased_reit | Double | Investment Property - Purchase - REIT - Cash Flow |
+| cfs_inv_property_capex_improve_maint | Double | Capital Expenditures - Investment Property Improvements and Maintenance CF |
+| cfs_inv_property_sold_reit | Double | Investment Properties - Sold - REITs - Cash Flow |
+| cfs_intangible_purchased_sold_net | Double | Intangible Assets - Purchases/(Sales) - Net - Total - CF |
+| cfs_intangible_purchased_acquired | Double | Intangible Assets - Purchased/Acquired - Cash Flow |
+| cfs_intangible_sold | Double | Intangible Assets - Sales - Cash Flow |
+| cfs_software_development_costs | Double | Software Development Costs - Cash Flow |
+| cfs_intangible_assets_net_cf | Double | Intangible Assets - Net - Cash Flow |
+| cfs_capex_total | Double | Capital Expenditure - Total |
+| cfs_business_acquisition_disposal_net | Double | Acquisitions and disposals of sold/(acquired) businesses, net - CF |
+| cfs_business_acquisition | Double | Acquisition of Business - Cash Flow |
+| cfs_business_sold | Double | Business - Sale - Cash Flow |
+| cfs_investments_excl_loans_change | Double | Investments excluding loans - decrease/(increase) - CF |
+| cfs_inv_property_excl_capex_change | Double | Investment properties excl. capital expenditures - Sold/(Purchased) - Net - CF |
+| cfs_inv_sec_sold_purchased_net | Double | Unclassified Investment Securities - Net Sold/(Purchased) CF Total |
+| cfs_inv_sec_sold_matured | Double | Investment Securities - Sold/Expired - Unclassified - CF |
+| cfs_inv_sec_purchased | Double | Investment Securities - Purchased - Unclassified - Cash Flow |
+| cfs_fhlb_stock_sold_purchased_net | Double | FHLB Stock - Sold/(Purchased) - Net - Cash Flow |
+| cfs_inv_associate_jv_sold_purchased | Double | Investments - Associates and Joint Ventures - Sale/(Purchase) - CF |
+| cfs_real_estate_jv_payments | Double | Real Estate Joint Ventures - Acquisition Payments - Cash Flows |
+| cfs_deriv_hedge_sold_purchased_total | Double | Derivative financial instrument hedged sell/(buy) CF total |
+| cfs_inv_loans_change_net | Double | Loan Investment - Decrease/(Increase) - Net - Cash Flow |
+| cfs_other_inv_cf_change | Double | Other investment cash flows - decrease/(increase) |
+| cfs_net_cf_investing | Double | Net cash flow from investing activities |
+| cfs_dividends_paid_cash_total | Double | Dividends Paid - Cash - Total - Cash Flow |
+| cfs_common_dividends_paid | Double | Dividends - Common Stock - Cash Paid |
+| cfs_preferred_dividends_paid | Double | Dividends - Preferred - Cash Paid |
+| cfs_policyholder_accounts_deposits_withdrawals_net | Double | Policyholder Accounts - Deposits/(Withdrawals) - Net - CF |
+| cfs_policyholder_deposits | Double | Deposits - Policyholder Account - Cash Flow |
+| cfs_policyholder_withdrawals | Double | Policyholder Account Withdrawals - Cash Flow |
+| cfs_stock_issuance_retirement_net | Double | Stock - Total - Issues/(Exits) - Net - Cash Flow |
+| cfs_stock_issuance_retirement_excl_options | Double | Stock - Issued/(retired) net, excluding options/warrants - CF |
+| cfs_stock_common_pref_other_issuance_retirement_net | Double | Stocks - Common Preferred Stock and Other Issues/(Retirement) Net CF |
+| cfs_stock_common_pref_other_issued | Double | Stocks - Common Preferred and Other - Issues/Sales - Cash Flows |
+| cfs_stock_common_pref_other_repurchased | Double | Stocks - Common Preferred and Other - Repurchase/Retirement - CF |
+| cfs_common_stock_issuance_retirement_net | Double | Stock - Common - Issues/(Exits) - Net - Cash Flow |
+| cfs_common_stock_issued | Double | Stocks - Common Stock - Issues/Sales - Cash Flows |
+| cfs_common_stock_repurchased | Double | Stocks - Common Stock - Repurchases/Retirements - Cash Flow |
+| cfs_pref_stock_issuance_retirement_net | Double | Stock - Preferred Stock - Issues/(Exits) - Net - Cash Flow |
+| cfs_pref_stock_issued | Double | Stock - Preferred Stock - Issued/Sold - Cash Flow |
+| cfs_pref_stock_repurchased | Double | Stock - Preferred Stock - Repurchase/Retirement - Cash Flow |
+| cfs_other_equity_issuance_retirement_net | Double | Equity - Other Equity - Issues/(Exits) - Net - CF |
+| cfs_other_equity_issued | Double | Stocks - Other Equity - Issued/Sold - Cash Flow |
+| cfs_other_equity_repurchased | Double | Equity - Other Equity - Repurchase/Retirement - Cash Flow |
+| cfs_options_exercised | Double | Options Exercised - Cash Flow |
+| cfs_warrants_converted | Double | Warrants Converted - Cash Flow |
+| cfs_minority_interests_jv_net | Double | Minority Interests and Joint Ventures - Net - Cash Flow |
+| cfs_debt_lt_st_issuance_retirement_total | Double | Debt - LT and ST - Issue/(Recovery) - Total - CF |
+| cfs_debt_issued_reduced_lt_st | Double | Debt - Issued/(Reduced) - Long and Short Term - Cash Flow |
+| cfs_debt_issued_lt_st | Double | Debt - Issued - Long and Short Term - Cash Flow |
+| cfs_debt_reduced_lt_st | Double | Debt - Reduced - Long Term and Short Term - Cash Flow |
+| cfs_debt_issued_reduced_st_total | Double | Debt - Issued/(Reduced) - Short Term - Total - Cash Flow |
+| cfs_debt_issued_st | Double | Debt - Issued - Short Term - Cash Flow |
+| cfs_debt_reduced_st | Double | Debt - Reduced - Short Term - Cash Flow |
+| cfs_debt_issued_reduced_lt | Double | Debt - Issued/(Reduced) - Long Term - Cash Flow |
+| cfs_debt_issued_lt | Double | Debt - Issued - Long Term - Cash Flow |
+| cfs_debt_reduced_lt | Double | Debt - Reduced - Long Term - Cash Flow |
+| cfs_lease_liabilities_issued_reduced | Double | Lease Liabilities - Issued/(Reduced) - Cash Flow |
+| cfs_lease_liabilities_issued | Double | Lease Liabilities - Issued - Cash Flow |
+| cfs_lease_liabilities_reduced | Double | Lease Liabilities - Reduced - Cash Flow |
+| cfs_collateralized_agreements_liab_change | Double | Collateral Agreement (Liability) - Increment/(Decrement) - CF |
+| cfs_repo_liabilities_change | Double | REPO Liabilities - Increase/(Decrease) - Cash Flow |
+| cfs_hybrid_financial_liab_change | Double | Hybrid Financial Instrument (Liability) - Increment/(Decrease) CF |
+| cfs_other_financing_cf_change | Double | Other Financing Cash Flow - Increase/(Decrease) |
+| cfs_net_cf_financing | Double | Net cash flow from financing activities |
+| cfs_discontinued_ops_cf_operating | Double | Net cash flows from discontinued operations - Operating Activities |
+| cfs_discontinued_ops_cf_investing | Double | Net cash flows from discontinued operations - Investing Activities |
+| cfs_discontinued_ops_cf_financing | Double | Net cash flows from discontinued operations - Financing Activities |
+| cfs_discontinued_ops_cf_other | Double | Net cash flow from discontinued operations - Other |
+| cfs_discontinued_ops_cf_total | Double | Net cash flow from discontinued operations - Total |
+| cfs_non_classified_cf | Double | Non-classified cash flow |
+| cfs_fx_effects_cf | Double | FX Effects - Cash Flow |
+| cfs_net_change_cash | Double | Net change in cash - Total |
+| cfs_net_cf_continuing_ops | Double | Net cash from continuing operations |
+| cfs_net_cf_discontinued_ops | Double | Net cash from discontinued operations |
+| cfs_cash_beginning_balance | Double | Net Cash - Beginning Balance |
+| cfs_cash_ending_balance | Double | Net Cash - Ending Balance |
+| cfs_income_taxes_paid_reimbursed_supp | Double | Income Tax - Paid/(Reimbursed) - Cash Flow - Supplementary |
+| cfs_interest_paid_cf_supp | Double | Interest Paid - Cash Flow - Supplementary |
+| cfs_interest_fin_leases_paid_supp | Double | Interest paid on finance leases - Cash flow - Supplementary |
+| cfs_int_div_received_supp | Double | Interest and Dividends - Received - Cash Flow - Supplementary |
+| cfs_wc_cf_direct_supp | Double | Working Capital - Cash Flow - Direct - Supplementary |
+| cfs_cf_operating_before_wc_int | Double | Cash flow from operating activities before working caps and international changes |
+| cfs_non_gaap_free_cf | Double | Non-GAAP Free Cash Flow - Company Report |
+| cfs_contract_assets_change | Double | Contract Assets - Decrease/(Increase) - Cash Flow |
+| cfs_contract_liabilities_change | Double | Contract Liabilities - Increase/(Decrease) - Cash Flow |
+| cfs_contract_assets_liabilities_net_cf | Double | Contract Assets/Liabilities – Net – Cash Flow |
+| cfs_cash_dividends_common_buyback_net | Double | Cash dividends paid and common stock repurchases - net |
+| cfs_common_stock_buyback_net | Double | Common Stock Buybacks - Net |
+| cfs_depr_depletion_amort_cf | Double | Depreciation Consumption and Amortization - Cash Flow |
+| cfs_free_cf_to_equity | Double | Free cash flow to equity |
+| cfs_free_operating_cf | Double | Free operating cash flow |
+| cfs_levered_free_operating_cf | Double | Leveraged free operating cash flow |
+| cfs_dividends_provided_paid_common | Double | Dividends provided/paid - Common |
+| cfs_reported_cf_operating | Double | Report - Cash from Operating Activities |
+| cfs_reported_cf_investing | Double | Report - Cash from Investing Activities |
+| cfs_reported_cf_financing | Double | Report - Cash from Financing Activities |
+
+balance sheet(bs)
+
+| Field | Type | Description |
+|:---|:---|:---|
+| bs_cash_and_short_term_investments | Double | Cash and short-term investments |
+| bs_cash_and_cash_equivalents | Double | Cash and cash equivalents |
+| bs_short_term_investments | Double | Short-term investments - Total |
+| bs_financial_assets_st | Double | Financial Assets - Short Term |
+| bs_cash_and_short_term_deposits_banks_total | Double | Cash and short-term bank deposits - total |
+| bs_cash_and_short_term_deposits_banks | Double | Cash and short-term bank deposits |
+| bs_funds_central_banks | Double | Central bank funds |
+| bs_lending_long_term_deposits_banks | Double | Bank loans and long-term deposits |
+| bs_interbank_loans_deposits | Double | Interbank lending and interbank long-term deposits |
+| bs_money_market_placements | Double | Money market placements |
+| bs_collateralized_agreements_rev_repos | Double | Collateralized Agreements Rev REPO and Sec Borrow - Assets |
+| bs_securities_collateral | Double | Securities held under collateral |
+| bs_securities_purchased_repos_fed_funds | Double | Securities purchased and fed funds sold under repurchase agreements |
+| bs_securities_purchased_repos | Double | Securities purchased under a repurchase agreement |
+| bs_fed_funds_sold_assets | Double | Fed Funds Sold - Assets |
+| bs_securities_purchased_repos_fed_funds_total | Double | Total securities purchased and federal funds sold under repurchase agreements |
+| bs_securities_borrowed | Double | Borrowed securities |
+| bs_deriv_hedge_st | Double | Derivatives - Hedging - Short Term |
+| bs_deriv_hedge_total | Double | Derivatives - Hedge - Total |
+| bs_loans_receivables_net_st | Double | Loans and Receivables - Net - Short Term |
+| bs_trade_receivables_net | Double | Trade Accounts and Trade Notes Receivable - Net |
+| bs_trade_receivables_gross | Double | Trade Accounts and Trade Notes Receivable - Gross |
+| bs_provision_trade_receivables | Double | Provisions - Trade Accounts and Trade Notes Receivables |
+| bs_unbilled_utility_revenue_st | Double | Unbilled utility revenue - short term |
+| bs_loans_st | Double | Loans - Short Term |
+| bs_finance_lease_receivables_st | Double | Finance Lease Receivables - Short Term |
+| bs_income_tax_receivables_st | Double | Income Tax - Accounts Receivable - Short Term |
+| bs_other_receivables | Double | Accounts Receivable - Other - Total |
+| bs_provision_doubtful | Double | Provision - Doubtful Debt |
+| bs_receivables_over_one_year_st | Double | Receivables over one year are included in short-term receivables |
+| bs_loans_receivables_total | Double | Loans and Receivables - Total |
+| bs_banking_loans_net | Double | Bank-related loans - net |
+| bs_loans_gross | Double | Loans - Gross |
+| bs_consumer_installment_loans | Double | Loans - Consumer and Installment |
+| bs_finance_lease_hp_loans | Double | Loans - Finance Lease and HP |
+| bs_commercial_industrial_loans | Double | Loans - Commercial and Industrial |
+| bs_broker_fi_loans | Double | Loans - Brokers and Financial Institutions |
+| bs_other_customer_loans_gross | Double | Loan - Customer - Other - Gross |
+| bs_foreign_loans | Double | Loans - Foreign |
+| bs_mortgage_real_estate_loans | Double | Loans - Mortgage/Real Estate |
+| bs_loans_held_for_sale | Double | Loans - Held for Sale |
+| bs_unearned_customer_income | Double | Unearned income - Customer |
+| bs_loan_loss_reserves | Double | Loan loss reserves |
+| bs_trade_receivables_total | Double | Trade Accounts and Trade Notes Receivable - Total |
+| bs_trade_receivables_gross_total | Double | Accounts and Notes Receivable - Trade - Total - Total |
+| bs_provision_doubtful_trade_payable | Double | Provides total doubtful trade accounts and commercial paper payable |
+| bs_receivables_brokers_clearing | Double | Receivables from client brokers and clearing organizations |
+| bs_finance_lease_receivables_net_lt_st | Double | Finance Lease Receivables - Net - Long and Short Term |
+| bs_finance_lease_receivables_gross_lt_st | Double | Finance Lease Receivables - Long Term and Short Term - Total |
+| bs_provision_finance_lease_receivables | Double | Provisions - Finance lease receivables - Long and short term |
+| bs_unearned_income_finance_lease | Double | Unearned income - Finance lease - Long and short term |
+| bs_interest_receivables_bank | Double | Interest Receivable - Bank |
+| bs_receivables_total | Double | Accounts Receivable - Total |
+| bs_insurance_premium_receivables | Double | Insurance premiums receivable |
+| bs_income_tax_receivables | Double | Income Tax - Accounts Receivable |
+| bs_other_receivables | Double | Accounts Receivable - Other |
+| bs_provision_doubtful_total | Double | Provision - Doubtful Debt - Total |
+| bs_inventories_total | Double | Inventories - Total |
+| bs_raw_materials | Double | Inventory - Raw Materials |
+| bs_work_in_progress | Double | Inventory - Work in Progress |
+| bs_finished_goods | Double | Inventory - Finished Goods |
+| bs_inventories_other | Double | Inventories - Other - Total |
+| bs_cost_in_excess_billings | Double | Inventory - Cost in Excess Billings |
+| bs_gas_in_storage | Double | Inventory - Gas in storage |
+| bs_lifo_reserve | Double | Stock - LIFO Reserve |
+| bs_biological_assets_st | Double | Biological Assets - Short Term |
+| bs_prepaid_expenses_st | Double | Prepaid Expenses - Short Term |
+| bs_assets_held_for_sale_st | Double | Assets held for sale/discontinued operations - short term |
+| bs_other_current_assets_total | Double | Other Current Assets - Total |
+| bs_deferred_tax_asset_st | Double | Deferred Tax - Asset - Short Term |
+| bs_deferred_costs_st | Double | Deferred costs - short term |
+| bs_restricted_accounts_st | Double | Restricted Accounts - Short Term |
+| bs_regulatory_assets_st | Double | Regulatory Assets - Short Term |
+| bs_other_current_assets | Double | Other current assets |
+| bs_total_current_assets | Double | Total current assets |
+| bs_investments_lt | Double | Investments - Long Term |
+| bs_segregated_cash_deposits_inv | Double | Segregated - Cash Deposits and Investments |
+| bs_investments_including_loans | Double | Investments including loans - Total |
+| bs_investments_total | Double | Investments - Total |
+| bs_inv_sec_afs_htm_hft_total | Double | Investment Securities - Available for Sale, HTM and HFT - Total |
+| bs_inv_sec_trading | Double | Investment securities - held for trading |
+| bs_inv_sec_afs_htm | Double | Investment securities available for sale and held to maturity |
+| bs_inv_sec_afs_total | Double | Investment Securities - Available for Sale - Total |
+| bs_mbs_afs_htm | Double | Available-for-sale/Hold-to-Maturity Mortgage-Backed Securities |
+| bs_govt_sec_afs_htm | Double | Government Securities - Available for Sale/Hold to Maturity |
+| bs_inv_sec_fair_value_other | Double | Investment Securities - Designated at Fair Value - Other |
+| bs_inv_sec_fixed_income | Double | Investment Securities - Fixed Income |
+| bs_inv_sec_equity | Double | Investment Securities - Stocks |
+| bs_affiliated_non_controlled | Double | Affiliated - non-controlled |
+| bs_non_affiliated_non_controlled | Double | Non-affiliated - non-controlled |
+| bs_inv_sec_other | Double | Investment Securities - Other |
+| bs_commodities | Double | Commodities |
+| bs_fhlb_stock | Double | FHLB Stock - Asset |
+| bs_investment_property | Double | Investment Property |
+| bs_investment_property_net | Double | Investment Properties - Net |
+| bs_investment_property_gross | Double | Investment Property - Gross |
+| bs_inv_property_acc_depr_impair | Double | Investment Properties - Accumulated Depreciation and Impairment |
+| bs_private_equity_other_inv | Double | Investments - Private Equity & Other - Total |
+| bs_other_inv_total | Double | Investment - Other - Total |
+| bs_mortgage_policy_loans_other | Double | Loans - Mortgage Policies and Others |
+| bs_policy_loans | Double | Policy Loans |
+| bs_other_loans | Double | Loans - Other |
+| bs_inv_afs_htm_lt | Double | Investment - Available for Sale/Hold to Maturity - Long Term |
+| bs_marketable_sec_lt | Double | Marketable Securities - Long Term |
+| bs_financial_assets_lt | Double | Financial Assets - Long Term |
+| bs_inv_associate_jv_unconsolidated | Double | Investments in associates, joint ventures and Unconsol subsidiaries |
+| bs_receivables_loans_lt | Double | Accounts Receivable and Loans - Long Term |
+| bs_trade_receivables_net_lt | Double | Accounts and Notes Receivable - Trade - Net - Long Term |
+| bs_trade_receivables_gross_lt | Double | Accounts and Notes Receivable - Trade - Total - Long Term |
+| bs_loans_lt | Double | Loans - Long Term |
+| bs_finance_lease_receivables_lt | Double | Finance Lease Receivables - Long Term |
+| bs_other_receivables_net_lt | Double | Accounts Receivable - Other - Net - Long Term |
+| bs_provision_doubtful_lt | Double | Provision - Bad Debts - Long Term |
+| bs_deriv_hedge_lt | Double | Derivative Financial Instruments - Hedging - Long Term |
+| bs_ppe_net_total | Double | Real Estate Plant and Equipment - Net - Total |
+| bs_assets_leased_out_operating_lease_net | Double | Assets leased under operating leases - Net |
+| bs_ppe_excl_leased_out_net | Double | PPE - excluding leased assets - Net - Total |
+| bs_land_buildings_net | Double | Land and Buildings - Network |
+| bs_land_improvements_net | Double | Land/Improvements - Net |
+| bs_buildings_net | Double | Buildings - Network |
+| bs_leasehold_improvements_net | Double | Leasehold Improvements - Net |
+| bs_plant_machinery_equipment_net | Double | Factory Machinery and Equipment - Net |
+| bs_transport_equipment_net | Double | Transportation Equipment - Net |
+| bs_computer_software_equipment_net | Double | Computer Software and Equipment - Network |
+| bs_construction_in_progress_net | Double | Construction in Progress - Network |
+| bs_ppe_capital_lease_net | Double | Property Plant and Equipment - Capital Lease - Net |
+| bs_rou_tangible_total_net | Double | Right of Use Tangible Assets - Total - Net |
+| bs_rou_operating_lease_net | Double | Rights to use tangible assets - Operating leases - Net |
+| bs_rou_cap_fin_lease_net | Double | Rights to Use Tangible Assets - Capital/Finance Lease - Net |
+| bs_ppe_other_net | Double | Property, plant and equipment - Other - Net |
+| bs_natural_resources_biological_net | Double | Natural Resources/Biological Assets - Net |
+| bs_mining_exploration_net | Double | Mining/Exploration Specific Assets - Net |
+| bs_utility_plant_net | Double | Utility Plant - Network |
+| bs_ppe_gross_total | Double | Real Estate Plant and Equipment - Total - Total |
+| bs_assets_leased_out_operating_lease_gross | Double | Assets leased under operating leases - Gross |
+| bs_ppe_excl_leased_out_gross | Double | PPE - Excluding Leased Assets - Total |
+| bs_land_buildings_gross | Double | Land and buildings - gross |
+| bs_land_improvements_gross | Double | Land/Improvements - Gross |
+| bs_buildings_gross | Double | Buildings - Gross |
+| bs_leasehold_improvements_gross | Double | Leasehold Improvements - Gross |
+| bs_plant_machinery_equipment_gross | Double | Plant Machinery and Equipment - Gross |
+| bs_transport_equipment_gross | Double | Transportation Equipment - Total |
+| bs_computer_software_equipment_gross | Double | Computer Software and Equipment - Gross |
+| bs_construction_in_progress_gross | Double | Construction in Progress - Total |
+| bs_ppe_capital_lease_gross | Double | Real Estate Plant and Equipment - Capital Lease - Gross |
+| bs_rou_tangible_total_gross | Double | Right of Use Tangible Assets - Total - Total |
+| bs_rou_operating_lease_gross | Double | Right-of-use tangible assets - Operating leases - Gross |
+| bs_rou_cap_fin_lease_gross | Double | Right of Use Tangible Assets - Capital/Finance Lease - Gross |
+| bs_ppe_other_gross | Double | Real Estate Plant and Equipment - Other - Gross |
+| bs_natural_resources_biological_gross | Double | Natural Resources/Biological Assets - Total |
+| bs_mining_exploration_gross | Double | Mining/Exploration Specific Assets - Gross |
+| bs_utility_plant_gross | Double | Utilities - Gross |
+| bs_ppe_acc_depr_impair_total | Double | PPE - Accumulated Depreciation and Impairment - Total |
+| bs_assets_leased_out_operating_lease_acc_depr_impair | Double | Assets leased under operating leases - accumulated depreciation and impairment |
+| bs_ppe_excl_leased_out_acc_depr_impair | Double | PPE - excluding leased assets - Accumulated depreciation and impairment - Total |
+| bs_land_buildings_acc_depr_impair | Double | Land and Buildings - Accumulated Depreciation and Impairment |
+| bs_land_improvements_acc_depr_impair | Double | Land/Improvements - Accumulated Depreciation and Impairment |
+| bs_buildings_acc_depr_impair | Double | Buildings - Accumulated Depreciation and Impairment |
+| bs_leasehold_improvements_acc_depr_impair | Double | Leasehold Improvements - Accumulated Depreciation and Impairment |
+| bs_plant_machinery_equipment_acc_depr_impair | Double | Plant, Machinery and Equipment - Accumulated Depreciation and Impairment |
+| bs_transport_equipment_acc_depr_impair | Double | Transportation Equipment - Accumulated Depreciation and Impairment |
+| bs_computer_software_equipment_acc_depr_impair | Double | Computer Software and Equipment - Accumulated Depreciation and Impairment |
+| bs_construction_in_progress_acc_depr_impair | Double | Construction in progress - accumulated depreciation and impairment |
+| bs_ppe_capital_lease_acc_depr_impair | Double | Personal Protective Equipment under Capital Lease - Accumulated Depreciation and Impairment |
+| bs_rou_tangible_total_acc_depr | Double | Total right-of-use tangible assets - accumulated depreciation |
+| bs_rou_operating_lease_acc_depr | Double | Right to Use Tangible Assets - Operating Lease - Accum Depr |
+| bs_rou_cap_fin_lease_acc_depr | Double | Right to Use Tangible Assets - Cap/Financial Lease - Accum Depr |
+| bs_ppe_other_acc_depr_impair | Double | Property, Plant and Equipment - Other - Accum Depr & Impair |
+| bs_utility_plant_acc_depr_impair | Double | Utility Plant - Accumulated Depreciation and Impairment |
+| bs_mining_exploration_acc_depr_impair | Double | Mining/Exploration Specific Assets - Accumulated Depreciation and Impairment |
+| bs_natural_resources_biological_acc_depr_impair | Double | Natural Resources/Biological Assets - Accumulated Impairment and Impairment |
+| bs_deferred_policy_acq_costs | Double | Deferred policy acquisition costs |
+| bs_reinsurance_assets | Double | Reinsurance assets |
+| bs_deposits_held_reinsurance | Double | Deposits - Held under Reinsurance |
+| bs_reinsurance_recoverable_insurance_provisions | Double | Reinsurance recoverable - in insurance terms |
+| bs_reinsurance_recoverable_unearned_premiums | Double | Reinsurance Recoverable - Unearned Premiums |
+| bs_reinsurance_recoverable_outstanding_claims | Double | Reinsurance Recoverable - Outstanding Claims |
+| bs_reinsurance_recoverable_benefit_loss_reserve | Double | Reinsurance Recoverable - Benefit and Loss Reserves |
+| bs_reinsurers_share_separate_variable_acct | Double | Reinsurers' share of separate and variable accounts/associated liabilities |
+| bs_reinsurance_recoverable_other | Double | Reinsurance Recoverable - Other |
+| bs_separate_variable_account_assets | Double | Separate and Variable Accounts - Assets |
+| bs_assets_held_for_sale_lt | Double | Assets held for sale/discontinued operations - long term |
+| bs_assets_held_for_sale_lt_st | Double | Assets held for sale/discontinued operations - LT & ST |
+| bs_insurance_related_assets_bank | Double | Insurance Related Assets - Bank |
+| bs_other_non_current_assets_total | Double | Other non-current assets - total |
+| bs_restricted_accounts_lt | Double | Restricted Accounts - Long Term |
+| bs_deferred_tax_asset_lt | Double | Deferred Tax - Asset - Long Term |
+| bs_deferred_charges_lt | Double | Deferred Charges - Long Term |
+| bs_prepaid_expenses_lt | Double | Prepaid Expenses - Long Term |
+| bs_inventories_lt | Double | Inventories - Long Term |
+| bs_regulatory_assets_lt | Double | Regulatory Assets - Long Term |
+| bs_pension_assets_lt | Double | Pension Assets - Long Term |
+| bs_other_non_current_assets | Double | Other non-current assets |
+| bs_other_assets_total | Double | Other Assets - Total |
+| bs_accrued_investment_income | Double | Accrued investment income |
+
+| Field | Type | Description |
+|:---|:---|:---|
+| bs_restricted_accounts_cash | Double | Restricted Accounts - Cash |
+| bs_pension_benefits_overfunded | Double | Pension Benefits - Overfunded - Total |
+| bs_deferred_charges | Double | Deferred charges |
+| bs_deferred_tax_asset_lt_st | Double | Deferred Tax - Asset - Long and Short Term |
+| bs_prepaid_expenses_total | Double | Prepaid expenses - total |
+| bs_decommissioning_funds | Double | Decommissioning Funds |
+| bs_regulatory_assets_total | Double | Regulatory Assets - Total |
+| bs_other_assets | Double | Other assets |
+| bs_intangible_assets_net | Double | Intangible Assets - Total - Net |
+| bs_goodwill_net | Double | Goodwill/cost over purchased assets - Net |
+| bs_intangibles_excl_gw_net | Double | Intangibles - excluding goodwill - Net - Total |
+| bs_core_deposits_net | Double | Core Deposits - Net |
+| bs_mortgage_servicing_rights_net | Double | Mortgage Servicing Rights - Network |
+| bs_asset_mgmt_contracts_net | Double | Asset Management Contracts - Net |
+| bs_customer_relations_net | Double | Customer Group/Relationships - Network |
+| bs_tenant_relationships_leases_net | Double | Tenant Relationships and Leases in Place - Network |
+| bs_above_market_rent_leases_net | Double | Above Market Rent/Leases - Net |
+| bs_leasing_rights_net | Double | Leasing Rights - Net |
+| bs_computer_software_intang_net | Double | Computer Software - Intangible Assets - Net |
+| bs_r_and_d_costs_net | Double | Research and Development Costs - Net |
+| bs_brands_patents_trademarks_net | Double | Brands, Patents, Trademarks, Marketing and Art - Net |
+| bs_licenses_franchises_contracts_net | Double | Licenses, franchises, copyrights, contracts-based - Net |
+| bs_rou_intangibles_net | Double | Right-of-use intangibles - net |
+| bs_other_intangibles_net | Double | Intangible assets - Other - Net |
+| bs_intangible_assets_gross | Double | Intangible Assets - Total - Total |
+| bs_goodwill_gross | Double | Goodwill/cost in excess of purchased assets - Total |
+| bs_intangibles_excl_gw_gross | Double | Intangible assets - excluding goodwill - Total |
+| bs_core_deposits_gross | Double | Core Deposits - Total |
+| bs_mortgage_servicing_rights_gross | Double | Mortgage Servicing Rights - Gross |
+| bs_asset_mgmt_contracts_gross | Double | Asset Management Contract - Total |
+| bs_customer_relations_gross | Double | Customer Group/Relationships - Gross |
+| bs_tenant_relationships_leases_gross | Double | Tenant Relationships and Leases in Place - Gross |
+| bs_above_market_rent_leases_gross | Double | Above Market Rent/Leases - Gross |
+| bs_leasing_rights_gross | Double | Leasing Rights - Gross |
+| bs_computer_software_intang_gross | Double | Computer Software - Intangible Assets - Total |
+| bs_r_and_d_costs_gross | Double | Research and development costs - total |
+| bs_brands_patents_trademarks_gross | Double | Brands, Patents, Trademarks, Marketing and Art - Total |
+| bs_licenses_franchises_contracts_gross | Double | Licenses, Franchises, Copyrights, Contract-Based - Gross |
+| bs_rou_intangibles_gross | Double | Right-of-use intangibles - total |
+| bs_other_intangibles_gross | Double | Intangible assets - Other - Total - Total |
+| bs_intangible_assets_acc_amort_impair | Double | Intangible Assets - Accumulated Amortization and Impairment - Total |
+| bs_goodwill_acc_amort_impair | Double | Goodwill - Accumulated Amortization and Impairment |
+| bs_intangibles_excl_gw_acc_amort_impair | Double | Intangible assets (excluding goodwill) - Total accumulated amortization and impairment |
+| bs_core_deposits_acc_amort_impair | Double | Core Deposits - Accumulated Amortization and Impairment |
+| bs_mortgage_servicing_rights_acc_amort_impair | Double | Mortgage Servicing Rights - Accumulated Amortization and Impairment |
+| bs_asset_mgmt_contracts_acc_amort_impair | Double | Asset Management Contracts - Accumulated Amortization and Impairment |
+| bs_customer_relations_acc_amort_impair | Double | Customer Segment/Relationships - Accumulated Amortization and Impairment |
+| bs_tenant_relationships_leases_acc_amort_impair | Double | Tenant Relations and Tenancy in Place -Accum Amort & Imp |
+| bs_above_market_rent_leases_acc_amort_impair | Double | Above Market Rent/Leases - Accumulated Amortization and Impairment |
+| bs_leasing_rights_acc_amort_impair | Double | Leasehold Rights - Accumulated Amortization and Impairment |
+| bs_computer_software_intang_acc_amort_impair | Double | Computer Software - Intangible Assets - Accumulated Amortization and Impairment |
+| bs_r_and_d_costs_acc_amort_impair | Double | Research and development costs - accumulated amortization and impairment |
+| bs_brands_patents_trademarks_acc_amort | Double | Brands, Patents, Trademarks, Marketing and the Arts - Accum Amort |
+| bs_licenses_franchises_contracts_acc_amort_impair | Double | Licenses, Franchises, Copyrights - Accum Amort & Impair |
+| bs_rou_intangibles_acc_amort | Double | Right-of-use intangible assets - accumulated amortization |
+| bs_other_intangibles_acc_amort_impair | Double | Other intangibles - accumulated amortization and impairment |
+| bs_total_non_current_assets | Double | Total non-current assets |
+| bs_total_assets | Double | Total assets |
+| bs_trade_payable_accruals_st | Double | Trade Payables and Accruals - Short Term |
+| bs_trade_payable_st | Double | Trade Accounts and Trade Notes Payable - Short Term |
+| bs_accrued_expenses_st | Double | Accrued Expenses - Short Term |
+| bs_insurance_reserves_total | Double | Insurance Reserves - Total |
+| bs_benefit_loss_reserves_gross | Double | Profit and loss reserves - total |
+| bs_benefit_loss_reserves_life_gross | Double | Profit and loss reserves - life - total |
+| bs_benefit_loss_reserves_non_life_gross | Double | Profit and loss reserves - non-life - gross |
+| bs_unearned_premiums_gross | Double | Unearned premiums - total |
+| bs_policy_contract_claims_gross | Double | Policy and Contract Claims - Gross |
+| bs_policyholders_funds | Double | Policyholder funds |
+| bs_insurance_reserves_other_gross | Double | Insurance reserves - Other - Total - Total |
+| bs_separate_variable_account_liabilities | Double | Separate and Variable Accounts - Liabilities |
+| bs_deposits_total | Double | Deposits - Total |
+| bs_deposits_non_int_bearing | Double | Deposits - No Interest |
+| bs_deposits_int_bearing | Double | Deposits - Interest-bearing deposits |
+| bs_customer_deposits_total | Double | Deposits - Customers - Total |
+| bs_demand_deposits_customer | Double | Deposit-current-customer |
+| bs_savings_deposits_customer | Double | Deposits - Savings - Customer |
+| bs_other_deposits_customer | Double | Deposits - Other - Customer |
+| bs_deposits_banks_fi | Double | Deposits - Banks and Financial Institutions Deposits |
+| bs_demand_deposits_banks_fi | Double | Deposits - demand deposits - deposits with banks and financial institutions |
+| bs_savings_deposits_banks_fi | Double | Deposits - Savings - Deposits with banks and financial institutions |
+| bs_other_deposits_banks_fi | Double | Deposits - Other - Deposits with banks and financial institutions |
+| bs_trading_liabilities | Double | Trading Liabilities |
+| bs_debt_total | Double | Debt - Total |
+| bs_st_debt_current_portion_lt_debt | Double | Current portion of short-term debt and long-term debt |
+| bs_st_debt_notes_payable | Double | Short-term debt and notes payable |
+| bs_st_bank_borrowings_excl_collateral | Double | Short-term bank borrowings excl. mortgage financing |
+| bs_collateralized_financing_repo_liab | Double | Mortgage Financing Agreement REPO Financing Loan - Liab |
+| bs_securities_loaned | Double | Securities - Loaned |
+| bs_securities_sold_repo_fed_funds_purchased | Double | Securities sold and fed funds purchased under repurchase agreements |
+| bs_securities_sold_repo | Double | Securities sold under a repurchase agreement |
+| bs_fed_funds_purchased | Double | Federal funds purchased |
+| bs_securities_received_collateral_obligation | Double | Securities received as collateral - return obligation |
+| bs_current_portion_lt_debt_incl_cap_leases | Double | The current portion of long-term debt includes capitalized leases |
+| bs_current_portion_lt_debt_excl_cap_leases | Double | The current portion of long-term debt (excluding capitalized leases) |
+| bs_cap_leases_current_portion | Double | Capitalized Leases - Current Portion |
+| bs_hybrid_financial_liability_current | Double | Hybrid Financial Instruments - Liabilities - Current Section |
+| bs_fhlb_advances_current | Double | FHLB Advances - Current Section |
+| bs_deriv_liab_hedge_st | Double | Derivative Liability - Hedge - Short Term |
+| bs_liabilities_held_for_sale_st | Double | Liabilities held for sale/discontinued operations - ST |
+| bs_income_tax_payable_st | Double | Income Tax - Payable - Short Term |
+| bs_dividends_distributions_payable | Double | Dividends/distributions payable |
+| bs_operating_lease_liab_current | Double | Operating Lease Liability - Current Part/Short Term |
+| bs_intangible_liability | Double | Intangible liability |
+| bs_below_market_rent_leases_gross | Double | Below Market Rent/Leases - Gross |
+| bs_below_market_rent_leases_acc_amort_impair | Double | Below Market Rent/Leases - Accumulated Amortization and Impairment |
+| bs_below_market_rent_leases_net | Double | Below Market Rent/Leases - Net |
+| bs_other_current_liabilities_total | Double | Other current liabilities - total |
+| bs_deferred_income_st | Double | Deferred income - short term |
+| bs_security_deposits | Double | Deposit |
+| bs_billings_excess_cost_st | Double | Bills exceeding cost - short term |
+| bs_customer_advances_st | Double | Customer Advances - Short Term |
+| bs_deferred_tax_liab_st | Double | Deferred Tax - Liability - Short Term |
+| bs_provisions_st | Double | Provisions - Short term |
+| bs_regulatory_liab_st | Double | Regulatory Responsibility - Short Term |
+| bs_other_current_liabilities | Double | Other current liabilities |
+| bs_total_current_liabilities | Double | Total current liabilities |
+| bs_accounts_payable_accruals_lt | Double | Accounts payable including accruals - Long term |
+| bs_trade_payable_lt | Double | Trade Payables - Long Term |
+| bs_accrued_expenses_lt | Double | Accrued Expenses - Long Term |
+| bs_debt_lt_total | Double | Debt - Long Term - Total |
+| bs_lt_debt_excl_cap_leases | Double | Long-term debt (excluding capitalized leases) |
+| bs_non_convertible_debt_lt | Double | Debt - Non-Convertible - Long Term |
+| bs_convertible_debt_lt | Double | Convertible Debt - Long Term |
+| bs_hybrid_financial_liability_lt | Double | Hybrid Financial Instruments - Liabilities - Long Term |
+| bs_mandatorily_redeemable_trust_certificates_lt | Double | Mandatory Redeemable Trust Certificates - Long Term |
+| bs_other_mandatorily_redeemable_equity_lt | Double | Other Mandatorily Redeemable Equity Instruments - Long Term |
+| bs_preferred_stock_liability_portion_lt | Double | Preferred Stock - Liability Portion - Long Term |
+| bs_fhlb_advances_lt | Double | FHLB Advances - Long Term |
+| bs_cap_lease_obligations_lt | Double | Capitalized Lease Obligations - Long Term |
+| bs_deriv_liab_hedge_lt | Double | Derivative Liabilities - Hedge - Long Term |
+| bs_liabilities_held_for_sale_lt | Double | Liabilities held for sale/discontinued operations - Long Term |
+| bs_income_tax_payable_lt_st | Double | Income Tax - Payable - Long and Short Term |
+| bs_dividends_payable | Double | Dividends payable |
+| bs_deferred_tax_investment_tax_credits_lt | Double | Deferred Tax and Investment Tax Credits - Long Term |
+| bs_deferred_tax_liab_lt | Double | Deferred Tax - Liability - Long Term |
+| bs_deferred_tax_liab_untaxed_reserves | Double | Deferred Tax - Liabilities - Untaxed Reserves |
+| bs_payables_trust_account | Double | Accounts Payable - Trust Account |
+| bs_payables_accrued_expenses | Double | Accounts payable and accrued expenses |
+| bs_trade_payables_total | Double | Trade Payables - Total |
+| bs_payable_reinsurance_brokers_agents | Double | Accounts Payable - Reinsurance and Brokers/Agents |
+| bs_interest_payable | Double | Interest payable |
+| bs_other_payables_total | Double | Other payables - total |
+| bs_payables_customers_brokers_dealers | Double | Accounts Payable - Customer Brokers, Dealers and Clearing Organizations |
+| bs_accrued_expenses | Double | Accrued expenses |
+| bs_deriv_liab_hedge | Double | Derivative Liability - Hedge |
+| bs_operating_lease_liab_lt_st | Double | Operating lease liabilities - long and short term |
+| bs_segregated_liabilities_total | Double | Segregated Liabilities - Total |
+| bs_operating_lease_liab_lt | Double | Operating lease liability - long term |
+| bs_other_non_current_liabilities_total | Double | Other non-current liabilities - total |
+| bs_provisions_lt | Double | Provisions - Long |
+| bs_post_employment_benefits_pension_other_lt | Double | Post-employment benefits - Pension and other - Long term |
+| bs_asset_retirement_obligation_lt | Double | Asset Retirement Obligation - Long Term |
+| bs_provisions_litigation_lt | Double | Terms - Litigation - Long Term |
+| bs_provisions_restructuring_lt | Double | Provisions - Restructuring - Long |
+| bs_provisions_environmental_lt | Double | Provisions - Environmental Obligations - Long Term |
+| bs_provisions_other_lt | Double | Provisions - Other - Long |
+| bs_customer_advances_lt | Double | Customer Advances - Long Term |
+| bs_deferred_revenue_lt | Double | Deferred Revenue - Long Term |
+| bs_regulatory_liabilities_lt | Double | Regulatory Liabilities - Long Term |
+| bs_other_non_current_liabilities | Double | Other non-current liabilities |
+| bs_other_liabilities_total | Double | Other liabilities - total |
+| bs_provisions | Double | Provisions |
+| bs_post_employment_benefits_pension_other | Double | Post-employment benefits - pensions and other |
+| bs_provisions_other_than_pension | Double | Provisions - except pension and post-retirement |
+| bs_regulatory_liabilities_total | Double | Regulatory Liabilities - Total |
+| bs_billings_excess_costs_total | Double | Bills exceeding costs - total |
+| bs_customer_advances_total | Double | Customer Advances - Total |
+| bs_deferred_revenue_income | Double | Deferred income/income |
+| bs_other_liabilities | Double | Other liabilities |
+| bs_liabilities_held_for_sale_lt_st | Double | Liabilities held for sale/discontinued operations - LT & ST |
+| bs_insurance_liabilities | Double | Insurance liability |
+| bs_minority_interest_non_equity | Double | Minority Interest - Non-Equity |
+| bs_total_non_current_liabilities | Double | Total non-current liabilities |
+| bs_total_liabilities | Double | Total liabilities |
+| bs_shareholders_equity_parent | Double | Shareholders' equity - Attributable to parent company holdings - Total |
+| bs_preferred_equity | Double | Preferred stockholders' equity |
+| bs_preferred_stock_redeemable_total | Double | Preferred Stock - Redeemable - Total |
+| bs_preferred_stock_redeemable_convertible | Double | Preferred Stock - Redeemable - Convertible |
+| bs_preferred_stock_non_redeemable | Double | Preferred stock - non-redeemable |
+| bs_preferred_stock_convertible_non_redeemable | Double | Preferred stock - convertible - non-redeemable |
+| bs_preferred_equity_contributed | Double | Preferred Stock - Contribution |
+| bs_preferred_stock_esop | Double | Preferred stock - issued for employee stock ownership plans |
+| bs_preferred_stock_treasury | Double | Preferred Stock - Stock/Repurchase |
+| bs_esop_guarantees_preferred_deferred_comp | Double | ESOP Guarantees - Preferred Compensation and Deferred Compensation |
+| bs_preferred_stock_redeemable_temporary | Double | Preferred Stock - Redeemable - Temporary Equity |
+| bs_common_equity_parent | Double | Common shares attributable to shareholders of the parent company |
+| bs_common_stock_treasury | Double | Common Stock - Stock/Repurchase |
+| bs_common_stock_esop | Double | Common stock - held in ESOP or trust/deferred compensation |
+| bs_common_equity_contributed | Double | Common Stock - Contribution |
+| bs_common_stock_issued_paid | Double | Common stock - issued and paid |
+| bs_limited_partner | Double | Limited Partner |
+| bs_common_stock_additional_paid_in_capital | Double | Common stock - additional capital payments, including option reserves |
+| bs_common_share_capital_incl_apic | Double | Common share capital, including additional paid-in capital - Total |
+| bs_distributions_excess_earnings | Double | Distributions in excess of earnings |
+| bs_equity_non_contributed_reserves_retained | Double | Equity - Non-Contributory - Reserves and Retained Earnings |
+| bs_retained_earnings_total | Double | Retained Earnings - Total |
+| bs_accumulated_oci_total | Double | Comprehensive income - cumulative - total |
+| bs_inv_unrealized_gl | Double | Investments - Unrealized Gains and Losses |
+| bs_hedging_reserves | Double | Hedging reserves |
+| bs_fx_translation_adj | Double | Foreign currency translation adjustment - cumulative |
+| bs_oci_pension_liabilities | Double | Comprehensive Income - Pension Liabilities |
+| bs_oci_unearned_compensation | Double | Comprehensive income - unearned compensation |
+| bs_revaluation_reserves | Double | Revaluation reserves |
+| bs_oci_other_total | Double | Comprehensive income - other - total |
+| bs_other_reserves_equity_total | Double | Other Reserves/Equity - Total |
+| bs_goodwill_written_off | Double | Goodwill - Accumulated Write-offs |
+| bs_untaxed_special_reserves | Double | Tax-free/special reserves |
+| bs_negative_consol_goodwill_written_off | Double | Negative Consol Diff goodwill written off against Rsrv |
+| bs_equity_other | Double | Equity - Other |
+| bs_general_partner | Double | General Partner |
+| bs_deferred_shares | Double | Deferred shares |
+| bs_social_capital | Double | Social capital |
+| bs_policy_holder_equity | Double | Policy holder equity |
+| bs_common_equity_total | Double | Common Equity - Total |
+| bs_minority_interest_equity | Double | Minority Interest - Equity |
+| bs_hybrid_financial_instrument_equity | Double | Hybrid Financial Instruments - Equity Component |
+| bs_total_equity_incl_minority_hybrid | Double | Total shareholder equity, including minority equity and hybrid debt |
+| bs_total_liabilities_equity | Double | Total liabilities and equity |
+| bs_common_shares_issued_total | Double | Common shares - issued - total |
+| bs_common_shares_outstanding_total | Double | Common shares - outstanding - total |
+| bs_common_shares_treasury_total | Double | Common shares - inventory - total |
+| bs_common_shares_authorized | Double | Common Shares - Authorized - Certain Issues |
+| bs_common_shares_issued | Double | Common shares - issued - specific issues |
+| bs_common_shares_outstanding | Double | Common shares - issued - specific issues |
+| bs_common_shares_treasury | Double | Common Shares - Treasury - Certain Issues |
+| bs_common_shares_issued_current | Double | Common shares - issued - specific issue - current |
+| bs_common_shares_outstanding_current | Double | Common shares - issued - specific issues - current |
+| bs_common_shares_treasury_current | Double | Common Shares - Inventory - Specific Issues - Current |
+| bs_common_shares_issued_dr | Double | Common Shares - Issued - Specific Issues - DR |
+| bs_common_shares_outstanding_dr | Double | Common Shares - Issued - Specific Issues - DR |
+| bs_common_shares_treasury_dr | Double | Common Shares - Inventory - Certain Issues - DR |
+| bs_common_shares_issued_cpo | Double | Common Shares - Issued - Specific Issues - CPO |
+
+| Field | Type | Description |
+|:---|:---|:---|
+| bs_common_shares_outstanding_cpo | Double | Common Shares - Issued - Certain Issues - CPO |
+| bs_common_shares_treasury_cpo | Double | Common Shares - Treasury - Certain Offerings - CPO |
+| bs_preferred_shares_authorized | Double | Preferred Shares - Authorized - Certain Issues |
+| bs_preferred_shares_issued | Double | Preferred Shares - Issued - Specific Issues |
+| bs_preferred_shares_outstanding | Double | Preferred Shares - Issued - Specific Issues |
+| bs_preferred_shares_treasury | Double | Preferred Stock - Treasury - Certain Issues |
+| bs_preferred_shares_issued_current | Double | Preferred Shares - Issued - Specific Issues - Current |
+| bs_preferred_shares_outstanding_current | Double | Preferred Shares - Issued - Specific Issues - Current |
+| bs_preferred_shares_treasury_current | Double | Preferred Stock - Inventory - Certain Issues - Current |
+| bs_asset_allocation_factor | Double | Asset Allocation Factor - Specific Issue |
+| bs_asset_participation_factor | Double | Asset participation factor - specific question |
+| bs_epra_nav_per_share | Double | EPRA NAV per share |
+| bs_epra_triple_nav_per_share | Double | EPRA Triple Net Asset Value per Share (NNNAV) |
+| bs_rou_tangible_total_net_supp | Double | Right of Use Tangible Assets - Total - Net - Supplementary |
+| bs_rou_operating_lease_net_supp | Double | Right to use tangible assets - Operating Lease Network - Supplement |
+| bs_rou_cap_fin_lease_net_supp | Double | Tangible Rights - Cap/Finance Lease - Net - Suppl |
+| bs_rou_tangible_total_gross_supp | Double | Right of Use Tangible Assets - Total - Total - Supplementary |
+| bs_rou_operating_lease_gross_supp | Double | Right to use tangible assets - Gross operating lease - Suppl |
+| bs_rou_cap_fin_lease_gross_supp | Double | Right to Use Tangible Assets - Cap/Financial Lease - Total - Suppl |
+| bs_rou_tangible_total_acc_depr_supp | Double | Right of Use Tangible Assets - Total - Accum Depr - Suppl |
+| bs_rou_operating_lease_acc_depr_supp | Double | Right to Use Tangible Assets - Optg Lease Accum Depr Suppl |
+| bs_rou_cap_fin_lease_acc_depr_supp | Double | Right to Use Tangible Assets - Cap/Finance Lease Accum Depr Suppl |
+| bs_ppe_excl_rou_cap_leases_net | Double | PPE - excluding tangible rights of use and capped leases - Net |
+| bs_ppe_excl_rou_cap_leases_gross | Double | PPE - excluding tangible rights of use and capped leases - Gross |
+| bs_ppe_excl_rou_cap_leases_acc_depr | Double | PPE - excluding tangible rights of use and capped leases - Accum Depr |
+| bs_rou_intangibles_net_supp | Double | Right-of-use intangible assets - Net - Supplementary |
+| bs_rou_intangibles_gross_supp | Double | Right-of-use intangible assets - Total - Supplementary |
+| bs_rou_intangibles_acc_amort_supp | Double | Right-of-use intangible assets - Accumulated amortization - Suppl |
+| bs_total_operating_lease_liabilities | Double | Total operating lease liabilities |
+| bs_operating_lease_liab_lt_st_supp | Double | Operating Lease Liability - Long Term and Short Term - Supplement |
+| bs_operating_lease_liab_current_supp | Double | Operating Lease Liability - Current Part/ST - Supplement |
+| bs_operating_lease_liab_lt_supp | Double | Operating Lease Liability - Long Term - Supplementary |
+| bs_finance_operating_lease_liab_total | Double | Financing and operating lease liabilities - total |
+| bs_debt_incl_fin_op_lease_liab | Double | Debt includes financing and operating lease liabilities |
+| bs_net_debt | Double | Net debt |
+| bs_weighted_cost_debt_pct | Double | Weighted cost of debt - % |
+| bs_revolver_outstanding_supp | Double | Revolving Credit Facility - Outstanding - Supplementary |
+| bs_revolver_unutilized_supp | Double | Revolving Credit Line - Unused/Unutilized Amount - Supplementary |
+| bs_revolver_total_principal_supp | Double | Revolving Credit Facility - Total Principal - Supplementary |
+| bs_islamic_investments_deposits | Double | Islamic investments and deposits |
+| bs_islamic_receivables_st | Double | Islamic Receivables - Short Term |
+| bs_islamic_receivables_lt | Double | Islamic Receivables - Long Term |
+| bs_islamic_financing_assets_total | Double | Islamic Financing Assets - Total |
+| bs_islamic_investments_total | Double | Islamic Investments - Total |
+| bs_unrestricted_investment_accounts | Double | Unrestricted Investment Accounts |
+| bs_other_islamic_deposits | Double | Other Islamic Deposits |
+| bs_islamic_debt_lt_st | Double | Islamic debt - long and short term |
+| bs_islamic_debt_deposits_total | Double | Islamic Debt and Deposits - Total |
+| bs_debt_lt_maturities_total | Double | Debt - Long Term - Maturity - Total |
+| bs_debt_lt_maturities_year1 | Double | Debt - Long Term - Maturity - Within 1 Year |
+| bs_debt_lt_maturities_year2 | Double | Debt - Long Term - Maturity - Year 2 |
+| bs_debt_lt_maturities_year3 | Double | Debt - Long Term - Maturity - Year 3 |
+| bs_debt_lt_maturities_year4 | Double | Debt - Long Term - Maturity - Year 4 |
+| bs_debt_lt_maturities_year5 | Double | Debt - Long Term - Maturity - Year 5 |
+| bs_debt_lt_maturities_year6 | Double | Debt - Long Term - Maturity - Year 6 |
+| bs_debt_lt_maturities_year7 | Double | Debt - Long Term - Maturity - Year 7 |
+| bs_debt_lt_maturities_year8 | Double | Debt - Long Term - Maturity - Year 8 |
+| bs_debt_lt_maturities_year9 | Double | Debt - Long Term - Maturity - Year 9 |
+| bs_debt_lt_maturities_year10 | Double | Debt - Long Term - Maturity - 10 years |
+| bs_debt_lt_maturities_remaining | Double | Debt - Long Term - Maturity - Remaining |
+| bs_debt_lt_maturities_2_3_years | Double | Debt - Long Term - Maturity - 2-3 years |
+| bs_debt_lt_maturities_4_5_years | Double | Debt - Long Term - Maturity - 4-5 years |
+| bs_debt_lt_maturities_year6_beyond | Double | Debt - Long Term - Maturity - Year 6 and Beyond |
+| bs_cap_lease_maturities_total | Double | Capital Lease Maturities - Total |
+| bs_cap_lease_maturities_year1 | Double | Capital lease maturity date - due in one year |
+| bs_cap_lease_maturities_year2 | Double | Capital Lease Maturity Date - Expiration Year 2 |
+| bs_cap_lease_maturities_year3 | Double | Capital Lease Expiration - Expiration Year 3 |
+| bs_cap_lease_maturities_year4 | Double | Capital Lease Expiration - Expiration Year 4 |
+| bs_cap_lease_maturities_year5 | Double | Capital Lease Expiration - Expiration Year 5 |
+| bs_cap_lease_maturities_year6 | Double | Capital Lease Expiration - Expiration Year 6 |
+| bs_cap_lease_maturities_year7 | Double | Capital Lease Expiration - Expiration Year 7 |
+| bs_cap_lease_maturities_year8 | Double | Capital Lease Expiration - Expiration Year 8 |
+| bs_cap_lease_maturities_year9 | Double | Capital Lease Expiration - Expiration Year 9 |
+| bs_cap_lease_maturities_year10 | Double | Capital Lease Expiration - Expiration Year 10 |
+| bs_cap_lease_maturities_remaining | Double | Capital Lease Maturity - Remaining Maturity |
+| bs_cap_lease_maturities_interest | Double | Capital Lease Maturity - Interest Cost |
+| bs_cap_lease_maturities_executory | Double | Capital Lease Maturity - Execution Cost |
+| bs_cap_lease_maturities_2_3_years | Double | Capital lease maturity - due in 2-3 years |
+| bs_cap_lease_maturities_4_5_years | Double | Capital lease maturity date - due in 4-5 years |
+| bs_cap_lease_maturities_year6_beyond | Double | Capital Lease Maturities - Due in Year 6 and Beyond |
+| bs_contract_assets_unearned_revenue_billings_total | Double | Total Contract Assets - Unearned Revenue and Progress Bills |
+| bs_contract_assets_unearned_revenue_billings_st | Double | Contract Assets - ST Unearned Revenue and Progress Billings |
+| bs_contract_assets_unearned_revenue_billings_lt | Double | Contract Assets - LT Unearned Revenue and Progress Billings |
+| bs_inv_property_fair_value | Double | Investment Properties - Fair Value |
+| bs_contract_liabilities_unearned_revenue_billings_total | Double | Total Contract Liabilities - Unearned Revenue and Progress Bills |
+| bs_contract_liabilities_unearned_revenue_billings_st | Double | Contract Liabilities - ST Unearned Revenue and Progress Billings |
+| bs_contract_liabilities_unearned_revenue_billings_lt | Double | Contractual Liabilities - LT Unearned Revenue and Progress Billings |
+| bs_investment_contracts_technical_liabilities | Double | Investment Contracts - Technical Liabilities |
+| bs_insurance_contracts_technical_liabilities | Double | Insurance Contracts - Technical Liabilities |
+| bs_minority_interest_total | Double | Minority Interest - Total |
+| bs_accruals_st | Double | Accruals - Short Term |
+| bs_asset_accruals | Double | Accruals |
+| bs_cash_cash_equiv_total | Double | Cash and cash equivalents - Total |
+| bs_cash_securities | Double | Cash and securities |
+| bs_cash_short_term_inv_total | Double | Cash and Short-Term Investments - Total |
+| bs_debt_incl_pref_equity_minority | Double | Debt, including preferred stock and minority interests - Total |
+| bs_demand_deposits_total | Double | Demand Deposits - Total |
+| bs_earning_assets | Double | Earning assets |
+| bs_equity_sec_real_estate | Double | Equity Securities and Real Estate |
+| bs_invested_assets_total | Double | Invested assets - total |
+| bs_investment_securities | Double | Investment securities |
+| bs_investments_permanent | Double | Investments - Permanent |
+| bs_net_book_capital | Double | Net book capital |
+| bs_net_operating_assets | Double | Net operating assets |
+| bs_non_reserve_liabilities | Double | Non-reserve liabilities |
+| bs_provisions_total | Double | Reserves - Total |
+| bs_savings_deposits_total | Double | Savings Deposits - Total |
+| bs_shareholders_equity_common | Double | Shareholders' Equity - Common Stock |
+| bs_tangible_total_equity | Double | Total tangible equity |
+| bs_tangible_book_value | Double | Tangible book value |
+| bs_total_book_capital | Double | Total book capital |
+| bs_total_capital | Double | Total capital |
+| bs_total_lt_capital | Double | Total long-term capital |
+| bs_total_fixed_assets_net | Double | Total fixed assets - net |
+| bs_trading_account | Double | Trading account |
+| bs_unearned_revenue_total | Double | Unearned revenue - total |
+| bs_working_capital | Double | working capital |
+| bs_working_capital_non_cash | Double | Working Capital - Non-Cash |
+| bs_working_capital_excl_other_current | Double | Working capital, excluding other current assets and liabilities |
+| bs_book_value_excl_other_equity | Double | Book value excl. other equity |
+| bs_common_shareholders_number | Double | Common shareholders - number |
+| bs_reinsurance_liabilities | Double | Reinsurance Liabilities |
+| bs_cash_banks_total | Double | Cash on hand and bank deposits - total |
+| bs_cash_st_inv_receivables_total | Double | Cash, short-term investments, and accounts receivable - Total |
+| bs_current_assets_excl_cash_st_inv | Double | Current assets (excluding cash and short-term investments) - Total |
+| bs_current_liabilities_excl_current_debt | Double | Current liabilities (excluding current debt) - Total |
+| bs_int_bearing_liabilities_total | Double | Interest-bearing liabilities - total |
+| bs_loans_gross_total | Double | Loans - Total - Total |
+| bs_loans_net_total | Double | Loans - Net - Total |
+| bs_other_assets_lt_st_total | Double | Other short-term and long-term assets - total |
+| bs_other_liabilities_lt_st_total | Double | Other short-term and long-term liabilities - total |
+| bs_provision_doubtful_receivables_total | Double | Allowance for doubtful debts and notes receivable - Total |
+| bs_loan_loss_reserves_total | Double | Loan loss reserves - total |
+| bs_tangible_book_value_loan_loss_reserves | Double | Tangible Book Value and Loan Loss Reserves - Total |
+| bs_trade_receivables_net_total | Double | Trade accounts and trade notes receivable - Net - Total |
+| bs_total_available_funds | Double | Total available funds |
+| bs_current_assets_excl_inventories | Double | Total current assets (excluding total inventory) |
+| bs_total_debt_excl_islamic | Double | Total debt excludes Islamic debt |
+| bs_benefit_claims_reserves_gross | Double | Benefits and Claims Reserves - Gross |
+| bs_book_value_excl_aci | Double | Book value excluding accumulated comprehensive income |
+| bs_cash_st_inv_net_debt | Double | Cash and short-term investments - net of debt |
+| bs_current_portion_lt_debt_incl_cap_leases_hybrid | Double | The current portion of long-term debt, including capitalized leases and hybrid financial instruments |
+| bs_deposits_net | Double | Deposits - Net |
+| bs_inv_equity_real_estate_mortgages | Double | Equity, real estate and mortgage investing |
+| bs_net_debt_incl_pref_equity_minority | Double | Net debt includes preferred stock and minority interests |
+| bs_ppe_excl_utility_plant_net | Double | Property, plant and equipment, excluding utilities - Net |
+| bs_tangible_book_value_excl_other_equity | Double | Tangible book value (excluding other equity) |
+| bs_operating_lease_payments_total | Double | Operating Lease Payments - Total |
+| bs_op_lease_payments_year1 | Double | Operating lease payments - due in year 1 |
+| bs_op_lease_payments_year2 | Double | Operating Lease Payments - Due Year 2 |
+| bs_op_lease_payments_year3 | Double | Operating Lease Payments - Due Year 3 |
+| bs_op_lease_payments_year4 | Double | Operating Lease Payments - Due Year 4 |
+| bs_op_lease_payments_year5 | Double | Operating lease payments - due in year 5 |
+| bs_op_lease_payments_year6 | Double | Operating Lease Payments - Due Year 6 |
+| bs_op_lease_payments_year7 | Double | Operating Lease Payments - Due Year 7 |
+| bs_op_lease_payments_year8 | Double | Operating Lease Payments - Due Year 8 |
+| bs_op_lease_payments_year9 | Double | Operating Lease Payments - Due Year 9 |
+| bs_op_lease_payments_year10 | Double | Operating lease payments - due in year 10 |
+| bs_op_lease_payments_remaining | Double | Operating Lease Payments - Remaining Term |
+| bs_op_lease_payments_interest | Double | Operating lease payments - interest cost/estimated interest |
+| bs_op_lease_payments_2_3_years | Double | Operating lease payments - due in 2-3 years |
+| bs_op_lease_payments_4_5_years | Double | Operating lease payments - due in 4-5 years |
+| bs_op_lease_payments_year6_beyond | Double | Operating lease payments - due in year 6 and beyond |
+| bs_credit_exposure | Double | Credit exposure |
+| bs_assets_under_management | Double | Assets under management (AUM) |
+| bs_capital_adequacy_total_value | Double | Capital adequacy ratio - total (value) |
+| bs_capital_adequacy_tier1_value | Double | Capital Adequacy Ratio - Tier 1 (Value) |
+| bs_capital_adequacy_core_tier1_value | Double | Capital Adequacy Ratio - Core Tier 1 (Value) |
+| bs_capital_adequacy_hybrid_tier1_value | Double | Capital adequacy ratio - Hybrid Tier 1 capital (included in Tier 1 capital) |
+| bs_capital_adequacy_tier2_value | Double | Capital Adequacy Ratio - Tier 2 (Value) |
+| bs_capital_adequacy_tier3_value | Double | Capital Adequacy Ratio - Tier 3 (Value) |
+| bs_capital_adequacy_total_pct | Double | Capital Adequacy Ratio - Total (%) |
+| bs_capital_adequacy_tier1_pct | Double | Capital Adequacy Ratio - Tier 1 (%) |
+| bs_capital_adequacy_core_tier1_pct | Double | Capital Adequacy Ratio - Core Tier 1 (%) |
+| bs_capital_adequacy_tier2_pct | Double | Capital Adequacy Ratio - Tier 2 Capital (%) |
+| bs_capital_adequacy_tier3_pct | Double | Capital Adequacy Ratio - Tier 3 (%) |
+| bs_risk_weighted_assets | Double | Risk weighted assets |
+| bs_liquidity_coverage_ratio_pct | Double | Liquidity coverage ratio - Basel 3 - % |
+| bs_solvency_margin_ratio_insurance | Double | Solvency adequacy ratio - insurance |
+| bs_leverage_ratio_pct | Double | Leverage Ratio - Basel 3 - % |
+| bs_net_stable_funding_ratio_pct | Double | Net Stable Funding Ratio - Basel 3 - % |
+| bs_solvency_ratio_insurance | Double | Solvency Ratio – Insurance |
+| bs_non_performing_assets_loans_other | Double | Nonperforming Assets - Loans and Others |
+| bs_non_performing_assets_other | Double | Nonperforming assets - except loans |
+| bs_loans_non_performing_impaired | Double | Loans - Nonperforming and Impaired Loans |
+| bs_loans_impaired_total | Double | Loans - Impaired - Total |
+| bs_loans_impaired_non_performing | Double | Loans - Impaired - Nonperforming |
+| bs_loans_impaired_sub_performing | Double | Loans - Impaired - Underperforming and Performing But Impaired |
+| bs_loans_performing_non_performing_not_impaired | Double | Loans - Performing and Poor - Not Impaired |
+| bs_loans_non_performing_past_due | Double | Loans - Non-Performing - Not Impaired but Past Due |
+| bs_loans_non_performing_past_due_0_90 | Double | Loans - Non-Performing - Not Impaired But Past Due - 0 to 90 Days |
+| bs_loans_non_performing_past_due_90 | Double | Loans - Nonperforming - Not Impaired But Past Due - 90 Days |
+| bs_loans_performing_not_past_due | Double | Loans - Performing - Not Impaired and Not Past Due |
+| bs_impaired_assets_total | Double | Impaired assets - total |
+| bs_impaired_assets_loans_other | Double | Impaired assets - Impaired loans and others |
+| bs_impaired_assets_excl_loans | Double | Impaired assets - excl. impaired loans |
+| bs_loans_stage1_gross | Double | Loans - Stage 1 - Gross, Total |
+| bs_loans_stage2_gross | Double | Loan - Stage 2 - Gross, Total |
+| bs_loans_stage3_gross | Double | Loans - Stage 3 - Gross, Total |
+| bs_loans_not_past_due | Double | Loans - not past due |
+| bs_loans_total_past_due | Double | Loans - Total past due |
+| bs_loans_past_due_lt_90 | Double | Loan - Past Due \< 90 days |
+| bs_loans_past_due_remaining | Double | Loan - Past Due - Remaining Part |
+| bs_loans_poci_gross | Double | Total credit impairment on loans purchased or originated, total |
+| bs_other_assets_stage1_gross | Double | Other Assets - Stage 1, Gross |
+| bs_other_assets_stage2_gross | Double | Other Assets - Stage 2, Gross |
+| bs_other_assets_stage3_gross | Double | Other Assets - Stage 3, Gross |
+| bs_int_earning_assets_avg | Double | Interest-earning assets - average |
+| bs_int_bearing_liabilities_avg | Double | Interest-bearing liabilities - average |
+| bs_employees_ft_period_end | Double | Employees - Full Time/Full Time Equivalent - Period End |
+| bs_employees_ft_current | Double | Employees - Full Time/Full Time Equivalent - Current Date |
+| bs_employees_pt_period_end | Double | Employees - Part-Time - End of Period |
+| bs_order_backlog | Double | Order backlog |
+| bs_customer_acceptances_assets | Double | Customer Acceptance Liabilities - Assets |
+| bs_customer_acceptances_liabilities | Double | Customer Acceptance Liabilities - Liabilities |
+| bs_reported_total_assets | Double | Report-Total Assets |
+| bs_reported_total_liabilities | Double | Report - Total Liabilities |
+| bs_reported_equity_excl_new_stock | Double | Reported stockholders' equity, excluding new share subscriptions |
+| bs_reported_equity | Double | Report - Stockholders Equity |
+| bs_reported_net_assets | Double | Report-Net Assets |
+| bs_reported_net_assets_to_assets | Double | Report - Net Assets to Total Assets |
+| bs_reported_roa | Double | Report - Return on Assets |
+| bs_reported_roe | Double | Report - Return on Equity |
+| bs_wavg_discount_rate_finance_lease | Double | Weighted average discount rate - finance lease |
+| bs_wavg_discount_rate_op_lease | Double | Weighted average discount rate - operating leases - US GAAP |
+| bs_wavg_lease_term_yrs_finance_lease | Double | Wgt Average remaining lease term (years) - Finance Lease |
+| bs_wavg_lease_term_yrs_op_lease | Double | Wgt Average Remaining Lease Term (Years) - Op Lease - US GAAP |
+| bs_loans_net_non_performing_reported | Double | Loans - Net Nonperforming Loans - Company Reports |
+| bs_loans_net_non_performing_pct | Double | Loans - Net NPL - % |
+| bs_provision_coverage_ratio_pct | Double | Provision coverage ratio - % |
+| bs_short_term_lending | Double | Short-term - Loan |
+| bs_long_term_lending | Double | Long term - loan |
+| bs_casa_ratio_pct | Double | CASA ratio - % |
+| bs_collection_efficiency_pct | Double | Collection efficiency - % |
+| bs_st_lending_to_total_pct | Double | Short-term loans as a percentage of total loans |
+| bs_lt_lending_to_total_pct | Double | Long term - Loans to total loans - % |
+| bs_level1_assets_fair_value | Double | Level 1 Assets - Fair Value |
+| bs_level1_liabilities_fair_value | Double | Level 1 Liabilities - Fair Value |
+| bs_level2_assets_fair_value | Double | Level 2 Assets - Fair Value |
+| bs_level2_liabilities_fair_value | Double | Level 2 Liabilities - Fair Value |
+| bs_level3_assets_fair_value | Double | Level 3 assets - fair value |
+| bs_level3_liabilities_fair_value | Double | Level 3 liabilities - fair value |
+
+Income statement(is)
+
+| Field | Type | Description |
+|:---|:---|:---|
+| is_revenue_goods_services | Double | Goods and services revenue |
+| is_sales_goods_services_net | Double | Sales of Goods and Services - Net - Uncategorized |
+| is_rental_property_revenue | Double | Rental and property-related operating income |
+| is_rental_income_gross | Double | Rental and related income - gross |
+| is_tenant_service_charges | Double | Tenant service charge reimbursement |
+| is_rental_income_gross | Double | Rental income - gross |
+| is_property_dev_revenue | Double | Real estate development revenue |
+| is_property_mgmt_revenue | Double | Property management service revenue |
+| is_property_revenue_other | Double | Real estate related operating income - other |
+| is_hotel_revenue | Double | Hotel revenue |
+| is_hotel_rooms_revenue | Double | Hotel revenue - number of rooms |
+| is_hotel_lease_income | Double | Hotel income - Hotel lease income |
+| is_hotel_food_beverage_revenue | Double | Hotel Revenue - Food and Beverage |
+| is_hotel_other_revenue | Double | Hotel Revenue - Other |
+| is_utility_revenue | Double | Utility Revenue - Total |
+| is_utility_other_revenue | Double | Utility Revenue - Other Utility Business |
+| is_utility_steam_revenue | Double | Utility Revenue - Steam Operations |
+| is_utility_water_revenue | Double | Utility Revenue - Water Operations |
+| is_utility_gas_revenue | Double | Utility Revenue - Gas Operations |
+| is_utility_electric_revenue | Double | Utility Revenue - Electricity Operations |
+| is_utility_non_utility_revenue | Double | Utility Revenue - Non-Utility Operations |
+| is_sales_returns_allowances_adj | Double | Sales Returns Allowances and Other Revenue Adjustments |
+| is_revenue_taxes | Double | Income taxes |
+| is_gross_business_revenue | Double | Gross revenue from business activities - Total |
+| is_int_div_income_net | Double | Interest and Dividend Income/(Expenses) - Net - Financials |
+| is_int_div_income_total | Double | Interest and Dividend Income - Financials - Total |
+| is_int_income_loans_deposits | Double | Interest Income - Loans/Deposits |
+| is_int_fees_loans_receivables | Double | Interest and fees on loans and receivables |
+| is_int_income_deposits_banks | Double | Interest income - money deposited with other financial institutions |
+| is_int_income_collateral_fin | Double | Interest Income - Mortgage Financing |
+| is_int_div_income_inv_sec | Double | Interest and Dividend Income - Investment Securities - Finance |
+| is_int_div_income_afs_htm | Double | Interest and Dividend Income - Invst Sec AFS/HTM - Finance |
+| is_int_div_income_trading | Double | Interest and Dividend Income - Trading Account Asset Financing |
+| is_int_div_income_other | Double | Interest and dividend income - Other - Finance |
+| is_int_expense_total | Double | Interest Expense - Financials - Total |
+| is_int_expense_oper_fin | Double | Interest Expense - Operating Finance - Business |
+| is_int_expense_deposits | Double | Interest Expense - Deposits |
+| is_int_expense_collateral | Double | Interest Expense - Mortgage Financing |
+| is_int_expense_other | Double | Interest Expense - Other - Total |
+| is_int_expense_external_fin | Double | Interest expense-external financing business |
+| is_return_unrestricted_inv | Double | Return for unrestricted investment accounts |
+| is_net_premiums_earned | Double | Net premiums earned |
+| is_premiums_written_gross | Double | Premium Premium - Total |
+| is_premiums_written_life | Double | Total Premiums - Life/Long Term Insurance |
+| is_premiums_written_non_life | Double | Premiums Written - Total - Non-Life/General Insurance |
+| is_premiums_ceded_unearned | Double | Ceded and Unearned Premiums - Reinsurance |
+| is_premiums_ceded_written | Double | Premium ceded reinsurance - written |
+| is_premiums_ceded_unearned_premiums | Double | Premiums assigned to reinsurance – something for nothing |
+| is_unearned_premiums | Double | Unearned premiums |
+| is_non_int_business_rev_net | Double | Non-interest business income/(expense) - Net - Total |
+| is_net_comm_fees_income | Double | Net Commission and Fee Income/(Expenses) - Business Income |
+| is_fees_comm_income | Double | Fee and commission income |
+| is_fees_comm_expense | Double | Fees and commission expenses |
+| is_inv_income_gross | Double | Investment Income - Total - Investment |
+| is_dividend_income | Double | Dividend Income - Investment |
+| is_int_income_inv | Double | Interest Income - Investment |
+| is_inv_income_other | Double | Investment Income - Other - Total (Investments) |
+| is_trust_fiduciary_income | Double | Trusts and Fiduciary Income/Commissions and Fees |
+| is_trust_income | Double | Trust income |
+| is_net_fx_income | Double | Net foreign exchange income/(expense)-operating income |
+| is_inv_income_net_insurance | Double | Investment Income/(Expenses)-Net-Insurance |
+| is_inv_income_gross_insurance | Double | Investment Income - Total - Insurance - Total |
+| is_inv_expense_insurance | Double | Investment Expenses - Insurance - Total |
+| is_inv_loans_gain_loss | Double | Investments and Loans - Business - Gain/(Loss) |
+| is_realized_gain_loss | Double | Realized Capital Gain/(Loss)-Total |
+| is_inv_sec_realized_gl | Double | Investment Securities - Realized Gain/(Loss) |
+| is_commodities_realized_gl | Double | Commodity - Realized Gain/(Loss) |
+| is_fx_realized_gl | Double | Forex - Realized Gain/(Loss) - Capital |
+| is_deriv_hedge_realized_gl | Double | Derivatives - Hedging - Business - Realized Gains/(Loss) |
+| is_other_realized_gl | Double | No difference/other realized gains/(losses) |
+| is_unrealized_gl | Double | Capital Gain/(Loss) - Unrealized - Total |
+| is_inv_sec_unrealized_gl | Double | Investment Securities - Unrealized Gains/(Loss) |
+| is_commodities_unrealized_gl | Double | Commodities - Unrealized Gain/(Loss) |
+| is_fx_unrealized_gl | Double | FX Gain/(Loss)-Unrealized-Capital |
+| is_deriv_hedge_fair_value_gl | Double | Derivative Hedge at Fair Value - Gain/(Loss) |
+| is_other_unrealized_gl | Double | Undifferentiated/other unrealized gains/(losses) |
+| is_net_inv_loans_gl | Double | Net investment and loan gains/(losses) - operating income |
+| is_inv_sec_business_gl | Double | Investment Securities - Business - Gain/(Loss) |
+| is_inv_sec_afs_htm_realized_gl | Double | Investment Securities - AFS/HTM - Realized Gain/(Loss) |
+| is_trading_inv_gl | Double | Trading Investment/Trading Account Income - Gain/(Loss) |
+| is_trading_inv_realized_gl | Double | Trading Investment - Realized Gain/(Loss) |
+| is_trading_inv_unrealized_gl | Double | Trading Investments - Unrealized Gain/(Loss) |
+| is_inv_sec_unclassified_gl | Double | Investment Securities - Unclassified Business - Gain/(Loss) |
+| is_inv_gl_other | Double | Investment income/(loss)-other |
+| is_loans_settlement_gl | Double | Loan Settlement - Gain/(Loss) |
+| is_deriv_hedge_unclassified_gl | Double | Derivatives Hedging - Business - Gain/(Loss) - Unclassified |
+| is_deriv_hedge_gl | Double | Derivatives - Hedging - Business - Gain/(Loss) |
+| is_sale_fin_instr_gl_other | Double | Gain/(loss) on sale of financial instrument - Other |
+| is_net_income_insurance_bank | Double | Net Insurance Income/(Expenses) - Bank |
+| is_premiums_earned_other_income_insurance_bank | Double | Insurance premiums and other income - Bank - Total |
+| is_claims_benefits_other_exp_insurance_bank | Double | Insurance Claims, Benefits, and Other Expenses - Bank - Total |
+| is_net_income_lease_revenue | Double | Net income/(expense) from Optg and finance leases - revenue |
+| is_financing_revenue | Double | Financing-related business income |
+| is_business_financing_revenue_other | Double | Business-related financing income - other |
+| is_business_related_revenue_other | Double | Business-related activity revenue - Other - Total |
+| is_royalty_income | Double | Royalty Income - Business |
+| is_net_revenue_banking_insurance | Double | Net income/(expenses) - Banking - Insurance |
+| is_revenue_banking_insurance | Double | Banking Revenue - Insurance |
+| is_expenses_banking_insurance | Double | Banking Expenses (Income) - Insurance |
+| is_op_revenue_capital_account | Double | Operating Income - Capital Account (Investment Trust) |
+| is_op_revenue_revenue_account | Double | Operating Income - Revenue Account (Investment Trust) |
+| is_revenue_business_total | Double | Business Activity Revenue - Total |
+| is_cost_operating_revenue | Double | Operating revenue cost |
+| is_cost_financing | Double | Financing-related operating costs |
+| is_loan_loss_provision | Double | Loan loss provision and impairment |
+| is_cost_revenues_total | Double | Revenue cost - total |
+| is_cost_revenues | Double | Cost of Revenue - Uncategorized |
+| is_production_taxes_royalty | Double | Production taxes and royalties |
+| is_amortization_cogs | Double | Revenue cost amortization |
+| is_depreciation_cogs | Double | Revenue cost depreciation |
+| is_labor_expenses_cogs | Double | Labor expenses, including stock-based compensation at cost of goods sold |
+| is_material_expenses | Double | Material expenses |
+| is_material_expenses_inventory_utility | Double | Material Expenses - Inventory Own Work and Utilities Uncategorized |
+| is_utility_fuel_expense | Double | Utility revenue cost - fuel expense |
+| is_utility_fuel_purchased | Double | Utility Revenue Cost - Purchased Fuel for Resale |
+| is_utility_purchased_power | Double | Utility Revenue Cost - Purchased Power |
+| is_own_work_capitalized | Double | Own work capitalized |
+| is_inventory_change | Double | Inventory change |
+| is_materials_purchased | Double | Purchase materials |
+| is_ground_lease_rental_expense | Double | Ground lease/rental expense in cost of revenue |
+| is_property_op_exp_rental | Double | Property Operating Expenses - Real Estate Rental |
+| is_property_op_exp_hotel | Double | Property Operating Expenses - Hotel |
+| is_property_direct_exp_other | Double | Property Direct Expenses - By Type - Other |
+| is_real_estate_taxes | Double | Real estate taxes |
+| is_property_maintenance_charges | Double | Property maintenance and service charges |
+| is_property_rental_expense | Double | Property-related expenses - Rental business/investment properties |
+| is_cost_revenues_other | Double | Revenue Cost - Other - Total |
+| is_operating_interest_expense | Double | Operating interest expense is not included in net interest income |
+| is_gross_profit | Double | Gross Profit - Industrial/Real Estate - Total |
+| is_insurance_claims_reserves | Double | Insurance Claims/Reserves - Total |
+| is_insurance_benefits_paid | Double | Benefits paid - current |
+| is_life_insurance_benefits | Double | Life insurance benefits paid |
+| is_non_life_insurance_benefits | Double | Non-life insurance benefits paid |
+| is_lt_insurance_reserves | Double | Long-term insurance reserves - Total |
+| is_loss_adjustment_expense | Double | Loss adjustment expense |
+| is_insurance_benefits_ceded | Double | Transfer of insurance benefits |
+| is_current_claims_benefits_ceded | Double | Current insurance claims and benefits transfers |
+| is_lt_insurance_reserves_ceded | Double | Give up long-term insurance reserves |
+| is_dividends_policyholders | Double | policyholder dividends |
+| is_underwriting_expenses | Double | Underwriting expenses |
+| is_policy_acq_costs | Double | Policy Acquisition Costs - Total |
+| is_policy_acq_costs | Double | Policy Acquisition Costs - Uncategorized |
+| is_amort_deferred_policy_acq | Double | Amortization of deferred policy acquisition costs |
+| is_policy_acq_costs_other | Double | Policy Acquisition Costs - Other |
+| is_underwriting_commissions | Double | Underwriting commissions to agents |
+| is_fee_comm_exp_insurance | Double | Fees and Commission Expenses - Insurance |
+| is_underwriting_expense_other | Double | Uncategorized underwriting expense - other |
+| is_expenses_banking_insurance | Double | Banking Expenses - Insurance |
+| is_sga_expenses | Double | Selling, general and administrative expenses - Total |
+| is_sga_expenses | Double | Selling, general and administrative expenses - Uncategorized |
+| is_labor_expenses_sga | Double | SGA expenses include labor expenses for stock-based compensation |
+| is_r_and_d_expense | Double | Research and development expenses |
+| is_exploration_expense | Double | Exploration/dry hole expenses (including write-offs) |
+| is_depreciation_sga | Double | Depreciation of selling, general and administrative expenses |
+| is_amort_intangibles_sga | Double | Amortization of intangible assets in SGA expense |
+| is_o_and_m_utility | Double | Operations and Maintenance (Utility) |
+| is_inv_mgmt_fees | Double | Investment management fees |
+| is_inv_mgmt_base_fees | Double | Investment Management - Base Fees |
+| is_incentive_fees | Double | Performance/Incentive Investment Fees |
+| is_sga_other | Double | Selling, general and administrative expenses - Other - Total |
+| is_advertising_expense | Double | Advertising expense |
+| is_property_other_taxes | Double | Property taxes and other taxes |
+| is_rental_expense | Double | Rental expense |
+| is_occupancy_expense | Double | Occupancy Expense - Other |
+| is_pre_opening_expenses | Double | Pre-opening expenses |
+| is_doubtful_accounts_provision | Double | Doubtful debt provisions and write-offs |
+| is_equipment_occupancy_expense | Double | Equipment/Occupancy Expenses - Banking/Finance - Other |
+| is_other_operating_expense_net | Double | Other operating expenses/(revenue) - net |
+| is_other_operating_income | Double | Other operating income - total |
+| is_other_operating_expense | Double | Other operating expenses |
+| is_decommissioning_provision | Double | Provisions for decommissioning funds and environmental obligations |
+| is_operating_provisions_change | Double | Operating reserves - increase/(decrease) |
+| is_bank_guarantee_contributions | Double | Contributions and transfers to bank guarantee funds |
+| is_non_recurring_op_adj | Double | Non-Recurring Adjustments - Operations - Decrease/(Increase) |
+| is_supplementary_op_adj | Double | Supplementary Adjustment - Operational - Decrease/(Increase) |
+| is_op_expenses_revenue_acct | Double | Operating Expenses - Revenue Account |
+| is_op_expenses_capital_acct | Double | Operating Expenses - Capital Account |
+| is_op_expenses_total | Double | Operating Expenses - Total |
+| is_total_op_exp_before_int_loan_loss | Double | Total operating expenses before interest expense and loan loss certification |
+| is_op_profit_before_non_recurring | Double | Operating profit before non-recurring income/(expenses) |
+| is_financing_income_net | Double | Financing income/(expense) - Net - Total |
+| is_int_expense_net | Double | Interest expense - deduction (interest income) |
+| is_int_income_non_bank | Double | Interest income - non-bank |
+| is_int_expense_net_cap | Double | Interest expense - net of capitalized interest |
+| is_int_expense_capital_fin | Double | Capital Financing Interest Expense - Total |
+| is_hybrid_div_liability | Double | Dividends from Hybrid Financial Instruments - Liabilities |
+| is_int_capitalized | Double | Interest capitalization |
+| is_allowance_construction_funds | Double | Subsidy of funds used during construction - debt component |
+| is_non_int_financial_income | Double | Non-interest financial income/(expense) - Total |
+| is_dividend_inv_income | Double | Dividends and investment income |
+| is_fx_gl_non_business | Double | FX Gain/(Loss) - Non-Business |
+| is_amort_deferred_financing | Double | Amortization of deferred financing costs |
+| is_sale_inv_gl | Double | Investment Sale AFS, HTM and Trading - Gain/(Loss) |
+| is_accretion_closure_expense | Double | Accretion - Site Closure and Reclamation Expenses |
+| is_non_int_fin_income_other | Double | Non-interest financial income/(expense) - Other - Net |
+| is_sale_fixed_assets_gl | Double | Sale of tangible and intangible fixed assets - Gain/(Loss) |
+| is_sale_leased_assets_gl | Double | Sale of leased fixed assets - (gain/loss) |
+| is_equity_earnings_bt | Double | Equity earnings/(losses) before tax, including non-recurring gains |
+| is_non_recurring_equity_earnings | Double | Pre-tax non-recurring equity earnings part |
+| is_other_non_op_income | Double | Other non-operating income/(expense)-Total |
+| is_non_op_rental_income | Double | Non-operating rental income |
+| is_transfer_untaxed_reserves | Double | Transfer from/(to) tax-free reserves |
+| is_trading_deriv_gl | Double | Derivatives Trading - Gain/(Loss) |
+| is_deriv_hedge_effective_gl | Double | Derivatives - Hedge - Effective Gain/(Loss) |
+| is_deriv_hedge_realized_gl | Double | Derivatives - Hedge - Realized Gain/(Loss) |
+| is_non_recurring_non_op_adj | Double | Non-Recurring Adjustments - Non-Operations - Decr/(Incr) |
+| is_supplementary_non_op_adj | Double | Supplementary Adjustment - Non-Operation - Decr/(Incr) |
+| is_normalized_pretax_profit | Double | Normalized pretax profit |
+| is_non_recurring_income | Double | Non-recurring income/(expense) - Total |
+| is_impairment_tangible_intangible | Double | Impairment - Tangible and Intangible Fixed Assets |
+| is_impairment_fixed_assets | Double | Impairment - Fixed Assets |
+| is_impairment_goodwill | Double | Impairment - Goodwill |
+| is_impairment_intangibles_excl_gw | Double | Impairment - Intangibles (excluding goodwill) |
+| is_impairment_oil_gas | Double | Impairment - Oil and Gas Assets |
+| is_impairment_inv_property | Double | Impairment - Investment Properties |
+| is_impairment_fin_inv | Double | Impairment - Financial Investments |
+| is_impairment_deferred_costs | Double | Impairment - Deferred Costs |
+| is_otti_losses | Double | Except for temporary investment impairment losses |
+| is_restructuring_charges | Double | Restructuring charges |
+| is_r_and_d_in_process | Double | Research and Development - In Progress |
+| is_property_acquisition_exp | Double | Acquisition expenses associated with the property |
+| is_write_off_real_estate | Double | Write-off of real estate for sale |
+| is_litigation_expenses | Double | Litigation Expenses/Settlement |
+| is_exceptional_claims | Double | Exceptional claims and benefits paid (disaster) |
+| is_ipo_merger_costs | Double | Costs associated with initial public offerings and mergers |
+| is_deriv_hedge_gl | Double | Derivatives - Hedge - Gain/(Loss) |
+| is_early_term_deriv_hedge_gl | Double | Derivative Early Termination - Hedge - Gain/(Loss) |
+| is_deriv_hedge_ineffective_gl | Double | Derivatives - Hedging - Ineffective Gain/(Loss) |
+| is_unrealized_deriv_adj | Double | Unrealized derivative hedging adjustment |
+| is_early_extinguish_lease_debt_gl | Double | Early settlement of lease-related debt - gain/(loss) |
+| is_negative_goodwill | Double | Confirmation of negative goodwill |
+| is_fv_adj_inv_property | Double | Fair Value Adjustment - Investment Properties |
+| is_fv_adj_biological_assets | Double | Fair Value Adjustment - Biological Assets |
+| is_fv_adj_fin_inv | Double | Fair Value Adjustment - Financial Investments |
+| is_fv_adj_other_assets | Double | Fair Value Adjustment - Other Assets |
+| is_disaster_compensation | Double | Disaster Compensation - Pre-tax |
+| is_debt_restructuring_gl | Double | Debt Restructuring - Gain/(Loss) |
+| is_sale_acquisition_group_gl | Double | Sales and Acquisitions of Group Companies - Gains/(Loss) |
+| is_inventory_valuation_gl | Double | Inventory Valuation - Gain/(Loss) |
+| is_covid_19_income_expense | Double | COVID-19 non-recurring income/(expense) - Total |
+| is_covid_19_other | Double | COVID-19 non-recurring income/(expense) - other |
+| is_covid_19_provisions | Double | COVID-19 one-time provisions |
+| is_covid_19_restructuring | Double | COVID-19 Restructuring Charges and Regulations |
+| is_covid_19_impairment | Double | COVID-19 Impairment of Long-term Assets |
+| is_covid_19_grants | Double | COVID-19 one-off government grants |
+| is_other_non_recurring | Double | Non-recurring income/(expense)-other-total |
+| is_income_bt | Double | Pre-tax income |
+| is_income_taxes | Double | Income tax |
+| is_taxes_capital | Double | Capital account taxes |
+| is_taxes_revenue | Double | Revenue account taxes |
+| is_income_tax_provision | Double | Income Tax Provision - Unclassified |
+| is_income_tax_provision | Double | Income Tax Provision – Unclassified |
+| is_income_taxes_domestic | Double | Income Tax - Domestic |
+| is_income_taxes_foreign | Double | Income Tax - Foreign |
+| is_income_taxes_other_region | Double | Income Tax - Other by Region |
+| is_income_taxes_current | Double | Income taxes for the current year - current |
+| is_income_taxes_domestic_current | Double | Income Tax - Domestic - Current |
+| is_income_taxes_foreign_current | Double | Income Taxes - Foreign - Current |
+| is_income_taxes_other_current | Double | Income Taxes - Other (KFAS/NLST) - Current |
+| is_income_taxes_deferred | Double | Income Tax - Deferred |
+| is_income_taxes_domestic_deferred | Double | Income Taxes - Domestic - Deferred |
+| is_income_taxes_foreign_deferred | Double | Income Taxes - Foreign - Deferred |
+| is_income_taxes_other_deferred | Double | Income Taxes - Other - Deferred |
+| is_income_taxes_other_type | Double | Income Tax - Other by Type |
+| is_net_income_after_tax | Double | Net profit after tax |
+| is_equity_earnings_affiliates | Double | Earnings/(loss) equity in affiliates (after tax) |
+| is_non_recurring_equity_earnings | Double | Non-recurring equity earnings component |
+| is_after_tax_adj_other | Double | After-tax adjustment - Other - Revenue/(Expenses) - Total |
+| is_tax_impact_discontinued_ops | Double | Estimated tax impact on pre-tax discontinued operations |
+| is_zakat | Double | Zakat |
+| is_after_tax_special_reserves | Double | After-tax adjustment - special reserves |
+| is_income_before_discontinued | Double | Income before discontinued operations and non-recurring items |
+| is_extraordinary_after_tax | Double | Special Events - After Tax - Gain/(Loss) |
+| is_discontinued_ops_net | Double | Discontinued Operations, Net - Total - Revenue/(Expenses) |
+| is_discontinued_ops_income | Double | Discontinued Operations - Net - Income/(Expenses) |
+| is_sale_discontinued_ops_gl | Double | Sale of Discontinued Operations - Net - Gain/(Loss) |
+| is_discontinued_ops_bt | Double | Total pre-tax discontinued operations - revenue/(expenses) |
+| is_discontinued_ops_bt_income | Double | Discontinued operations before tax - income/(expense) |
+| is_sale_discontinued_ops_bt_gl | Double | Pre-tax sale of discontinued operations - gain/(loss) |
+| is_discontinued_ops_tax | Double | Discontinued operations - tax implications |
+| is_accounting_changes | Double | Impact of changes in accounting standards |
+| is_extraordinary_items | Double | Extraordinary items |
+| is_covid_19_tax_charge | Double | COVID-19 Income Tax - One-time Charge/(Credit) |
+| is_extraordinary_tax_impact | Double | Special Projects - Tax Impact |
+| is_net_income_before_minority | Double | Net income before minority interests |
+| is_minority_interest | Double | Minority interest |
+| is_net_income | Double | Net profit after deducting minority interests |
+| is_hybrid_debt_interest | Double | Interest expense - Hybrid debt instruments - Equity |
+| is_general_partner_dist | Double | General partner distribution |
+| is_preferred_shares_dist | Double | Preferred stock distribution |
+| is_policyholders_surplus | Double | Policyholders Surplus |
+| is_earnings_adj | Double | Earnings adjustment to net profit - other expenses/(income) |
+| is_income_available_common | Double | Common stock available income |
+| is_oci_start | Double | Other comprehensive income - starting line |
+| is_oci_fx | Double | Other comprehensive income - foreign currency |
+| is_oci_unrealized_inv_gl | Double | Other comprehensive income - unrealized investment gains/(losses) |
+| is_oci_hedging_gl | Double | Other comprehensive income - Hedging gain/(loss) |
+| is_oci_revaluation | Double | Other Consolidated Companies - Revaluation of Tangible and Intangible Assets |
+| is_oci_other | Double | Other comprehensive income - other |
+| is_oci_unearned | Double | Other comprehensive income - unearned income |
+| is_oci_discontinued | Double | Other comprehensive income - discontinued operations |
+| is_oci_associated | Double | Other comprehensive income - associated companies |
+| is_oci_pension | Double | Other comprehensive income - pension related |
+| is_oci_tax | Double | Other comprehensive income - income tax |
+| is_oci_net | Double | Other comprehensive income - after tax - total |
+| is_comprehensive_income_before_minority | Double | Comprehensive income before minority interests - Total |
+| is_comprehensive_income_minority | Double | Comprehensive income - minority interests - total |
+| is_comprehensive_income_pref_div | Double | Comprehensive income - preferred stock dividends |
+| is_comprehensive_income_parent | Double | Comprehensive income - Parent shareholders - Total |
+| is_basic_eps_inc_exord | Double | Net income basic including special items, ordinary - total |
+| is_income_common_excl_exord | Double | Income available to ordinary people (excluding special items) |
+| is_basic_eps_shares | Double | Shares used to calculate basic earnings per share - Total |
+| is_eps_basic_inc_exord | Double | EPS - Basic - Includes special items, Normal - Total |
+| is_eps_basic_excl_exord | Double | EPS - Basic - excluding special items, Normal - Total |
+| is_eps_basic_normalized | Double | EPS - Basic - Excludes special items - Normalized - Total |
+| is_eps_basic_non_gaap | Double | Earnings per share - Basic - Non-GAAP - Total |
+| is_allocated_net_income_inc_exord | Double | Net income allocated, including exord, normal - specific issue |
+| is_earnings_alloc_factor_basic | Double | Earnings Allocation Factors - Basic - Specific Issues |
+| is_basic_eps_shares_issue | Double | Shares used to calculate basic earnings per share - specific issue |
+| is_eps_basic_inc_exord_issue | Double | EPS - basic - including special, common - specific issues |
+| is_eps_basic_excl_exord_issue | Double | EPS - Basic - Exclude Exord items, Common - Specific issues |
+| is_eps_basic_normalized_issue | Double | EPS - Basic - Exclude Exord Project - Normalized - Specific Issue |
+| is_eps_basic_non_gaap_issue | Double | EPS - Basic - Non-GAAP - Specific Issue |
+| is_basic_eps_shares_dr | Double | Stocks used to calculate basic earnings per share - Specific Issue - DR |
+| is_eps_basic_inc_exord_dr | Double | EPS - Basic - Includes Exord items, Common - Specific issues - DR |
+| is_eps_basic_excl_exord_dr | Double | EPS - Basic - Exclude Exord, Universal - Specific Issue - DR |
+| is_eps_basic_normalized_dr | Double | EPS - Basic Exord Exord Project Normalization Specific Issues - DR |
+| is_eps_basic_non_gaap_dr | Double | EPS - Basic - Non-GAAP - Specific Issue - DR |
+| is_basic_eps_shares_cpo | Double | Stocks used to calculate basic earnings per share - Certain Issues - CPO |
+| is_eps_basic_inc_exord_cpo | Double | EPS - Basic - Includes Exord items, Common - Specific issues - CPO |
+| is_eps_basic_excl_exord_cpo | Double | EPS - Basic - Excludes Exord, Generic - Specific Issues - CPO |
+| is_eps_basic_normalized_cpo | Double | EPS - Basic exclusion of Exord project normalization specific issues - CPO |
+| is_eps_basic_non_gaap_cpo | Double | EPS - Basic - Non-GAAP - Specific Issues - CPO |
+| is_eps_basic_discontinued | Double | EPS - Basic from discontinued actions and special items |
+| is_participation_weight_primary | Double | Primary participation weight for EPS Calc - Specific Issue |
+| is_earnings_participation_factor | Double | Earnings participation factor - specific question |
+| is_priority_dividends | Double | Preferred Dividends - Specific Issues |
+| is_comp_eps_basic_issue | Double | Comprehensive earnings per share - Basic - Specific Issue |
+| is_comp_eps_basic_dr | Double | Comprehensive Earnings Per Share - Basic Issue Specific Depository Receipts |
+| is_comp_eps_basic_cpo | Double | Comprehensive EPS - Basic Issue Specific CPO |
+| is_dilution_adj | Double | Dilution adjustment |
+| is_diluted_eps_inc_exord | Double | Diluted net income, including extraordinary items, ordinary - total |
+| is_diluted_income_excl_exord | Double | Diluted income, excluding extraordinary items, ordinary |
+| is_diluted_shares | Double | Shares used to calculate diluted earnings per share - Total |
+| is_eps_diluted_inc_exord | Double | EPS - diluted - including special items, ordinary - total |
+| is_eps_diluted_excl_exord | Double | EPS - Diluted - excludes Exord items applicable to common totals |
+| is_eps_diluted_normalized | Double | EPS - Diluted - Excluding Special Items - Normalized - Total |
+| is_eps_diluted_non_gaap | Double | Earnings per share - diluted - non-GAAP - total |
+| is_allocated_diluted_inc_exord | Double | Allocated Net Diluted Inc_exord, General Issue Specific Issue |
+| is_earnings_alloc_factor_diluted | Double | Earnings Allocation Factor - Dilution - Specific Issues |
+| is_diluted_shares_issue | Double | Shares used in calculating earnings per share - diluted - issue specific |
+| is_eps_diluted_inc_exord_issue | Double | EPS - Diluted - includes Exord items, common - specific issues |
+| is_eps_diluted_excl_exord_issue | Double | EPS - Diluted - Excludes Exord items, Common - Specific Issues |
+| is_eps_diluted_normalized_issue | Double | EPS - Diluted - Excludes Exord Items - Normalized - Issue Specification |
+| is_eps_diluted_non_gaap_issue | Double | Earnings per share - Diluted - Non-GAAP - Specific Issues |
+| is_diluted_shares_dr | Double | Stocks used to calculate diluted earnings per share - Specific Issue - DR |
+| is_eps_diluted_inc_exord_dr | Double | EPS - Diluted - Includes Exord, Normal - Specific Issue - DR |
+| is_eps_diluted_excl_exord_dr | Double | EPS - Diluted - excl Exord, Normal - Specific Issue - DR |
+| is_eps_diluted_normalized_dr | Double | EPS - Dil - Excluded Exord Project - Normalized - Issue Specification - DR |
+| is_eps_diluted_non_gaap_dr | Double | EPS - Diluted - Non-GAAP - Specific Issues - DR |
+| is_diluted_shares_cpo | Double | Shares used to calculate diluted earnings per share - Certain Issues - CPO |
+| is_eps_diluted_inc_exord_cpo | Double | EPS - Diluted - Exord included, Normal - Specific Issue - CPO |
+| is_eps_diluted_excl_exord_cpo | Double | EPS - Dil - Excluded Exord Projects, Common - Specific Issues - CPO |
+| is_eps_diluted_normalized_cpo | Double | EPS Dil - Exclude Exord Project - Normalization - Issue Specification - CPO |
+| is_eps_diluted_non_gaap_cpo | Double | EPS - Diluted - Non-GAAP - Specific Issues - CPO |
+| is_eps_diluted_discontinued | Double | EPS - diluted due to discontinued operations and special items |
+| is_comp_eps_diluted_issue | Double | Comprehensive earnings per share - dilution - specific issues |
+| is_comp_eps_diluted_dr | Double | Comprehensive earnings per share - diluted issue of specific depositary receipts |
+| is_comp_eps_diluted_cpo | Double | Comprehensive Earnings Per Share - Dilution - Specific Issues - CPO |
+| is_dps_common_gross | Double | Dividends per share - Common shares - Total - Certain shares issued |
+| is_dps_common_net | Double | Dividends per share - Common - Net - Certain Issues |
+| is_dps_special | Double | Dividend per share - special - specific issue |
+| is_dps_special_net | Double | Dividend per share - Special - Net - Special Issue |
+| is_dps_common_gross_dr | Double | Dividends per share - Common dividend - Total - Certain issues - DR |
+| is_dps_common_net_dr | Double | Dividends per Share - Common Dividends - Net - Certain Issues - DR |
+| is_dps_special_gross_dr | Double | Dividend per share - Special - Total - Special Issue - DR |
+| is_dps_special_net_dr | Double | Dividend per share - Special - Net - Special Issue - DR |
+| is_dps_common_gross_cpo | Double | Dividends per share - Common shares - Total - Certain shares outstanding - CPO |
+| is_dps_common_net_cpo | Double | Dividends per share - Common dividends - Net - Certain offerings - CPO |
+| is_dps_special_gross_cpo | Double | Dividend per share - Special - Total - Special Issue - CPO |
+| is_dps_special_net_cpo | Double | Dividend per share - Special - Net - Special Offering - CPO |
+| is_ebit | Double | Earnings before interest and tax (EBIT) |
+| is_ebitda | Double | Earnings before interest, taxes, depreciation and amortization |
+| is_ebitda_exploration | Double | Earnings before interest and tax Depr Amortization and exploration expenses |
+| is_ebitda_lease | Double | Earnings before interest and tax Depr & Amort & Optg Lease Pymt |
+| is_depr_inv_property | Double | Depreciation - Investment Property - Supplement |
+| is_depr_amort | Double | Depreciation and Amortization - Supplement |
+| is_depr_expense | Double | Depreciation Expense - Total - Supplementary |
+| is_depr_finance_lease_rou | Double | Depreciation - Finance Lease Right of Use Asset - Supplement |
+| is_amort_total | Double | Amortization - Total - Supplementary |
+| is_goodwill_amort | Double | Goodwill Amortization - Supplement |
+| is_other_intang_amort | Double | Intangible amortization - Other - Supplement |
+| is_amort_below_above_market_leases | Double | Amortization of below/above market leases - Supplement |
+| is_amort_tenant_leases | Double | Tenant relationship and amortization of in-place leases - Supp |
+| is_amort_license_contract | Double | Amount of license, franchise, copyright, contract-based supply |
+| is_amort_software | Double | Computer Software Amortization - Supplement |
+| is_amort_brands_patents | Double | Number of brands, patents, trademarks, markets and arts -Suppl |
+| is_amort_fin_lease_rou | Double | Amortization of finance lease right-of-use assets - Supplement |
+| is_amort_cap_r_and_d | Double | Amortization of capitalized R&D expenses - Supplement |
+| is_amort_deferred_costs | Double | Amortization of deferred costs - Supplementary |
+| is_depr_depletion_amort | Double | Depreciation Consumption and Amortization - Total |
+| is_depreciation | Double | Depreciation - Total |
+| is_amort_intang_incl_gw | Double | Amortization of intangible assets including goodwill - Total |
+| is_amort_goodwill | Double | Goodwill amortization - Total |
+| is_amort_intang_excl_gw | Double | Amortization of intangible assets (excluding goodwill) - Total |
+| is_amort_deferred_charges | Double | Amortization of deferred charges - Total |
+| is_islamic_financing_income | Double | Islamic Financing and Investment Income |
+| is_islamic_income | Double | Islamic income |
+| is_r_and_d_total | Double | Research and development expenses - expensed and capitalized - total - supplemental |
+| is_r_and_d_expense | Double | Research and Development Expenses - Supplement |
+| is_r_and_d_capitalized | Double | Research and Development Expenses - Capitalized - Supplementary |
+| is_labor_expenses | Double | Labor and Related Expenses - Total |
+| is_labor_expenses_supp | Double | Labor and Related Expenses - Supplement |
+| is_stock_comp_net_tax | Double | Stock Compensation Expense - After Tax - Supplementary |
+| is_stock_comp_pretax | Double | Stock Compensation Expense - Pre-Tax - Supplementary |
+| is_stock_comp_tax_benefit | Double | Stock Compensation - Tax Benefit - Supplement |
+| is_auditor_fees | Double | Audit fees |
+| is_audit_related_fees | Double | Audit related fees |
+| is_tax_fees | Double | taxes |
+| is_fees_other | Double | Fees - Other |
+| is_non_gaap_revenue | Double | Non-GAAP Revenue - Company Reports |
+| is_non_gaap_op_income | Double | Non-GAAP Operating Income - Company Reports |
+| is_non_gaap_net_income | Double | Non-GAAP Adjusted Net Income - Company Reports |
+| is_non_gaap_ebitda | Double | Non-GAAP Adjusted EBITDA - Company Report |
+| is_non_gaap_eps_basic | Double | Non-GAAP EPS Basic - Company Reports |
+| is_non_gaap_eps_diluted | Double | Non-GAAP diluted earnings per share - Company Report |
+| is_non_gaap_op_margin | Double | Non-GAAP Operating Margin % - Company Report |
+| is_reported_net_income_ng | Double | Reporting - Net Income - Non-GAAP |
+| is_reported_non_recurring_ng | Double | Reporting - Non-Recurring Items - Non-GAAP |
+| is_reported_tax_impact_ng | Double | Reporting - Tax Impact of Non-Recurring Items - Non-GAAP |
+| is_reported_normalized_ni | Double | Report - Normalized Net Income |
+| is_non_recurring_tax_impact | Double | Non-recurring/exceptional items - tax impact |
+| is_non_recurring_tax_impact | Double | Non-recurring items - impact on income tax |
+| is_normalized_after_tax | Double | Normalized profit after tax |
+| is_normalized_ni_cont_ops | Double | Normalized net profit from continuing operations |
+| is_normalized_ni | Double | Normalized net profit - bottom line |
+| is_normalized_ebit | Double | Earnings before interest and tax (EBIT) - Normalized |
+| is_normalized_ebitda | Double | Earnings before interest and tax, depreciation and amortization - Normalized |
+| is_deriv_realized_gl_rev | Double | Derivatives - Realized Gains/(Loss) - Revenue - Supplementary |
+| is_deriv_realized_gl_cogs | Double | Derivatives - Realized Gains/(Loss) - COGS - Suppl |
+| is_deriv_realized_gl_int | Double | Derivatives - Realized Gains/(Loss) - Interest Expense Supplement |
+| is_deriv_realized_gl_other | Double | Derivatives - Realized Gains/(Loss) - Other - Supplementary |
+| is_deriv_realized_gl_total | Double | Derivatives - Realized Gains/(Loss) - Total - Supplementary |
+| is_deriv_hedge_gl_total | Double | Derivatives - Hedge - Gain/(Loss) - Total - Supplementary |
+| is_unrealized_deriv_adj | Double | Unrealized adjustment for hedging derivatives - Suppl |
+| is_deriv_hedge_realized_gl_total | Double | Derivatives - Hedge - Realized Gains/(Loss) - Total - Supplementary |
+| is_deriv_hedge_effective_gl | Double | Derivatives - Hedge - Effective Gain/(Loss) - Supplementary |
+| is_deriv_hedge_ineffective_gl | Double | Derivatives - Hedging - Ineffective Gain/(Loss) - Suppl |
+| is_early_term_deriv_hedge_gl | Double | Derivative Hedge Early Termination - Gain/(Loss) - Suppl |
+| is_trading_deriv_gl | Double | Derivatives Trading - Gain/(Loss) - Supplementary |
+| is_loan_losses_net | Double | Loan losses - net |
+| is_loan_recoveries | Double | Loan Recovery - Actual |
+| is_loan_losses | Double | Loan losses - actual |
+| is_avg_employees | Double | Employees - Average |
+| is_operating_lease_expense | Double | Rent/operating lease expense |
+| is_advertising_expense | Double | Advertising Expense - Supplementary |
+| is_exploration_expense | Double | Exploration expense |
+| is_us_gaap_adj | Double | US GAAP Adjustments |
+| is_int_div_income_after_llp | Double | Interest and dividend income after LLP - Net - Financials |
+| is_revenue_after_loan_prov | Double | Revenue after loan provisions - Net - Financials |
+| is_purchase_inv_sec | Double | Purchase of Investment Securities - Supplement |
+| is_sale_inv_sec | Double | Sales of Investment Securities - Supplement |
+| is_epra_net_income | Double | EPRA/Recurring Net Income |
+| is_sec_comm_fees | Double | Commissions and Fees for Securities Activities |
+| is_cost_revenue_inc_o_and_m | Double | Total cost of revenue, including operations and maintenance (utilities) |
+| is_cost_revenues_excl_depr | Double | Cost of revenue excluding depreciation |
+| is_fx_gl | Double | FX Gain/(Loss) |
+| is_generation_cost | Double | Generation cost |
+| is_interest_expense | Double | Interest expense |
+| is_inv_gl | Double | Investment income/(loss) |
+| is_inv_income_insurance | Double | Investment Income - Insurance |
+| is_losses_benefits_insurance | Double | Loss Benefits and Adjustments - Insurance |
+| is_non_int_expense_bank | Double | Non-Interest Expense - Bank |
+| is_operating_expenses | Double | Operating expenses |
+| is_premiums_ceded_unearned_total | Double | Ceded and Unearned Premiums - Total |
+| is_sga_excl_r_and_d | Double | Selling, general and administrative expenses, excluding research and development expenses |
+| is_total_claim_loss_exp | Double | Total claim and loss expense |
+| is_underwriting_commissions | Double | Underwriting and commissions |
+| is_underwriting_exp_insurance | Double | Underwriting Expense - Insurance |
+| is_net_premiums_written | Double | Net Premiums Underwriting |
+| is_losses_benefits_total | Double | Losses, Gains and Adjustments - Total |
+| is_op_exp_excl_non_cash | Double | Operating expenses excluding non-cash expenses - Total |
+| is_premiums_earned | Double | Premiums Earned - Total |
+| is_commissions_fees | Double | Commissions and Fees |
+| is_est_tax_rate | Double | Estimated tax rate |
+| is_exploration_int_exp_after_tax | Double | Exploration expenses and interest expenses (after tax) |
+| is_fixed_charges | Double | Fixed charges |
+| is_income_common_before_depr_amort | Double | Income available on common stock before depreciation and amortization |
+| is_income_bt_before_loan_prov | Double | Income before tax and loan loss provision |
+| is_income_earning_assets | Double | Income from earning assets |
+| is_revenue_net_int_before_loan_prov | Double | Income before loan loss provisions less interest expense |
+| is_tax_adj_op_income | Double | Tax-adjusted operating income |
+| is_underwriting_minus_losses | Double | Underwriting expenses minus losses, benefits, and adjustments - Insurance |
+| is_water_steam_revenue | Double | Water and steam revenue |
+| is_reported_recurring_revenue | Double | Reporting - Revenue - Recurring |
+| is_reported_net_premiums_written | Double | Report - Net Premiums Underwritten |
+| is_reported_revenue | Double | Reports - Revenue - Total |
+| is_reported_op_revenue | Double | Report-Operating Revenue |
+| is_reported_cost_revenues | Double | Report - Cost of Revenue |
+| is_reported_sga | Double | Reporting - Selling, General and Administrative Expenses |
+| is_reported_gross_profit | Double | Report - Gross Profit |
+| is_reported_op_profit | Double | Report-Operating Profit |
+| is_reported_op_margin | Double | Report - Operating Margin |
+| is_reported_ordinary_profit | Double | Report - Ordinary Profit |
+| is_reported_net_income | Double | Report - Net Income After Tax |
+| is_reported_basic_eps | Double | Report - Basic Earnings Per Share |
+| is_reported_diluted_eps | Double | Reporting - Diluted Earnings Per Share |
+| is_reported_business_profit | Double | Report - Operating Profit - Net |
+| is_lease_expense_total | Double | Lease Expense-Total-Supplementary |
+| is_operating_lease_expense | Double | Operating/Lease Expenses - Supplementary |
+| is_depr_fin_lease_rou | Double | Finance Lease ROU Asset Depreciation - Supplement |
+| is_amort_fin_lease_rou | Double | Finance Lease ROU Asset Amortization - Supplement |
+| is_variable_lease_expense | Double | Variable Lease Expense - Uncategorized - Supplementary |
+| is_variable_op_lease_expense | Double | Variable operating lease expense - U.S. GAAP - Supplement |
+| is_variable_fin_lease_expense | Double | Variable finance lease expense - Supplement |
+| is_int_exp_fin_lease | Double | Interest expense on finance lease liabilities - Supplement |
+| is_short_term_lease_cost | Double | Short-term lease cost - Supplement |
+| is_sublease_income | Double | Sublease income - Supplement |
+| is_ffo | Double | Funds from Operations (FFO) - REIT |
+| is_effective_tax_rate | Double | Actual effective tax rate |
+| is_statutory_tax_rate | Double | Normal effective statutory tax rate |
+
+#### 2.4. Usage examples
+
+##### 2.4.1. Obtain the financial quarterly report of a certain stock in a certain quarter
+
+```python
+import tqx_data
+result = tqx_data.get_financial_statement(
+    market="hk",
+    symbol="0700.HK",
+    start_quarter="2020q1",
+    end_quarter="2024q4",
+    date="20241014",
+    is_latest=False,
+    fields=[]
+)
+print(result)
+```
+
+**Response Example**
+
+```text
+symbol fy_period date ... is_write_off_real_estate is_zakat quarter
+0 0700.HK FY2020Q1 20200513 ... None None 2020q1
+1 0700.HK FY2020Q2 20200826 ... None None 2020q2
+... ... ... ... ... ... ...
+14 0700.HK FY2023Q3 20231115 ... None None 2023q3
+```
+
+##### 2.4.2. Get the latest financial quarterly report of a certain stock in a certain quarter and use fields
+
+```python
+import tqx_data
+
+result = tqx_data.get_financial_statement(
+    market="hk",
+    symbol="0700.HK",
+    start_quarter="2020q1",
+    end_quarter="2024q4",
+    date="20241014",
+    is_latest=True,
+    interim_type="cumulative",
+    fields=["symbol", "fy_period", "date", "bs_asset_accruals"],
+)
+print(result)
+```
+
+**Response Example**
+
+```text
+symbol fy_period date bs_asset_accruals
+0 0700.HK FY2024Q2 20240827 1.497963e+12
+```
+
+The "latest" here means the largest row of `0700.HK` in `20241014` and the previous announcement date. It does not return the respective
+latest version and therefore cannot be used directly for year-over-year calculations.
+
+##### 2.4.3. Historical cross-section and year-on-year calculation
+
+```python
+import re
+import numpy as np
+import pandas as pd
+import tqx_data
+
+as_of_date = "20250101"
+rows = tqx_data.get_financial_statement(
+    market="nb",
+    symbol=["NVDA.NB", "AVGO.NB"],
+    start_quarter="2023q1",
+    end_quarter="2024q4",
+    date=as_of_date,
+    is_latest=False,
+    interim_type="cumulative",
+    fields=[
+        "symbol", "fy_period", "date",
+        "is_reported_revenue", "is_revenue_business_total",
+        "is_reported_gross_profit", "is_gross_profit",
+        "cfs_net_cf_operating", "cfs_reported_cf_operating",
+    ],
+)
+
+# 同一财期可能存在多次披露，只保留截止日前公告日期最新的版本。
+rows["date_key"] = pd.to_datetime(rows["date"], errors="coerce")
+rows = rows.dropna(subset=["symbol", "fy_period", "date_key"])
+rows = rows.sort_values("date_key").drop_duplicates(
+    ["symbol", "fy_period"], keep="last"
+)
+
+def parse_period(value):
+    match = re.fullmatch(r"FY(\d{4})(.+)", str(value).upper())
+    return (int(match.group(1)), match.group(2)) if match else None
+
+def previous_year_period(value):
+    parsed = parse_period(value)
+    return f"FY{parsed[0] - 1}{parsed[1]}" if parsed else None
+
+def period_sort_key(value):
+    parsed = parse_period(value)
+    if not parsed:
+        return (0, 0, "")
+    year, suffix = parsed
+    rank = {"Q1": 1, "H1": 2, "Q2": 2, "Q3": 3,
+            "H2": 4, "Q4": 4, "FY": 4}.get(suffix, 0)
+    return (year, rank, suffix)
+
+def first_finite(row, candidates):
+    for field in candidates:
+        value = pd.to_numeric(row.get(field), errors="coerce")
+        if pd.notna(value) and np.isfinite(value):
+            return float(value)
+    return None
+
+# 按财期而不是公告日期选择当前可见的最新财期，再匹配上年同财期。
+period_keys = rows["fy_period"].map(period_sort_key)
+rows[["period_year", "period_rank", "period_suffix"]] = pd.DataFrame(
+    period_keys.tolist(), index=rows.index
+)
+latest = rows.sort_values(
+    ["symbol", "period_year", "period_rank", "period_suffix", "date_key"]
+).groupby("symbol", as_index=False).tail(1)
+history = rows.set_index(["symbol", "fy_period"])
+screening = []
+for _, current in latest.iterrows():
+    prior_key = (current["symbol"], previous_year_period(current["fy_period"]))
+    if prior_key[1] is None or prior_key not in history.index:
+        continue
+    prior = history.loc[prior_key]
+    current_revenue = first_finite(
+        current, ["is_reported_revenue", "is_revenue_business_total"]
+    )
+    prior_revenue = first_finite(
+        prior, ["is_reported_revenue", "is_revenue_business_total"]
+    )
+    gross_profit = first_finite(
+        current, ["is_reported_gross_profit", "is_gross_profit"]
+    )
+    operating_cf = first_finite(
+        current, ["cfs_net_cf_operating", "cfs_reported_cf_operating"]
+    )
+    if None in (current_revenue, prior_revenue, gross_profit, operating_cf):
+        continue
+    if current_revenue <= 0 or prior_revenue <= 0:
+        continue
+    revenue_growth = current_revenue / prior_revenue - 1.0
+    gross_margin = gross_profit / current_revenue
+    screening.append({
+        "symbol": current["symbol"],
+        "fy_period": current["fy_period"],
+        "revenue_growth": revenue_growth,
+        "gross_margin": gross_margin,
+        "operating_cf": operating_cf,
+        "eligible": revenue_growth > 0.20 and gross_margin > 0.20 and operating_cf > 0,
+    })
+
+screening = pd.DataFrame(screening)
+```
+
+Revenue, gross profit, and operating cash flow may only populate one of the compatible fields at different companies. Common candidates are:
+
+- Income: `is_reported_revenue`, `is_revenue_business_total`
+- Gross profit: `is_reported_gross_profit`, `is_gross_profit`
+- Operating cash flow: `cfs_net_cf_operating`, `cfs_reported_cf_operating`
+
+After selecting the field, first use `pd.to_numeric(..., errors="coerce")` to convert, delete empty strings, `NaN` and plus or minus infinity; the income is year-on-year
+Revenue for the same fiscal period last year must be greater than 0. Fiscal periods should be matched by the actual suffix of the `fy_period` returned, do not assume that all markets only return quarterly format.
+
+##### 2.4.4. Constructing a dynamic financial panel without future data for one-year backtesting
+
+The following demonstrates the key sequence of prefetching and slicing on a bin-by-bin basis. `period_sort_key`, `previous_year_period` and field cleaning can be reused
+Functions in the previous section:
+
+```python
+import pandas as pd
+import tqx_data
+
+backtest_end = "20251231"
+all_rows = tqx_data.get_financial_statement(
+    market="nb",
+    symbol=nasdaq_100_symbols,
+    # 公司财年可能领先公告自然年；同时要覆盖同比所需的上年同财期。
+    start_quarter="2023q1",
+    end_quarter="2026q4",
+    date=backtest_end,
+    is_latest=False,
+    interim_type="cumulative",
+    fields=required_financial_fields,
+)
+all_rows["date_key"] = pd.to_datetime(all_rows["date"], errors="coerce")
+all_rows = all_rows.dropna(subset=["symbol", "fy_period", "date_key"])
+
+def visible_financials(as_of_date):
+    cutoff = pd.to_datetime(as_of_date, format="%Y%m%d")
+
+    # 必须先按调仓日过滤，再处理同一财期的重述版本。
+    visible = all_rows[all_rows["date_key"] <= cutoff].copy()
+    visible = visible.sort_values("date_key").drop_duplicates(
+        ["symbol", "fy_period"], keep="last"
+    )
+    assert visible.empty or visible["date_key"].max() <= cutoff
+
+    keys = visible["fy_period"].map(period_sort_key)
+    visible[["period_year", "period_rank", "period_suffix"]] = pd.DataFrame(
+        keys.tolist(), index=visible.index
+    )
+    latest = visible.sort_values(
+        ["symbol", "period_year", "period_rank", "period_suffix", "date_key"]
+    ).groupby("symbol", as_index=False).tail(1)
+    return visible, latest
+
+panel_rows = []
+for rebalance_date in rebalance_dates:  # 例如每 5 个交易日
+    history, latest = visible_financials(rebalance_date)
+    history = history.set_index(["symbol", "fy_period"])
+    for _, current in latest.iterrows():
+        prior_period = previous_year_period(current["fy_period"])
+        prior_key = (current["symbol"], prior_period)
+        if prior_period is None or prior_key not in history.index:
+            continue
+        prior = history.loc[prior_key]
+        # 按 2.4.3 的兼容字段和有限值规则计算同比、毛利率、经营现金流。
+        metrics = calculate_financial_metrics(current, prior)
+        if metrics is None:
+            continue
+        panel_rows.append({
+            "date": rebalance_date,
+            "symbol": current["symbol"],
+            "fy_period": current["fy_period"],
+            "source_date": current["date"],
+            **metrics,
+        })
+
+financial_panel = pd.DataFrame(panel_rows)
+```
+
+`calculate_financial_metrics` should return cleaned `revenue_growth`, `gross_margin`, `operating_cf` and `eligible`.
+If the rebalancing frequency is every 5 trading days, the panel is also generated every 5 trading days; the financial values can remain unchanged between the two announcements, but the qualification
+The judgment must be updated on the next rebalancing day after the new announcement. Do not re-query the interface in `handle_data` for each bar. It should be done in the offline phase or
+Build and cache the panel once in `initialize`.
+
+**4. Trading Tools**
+
+**1. Get exchange rate data**

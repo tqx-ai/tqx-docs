@@ -1,3 +1,1741 @@
 ---
 title: "財務報表"
+description: "取得適用於研究與回測的時點季度財務報表。"
 ---
+
+### 2. 取得財務季度報告
+
+#### 2.1. 方法名稱：get_financial_statement
+
+#### 2.2. 入參
+
+| 欄位 | 類型 | 說明 | 是否必填 |
+|:---|:---|:---|:---|
+| symbol | Optional\[Union\[str, list\]\] | 股票代號；港股 `.HK`、美股 `.NB`。 `None`、空字串或空白清單都會查詢全市場 | 非必填 |
+| start_quarter | str | 起始財期，格式為 `YYYYqN`，大小寫皆可 | 必填 |
+| end_quarter | str | 結束財期，格式為 `YYYYqN`，大小寫皆可；與起始財期合計最多涵蓋 5 個自然年 | 必填 |
+| date | Optional\[str\] | 公告日期上限，格式為 `YYYYMMDD` 或 `YYYY-MM-DD`，返回該日及之前的數據 | 非必填；歷史研究和回測必須填寫 |
+| is_latest | Optional\[bool\] | `True`：每個 `symbol` 只保留公告日期最大的一行；`False`：返回範圍內全部財期和揭露記錄。預設為 `True` | 非必填 |
+| market | str | `hk` 或 `nb`，大小寫皆可；函數預設 `hk`，但策略代碼必須明確傳入 | 非必填 |
+| fields | Optional\[Union\[str, list\]\] | 傳回欄位；建議明確傳列表。介面會自動補充 `symbol`、`fy_period`、`date` | 非必填 |
+| interim_type | str | 報表口徑，可選 `cumulative`（累計，預設）或 `single`（單季） | 非必填 |
+
+#### 2.2.1. `is_latest` 選擇規則（生產環境實測）
+
+`is_latest` 的粒徑是**每隻股票**，不是「每隻股票的每個財期」：
+
+- `is_latest=True`：適合查詢「截至某日，每檔股票最新揭露的一份財報」的單期快照。即使季度範圍包含
+  多個財期，最終通常每隻股票只有一行。
+- `is_latest=False`：適合營收年比、季減、多期趨勢、歷史剖面、動態券池和回測。返回資料後仍要按
+  `(symbol, fy_period)` 選擇公告日期最新的版本，不能直接使用可能存在重複揭露的全部行。
+- 歷史研究和回測兩種模式都必須傳 `date=<截面日或调仓日>`。省略 `date` 會使用目前資料集中最新揭露，
+  可能把回測日期之後的財報帶入策略，造成未來資料外洩。
+
+2026-07-25 在生產算力節點用 `date="20250101"`、`2023q1~2024q4` 做過港美股對照驗證：
+
+| 市場與標的 | `is_latest=False` | `is_latest=True` | 截止日前最新財期 |
+|---|---:|---:|---|
+| 美股 `NVDA.NB`、`AVGO.NB` | 16 行，每股 8 行 | 2 行，每股 1 行 | `FY2024Q4` |
+| 港股 `1810.HK`、`3690.HK` | 14 行，每股 7 行 | 2 行，每股 1 行 | `FY2024Q3` |
+
+在同一測試省略 `date` 後，美股回傳了公告日期為 `20260225/20260609` 的記錄，港股回來了
+`20260526/20260601` 的記錄。若策略回測時間是 2025 年，這些記錄在當時不可見，因此禁止用於歷史決策。
+
+#### 2.2.2. 全參數生產測試經驗
+
+2026-07-25 在生產算力節點逐項驗證了全部參數，使用經驗如下：
+
+| 參數 | 實測結果 | 使用規則 |
+|---|---|---|
+| `start_quarter`、`end_quarter` | 必填；`2024q1` 和 `2024Q1` 皆可；超過 5 個自然年報錯誤。生產版本對結束早於開始曾回傳空表 | 呼叫前自行校驗格式、跨度及 `start <= end`，不能依賴後端一定報錯 |
+| `market` | `hk`、`nb` 及大寫形式成功；`us` 報錯 | 美股必須以 `nb`，港股用 `hk`，始終明確傳入 |
+| `symbol` | 字串和清單成功；`None`、`""`、`[]` 都變成全市場，本次美股樣本返回 5095 只 | 查詢策略和候選池時禁止查詢傳空值；全市場，本次美股樣本返回 5095 只 |
+| `fields` | 字串和列表均成功；缺少三列時接口自動補充；`None` 或 `[]` 返回約 1363 列；不存在的字段被靜默忽略 | 推薦非空列表；返回後必須檢查每個請求字段確實存在，不能只檢查調用成功 |
+| `date` | `20250101` 與 `2025-01-01` 結果一致；`2025/01/01` 報錯；`None` 不限制公告日 | 歷史策略必須傳入，且斷言返回的最大公告日期不晚於決策日 |
+| `is_latest` | `True` 兩隻股票返回 2 行；`False` 返回 8 行 | 單份最新公告用 `True`；同比和動態多期面板用 `False` |
+| `interim_type` | `cumulative` 回傳資料；`single` 是合法值，但本次美股樣本區間回傳空表；其他值報錯 | 預設並優先使用 `cumulative`；使用 `single` 預設值前必須確認目標市場、股票及股票及股票及股票及股票及股票及股票及股票及股票及股票前必須確認即有股票及股票及股票及股票及股票及股票及股票於 前已確認”股票及股票及股票及股票及股票及股票及股票及股票於前已確認” |
+
+`fields` 的靜默忽略尤其危險。例如請求 `fields=["not_a_real_field"]` 沒有報錯，只回傳了自動補充的
+`symbol`、`fy_period`、`date`。因此 Agent 必須在計算前執行 `required_fields <= set(df.columns)` 檢查。
+
+#### 2.2.3. 一年回測的動態時點規則
+
+財報大致按季度披露，但不同公司公告日期不同。若基本面決定股票資格，一年回測必須在每個調倉日重新
+計算 point-in-time 財務因子；不能把回測起點的合格券池固定使用一年。生產測試得到：
+
+| 截面日 | `3690.HK` 最新可見財期 | 收入年比 | 毛利率 | 經營現金流量 | 是否經過三個硬條件 |
+|---|---|---:|---:|---:|---|
+| `20250101` | `FY2024Q3` | 22.68% | 38.67% | 40,284,393,000 | 是 |
+| `20250701` | `FY2025Q1` | 18.12% | 37.45% | 10,131,128,000 | 否 |
+| `20251001` | `FY2025Q2` | 14.71% | 35.22% | 14,348,525,000 | 否 |
+| `20260101` | `FY2025Q3` | 9.95% | 32.13% | -7,243,689,000 | 否 |
+
+這不是未來資料問題，而是靜態券池使用了已經過期的基本面。正確動態流程是：
+
+1. 取得整個回測所需的多期財報，使用 `is_latest=False`，並以回測結束日作為介面最大 `date`。
+2. 每個調倉日先篩選 `announcement date <= rebalance date`。
+3. 在該可見子集中按 `(symbol, fy_period)` 保留公告日期最新的版本。
+4. 依公司財期選擇當時可見的最新財期，搭配上年同財期併計算因子。
+5. 形成包含 `date`、`symbol`、`fy_period`、`source_date`、各因子和 `eligible` 的面板。
+6. 交易時只讀取 `panel.date <= context.now` 的最近剖面；有新公告就在下一調倉日更新，沒有則沿用舊值。
+
+順序不能改成“先對回測結束日全部數據去重，再按調倉日過濾”，否則後續重述版本可能覆蓋早期當時可見的
+版本。每個斷面必須驗證 `max(source_date) <= rebalance_date`。
+
+#### 2.3. 回應參數
+
+##### 2.3.1. 回應參數
+
+| 字段 | 類型 | 描述 |
+|:----------|:-------|:---------------------------------|
+| symbol | str | 檔 |
+| fields | double | 需要傳回的財務欄位(見資料庫設計) |
+| fy_period | str | 財務年時段 |
+
+以下為財務相關字段
+
+現金流量表(cfs)
+
+| 字段 | 類型 | 描述 |
+|:---|:---|:---|
+| cfs_cash_receipts_business | Double | 現金收入 - 商業活動 - 現金流量 |
+| cfs_cash_receipts_sales | Double | 現金收入 - 商品與服務銷售 - 現金流量 |
+| cfs_cash_receipts_other_customers | Double | 現金收入 - 其他 - 顧客 - 現金流量 |
+| cfs_premiums_received | Double | 收到的保費 - 現金流量 |
+| cfs_reinsurance_recovered | Double | 再保險收回 - 現金流量 |
+| cfs_fees_received | Double | 收到的費用 - 現金流量 |
+| cfs_inv_income_received | Double | 投資收入 - 收到 - 現金流量 |
+| cfs_cash_receipts_other | Double | 現金收入 - 其他 - 現金流量 |
+| cfs_cash_receipts_banking_inv | Double | 現金收入 - 銀行及投資相關活動 - CF |
+| cfs_cash_payments_business | Double | 現金支付 - 業務活動 - 現金流量 |
+| cfs_cash_payments_suppliers | Double | 現金支付 - 商品及服務供應商 - 現金流量 |
+| cfs_reinsurance_paid | Double | 付再保險 - 現金流 |
+| cfs_claims_paid | Double | 已支付的理賠 - 現金流量 |
+| cfs_cash_payments_int_banking_liab | Double | 現金支付 - 銀行相關負債支付的利息 - CF |
+| cfs_cash_payments_employees | Double | 現金支付 - 員工 - 現金流量 |
+| cfs_fees_paid | Double | 支付的費用 - 現金流量 |
+| cfs_cash_payments_other | Double | 現金支付 - 其他 - 現金流量 |
+| cfs_income_taxes_paid_reimbursed | Double | 所得稅 - 已付款/（已報銷） - 現金流量 |
+| cfs_interest_paid_cash_direct | Double | 支付利息 - 現金（現金流量 - 直接） |
+| cfs_int_div_received_cash_direct | Double | 利息和股息 - 已收取 - 總計 - 現金流量 - 直接 |
+| cfs_cash_receipts_payments_net | Double | 現金收入/（付款）-淨額-現金流量 |
+| cfs_cash_receipts_payments_associates | Double | 現金收入/（付款） - 聯營公司 - 現金流量 |
+| cfs_profit_loss_starting | Double | 利潤/（虧損） - 起始線 - 現金流量 |
+| cfs_non_cash_adj | Double | 非現金項目與調節調整 - 現金流量 |
+| cfs_extraordinary_after_tax_reconcile | Double | 稅後非常項目 - 現金流量 - 調整 |
+| cfs_minority_interest_reconcile | Double | 少數股東權益 - 現金流量 - 調節 |
+| cfs_discontinued_ops_net_tax_reconcile | Double | 終止營業 - G/(L) - 稅後淨額 - CF - 調整 |
+| cfs_equity_earnings_reconcile | Double | 淨收益中的權益公司/（損失） - CF - 進行調節 |
+| cfs_accounting_change_reconcile | Double | 會計變更 - 現金流量 - 調節 |
+| cfs_income_tax_expense_reconcile | Double | 所得稅費用 - 現金流量 - 調整 |
+| cfs_financing_income_expense_reconcile | Double | 財務收入/（支出）-現金流量-調節 |
+| cfs_other_non_cash_adj | Double | 其他非現金項目與調整 - CF - 調節 |
+| cfs_depr_depletion_amort_impair_reconcile | Double | 折舊、損耗和攤銷，包括減值 -CF 進行調節 |
+| cfs_depr_depletion_ppe_reconcile | Double | 折舊與消耗 - PPE - CF - 協調 |
+| cfs_accretion_aro_reconcile | Double | 資產報廢義務的增加 - CF - 調節 |
+| cfs_impairment_ppe_intang_reconcile | Double | 減損 - PPE，包含無形資產 - CF - 調節 |
+| cfs_impairment_inv_property_reconcile | Double | 減損 - 投資性房地產 - 現金流量 |
+| cfs_amort_intang_deferred_charges_reconcile | Double | 攤銷 - Intang 與延遲 Chrgs - CF - 調節 |
+| cfs_amort_deferred_policy_acq_reconcile | Double | 攤提 - 延遲保單取得成本 - 調整 |
+| cfs_amort_other_intang_deferred_reconcile | Double | 攤銷 - 其他無形資產與延遲 Chrgs - 調節 |
+| cfs_loan_loss_provision_impairment_reconcile | Double | 包括減損在內的貸款損失撥備 - 增量/（減量） - CF |
+| cfs_impairment_fin_fixed_assets_reconcile | Double | 金融固定資產減損 - CF - 調節 |
+| cfs_otti_losses_reconcile | Double | 投資損失 - 暫時性減損除外 - CF |
+| cfs_deferred_tax_credits_reconcile | Double | 遞延公司稅與所得稅抵免 - CF - 協調 |
+| cfs_asset_sale_gl_reconcile | Double | 資產出售 - 收益/（損失） - 現金流量 - 調節 |
+| cfs_ppe_intang_sale_gl_reconcile | Double | PPE，包括無形資產 - 收益/（損失） - CF |
+| cfs_inv_trading_property_realized_gl_reconcile | Double | 投資與交易財產 - 已實現 G/(L) CF 調節 |
+| cfs_inv_sec_gl_reconcile | Double | 投資證券 - 收益/（損失） - 現金流量 |
+| cfs_fin_assets_unrealized_gl_reconcile | Double | 金融資產 - 未實現 G/(L) - CF - 調節 |
+| cfs_inv_property_unrealized_gl_reconcile | Double | 投資性房地產 - 未實現收益/（損失） - 現金流量 |
+| cfs_share_based_payments_reconcile | Double | 基於股份的支付 - 現金流量 - 調節 |
+| cfs_income_taxes_paid_reimbursed | Double | 所得稅 - 已付款/（已報銷） - 現金流量 |
+| cfs_interest_paid_cash | Double | 支付利息 - 現金 |
+| cfs_int_div_received_total | Double | 利息與股利 - 已收取 - 總計 - 現金流量 |
+| cfs_distributions_non_consolidated_real_estate | Double | 收到的分配 - 非 Con 房地產實體 - CF |
+| cfs_cf_operating_before_wc | Double | 營運上限變動前的經營活動現金流 |
+| cfs_wc_increase_decrease | Double | 營運資金 - 增加/（減少） - 現金流量 |
+| cfs_receivables_finance_lease_change | Double | 應收帳款 - 融資與租賃 - 減少/（增加） - CF |
+| cfs_accounts_receivable_change | Double | 應收帳款 - 減少/（增加） - 現金流量 |
+| cfs_inventories_change | Double | 庫存 - 減少/（增加） - 現金流 |
+| cfs_segregated_cash_change | Double | 獨立現金 - 減少/（增加） - 現金流量 |
+| cfs_lending_deposits_banks_lt_change | Double | 貸款與存款 - 應收銀行款項 - LT - Decr/(Incr) - CF |
+| cfs_inv_sec_change_operating | Double | 投資證券 - 減少/（增加） - 營運 CF |
+| cfs_inv_sec_purchased_operating | Double | 投資證券 - 購買 - 營運 - 現金流量 |
+| cfs_inv_sec_sold_matured_operating | Double | 投資證券 - 已出售/到期 - 營運 - 現金流量 |
+| cfs_insurance_receivables_change | Double | 保險應收帳款減少/（增加）-現金流量 |
+| cfs_deferred_policy_acq_costs_change | Double | 延遲保單取得成本 - 減少/（增加） - CF |
+| cfs_loans_customer_change | Double | 貸款 - 顧客 - 減少/（增加） - 現金流 |
+| cfs_loans_origination_purchase | Double | 貸款 - 發放/購買 - 現金流 |
+| cfs_loans_repayments_sales | Double | 貸款 - 還款/銷售 - 現金流量 |
+| cfs_prepaid_expenses_change | Double | 預付費用 - 減少/（增加） - 現金流量 |
+| cfs_other_assets_change | Double | 其他資產 - 減少/（增加） - 現金流 |
+| cfs_collateralized_agreements_assets_change | Double | 抵押協議（資產） - Decr/（Incr） - CF |
+| cfs_accounts_payable_change | Double | 應付帳款 - 增加/（減少） - 現金流量 |
+| cfs_accrued_expenses_change | Double | 應計費用 - 增加/（減少） - 現金流量 |
+| cfs_insurance_provisions_change | Double | 保險準備金 - 增加/（減少） - 現金流量 |
+| cfs_deposits_change_total | Double | 存款 - 增加/（減少） - 總計 - 現金流量 |
+| cfs_deposits_banks_fi_change | Double | 存款 - 存入銀行和金融機構 - 增量/（減量） CF |
+| cfs_deposits_customers_change | Double | 存款 - 顧客 - 增加/（減少） - 現金流量 |
+| cfs_insurance_payables_reinsurance_change | Double | 保險應付帳款（含再保險） - 增量/（減量） - CF |
+| cfs_accounts_payable_accrued_change | Double | 應付帳款與應計費用 - 增量/（減量） - CF |
+| cfs_trading_liabilities_change | Double | 交易負債 - 增加/（減少） - 現金流量 |
+| cfs_taxes_payable_change | Double | 應繳稅費 - 增加/（減少） - 現金流量 |
+| cfs_op_lease_liabilities_change | Double | 經營租賃負債 - 增加/（減少） - CF |
+| cfs_other_liabilities_change_total | Double | 其他負債 - 增加/（減少） - 總計 - 現金流量 |
+| cfs_collateralized_agreements_liab_change | Double | 抵押協議（負債） - 增量/（減量） - CF |
+| cfs_other_assets_liabilities_change_net | Double | 其他資產與負債 - 增加/（減少） - 淨額 - CF |
+| cfs_net_cf_operating | Double | 經營活動產生的現金流量淨額 |
+| cfs_capex_net | Double | 資本支出 - 淨額 - 現金流量 |
+| cfs_ppe_purchased_sold_net | Double | 財產、廠房和設備 - 購買/（出售） - 淨值 - CF |
+| cfs_ppe_purchased | Double | 財產廠房和設備 - 購買 - 現金流量 |
+| cfs_lease_equipment_purchased | Double | 租賃設備 - 購買 - 現金流量 |
+| cfs_ppe_sold | Double | 出售的財產廠房和設備 - 現金流量 |
+| cfs_lease_equipment_sold | Double | 租賃設備 - 出售 - 現金流量 |
+| cfs_inv_property_purchased_sold_net_reit | Double | 投資物業購買/（出售）淨額 - 總計 - REIT - CF |
+| cfs_inv_property_purchased_reit | Double | 投資物業 - 購買 - REIT - 現金流量 |
+| cfs_inv_property_capex_improve_maint | Double | 資本支出 - 投資物業改善與維護 CF |
+| cfs_inv_property_sold_reit | Double | 投資物業 - 已售出 - 房地產投資信託基金 - 現金流量 |
+| cfs_intangible_purchased_sold_net | Double | 無形資產 - 購買/（出售） - 淨額 - 總計 - CF |
+| cfs_intangible_purchased_acquired | Double | 無形資產 - 購買/取得 - 現金流量 |
+| cfs_intangible_sold | Double | 無形資產 - 出售 - 現金流量 |
+| cfs_software_development_costs | Double | 軟體開發成本 - 現金流 |
+| cfs_intangible_assets_net_cf | Double | 無形資產 - 淨額 - 現金流量 |
+| cfs_capex_total | Double | 資本支出 - 總計 |
+| cfs_business_acquisition_disposal_net | Double | 收購與處置已出售/（收購）業務淨額 - CF |
+| cfs_business_acquisition | Double | 收購業務 - 現金流量 |
+| cfs_business_sold | Double | 業務 - 出售 - 現金流量 |
+| cfs_investments_excl_loans_change | Double | 不包含貸款的投資 - 減少/（增加） - CF |
+| cfs_inv_property_excl_capex_change | Double | 投資物業不包括資本支出 - 已售/（購買） - 淨額 - CF |
+| cfs_inv_sec_sold_purchased_net | Double | 未分類投資證券 - 已售/（購買）淨值 CF 總金額 |
+| cfs_inv_sec_sold_matured | Double | 投資證券 - 已出售/到期 - 未分類 - CF |
+| cfs_inv_sec_purchased | Double | 投資證券 - 購買 - 未分類 - 現金流量 |
+| cfs_fhlb_stock_sold_purchased_net | Double | FHLB 股票 - 已售/（已購買） - 淨額 - 現金流量 |
+| cfs_inv_associate_jv_sold_purchased | Double | 投資 - 聯營公司與合資企業 - 出售/（購買） - CF |
+| cfs_real_estate_jv_payments | Double | 房地產合資企業 - 收購付款 - 現金流量 |
+| cfs_deriv_hedge_sold_purchased_total | Double | 衍生性金融工具對沖賣出/（買入）CF總計 |
+| cfs_inv_loans_change_net | Double | 貸款投資 - 減少/（增加） - 淨額 - 現金流量 |
+| cfs_other_inv_cf_change | Double | 其他投資現金流 - 減少/（增加） |
+| cfs_net_cf_investing | Double | 投資活動所產生的淨現金流 |
+| cfs_dividends_paid_cash_total | Double | 已支付股利 - 現金 - 總計 - 現金流量 |
+| cfs_common_dividends_paid | Double | 股息 - 普通股 - 現金支付 |
+| cfs_preferred_dividends_paid | Double | 股息 - 優先 - 現金支付 |
+| cfs_policyholder_accounts_deposits_withdrawals_net | Double | 保單持有人帳戶 - 存款/（提款） - 淨額 - CF |
+| cfs_policyholder_deposits | Double | 存款 - 保單持有人帳戶 - 現金流量 |
+| cfs_policyholder_withdrawals | Double | 保單持有人帳戶提款 - 現金流 |
+| cfs_stock_issuance_retirement_net | Double | 股票 - 總計 - 發行/（退出） - 淨額 - 現金流量 |
+| cfs_stock_issuance_retirement_excl_options | Double | 股票 - 發行/（退役）淨額，不含選擇權/認股權證 - CF |
+| cfs_stock_common_pref_other_issuance_retirement_net | Double | 股票 - 普通優先股和其他發行/（退休）淨 CF |
+| cfs_stock_common_pref_other_issued | Double | 股票 - 普通優先股和其他 - 發行/出售 - 現金流量 |
+| cfs_stock_common_pref_other_repurchased | Double | 股票 - 普通優先股和其他 - 回購/退休 - CF |
+| cfs_common_stock_issuance_retirement_net | Double | 股票 - 普通 - 發行/（退出） - 淨額 - 現金流量 |
+| cfs_common_stock_issued | Double | 股票 - 普通股 - 發行/出售 - 現金流量 |
+| cfs_common_stock_repurchased | Double | 股票 - 普通股 - 回購/退休 - 現金流量 |
+| cfs_pref_stock_issuance_retirement_net | Double | 股票 - 優先股 - 發行/（退出） - 淨額 - 現金流量 |
+| cfs_pref_stock_issued | Double | 股票 - 優先股 - 發行/出售 - 現金流量 |
+| cfs_pref_stock_repurchased | Double | 股票 - 優先股 - 回購/退休 - 現金流量 |
+| cfs_other_equity_issuance_retirement_net | Double | 股票 - 其他股權 - 發行/（退出） - 淨額 - CF |
+| cfs_other_equity_issued | Double | 股票 - 其他股權 - 已發行/出售 - 現金流量 |
+| cfs_other_equity_repurchased | Double | 股票 - 其他股權 - 回購/退休 - 現金流量 |
+| cfs_options_exercised | Double | 已行使選擇權 - 現金流量 |
+| cfs_warrants_converted | Double | 認股權證轉換 - 現金流量 |
+| cfs_minority_interests_jv_net | Double | 少數股東權益與合資 - 淨額 - 現金流量 |
+| cfs_debt_lt_st_issuance_retirement_total | Double | 債務 - LT 和 ST - 發行/（收回） - 總計 - CF |
+| cfs_debt_issued_reduced_lt_st | Double | 債務 - 已發行/（減少） - 長期與短期 - 現金流量 |
+| cfs_debt_issued_lt_st | Double | 債務 - 已發行 - 長期與短期 - 現金流量 |
+| cfs_debt_reduced_lt_st | Double | 債務 - 減少 - 長期與短期 - 現金流 |
+| cfs_debt_issued_reduced_st_total | Double | 債務 - 已發行/（減少） - 短期 - 總計 - 現金流量 |
+| cfs_debt_issued_st | Double | 債務 - 已發行 - 短期 - 現金流量 |
+| cfs_debt_reduced_st | Double | 債務 - 減少 - 短期 - 現金流 |
+| cfs_debt_issued_reduced_lt | Double | 債務 - 已發行/（減少） - 長期 - 現金流量 |
+| cfs_debt_issued_lt | Double | 債務 - 已發行 - 長期 - 現金流量 |
+| cfs_debt_reduced_lt | Double | 債務 - 減少 - 長期 - 現金流 |
+| cfs_lease_liabilities_issued_reduced | Double | 租賃負債 - 已發行/（減少） - 現金流量 |
+| cfs_lease_liabilities_issued | Double | 租賃負債 - 已發行 - 現金流量 |
+| cfs_lease_liabilities_reduced | Double | 租賃負債 - 減少 - 現金流量 |
+| cfs_collateralized_agreements_liab_change | Double | 抵押協議（負債） - 增量/（減量） - CF |
+| cfs_repo_liabilities_change | Double | REPO 負債 - 增加/（減少） - 現金流量 |
+| cfs_hybrid_financial_liab_change | Double | 混合金融工具（負債）- 增量/（減量）CF |
+| cfs_other_financing_cf_change | Double | 其他融資現金流 - 增加/（減少） |
+| cfs_net_cf_financing | Double | 籌資活動所產生的現金流量淨額 |
+| cfs_discontinued_ops_cf_operating | Double | 終止經營業務產生的淨現金流量 - 經營活動 |
+| cfs_discontinued_ops_cf_investing | Double | 終止經營業務產生的淨現金流量 - 投資活動 |
+| cfs_discontinued_ops_cf_financing | Double | 終止經營業務產生的淨現金流量 - 融資活動 |
+| cfs_discontinued_ops_cf_other | Double | 終止經營業務產生的淨現金流量 - 其他 |
+| cfs_discontinued_ops_cf_total | Double | 終止經營業務產生的淨現金流量 - 總計 |
+| cfs_non_classified_cf | Double | 非分類現金流量 |
+| cfs_fx_effects_cf | Double | 外匯影響 - 現金流量 |
+| cfs_net_change_cash | Double | 現金淨變動 - 總計 |
+| cfs_net_cf_continuing_ops | Double | 持續經營業務產生的淨現金 |
+| cfs_net_cf_discontinued_ops | Double | 終止經營業務產生的淨現金 |
+| cfs_cash_beginning_balance | Double | 淨現金 - 期初餘額 |
+| cfs_cash_ending_balance | Double | 淨現金 - 期末餘額 |
+| cfs_income_taxes_paid_reimbursed_supp | Double | 所得稅 - 已付款/（已報銷） - 現金流量 - 補充 |
+| cfs_interest_paid_cf_supp | Double | 已付利息 - 現金流量 - 補充 |
+| cfs_interest_fin_leases_paid_supp | Double | 支付的融資租賃利息 - 現金流量 - 補充 |
+| cfs_int_div_received_supp | Double | 利息與股利 - 收到 - 現金流 - 補充 |
+| cfs_wc_cf_direct_supp | Double | 營運資金 - 現金流量 - 直接 - 補充 |
+| cfs_cf_operating_before_wc_int | Double | 工作上限與國際變動前營運活動所產生的現金流 |
+| cfs_non_gaap_free_cf | Double | 非公認會計原則自由現金流量 - 公司報告 |
+| cfs_contract_assets_change | Double | 合約資產 - 減少/（增加） - 現金流 |
+| cfs_contract_liabilities_change | Double | 合約負債 - 增加/（減少） - 現金流量 |
+| cfs_contract_assets_liabilities_net_cf | Double | 合約資產/負債 – 淨額 – 現金流量 |
+| cfs_cash_dividends_common_buyback_net | Double | 支付現金股利與普通股回購 - 淨額 |
+| cfs_common_stock_buyback_net | Double | 普通股回購 - 淨額 |
+| cfs_depr_depletion_amort_cf | Double | 折舊消耗與攤提 - 現金流量 |
+| cfs_free_cf_to_equity | Double | 股本自由現金流 |
+| cfs_free_operating_cf | Double | 自由經營現金流 |
+| cfs_levered_free_operating_cf | Double | 槓桿自由經營現金流 |
+| cfs_dividends_provided_paid_common | Double | 提供/支付的股息 - 普通 |
+| cfs_reported_cf_operating | Double | 報表 - 來自經營活動的現金 |
+| cfs_reported_cf_investing | Double | 報表 - 來自投資活動的現金 |
+| cfs_reported_cf_financing | Double | 報表 - 來自融資活動的現金 |
+
+資產負債表(bs)
+
+| 字段 | 類型 | 描述 |
+|:---|:---|:---|
+| bs_cash_and_short_term_investments | Double | 現金與短期投資 |
+| bs_cash_and_cash_equivalents | Double | 現金及現金等價物 |
+| bs_short_term_investments | Double | 短期投資 - 總計 |
+| bs_financial_assets_st | Double | 金融資產 - 短期 |
+| bs_cash_and_short_term_deposits_banks_total | Double | 現金及短期銀行存款 - 總計 |
+| bs_cash_and_short_term_deposits_banks | Double | 現金及短期銀行存款 |
+| bs_funds_central_banks | Double | 中央銀行資金 |
+| bs_lending_long_term_deposits_banks | Double | 銀行貸款與長期存款 |
+| bs_interbank_loans_deposits | Double | 同業拆借及同業長期存款 |
+| bs_money_market_placements | Double | 貨幣市場配置 |
+| bs_collateralized_agreements_rev_repos | Double | 抵押協議 Rev REPO 和 Sec 借入 - 資產 |
+| bs_securities_collateral | Double | 抵押品下持有的證券 |
+| bs_securities_purchased_repos_fed_funds | Double | 根據回購協議購買的證券和出售的聯邦基金 |
+| bs_securities_purchased_repos | Double | 根據回購協議購買的證券 |
+| bs_fed_funds_sold_assets | Double | 出售的聯邦基金 - 資產 |
+| bs_securities_purchased_repos_fed_funds_total | Double | 根據回購協議購買的證券和出售的聯邦基金總計 |
+| bs_securities_borrowed | Double | 借入證券 |
+| bs_deriv_hedge_st | Double | 衍生金融工具 - 對沖 - 短期 |
+| bs_deriv_hedge_total | Double | 衍生性金融工具 - 對沖 - 總計 |
+| bs_loans_receivables_net_st | Double | 貸款與應收帳款 - 淨額 - 短期 |
+| bs_trade_receivables_net | Double | 貿易帳與應收貿易票據 - 淨額 |
+| bs_trade_receivables_gross | Double | 貿易帳戶與應收貿易票據 - 總額 |
+| bs_provision_trade_receivables | Double | 規定 - 貿易帳與應收貿易票據 |
+| bs_unbilled_utility_revenue_st | Double | 未開票公用事業收入 - 短期 |
+| bs_loans_st | Double | 貸款 - 短期 |
+| bs_finance_lease_receivables_st | Double | 融資租賃應收款項 - 短期 |
+| bs_income_tax_receivables_st | Double | 所得稅 - 應收帳款 - 短期 |
+| bs_other_receivables | Double | 應收帳款 - 其他 - 總計 |
+| bs_provision_doubtful | Double | 規定 - 呆帳 |
+| bs_receivables_over_one_year_st | Double | 一年以上應收款項計入短期應收款項 |
+| bs_loans_receivables_total | Double | 貸款與應收帳款 - 總計 |
+| bs_banking_loans_net | Double | 銀行相關貸款 - 淨額 |
+| bs_loans_gross | Double | 貸款 - 總額 |
+| bs_consumer_installment_loans | Double | 貸款 - 消費及分期付款 |
+| bs_finance_lease_hp_loans | Double | 貸款 - 融資租賃與惠普 |
+| bs_commercial_industrial_loans | Double | 貸款 - 商業和工業 |
+| bs_broker_fi_loans | Double | 貸款 - 經紀人與金融機構 |
+| bs_other_customer_loans_gross | Double | 貸款 - 客戶 - 其他 - 總額 |
+| bs_foreign_loans | Double | 貸款 - 國外 |
+| bs_mortgage_real_estate_loans | Double | 貸款 - 抵押貸款/房地產 |
+| bs_loans_held_for_sale | Double | 貸款 - 持有待售 |
+| bs_unearned_customer_income | Double | 非勞動所得 - 顧客 |
+| bs_loan_loss_reserves | Double | 貸款損失準備金 |
+| bs_trade_receivables_total | Double | 貿易帳款與應收貿易票據 - 總計 |
+| bs_trade_receivables_gross_total | Double | 應收帳款與應收票據 - 交易 - 總額 - 總計 |
+| bs_provision_doubtful_trade_payable | Double | 提供可疑貿易帳款與應付商業票據總計 |
+| bs_receivables_brokers_clearing | Double | 來自客戶經紀人和清算組織的應收帳款 |
+| bs_finance_lease_receivables_net_lt_st | Double | 融資租賃應收款 - 淨額 - 長期與短期 |
+| bs_finance_lease_receivables_gross_lt_st | Double | 融資租賃應收款項 - 長期及短期 - 總金額 |
+| bs_provision_finance_lease_receivables | Double | 撥備 - 應收融資租賃款 - 長期與短期 |
+| bs_unearned_income_finance_lease | Double | 非勞動收入 - 融資租賃 - 長期與短期 |
+| bs_interest_receivables_bank | Double | 應收利息 - 銀行 |
+| bs_receivables_total | Double | 應收帳款 - 總計 |
+| bs_insurance_premium_receivables | Double | 應收保險費 |
+| bs_income_tax_receivables | Double | 所得稅 - 應收帳款 |
+| bs_other_receivables | Double | 應收帳款 - 其他 |
+| bs_provision_doubtful_total | Double | 撥備 - 呆帳 - 總計 |
+| bs_inventories_total | Double | 庫存 - 總計 |
+| bs_raw_materials | Double | 庫存 - 原料 |
+| bs_work_in_progress | Double | 庫存 - 進行中的工作 |
+| bs_finished_goods | Double | 庫存 - 成品 |
+| bs_inventories_other | Double | 庫存 - 其他 - 總計 |
+| bs_cost_in_excess_billings | Double | 庫存 - 成本超過比林斯 |
+| bs_gas_in_storage | Double | 庫存 - 儲存氣體 |
+| bs_lifo_reserve | Double | 庫存 - LIFO 儲備 |
+| bs_biological_assets_st | Double | 生物資產 - 短期 |
+| bs_prepaid_expenses_st | Double | 預付費用 - 短期 |
+| bs_assets_held_for_sale_st | Double | 持有待售資產/終止經營－短期 |
+| bs_other_current_assets_total | Double | 其他流動資產 - 總計 |
+| bs_deferred_tax_asset_st | Double | 遞延稅 - 資產 - 短期 |
+| bs_deferred_costs_st | Double | 延遲成本 - 短期 |
+| bs_restricted_accounts_st | Double | 受限帳戶 - 短期 |
+| bs_regulatory_assets_st | Double | 監理資產 - 短期 |
+| bs_other_current_assets | Double | 其他流動資產 |
+| bs_total_current_assets | Double | 流動資產總額 |
+| bs_investments_lt | Double | 投資 - 長期 |
+| bs_segregated_cash_deposits_inv | Double | 隔離 - 現金存款與投資 |
+| bs_investments_including_loans | Double | 包括貸款在內的投資 - 總計 |
+| bs_investments_total | Double | 投資 - 總計 |
+| bs_inv_sec_afs_htm_hft_total | Double | 投資證券 - 可供出售、HTM 和 HFT - 總計 |
+| bs_inv_sec_trading | Double | 投資證券 - 為交易而持有 |
+| bs_inv_sec_afs_htm | Double | 可供出售並持有至到期的投資證券 |
+| bs_inv_sec_afs_total | Double | 投資證券 - 可供出售 - 總計 |
+| bs_mbs_afs_htm | Double | 可供出售/持有至到期的抵押貸款支持證券 |
+| bs_govt_sec_afs_htm | Double | 政府證券 - 可供出售/持有至到期 |
+| bs_inv_sec_fair_value_other | Double | 投資證券 - 以公允價值指定 - 其他 |
+| bs_inv_sec_fixed_income | Double | 投資證券 - 固定收益 |
+| bs_inv_sec_equity | Double | 投資證券 - 股票 |
+| bs_affiliated_non_controlled | Double | 關聯公司 - 非控制 |
+| bs_non_affiliated_non_controlled | Double | 非關聯公司 - 非控制 |
+| bs_inv_sec_other | Double | 投資證券 - 其他 |
+| bs_commodities | Double | 商品 |
+| bs_fhlb_stock | Double | FHLB 股票 - 資產 |
+| bs_investment_property | Double | 投資物件 |
+| bs_investment_property_net | Double | 投資物業 - 淨額 |
+| bs_investment_property_gross | Double | 投資物件 - 總額 |
+| bs_inv_property_acc_depr_impair | Double | 投資性房地產 - 累計折舊與減損 |
+| bs_private_equity_other_inv | Double | 投資 - 私募股權及其他 - 總計 |
+| bs_other_inv_total | Double | 投資 - 其他 - 總計 |
+| bs_mortgage_policy_loans_other | Double | 貸款 - 抵押貸款保單及其他 |
+| bs_policy_loans | Double | 保單貸款 |
+| bs_other_loans | Double | 貸款 - 其他 |
+| bs_inv_afs_htm_lt | Double | 投資 - 可供出售/持有至到期 - 長期 |
+| bs_marketable_sec_lt | Double | 有價證券 - 長期 |
+| bs_financial_assets_lt | Double | 金融資產 - 長期 |
+| bs_inv_associate_jv_unconsolidated | Double | 對聯營公司、合資公司和 Unconsol 子公司的投資 |
+| bs_receivables_loans_lt | Double | 應收帳款與貸款 - 長期 |
+| bs_trade_receivables_net_lt | Double | 應收帳款與應收票據 - 交易 - 淨額 - 長期 |
+| bs_trade_receivables_gross_lt | Double | 應收帳款與票據 - 交易 - 總額 - 長期 |
+| bs_loans_lt | Double | 貸款 - 長期 |
+| bs_finance_lease_receivables_lt | Double | 融資租賃應收款項 - 長期 |
+| bs_other_receivables_net_lt | Double | 應收帳款 - 其他 - 淨額 - 長期 |
+| bs_provision_doubtful_lt | Double | 規定 - 呆帳 - 長期 |
+| bs_deriv_hedge_lt | Double | 衍生金融工具 - 對沖 - 長期 |
+| bs_ppe_net_total | Double | 房地產廠房與設備 - 淨額 - 總計 |
+| bs_assets_leased_out_operating_lease_net | Double | 經營租賃項下出租的資產 - 淨額 |
+| bs_ppe_excl_leased_out_net | Double | PPE - 不包括出租資產 - 淨額 - 總計 |
+| bs_land_buildings_net | Double | 土地與建築物 - 網路 |
+| bs_land_improvements_net | Double | 土地/改良 - 淨額 |
+| bs_buildings_net | Double | 建築物 - 網路 |
+| bs_leasehold_improvements_net | Double | 租賃權改善 - 淨額 |
+| bs_plant_machinery_equipment_net | Double | 工廠機械與設備 - 網 |
+| bs_transport_equipment_net | Double | 運輸設備 - 網 |
+| bs_computer_software_equipment_net | Double | 電腦軟體及裝置 - 網路 |
+| bs_construction_in_progress_net | Double | 在建工程 - 網路 |
+| bs_ppe_capital_lease_net | Double | 物業廠房及設備 - 資本租賃 - 淨額 |
+| bs_rou_tangible_total_net | Double | 使用權有形資產 - 總計 - 淨額 |
+| bs_rou_operating_lease_net | Double | 有形資產使用權 - 營業租賃 - 淨額 |
+| bs_rou_cap_fin_lease_net | Double | 有形資產使用權 - 資本/融資租賃 - 淨額 |
+| bs_ppe_other_net | Double | 物業廠房及設備 - 其他 - 淨值 |
+| bs_natural_resources_biological_net | Double | 自然資源/生物資產 - 淨額 |
+| bs_mining_exploration_net | Double | 採礦/探勘特定資產 - 淨額 |
+| bs_utility_plant_net | Double | 公用事業工廠 - 網路 |
+| bs_ppe_gross_total | Double | 房地產廠房與設備 - 總額 - 總計 |
+| bs_assets_leased_out_operating_lease_gross | Double | 經營租賃項下出租的資產 - 總金額 |
+| bs_ppe_excl_leased_out_gross | Double | PPE - 不包括出租資產 - 總額 |
+| bs_land_buildings_gross | Double | 土地與建築物 - 總金額 |
+| bs_land_improvements_gross | Double | 土地/改良 - 總金額 |
+| bs_buildings_gross | Double | 建築物 - 總量 |
+| bs_leasehold_improvements_gross | Double | 租賃權益改善 - 總額 |
+| bs_plant_machinery_equipment_gross | Double | 工廠機械與設備 - 總量 |
+| bs_transport_equipment_gross | Double | 運輸設備 - 總量 |
+| bs_computer_software_equipment_gross | Double | 電腦軟體與裝置 - 總額 |
+| bs_construction_in_progress_gross | Double | 在建工程 - 總額 |
+| bs_ppe_capital_lease_gross | Double | 房地產廠房與設備 - 資本租約 - 總額 |
+| bs_rou_tangible_total_gross | Double | 使用權有形資產 - 總計 - 總額 |
+| bs_rou_operating_lease_gross | Double | 使用權有形資產 - 營業租賃 - 總金額 |
+| bs_rou_cap_fin_lease_gross | Double | 使用權有形資產 - 資本/融資租賃 - 總額 |
+| bs_ppe_other_gross | Double | 房地產廠房與設備 - 其他 - 總額 |
+| bs_natural_resources_biological_gross | Double | 自然資源/生物資產 - 總額 |
+| bs_mining_exploration_gross | Double | 採礦/勘探特定資產 - 總額 |
+| bs_utility_plant_gross | Double | 公用設施 - 總量 |
+| bs_ppe_acc_depr_impair_total | Double | PPE - 累計折舊與減損 - 總計 |
+| bs_assets_leased_out_operating_lease_acc_depr_impair | Double | 根據經營租賃租出的資產 - 累積折舊與減損 |
+| bs_ppe_excl_leased_out_acc_depr_impair | Double | PPE - 不含租賃資產 - 累積折舊和減損 - 總計 |
+| bs_land_buildings_acc_depr_impair | Double | 土地與建築物 - 累積折舊與減損 |
+| bs_land_improvements_acc_depr_impair | Double | 土地/改良設施 - 累計折舊與減損 |
+| bs_buildings_acc_depr_impair | Double | 建築物 - 累計折舊與減損 |
+| bs_leasehold_improvements_acc_depr_impair | Double | 租賃權益改善 - 累積折舊與減損 |
+| bs_plant_machinery_equipment_acc_depr_impair | Double | 廠房、機械與設備 - 累計折舊與減損 |
+| bs_transport_equipment_acc_depr_impair | Double | 運輸設備 - 累計折舊與減損 |
+| bs_computer_software_equipment_acc_depr_impair | Double | 電腦軟體與裝置 - 累計折舊與減損 |
+| bs_construction_in_progress_acc_depr_impair | Double | 在建工程 - 累計折舊與減損 |
+| bs_ppe_capital_lease_acc_depr_impair | Double | 資本租賃下的個人防護裝備 - 累計折舊與減損 |
+| bs_rou_tangible_total_acc_depr | Double | 使用權有形資產總計 - 累計折舊 |
+| bs_rou_operating_lease_acc_depr | Double | 有形資產使用權 - 營業租賃 - Accum Depr |
+| bs_rou_cap_fin_lease_acc_depr | Double | 有形資產使用權 - 上限/融資租賃 - Accum Depr |
+| bs_ppe_other_acc_depr_impair | Double | 財產、廠房與設備 - 其他 - Accum Depr & Impair |
+| bs_utility_plant_acc_depr_impair | Double | 公用事業工廠 - 累計折舊與減損 |
+| bs_mining_exploration_acc_depr_impair | Double | 採礦/探勘特定資產 - 累積折舊與減損 |
+| bs_natural_resources_biological_acc_depr_impair | Double | 自然資源/生質資產 - 累積減損與減損 |
+| bs_deferred_policy_acq_costs | Double | 延遲保單取得成本 |
+| bs_reinsurance_assets | Double | 再保險資產 |
+| bs_deposits_held_reinsurance | Double | 存款 - 再保險項下持有 |
+| bs_reinsurance_recoverable_insurance_provisions | Double | 再保險可收回 - 在保險條款中 |
+| bs_reinsurance_recoverable_unearned_premiums | Double | 再保險可收回 - 未到期保費 |
+| bs_reinsurance_recoverable_outstanding_claims | Double | 再保險可收回 - 未決索賠 |
+| bs_reinsurance_recoverable_benefit_loss_reserve | Double | 再保險可收回 - 利益和損失準備金 |
+| bs_reinsurers_share_separate_variable_acct | Double | 再保險公司在單獨和可變帳戶/關聯負債中的份額 |
+| bs_reinsurance_recoverable_other | Double | 再保險可收回 - 其他 |
+| bs_separate_variable_account_assets | Double | 獨立與可變帳戶 - 資產 |
+| bs_assets_held_for_sale_lt | Double | 持有待售資產/終止營業－長期 |
+| bs_assets_held_for_sale_lt_st | Double | 持有待售資產/終止營業 - LT & ST |
+| bs_insurance_related_assets_bank | Double | 保險相關資產 - 銀行 |
+| bs_other_non_current_assets_total | Double | 其他非流動資產 - 總計 |
+| bs_restricted_accounts_lt | Double | 受限帳戶 - 長期 |
+| bs_deferred_tax_asset_lt | Double | 延遲稅金 - 資產 - 長期 |
+| bs_deferred_charges_lt | Double | 延期費用 - 長期 |
+| bs_prepaid_expenses_lt | Double | 預付費用 - 長期 |
+| bs_inventories_lt | Double | 庫存 - 長期 |
+| bs_regulatory_assets_lt | Double | 監理資產 - 長期 |
+| bs_pension_assets_lt | Double | 退休金資產 - 長期 |
+| bs_other_non_current_assets | Double | 其他非流動資產 |
+| bs_other_assets_total | Double | 其他資產 - 總計 |
+| bs_accrued_investment_income | Double | 應計投資收益 |
+
+| 字段 | 類型 | 描述 |
+|:---|:---|:---|
+| bs_restricted_accounts_cash | Double | 受限帳戶 - 現金 |
+| bs_pension_benefits_overfunded | Double | 退休金福利 - 資金過剩 - 總計 |
+| bs_deferred_charges | Double | 延期費用 |
+| bs_deferred_tax_asset_lt_st | Double | 遞延稅 - 資產 - 長期與短期 |
+| bs_prepaid_expenses_total | Double | 預付費用 - 總計 |
+| bs_decommissioning_funds | Double | 退休基金 |
+| bs_regulatory_assets_total | Double | 監理資產 - 總計 |
+| bs_other_assets | Double | 其他資產 |
+| bs_intangible_assets_net | Double | 無形資產 - 總計 - 淨額 |
+| bs_goodwill_net | Double | 超過購買資產的商譽/成本 - 淨額 |
+| bs_intangibles_excl_gw_net | Double | 無形資產 - 不包含商譽 - 淨額 - 總計 |
+| bs_core_deposits_net | Double | 核心存款 - 淨額 |
+| bs_mortgage_servicing_rights_net | Double | 抵押貸款服務權 - 網路 |
+| bs_asset_mgmt_contracts_net | Double | 資產管理合約 - 淨額 |
+| bs_customer_relations_net | Double | 客戶群/關係 - 網路 |
+| bs_tenant_relationships_leases_net | Double | 租用戶關係及就地租約 - 網路 |
+| bs_above_market_rent_leases_net | Double | 高於市場租金/租賃 - 淨額 |
+| bs_leasing_rights_net | Double | 租賃權 - 淨額 |
+| bs_computer_software_intang_net | Double | 電腦軟體 - 無形資產 - 淨 |
+| bs_r_and_d_costs_net | Double | 研究與開發成本 - 淨額 |
+| bs_brands_patents_trademarks_net | Double | 品牌、專利、商標、行銷與藝術 - 網 |
+| bs_licenses_franchises_contracts_net | Double | 授權、特許經營權、版權、基於合約 - Net |
+| bs_rou_intangibles_net | Double | 使用權無形資產 - 淨額 |
+| bs_other_intangibles_net | Double | 無形資產 - 其他 - 淨額 |
+| bs_intangible_assets_gross | Double | 無形資產 - 總金額 - 總計 |
+| bs_goodwill_gross | Double | 超出購買資產的商譽/成本 - 總額 |
+| bs_intangibles_excl_gw_gross | Double | 無形資產 - 不包括商譽 - 總金額 |
+| bs_core_deposits_gross | Double | 核心存款 - 總額 |
+| bs_mortgage_servicing_rights_gross | Double | 抵押貸款服務權 - 總額 |
+| bs_asset_mgmt_contracts_gross | Double | 資產管理合約 - 總金額 |
+| bs_customer_relations_gross | Double | 客戶群/關係 - 總額 |
+| bs_tenant_relationships_leases_gross | Double | 租用戶關係與就地租約 - 總金額 |
+| bs_above_market_rent_leases_gross | Double | 高於市場租金/租約 - 總金額 |
+| bs_leasing_rights_gross | Double | 租賃權 - 總額 |
+| bs_computer_software_intang_gross | Double | 電腦軟體 - 無形資產 - 總額 |
+| bs_r_and_d_costs_gross | Double | 研究與開發成本 - 總金額 |
+| bs_brands_patents_trademarks_gross | Double | 品牌、專利、商標、行銷與藝術 - 總金額 |
+| bs_licenses_franchises_contracts_gross | Double | 許可證、特許經營權、版權、基於合約的 - 總額 |
+| bs_rou_intangibles_gross | Double | 使用權無形資產 - 總金額 |
+| bs_other_intangibles_gross | Double | 無形資產 - 其他 - 總金額 - 總計 |
+| bs_intangible_assets_acc_amort_impair | Double | 無形資產 - 累積攤銷與減損 - 總計 |
+| bs_goodwill_acc_amort_impair | Double | 商譽 - 累計攤銷與減損 |
+| bs_intangibles_excl_gw_acc_amort_impair | Double | 無形資產（不含商譽） - 累積攤提與減損總計 |
+| bs_core_deposits_acc_amort_impair | Double | 核心存款 - 累積攤提與減損 |
+| bs_mortgage_servicing_rights_acc_amort_impair | Double | 抵押貸款服務權 - 累積攤提與減損 |
+| bs_asset_mgmt_contracts_acc_amort_impair | Double | 資產管理合約 - 累積攤提與減損 |
+| bs_customer_relations_acc_amort_impair | Double | 顧客群/關係 - 累積攤銷與減損 |
+| bs_tenant_relationships_leases_acc_amort_impair | Double | 租用戶關係與就地租約 -Accum Amort & Imp |
+| bs_above_market_rent_leases_acc_amort_impair | Double | 高於市場租金/租賃 - 累積攤銷與減損 |
+| bs_leasing_rights_acc_amort_impair | Double | 租賃權 - 累計攤銷與減損 |
+| bs_computer_software_intang_acc_amort_impair | Double | 電腦軟體 - 無形資產 - 累積攤銷與減損 |
+| bs_r_and_d_costs_acc_amort_impair | Double | 研究與開發成本 - 累積攤提與減損 |
+| bs_brands_patents_trademarks_acc_amort | Double | 品牌、專利、商標、行銷與藝術 - Accum Amort |
+| bs_licenses_franchises_contracts_acc_amort_impair | Double | 許可證、特許經營權、版權 - Accum Amort & Impair |
+| bs_rou_intangibles_acc_amort | Double | 使用權無形資產 - 累計攤銷 |
+| bs_other_intangibles_acc_amort_impair | Double | 其他無形資產 - 累計攤銷與減損 |
+| bs_total_non_current_assets | Double | 非流動資產總額 |
+| bs_total_assets | Double | 總資產 |
+| bs_trade_payable_accruals_st | Double | 貿易應付帳款與應計費用 - 短期 |
+| bs_trade_payable_st | Double | 貿易帳與應付貿易票據 - 短期 |
+| bs_accrued_expenses_st | Double | 應計費用 - 短期 |
+| bs_insurance_reserves_total | Double | 保險準備金 - 總計 |
+| bs_benefit_loss_reserves_gross | Double | 損益準備金 - 總額 |
+| bs_benefit_loss_reserves_life_gross | Double | 損益準備金 - 生命 - 總金額 |
+| bs_benefit_loss_reserves_non_life_gross | Double | 收益與損失準備金 - 非人壽 - 總金額 |
+| bs_unearned_premiums_gross | Double | 非應得保費 - 總額 |
+| bs_policy_contract_claims_gross | Double | 保單和合約索賠 - 總額 |
+| bs_policyholders_funds | Double | 保單持有人資金 |
+| bs_insurance_reserves_other_gross | Double | 保險準備金 - 其他 - 總金額 - 總計 |
+| bs_separate_variable_account_liabilities | Double | 獨立與可變帳戶 - 負債 |
+| bs_deposits_total | Double | 存款 - 總計 |
+| bs_deposits_non_int_bearing | Double | 存款 - 無利息 |
+| bs_deposits_int_bearing | Double | 存款 - 帶利息存款 |
+| bs_customer_deposits_total | Double | 存款 - 客戶 - 總計 |
+| bs_demand_deposits_customer | Double | 存款-活期-顧客 |
+| bs_savings_deposits_customer | Double | 存款 - 儲蓄 - 客戶 |
+| bs_other_deposits_customer | Double | 存款 - 其他 - 顧客 |
+| bs_deposits_banks_fi | Double | 存款 - 銀行及金融機構存款 |
+| bs_demand_deposits_banks_fi | Double | 存款 - 活期存款 - 存放銀行及金融機構款項 |
+| bs_savings_deposits_banks_fi | Double | 存款 - 儲蓄 - 銀行和金融機構存款 |
+| bs_other_deposits_banks_fi | Double | 存款 - 其他 - 銀行及金融機構存款 |
+| bs_trading_liabilities | Double | 交易負債 |
+| bs_debt_total | Double | 債務 - 總計 |
+| bs_st_debt_current_portion_lt_debt | Double | 短期債務與長期債務的當前部分 |
+| bs_st_debt_notes_payable | Double | 短期債務與應付票據 |
+| bs_st_bank_borrowings_excl_collateral | Double | 短期銀行借款不包括抵押融資 |
+| bs_collateralized_financing_repo_liab | Double | 抵押融資協議 REPO 融資貸款 - Liab |
+| bs_securities_loaned | Double | 證券 - 借出 |
+| bs_securities_sold_repo_fed_funds_purchased | Double | 根據回購協議出售的證券和購買的聯邦基金 |
+| bs_securities_sold_repo | Double | 根據回購協議出售的證券 |
+| bs_fed_funds_purchased | Double | 購買的聯邦資金 |
+| bs_securities_received_collateral_obligation | Double | 作為抵押品收到的證券 - 返還義務 |
+| bs_current_portion_lt_debt_incl_cap_leases | Double | 長期債務的當前部分包括資本化租賃 |
+| bs_current_portion_lt_debt_excl_cap_leases | Double | 長期債務的當前部分（不包括資本化租賃） |
+| bs_cap_leases_current_portion | Double | 資本化租賃 - 目前部分 |
+| bs_hybrid_financial_liability_current | Double | 混合金融工具 - 負債 - 目前部分 |
+| bs_fhlb_advances_current | Double | FHLB 進展 - 目前部分 |
+| bs_deriv_liab_hedge_st | Double | 衍生負債 - 避險 - 短期 |
+| bs_liabilities_held_for_sale_st | Double | 出售/終止經營所持有的負債 - ST |
+| bs_income_tax_payable_st | Double | 所得稅 - 應付 - 短期 |
+| bs_dividends_distributions_payable | Double | 應付股利/分配 |
+| bs_operating_lease_liab_current | Double | 經營租賃負債 - 目前部分/短期 |
+| bs_intangible_liability | Double | 無形負債 |
+| bs_below_market_rent_leases_gross | Double | 低於市場租金/租約 - 總金額 |
+| bs_below_market_rent_leases_acc_amort_impair | Double | 低於市場租金/租賃 - 累積攤銷與減損 |
+| bs_below_market_rent_leases_net | Double | 低於市場租金/租賃 - 淨額 |
+| bs_other_current_liabilities_total | Double | 其他流動負債 - 總計 |
+| bs_deferred_income_st | Double | 遞延收入 - 短期 |
+| bs_security_deposits | Double | 保證金 |
+| bs_billings_excess_cost_st | Double | 超出成本的帳單 - 短期 |
+| bs_customer_advances_st | Double | 客戶預付款 - 短期 |
+| bs_deferred_tax_liab_st | Double | 遞延稅 - 負債 - 短期 |
+| bs_provisions_st | Double | 規定 - 短期 |
+| bs_regulatory_liab_st | Double | 監理責任 - 短期 |
+| bs_other_current_liabilities | Double | 其他流動負債 |
+| bs_total_current_liabilities | Double | 流動負債總額 |
+| bs_accounts_payable_accruals_lt | Double | 應付帳款包含應計費用 - 長期 |
+| bs_trade_payable_lt | Double | 貿易應付帳款 - 長期 |
+| bs_accrued_expenses_lt | Double | 應計費用 - 長期 |
+| bs_debt_lt_total | Double | 債務 - 長期 - 總計 |
+| bs_lt_debt_excl_cap_leases | Double | 長期債務（不含資本化租約） |
+| bs_non_convertible_debt_lt | Double | 債務 - 不可轉換 - 長期 |
+| bs_convertible_debt_lt | Double | 可轉換債務 - 長期 |
+| bs_hybrid_financial_liability_lt | Double | 混合金融工具 - 負債 - 長期 |
+| bs_mandatorily_redeemable_trust_certificates_lt | Double | 強制性可贖回信託證書 - 長期 |
+| bs_other_mandatorily_redeemable_equity_lt | Double | 其他強制贖回權益工具 - 長期 |
+| bs_preferred_stock_liability_portion_lt | Double | 優先股 - 負債部分 - 長期 |
+| bs_fhlb_advances_lt | Double | FHLB 進展 - 長期 |
+| bs_cap_lease_obligations_lt | Double | 資本化租賃義務 - 長期 |
+| bs_deriv_liab_hedge_lt | Double | 衍生負債 - 避險 - 長期 |
+| bs_liabilities_held_for_sale_lt | Double | 持有待售/終止經營的負債 - 長期 |
+| bs_income_tax_payable_lt_st | Double | 所得稅 - 應付 - 長期與短期 |
+| bs_dividends_payable | Double | 應付股利 |
+| bs_deferred_tax_investment_tax_credits_lt | Double | 遞延稅與投資稅務抵稅 - 長期 |
+| bs_deferred_tax_liab_lt | Double | 遞延稅 - 負債 - 長期 |
+| bs_deferred_tax_liab_untaxed_reserves | Double | 遞延稅 - 負債 - 未課稅準備金 |
+| bs_payables_trust_account | Double | 應付帳款 - 信託帳戶 |
+| bs_payables_accrued_expenses | Double | 應付帳款和應計費用 |
+| bs_trade_payables_total | Double | 貿易應付帳款 - 總計 |
+| bs_payable_reinsurance_brokers_agents | Double | 應付帳款 - 再保險與經紀人/代理人 |
+| bs_interest_payable | Double | 應付利息 |
+| bs_other_payables_total | Double | 其他應付款項 - 總計 |
+| bs_payables_customers_brokers_dealers | Double | 應付帳款 - 顧客經紀人、經銷商與清算組織 |
+| bs_accrued_expenses | Double | 應計費用 |
+| bs_deriv_liab_hedge | Double | 衍生負債 - 避險 |
+| bs_operating_lease_liab_lt_st | Double | 經營租賃負債 - 長期與短期 |
+| bs_segregated_liabilities_total | Double | 獨立負債 - 總計 |
+| bs_operating_lease_liab_lt | Double | 經營租賃負債 - 長期 |
+| bs_other_non_current_liabilities_total | Double | 其他非流動負債 - 總計 |
+| bs_provisions_lt | Double | 規定 - 長期 |
+| bs_post_employment_benefits_pension_other_lt | Double | 離職後福利 - 退休金及其他 - 長期 |
+| bs_asset_retirement_obligation_lt | Double | 資產報廢義務 - 長期 |
+| bs_provisions_litigation_lt | Double | 條款 - 訴訟 - 長期 |
+| bs_provisions_restructuring_lt | Double | 規定 - 重組 - 長期 |
+| bs_provisions_environmental_lt | Double | 規定 - 環境義務 - 長期 |
+| bs_provisions_other_lt | Double | 規定 - 其他 - 長期 |
+| bs_customer_advances_lt | Double | 客戶預付款 - 長期 |
+| bs_deferred_revenue_lt | Double | 延遲收入 - 長期 |
+| bs_regulatory_liabilities_lt | Double | 監理負債 - 長期 |
+| bs_other_non_current_liabilities | Double | 其他非流動負債 |
+| bs_other_liabilities_total | Double | 其他負債 - 總計 |
+| bs_provisions | Double | 規定 |
+| bs_post_employment_benefits_pension_other | Double | 離職後福利 - 退休金及其他 |
+| bs_provisions_other_than_pension | Double | 規定 - 退休金和退休後除外 |
+| bs_regulatory_liabilities_total | Double | 監理負債 - 總計 |
+| bs_billings_excess_costs_total | Double | 超出成本的帳單 - 總計 |
+| bs_customer_advances_total | Double | 客戶預付款 - 總計 |
+| bs_deferred_revenue_income | Double | 遞延收入/收入 |
+| bs_other_liabilities | Double | 其他負債 |
+| bs_liabilities_held_for_sale_lt_st | Double | 出售/終止經營所持有的負債 - LT & ST |
+| bs_insurance_liabilities | Double | 保險責任 |
+| bs_minority_interest_non_equity | Double | 少數股東權益 - 非股權 |
+| bs_total_non_current_liabilities | Double | 非流動負債總額 |
+| bs_total_liabilities | Double | 總負債 |
+| bs_shareholders_equity_parent | Double | 股東權益 - 歸屬於母公司控股 - 合計 |
+| bs_preferred_equity | Double | 優先股股東權益 |
+| bs_preferred_stock_redeemable_total | Double | 優先股 - 可贖回 - 總計 |
+| bs_preferred_stock_redeemable_convertible | Double | 優先股 - 可贖回 - 可轉換 |
+| bs_preferred_stock_non_redeemable | Double | 優先股 - 不可贖回 |
+| bs_preferred_stock_convertible_non_redeemable | Double | 優先股 - 可轉換 - 不可贖回 |
+| bs_preferred_equity_contributed | Double | 優先股 - 貢獻 |
+| bs_preferred_stock_esop | Double | 優先股 - 為員工持股計畫發行 |
+| bs_preferred_stock_treasury | Double | 優先股 - 庫存/回購 |
+| bs_esop_guarantees_preferred_deferred_comp | Double | ESOP 保證 - 優先薪酬與延期薪酬 |
+| bs_preferred_stock_redeemable_temporary | Double | 優先股 - 可贖回 - 暫時股權 |
+| bs_common_equity_parent | Double | 歸屬於母公司股東的普通股 |
+| bs_common_stock_treasury | Double | 普通股 - 庫存/回購 |
+| bs_common_stock_esop | Double | 普通股 - 以 ESOP 或信託/遞延補償形式持有 |
+| bs_common_equity_contributed | Double | 普通股 - 出資 |
+| bs_common_stock_issued_paid | Double | 普通股 - 已發行並已支付 |
+| bs_limited_partner | Double | 有限合夥人 |
+| bs_common_stock_additional_paid_in_capital | Double | 普通股 - 附加資本支付，包括選擇權保留 |
+| bs_common_share_capital_incl_apic | Double | 普通股資本，包含額外實收資本 - 總計 |
+| bs_distributions_excess_earnings | Double | 超出收益的分配 |
+| bs_equity_non_contributed_reserves_retained | Double | 股本 - 非繳款 - 儲備金與留存收益 |
+| bs_retained_earnings_total | Double | 留存收益 - 總計 |
+| bs_accumulated_oci_total | Double | 綜合收入 - 累計 - 總計 |
+| bs_inv_unrealized_gl | Double | 投資 - 未實現損益 |
+| bs_hedging_reserves | Double | 對沖儲備 |
+| bs_fx_translation_adj | Double | 外幣換算調整 - 累計 |
+| bs_oci_pension_liabilities | Double | 綜合收入 - 退休金負債 |
+| bs_oci_unearned_compensation | Double | 綜合收入 - 非勞動報酬 |
+| bs_revaluation_reserves | Double | 重估儲備 |
+| bs_oci_other_total | Double | 綜合收入 - 其他 - 總計 |
+| bs_other_reserves_equity_total | Double | 其他儲備/權益 - 總計 |
+| bs_goodwill_written_off | Double | 商譽 - 累計沖銷 |
+| bs_untaxed_special_reserves | Double | 免稅/特別儲備金 |
+| bs_negative_consol_goodwill_written_off | Double | 針對 Rsrv 註銷的負 Consol Diff 商譽 |
+| bs_equity_other | Double | 股權 - 其他 |
+| bs_general_partner | Double | 普通合夥人 |
+| bs_deferred_shares | Double | 遞延股份 |
+| bs_social_capital | Double | 社會資本 |
+| bs_policy_holder_equity | Double | 保單持有人權益 |
+| bs_common_equity_total | Double | 普通股 - 總計 |
+| bs_minority_interest_equity | Double | 少數股東權益 - 股權 |
+| bs_hybrid_financial_instrument_equity | Double | 混合金融工具 - 股權部分 |
+| bs_total_equity_incl_minority_hybrid | Double | 股東權益總額，包括少數股權和混合債務 |
+| bs_total_liabilities_equity | Double | 負債與權益總額 |
+| bs_common_shares_issued_total | Double | 普通股 - 已發行 - 總計 |
+| bs_common_shares_outstanding_total | Double | 普通股 - 已發行 - 總計 |
+| bs_common_shares_treasury_total | Double | 普通股 - 庫存 - 總計 |
+| bs_common_shares_authorized | Double | 普通股 - 授權 - 特定發行 |
+| bs_common_shares_issued | Double | 普通股 - 已發行 - 特定發行 |
+| bs_common_shares_outstanding | Double | 普通股 - 已發行 - 特定發行 |
+| bs_common_shares_treasury | Double | 普通股 - 庫存 - 特定發行 |
+| bs_common_shares_issued_current | Double | 普通股 - 已發行 - 特定發行 - 目前 |
+| bs_common_shares_outstanding_current | Double | 普通股 - 已發行 - 特定發行 - 目前 |
+| bs_common_shares_treasury_current | Double | 普通股 - 庫存 - 特定發行 - 目前 |
+| bs_common_shares_issued_dr | Double | 普通股 - 已發行 - 特定發行 - DR |
+| bs_common_shares_outstanding_dr | Double | 普通股 - 已發行 - 特定發行 - DR |
+| bs_common_shares_treasury_dr | Double | 普通股 - 庫存 - 特定發行 - DR |
+| bs_common_shares_issued_cpo | Double | 普通股 - 已發行 - 特定發行 - CPO |
+
+| 字段 | 類型 | 描述 |
+|:---|:---|:---|
+| bs_common_shares_outstanding_cpo | Double | 普通股 - 已發行 - 特定發行 - CPO |
+| bs_common_shares_treasury_cpo | Double | 普通股 - 金庫 - 特定發行 - CPO |
+| bs_preferred_shares_authorized | Double | 優先股 - 授權 - 特定發行 |
+| bs_preferred_shares_issued | Double | 優先股 - 已發行 - 特定發行 |
+| bs_preferred_shares_outstanding | Double | 優先股 - 已發行 - 特定發行 |
+| bs_preferred_shares_treasury | Double | 優先股 - 金庫 - 特定發行 |
+| bs_preferred_shares_issued_current | Double | 優先股 - 已發行 - 特定發行 - 目前 |
+| bs_preferred_shares_outstanding_current | Double | 優先股 - 已發行 - 特定發行 - 目前 |
+| bs_preferred_shares_treasury_current | Double | 優先股 - 庫存 - 特定發行 - 目前 |
+| bs_asset_allocation_factor | Double | 資產配置因素 - 特定問題 |
+| bs_asset_participation_factor | Double | 資產參與因子 - 特定問題 |
+| bs_epra_nav_per_share | Double | 每股 EPRA 資產淨值 |
+| bs_epra_triple_nav_per_share | Double | EPRA 每股三重資產淨值 (NNNAV) |
+| bs_rou_tangible_total_net_supp | Double | 使用權有形資產 - 總計 - 淨額 - 補充 |
+| bs_rou_operating_lease_net_supp | Double | 有形資產使用權 - 經營租賃網 - 補充 |
+| bs_rou_cap_fin_lease_net_supp | Double | 有形資產使用權 - 上限/融資租賃 - 淨 - Suppl |
+| bs_rou_tangible_total_gross_supp | Double | 使用權有形資產 - 總計 - 總額 - 補充 |
+| bs_rou_operating_lease_gross_supp | Double | 有形資產使用權 - 營業租賃總額 - Suppl |
+| bs_rou_cap_fin_lease_gross_supp | Double | 有形資產使用權 - 上限/融資租賃 - 總額 - Suppl |
+| bs_rou_tangible_total_acc_depr_supp | Double | 使用權有形資產 - 總計 - Accum Depr - Suppl |
+| bs_rou_operating_lease_acc_depr_supp | Double | 有形資產使用權 - Optg Lease Accum Depr Suppl |
+| bs_rou_cap_fin_lease_acc_depr_supp | Double | 有形資產使用權 - 上限/融資租賃 Accum Depr Suppl |
+| bs_ppe_excl_rou_cap_leases_net | Double | PPE - 不包括有形使用權和上限租賃 - 淨額 |
+| bs_ppe_excl_rou_cap_leases_gross | Double | PPE - 不包括有形使用權和上限租賃 - 總額 |
+| bs_ppe_excl_rou_cap_leases_acc_depr | Double | PPE - 不包括有形使用權和上限租賃 - Accum Depr |
+| bs_rou_intangibles_net_supp | Double | 使用權無形資產 - 淨額 - 補充 |
+| bs_rou_intangibles_gross_supp | Double | 使用權無形資產 - 總金額 - 補充 |
+| bs_rou_intangibles_acc_amort_supp | Double | 使用權無形資產 - 累計攤銷 - Suppl |
+| bs_total_operating_lease_liabilities | Double | 經營租賃負債總額 |
+| bs_operating_lease_liab_lt_st_supp | Double | 經營租賃負債 - 長期與短期 - 補充 |
+| bs_operating_lease_liab_current_supp | Double | 經營租賃負債 - 目前部分/ST - 補充 |
+| bs_operating_lease_liab_lt_supp | Double | 經營租賃負債 - 長期 - 補充 |
+| bs_finance_operating_lease_liab_total | Double | 融資與經營租賃負債 - 總計 |
+| bs_debt_incl_fin_op_lease_liab | Double | 債務包括融資與營業租賃負債 |
+| bs_net_debt | Double | 淨債務 |
+| bs_weighted_cost_debt_pct | Double | 加權債務成本 - % |
+| bs_revolver_outstanding_supp | Double | 循環信貸額度 - 未償 - 補充 |
+| bs_revolver_unutilized_supp | Double | 循環信用額度 - 未使用/未使用金額 - 補充 |
+| bs_revolver_total_principal_supp | Double | 循環信貸額度 - 本金總額 - 補充 |
+| bs_islamic_investments_deposits | Double | 伊斯蘭投資與存款 |
+| bs_islamic_receivables_st | Double | 伊斯蘭應收帳款 - 短期 |
+| bs_islamic_receivables_lt | Double | 伊斯蘭應收帳款 - 長期 |
+| bs_islamic_financing_assets_total | Double | 伊斯蘭融資資產 - 總計 |
+| bs_islamic_investments_total | Double | 伊斯蘭投資 - 總計 |
+| bs_unrestricted_investment_accounts | Double | 無限制投資帳戶 |
+| bs_other_islamic_deposits | Double | 其他伊斯蘭存款 |
+| bs_islamic_debt_lt_st | Double | 伊斯蘭債務 - 長期與短期 |
+| bs_islamic_debt_deposits_total | Double | 伊斯蘭債務與存款 - 總計 |
+| bs_debt_lt_maturities_total | Double | 債務 - 長期 - 到期日 - 總計 |
+| bs_debt_lt_maturities_year1 | Double | 債務 - 長期 - 期限 - 1 年內 |
+| bs_debt_lt_maturities_year2 | Double | 債務 - 長期 - 到期日 - 第 2 年 |
+| bs_debt_lt_maturities_year3 | Double | 債務 - 長期 - 到期日 - 第 3 年 |
+| bs_debt_lt_maturities_year4 | Double | 債務 - 長期 - 到期日 - 第 4 年 |
+| bs_debt_lt_maturities_year5 | Double | 債務 - 長期 - 到期日 - 第 5 年 |
+| bs_debt_lt_maturities_year6 | Double | 債務 - 長期 - 到期日 - 第 6 年 |
+| bs_debt_lt_maturities_year7 | Double | 債務 - 長期 - 到期日 - 第 7 年 |
+| bs_debt_lt_maturities_year8 | Double | 債務 - 長期 - 到期日 - 第 8 年 |
+| bs_debt_lt_maturities_year9 | Double | 債務 - 長期 - 到期日 - 第 9 年 |
+| bs_debt_lt_maturities_year10 | Double | 債務 - 長期 - 到期日 - 10 年 |
+| bs_debt_lt_maturities_remaining | Double | 債務 - 長期 - 到期日 - 剩餘 |
+| bs_debt_lt_maturities_2_3_years | Double | 債務 - 長期 - 期限 - 2-3 年 |
+| bs_debt_lt_maturities_4_5_years | Double | 債務 - 長期 - 期限 - 4-5 年 |
+| bs_debt_lt_maturities_year6_beyond | Double | 債務 - 長期 - 到期日 - 第 6 年及以後 |
+| bs_cap_lease_maturities_total | Double | 資本租賃到期日 - 總計 |
+| bs_cap_lease_maturities_year1 | Double | 資本租賃到期日 - 一年內到期 |
+| bs_cap_lease_maturities_year2 | Double | 資本租賃到期日 - 第 2 年到期 |
+| bs_cap_lease_maturities_year3 | Double | 資本租賃到期 - 第 3 年到期 |
+| bs_cap_lease_maturities_year4 | Double | 資本租賃到期 - 第 4 年到期 |
+| bs_cap_lease_maturities_year5 | Double | 資本租賃到期 - 第 5 年到期 |
+| bs_cap_lease_maturities_year6 | Double | 資本租賃到期 - 第 6 年到期 |
+| bs_cap_lease_maturities_year7 | Double | 資本租賃到期 - 第 7 年到期 |
+| bs_cap_lease_maturities_year8 | Double | 資本租賃到期 - 第 8 年到期 |
+| bs_cap_lease_maturities_year9 | Double | 資本租賃到期 - 第 9 年到期 |
+| bs_cap_lease_maturities_year10 | Double | 資本租賃到期 - 第 10 年到期 |
+| bs_cap_lease_maturities_remaining | Double | 資本租賃到期日 - 剩餘到期日 |
+| bs_cap_lease_maturities_interest | Double | 資本租賃到期日 - 利息成本 |
+| bs_cap_lease_maturities_executory | Double | 資本租賃到期日 - 執行成本 |
+| bs_cap_lease_maturities_2_3_years | Double | 資本租賃到期日 - 2-3 年內到期 |
+| bs_cap_lease_maturities_4_5_years | Double | 資本租賃到期日 - 4-5 年內到期 |
+| bs_cap_lease_maturities_year6_beyond | Double | 資本租賃到期日 - 第 6 年及以後到期 |
+| bs_contract_assets_unearned_revenue_billings_total | Double | 合約資產總計 - 未實現收入和進度帳單 |
+| bs_contract_assets_unearned_revenue_billings_st | Double | 合約資產 - ST 未實現收入和進度帳單 |
+| bs_contract_assets_unearned_revenue_billings_lt | Double | 合約資產 - LT 未實現收入與進度帳單 |
+| bs_inv_property_fair_value | Double | 投資性房地產 - 公允價值 |
+| bs_contract_liabilities_unearned_revenue_billings_total | Double | 合約負債總計 - 未實現收入和進度帳單 |
+| bs_contract_liabilities_unearned_revenue_billings_st | Double | 合約負債 - ST 未實現收入和進度帳單 |
+| bs_contract_liabilities_unearned_revenue_billings_lt | Double | 合約責任 - LT 未實現收入與進度帳單 |
+| bs_investment_contracts_technical_liabilities | Double | 投資合約 - 技術責任 |
+| bs_insurance_contracts_technical_liabilities | Double | 保險合約 - 技術責任 |
+| bs_minority_interest_total | Double | 少數股東權益 - 總計 |
+| bs_accruals_st | Double | 應計費用 - 短期 |
+| bs_asset_accruals | Double | 應計資產 |
+| bs_cash_cash_equiv_total | Double | 現金及現金等價物 - 總計 |
+| bs_cash_securities | Double | 現金及證券 |
+| bs_cash_short_term_inv_total | Double | 現金與短期投資 - 總計 |
+| bs_debt_incl_pref_equity_minority | Double | 債務，包括優先股和少數股東權益 - 總計 |
+| bs_demand_deposits_total | Double | 活期存款 - 總計 |
+| bs_earning_assets | Double | 賺取資產 |
+| bs_equity_sec_real_estate | Double | 股本證券及房地產 |
+| bs_invested_assets_total | Double | 投資資產 - 總計 |
+| bs_investment_securities | Double | 投資證券 |
+| bs_investments_permanent | Double | 投資 - 永久 |
+| bs_net_book_capital | Double | 淨帳本資本 |
+| bs_net_operating_assets | Double | 淨經營資產 |
+| bs_non_reserve_liabilities | Double | 非儲備負債 |
+| bs_provisions_total | Double | 準備金 - 總計 |
+| bs_savings_deposits_total | Double | 儲蓄存款 - 總計 |
+| bs_shareholders_equity_common | Double | 股東權益 - 普通股 |
+| bs_tangible_total_equity | Double | 有形總股本 |
+| bs_tangible_book_value | Double | 有形帳面價值 |
+| bs_total_book_capital | Double | 帳面資本總額 |
+| bs_total_capital | Double | 總資本 |
+| bs_total_lt_capital | Double | 長期資本總額 |
+| bs_total_fixed_assets_net | Double | 固定資產總額 - 淨額 |
+| bs_trading_account | Double | 交易帳戶 |
+| bs_unearned_revenue_total | Double | 未實現收入 - 總計 |
+| bs_working_capital | Double | 營運資金 |
+| bs_working_capital_non_cash | Double | 營運資金 - 非現金 |
+| bs_working_capital_excl_other_current | Double | 營運資金，不包括其他流動資產和負債 |
+| bs_book_value_excl_other_equity | Double | 不包括其他權益的帳面價值 |
+| bs_common_shareholders_number | Double | 普通股股東 - 數量 |
+| bs_reinsurance_liabilities | Double | 再保險責任 |
+| bs_cash_banks_total | Double | 手頭現金與銀行存款 - 總計 |
+| bs_cash_st_inv_receivables_total | Double | 現金、短期投資與應收帳款 - 總計 |
+| bs_current_assets_excl_cash_st_inv | Double | 流動資產（不含現金及短期投資）－總計 |
+| bs_current_liabilities_excl_current_debt | Double | 流動負債（不含流動債務）-總計 |
+| bs_int_bearing_liabilities_total | Double | 有息負債 - 總計 |
+| bs_loans_gross_total | Double | 貸款 - 總額 - 總計 |
+| bs_loans_net_total | Double | 貸款 - 淨額 - 總計 |
+| bs_other_assets_lt_st_total | Double | 其他短期和長期資產 - 總計 |
+| bs_other_liabilities_lt_st_total | Double | 其他短期和長期負債 - 總計 |
+| bs_provision_doubtful_receivables_total | Double | 呆帳準備金與應收票據 - 總計 |
+| bs_loan_loss_reserves_total | Double | 貸款損失準備 - 總計 |
+| bs_tangible_book_value_loan_loss_reserves | Double | 有形帳面價值與貸款損失準備 - 總計 |
+| bs_trade_receivables_net_total | Double | 貿易帳款與應收貿易票據 - 淨額 - 總計 |
+| bs_total_available_funds | Double | 可用資金總額 |
+| bs_current_assets_excl_inventories | Double | 流動資產總額（不含庫存總額） |
+| bs_total_debt_excl_islamic | Double | 總債務不包括伊斯蘭債務 |
+| bs_benefit_claims_reserves_gross | Double | 福利和索賠準備金 - 總金額 |
+| bs_book_value_excl_aci | Double | 帳面價值不包括累計綜合收益 |
+| bs_cash_st_inv_net_debt | Double | 現金與短期投資 - 扣除債務 |
+| bs_current_portion_lt_debt_incl_cap_leases_hybrid | Double | 長期債務的當前部分，包括資本化租賃和混合金融工具 |
+| bs_deposits_net | Double | 存款 - 淨額 |
+| bs_inv_equity_real_estate_mortgages | Double | 股權、房地產和抵押貸款投資 |
+| bs_net_debt_incl_pref_equity_minority | Double | 淨負債包含優先股和少數股東權益 |
+| bs_ppe_excl_utility_plant_net | Double | 財產、廠房和設備，不包括公用設施 - 淨值 |
+| bs_tangible_book_value_excl_other_equity | Double | 有形帳面價值（不包括其他權益） |
+| bs_operating_lease_payments_total | Double | 經營租賃付款 - 總計 |
+| bs_op_lease_payments_year1 | Double | 經營租賃付款 - 第一年到期 |
+| bs_op_lease_payments_year2 | Double | 經營租賃付款 - 第 2 年到期 |
+| bs_op_lease_payments_year3 | Double | 經營租賃付款 - 第 3 年到期 |
+| bs_op_lease_payments_year4 | Double | 經營租賃付款 - 第 4 年到期 |
+| bs_op_lease_payments_year5 | Double | 經營租賃付款 - 第 5 年到期 |
+| bs_op_lease_payments_year6 | Double | 經營租賃付款 - 第 6 年到期 |
+| bs_op_lease_payments_year7 | Double | 經營租賃付款 - 第 7 年到期 |
+| bs_op_lease_payments_year8 | Double | 經營租賃付款 - 第 8 年到期 |
+| bs_op_lease_payments_year9 | Double | 經營租賃付款 - 第 9 年到期 |
+| bs_op_lease_payments_year10 | Double | 經營租賃付款 - 第 10 年到期 |
+| bs_op_lease_payments_remaining | Double | 經營租賃付款 - 剩餘期限 |
+| bs_op_lease_payments_interest | Double | 經營租賃付款 - 利息成本/估算利息 |
+| bs_op_lease_payments_2_3_years | Double | 經營租賃付款 - 2-3 年內到期 |
+| bs_op_lease_payments_4_5_years | Double | 經營租賃付款 - 4-5 年內到期 |
+| bs_op_lease_payments_year6_beyond | Double | 經營租賃付款 - 第 6 年及以後到期 |
+| bs_credit_exposure | Double | 信用曝光 |
+| bs_assets_under_management | Double | 管理資產（AUM） |
+| bs_capital_adequacy_total_value | Double | 資本充足率 - 總計（值） |
+| bs_capital_adequacy_tier1_value | Double | 資本充足率 - 一級（價值） |
+| bs_capital_adequacy_core_tier1_value | Double | 資本充足率 - 核心層級（價值） |
+| bs_capital_adequacy_hybrid_tier1_value | Double | 資本充足率 - 混合一級資本（包含在一級資本中） |
+| bs_capital_adequacy_tier2_value | Double | 資本充足率 - 二級（價值） |
+| bs_capital_adequacy_tier3_value | Double | 資本充足率 - 第三級（價值） |
+| bs_capital_adequacy_total_pct | Double | 資本充足率 - 總計 (%) |
+| bs_capital_adequacy_tier1_pct | Double | 資本充足率 - 一級 (%) |
+| bs_capital_adequacy_core_tier1_pct | Double | 資本充足率 - 核心層級 (%) |
+| bs_capital_adequacy_tier2_pct | Double | 資本充足率 - 二級資本 (%) |
+| bs_capital_adequacy_tier3_pct | Double | 資本充足率 - 第三級 (%) |
+| bs_risk_weighted_assets | Double | 風險加權資產 |
+| bs_liquidity_coverage_ratio_pct | Double | 流動性覆蓋率 - 巴塞爾 3 - % |
+| bs_solvency_margin_ratio_insurance | Double | 償付能力充足率－保險 |
+| bs_leverage_ratio_pct | Double | 槓桿率 - 巴塞爾 3 - % |
+| bs_net_stable_funding_ratio_pct | Double | 淨穩定資金比率 - 巴塞爾 3 - % |
+| bs_solvency_ratio_insurance | Double | 償債能力充足率 – 保險 |
+| bs_non_performing_assets_loans_other | Double | 不良資產 - 貸款及其他 |
+| bs_non_performing_assets_other | Double | 不良資產 - 貸款除外 |
+| bs_loans_non_performing_impaired | Double | 貸款 - 不良貸款與受損貸款 |
+| bs_loans_impaired_total | Double | 貸款 - 減損 - 總計 |
+| bs_loans_impaired_non_performing | Double | 貸款 - 減損 - 不良 |
+| bs_loans_impaired_sub_performing | Double | 貸款 - 減損 - 表現不佳與表現但減損 |
+| bs_loans_performing_non_performing_not_impaired | Double | 貸款 - 表現良好與不良 - 未減損 |
+| bs_loans_non_performing_past_due | Double | 貸款 - 不良 - 未減損但逾期 |
+| bs_loans_non_performing_past_due_0_90 | Double | 貸款 - 非績效 - 未受損但逾期 - 0 至 90 天 |
+| bs_loans_non_performing_past_due_90 | Double | 貸款 - 不良 - 未減損但逾期 - 90 天 |
+| bs_loans_performing_not_past_due | Double | 貸款 - 執行 - 未減損且未逾期 |
+| bs_impaired_assets_total | Double | 減損資產 - 總計 |
+| bs_impaired_assets_loans_other | Double | 減損資產 - 減損貸款及其他 |
+| bs_impaired_assets_excl_loans | Double | 減損資產 - 不含減損貸款 |
+| bs_loans_stage1_gross | Double | 貸款 - 第一階段 - 總額，總計 |
+| bs_loans_stage2_gross | Double | 貸款 - 第 2 階段 - 總額，總計 |
+| bs_loans_stage3_gross | Double | 貸款 - 第 3 階段 - 總額，總計 |
+| bs_loans_not_past_due | Double | 貸款 - 未逾期 |
+| bs_loans_total_past_due | Double | 貸款 - 逾期總額 |
+| bs_loans_past_due_lt_90 | Double | 貸款 - 逾期 \< 90 天 |
+| bs_loans_past_due_remaining | Double | 貸款 - 逾期 - 剩餘部分 |
+| bs_loans_poci_gross | Double | 購買或發放的貸款信用減損總額，總計 |
+| bs_other_assets_stage1_gross | Double | 其他資產 - 第一階段，總額 |
+| bs_other_assets_stage2_gross | Double | 其他資產 - 第 2 階段，總額 |
+| bs_other_assets_stage3_gross | Double | 其他資產 - 第 3 階段，總額 |
+| bs_int_earning_assets_avg | Double | 生息資產 - 平均 |
+| bs_int_bearing_liabilities_avg | Double | 有息負債 - 平均 |
+| bs_employees_ft_period_end | Double | 員工 - 全職/全職當量 - 期末 |
+| bs_employees_ft_current | Double | 員工 - 全職/同等全職員工 - 目前日期 |
+| bs_employees_pt_period_end | Double | 員工 - 兼職 - 期末 |
+| bs_order_backlog | Double | 訂單積壓 |
+| bs_customer_acceptances_assets | Double | 客戶承兌負債 - 資產 |
+| bs_customer_acceptances_liabilities | Double | 客戶承兌責任 - 責任 |
+| bs_reported_total_assets | Double | 報告-總資產 |
+| bs_reported_total_liabilities | Double | 報告 - 負債總額 |
+| bs_reported_equity_excl_new_stock | Double | 報告股東權益，不含新股認購 |
+| bs_reported_equity | Double | 報告 - 股東權益 |
+| bs_reported_net_assets | Double | 報表-淨值 |
+| bs_reported_net_assets_to_assets | Double | 報表 - 淨資產與總資產之比 |
+| bs_reported_roa | Double | 報告 - 資產報酬率 |
+| bs_reported_roe | Double | 報告 - 股本報酬率 |
+| bs_wavg_discount_rate_finance_lease | Double | 加權平均折扣率 - 融資租賃 |
+| bs_wavg_discount_rate_op_lease | Double | 加權平均折扣率 - 經營租賃 - 美國公認會計準則 |
+| bs_wavg_lease_term_yrs_finance_lease | Double | Wgt 平均剩餘租賃期限（年）- 融資租賃 |
+| bs_wavg_lease_term_yrs_op_lease | Double | Wgt 平均剩餘租約期限（年） - Op Lease - US GAAP |
+| bs_loans_net_non_performing_reported | Double | 貸款 - 不良貸款淨額 - 公司報告 |
+| bs_loans_net_non_performing_pct | Double | 貸款 - 不良貸款淨額 - % |
+| bs_provision_coverage_ratio_pct | Double | 撥備覆蓋率 - % |
+| bs_short_term_lending | Double | 短期 - 貸款 |
+| bs_long_term_lending | Double | 長期 - 貸款 |
+| bs_casa_ratio_pct | Double | CASA 比率 - % |
+| bs_collection_efficiency_pct | Double | 收集效率 - % |
+| bs_st_lending_to_total_pct | Double | 短期貸款佔總貸款的百分比 |
+| bs_lt_lending_to_total_pct | Double | 長期 - 貸款佔貸款總額 - % |
+| bs_level1_assets_fair_value | Double | 1 級資產 - 公允價值 |
+| bs_level1_liabilities_fair_value | Double | 1 級負債 - 公允價值 |
+| bs_level2_assets_fair_value | Double | 2 級資產 - 公允價值 |
+| bs_level2_liabilities_fair_value | Double | 2 級負債 - 公允價值 |
+| bs_level3_assets_fair_value | Double | 第三級資產 - 公允價值 |
+| bs_level3_liabilities_fair_value | Double | 第三級負債 - 公允價值 |
+
+利潤表(is)
+
+| 字段 | 類型 | 描述 |
+|:---|:---|:---|
+| is_revenue_goods_services | Double | 商品與服務收入 |
+| is_sales_goods_services_net | Double | 商品和服務銷售 - 淨額 - 未分類 |
+| is_rental_property_revenue | Double | 租賃及物業相關營業收入 |
+| is_rental_income_gross | Double | 租金及相關收入 - 總額 |
+| is_tenant_service_charges | Double | 租用戶服務費報銷 |
+| is_rental_income_gross | Double | 租金收入 - 總額 |
+| is_property_dev_revenue | Double | 房地產開發收入 |
+| is_property_mgmt_revenue | Double | 物業管理服務收入 |
+| is_property_revenue_other | Double | 房地產相關營業收入 - 其他 |
+| is_hotel_revenue | Double | 飯店收入 |
+| is_hotel_rooms_revenue | Double | 飯店收入 - 客房數 |
+| is_hotel_lease_income | Double | 飯店收入 - 飯店租賃收入 |
+| is_hotel_food_beverage_revenue | Double | 飯店收入 - 餐飲 |
+| is_hotel_other_revenue | Double | 飯店收入 - 其他 |
+| is_utility_revenue | Double | 公用事業收入 - 總計 |
+| is_utility_other_revenue | Double | 公用事業收入 - 其他公用事業業務 |
+| is_utility_steam_revenue | Double | 公用事業收入 - Steam 營運 |
+| is_utility_water_revenue | Double | 公用事業收入 - 水務營運 |
+| is_utility_gas_revenue | Double | 公用事業收入 - 天然氣營運 |
+| is_utility_electric_revenue | Double | 公用事業收入 - 電力營運 |
+| is_utility_non_utility_revenue | Double | 公用事業收入 - 非公用事業營運 |
+| is_sales_returns_allowances_adj | Double | 銷售退貨津貼與其他收入調整 |
+| is_revenue_taxes | Double | 所得稅 |
+| is_gross_business_revenue | Double | 業務活動總收入 - 總計 |
+| is_int_div_income_net | Double | 利息與股利收入/（支出）-淨額-財務 |
+| is_int_div_income_total | Double | 利息與股息收入 - 財務 - 總計 |
+| is_int_income_loans_deposits | Double | 利息收入 - 貸款/存款 |
+| is_int_fees_loans_receivables | Double | 貸款和應收帳款的利息和費用 |
+| is_int_income_deposits_banks | Double | 利息收入 - 存放其他金融機構的款項 |
+| is_int_income_collateral_fin | Double | 利息收入 - 抵押融資 |
+| is_int_div_income_inv_sec | Double | 利息與股息收入 - 投資證券 - 金融 |
+| is_int_div_income_afs_htm | Double | 利息和股息收入 - Invst Sec AFS/HTM - 金融 |
+| is_int_div_income_trading | Double | 利息與股息收入 - 交易帳戶資產融資 |
+| is_int_div_income_other | Double | 利息和股息收入 - 其他 - 金融 |
+| is_int_expense_total | Double | 利息支出 - 財務 - 總計 |
+| is_int_expense_oper_fin | Double | 利息支出 - 營運融資 - 業務 |
+| is_int_expense_deposits | Double | 利息支出 - 存款 |
+| is_int_expense_collateral | Double | 利息支出 - 抵押融資 |
+| is_int_expense_other | Double | 利息費用 - 其他 - 總計 |
+| is_int_expense_external_fin | Double | 利息支出-對外融資業務 |
+| is_return_unrestricted_inv | Double | 無限投資帳戶的報酬 |
+| is_net_premiums_earned | Double | 所賺取的淨保費 |
+| is_premiums_written_gross | Double | 保費保費 - 總額 |
+| is_premiums_written_life | Double | 保費總額 - 人壽/長期保險 |
+| is_premiums_written_non_life | Double | 承保保費 - 總額 - 非人壽/普通保險 |
+| is_premiums_ceded_unearned | Double | 分出與不勞而獲的保費 - 再保險 |
+| is_premiums_ceded_written | Double | 保費分給再保險 - 書面 |
+| is_premiums_ceded_unearned_premiums | Double | 分給再保險的保費－不勞而獲 |
+| is_unearned_premiums | Double | 不勞而獲的保費 |
+| is_non_int_business_rev_net | Double | 非利息業務收入/（支出） - 淨額 - 總計 |
+| is_net_comm_fees_income | Double | 佣金及費用淨收入/（支出）- 業務收入 |
+| is_fees_comm_income | Double | 手續費及佣金收入 |
+| is_fees_comm_expense | Double | 費用及佣金支出 |
+| is_inv_income_gross | Double | 投資收入 - 總額 - 投資 |
+| is_dividend_income | Double | 股息收入 - 投資 |
+| is_int_income_inv | Double | 利息收入 - 投資 |
+| is_inv_income_other | Double | 投資收入 - 其他 - 總計（投資） |
+| is_trust_fiduciary_income | Double | 信託與信託收入/佣金與費用 |
+| is_trust_income | Double | 信託收益 |
+| is_net_fx_income | Double | 外匯淨收入/（支出）-營業收入 |
+| is_inv_income_net_insurance | Double | 投資收入/（支出）-淨額-保險 |
+| is_inv_income_gross_insurance | Double | 投資收入 - 總額 - 保險 - 總計 |
+| is_inv_expense_insurance | Double | 投資費用 - 保險 - 總計 |
+| is_inv_loans_gain_loss | Double | 投資與貸款 - 業務 - 收益/（損失） |
+| is_realized_gain_loss | Double | 已實現資本收益/（損失）-總計 |
+| is_inv_sec_realized_gl | Double | 投資證券 - 已實現收益/（損失） |
+| is_commodities_realized_gl | Double | 商品 - 已實現收益/（損失） |
+| is_fx_realized_gl | Double | 外匯 - 已實現收益/（損失） - 資本 |
+| is_deriv_hedge_realized_gl | Double | 衍生品 - 對沖 - 業務 - 已實現收益/（損失） |
+| is_other_realized_gl | Double | 無差別/其他已實現收益/（損失） |
+| is_unrealized_gl | Double | 資本利得/（損失） - 未實現 - 總計 |
+| is_inv_sec_unrealized_gl | Double | 投資證券 - 未實現收益/（損失） |
+| is_commodities_unrealized_gl | Double | 商品 - 未實現收益/（損失） |
+| is_fx_unrealized_gl | Double | 外匯收益/（損失）-未實現-資本 |
+| is_deriv_hedge_fair_value_gl | Double | 以公允價值進行衍生性商品對沖 - 收益/（損失） |
+| is_other_unrealized_gl | Double | 未區分/其他未實現收益/（損失） |
+| is_net_inv_loans_gl | Double | 淨投資與貸款收益/（損失）-業務收入 |
+| is_inv_sec_business_gl | Double | 投資證券 - 業務 - 收益/（損失） |
+| is_inv_sec_afs_htm_realized_gl | Double | 投資證券 - AFS/HTM - 已實現收益/（損失） |
+| is_trading_inv_gl | Double | 交易投資/交易帳戶收入 - 收益/（損失） |
+| is_trading_inv_realized_gl | Double | 交易投資 - 已實現收益/（損失） |
+| is_trading_inv_unrealized_gl | Double | 交易投資 - 未實現收益/（損失） |
+| is_inv_sec_unclassified_gl | Double | 投資證券 - 未分類業務 - 收益/（損失） |
+| is_inv_gl_other | Double | 投資收益/（損失）-其他 |
+| is_loans_settlement_gl | Double | 貸款結算 - 收益/（損失） |
+| is_deriv_hedge_unclassified_gl | Double | 衍生性商品對沖 - 業務 - 收益/（損失） - 未分類 |
+| is_deriv_hedge_gl | Double | 衍生性商品 - 對沖 - 業務 - 收益/（損失） |
+| is_sale_fin_instr_gl_other | Double | 出售金融工具的收益/（損失） - 其他 |
+| is_net_income_insurance_bank | Double | 保險淨收入/（費用） - 銀行 |
+| is_premiums_earned_other_income_insurance_bank | Double | 保險保費及其他收入 - 銀行 - 總計 |
+| is_claims_benefits_other_exp_insurance_bank | Double | 保險索賠、福利及其他費用 - 銀行 - 總計 |
+| is_net_income_lease_revenue | Double | 來自 Optg 和融資租賃的淨收入/（費用）- 收入 |
+| is_financing_revenue | Double | 融資相關業務收入 |
+| is_business_financing_revenue_other | Double | 業務相關融資收入 - 其他 |
+| is_business_related_revenue_other | Double | 業務相關活動收入 - 其他 - 總計 |
+| is_royalty_income | Double | 特許權使用費收入 - 商業 |
+| is_net_revenue_banking_insurance | Double | 淨收入/（支出） - 銀行業務 - 保險 |
+| is_revenue_banking_insurance | Double | 銀行業務收入 - 保險 |
+| is_expenses_banking_insurance | Double | 銀行業務費用（收入）- 保險 |
+| is_op_revenue_capital_account | Double | 營業收入 - 資本帳（投資信託） |
+| is_op_revenue_revenue_account | Double | 營業收入 - 收入帳戶（投資信託） |
+| is_revenue_business_total | Double | 業務活動收入 - 總計 |
+| is_cost_operating_revenue | Double | 營業收入成本 |
+| is_cost_financing | Double | 融資相關營運成本 |
+| is_loan_loss_provision | Double | 貸款損失準備與減損 |
+| is_cost_revenues_total | Double | 收入成本 - 總計 |
+| is_cost_revenues | Double | 收入成本 - 未分類 |
+| is_production_taxes_royalty | Double | 生產稅與特許權使用費 |
+| is_amortization_cogs | Double | 收入成本攤提 |
+| is_depreciation_cogs | Double | 收入成本折舊 |
+| is_labor_expenses_cogs | Double | 勞動費用，包含以銷貨成本計算的以股票為基礎的薪資 |
+| is_material_expenses | Double | 材料費 |
+| is_material_expenses_inventory_utility | Double | 材料費用 - 庫存自己的工作和公用事業未分類 |
+| is_utility_fuel_expense | Double | 公用事業收入成本 - 燃料費用 |
+| is_utility_fuel_purchased | Double | 公用事業收入成本 - 購買轉售燃料 |
+| is_utility_purchased_power | Double | 公用事業收入成本 - 購買電力 |
+| is_own_work_capitalized | Double | 自己的工作資本化 |
+| is_inventory_change | Double | 庫存變化 |
+| is_materials_purchased | Double | 採購材料 |
+| is_ground_lease_rental_expense | Double | 收入成本中的土地租約/租金費用 |
+| is_property_op_exp_rental | Double | 物業營運費用 - 房地產租賃 |
+| is_property_op_exp_hotel | Double | 物業營運費用 - 飯店 |
+| is_property_direct_exp_other | Double | 物業直接費用 - 按類型 - 其他 |
+| is_real_estate_taxes | Double | 房地產稅 |
+| is_property_maintenance_charges | Double | 物業維修及服務費 |
+| is_property_rental_expense | Double | 物業相關支出 - 租賃業務/投資物業 |
+| is_cost_revenues_other | Double | 收入成本 - 其他 - 總計 |
+| is_operating_interest_expense | Double | 營業利息支出不包含在淨利息收入中 |
+| is_gross_profit | Double | 毛利 - 工業/房地產 - 總計 |
+| is_insurance_claims_reserves | Double | 保險索賠/準備金 - 總計 |
+| is_insurance_benefits_paid | Double | 已付保險金 - 目前 |
+| is_life_insurance_benefits | Double | 已支付的人壽保險福利 |
+| is_non_life_insurance_benefits | Double | 支付的非人壽保險福利 |
+| is_lt_insurance_reserves | Double | 長期保險準備金 - 總金額 |
+| is_loss_adjustment_expense | Double | 損失調整費用 |
+| is_insurance_benefits_ceded | Double | 保險利益讓渡 |
+| is_current_claims_benefits_ceded | Double | 目前的保險索賠和利益讓渡 |
+| is_lt_insurance_reserves_ceded | Double | 放棄長期保險準備金 |
+| is_dividends_policyholders | Double | 保單持有人紅利 |
+| is_underwriting_expenses | Double | 承保費用 |
+| is_policy_acq_costs | Double | 保單取得成本 - 總計 |
+| is_policy_acq_costs | Double | 保單取得成本 - 未分類 |
+| is_amort_deferred_policy_acq | Double | 延遲保單取得成本的攤提 |
+| is_policy_acq_costs_other | Double | 保單取得成本 - 其他 |
+| is_underwriting_commissions | Double | 向代理人承保佣金 |
+| is_fee_comm_exp_insurance | Double | 費用及佣金支出 - 保險 |
+| is_underwriting_expense_other | Double | 未分類承保費用 - 其他 |
+| is_expenses_banking_insurance | Double | 銀行業務費用 - 保險 |
+| is_sga_expenses | Double | 銷售一般及行政費用 - 總計 |
+| is_sga_expenses | Double | 銷售一般及行政費用 - 未分類 |
+| is_labor_expenses_sga | Double | SGA 費用中包含基於股票的薪酬的人工費用 |
+| is_r_and_d_expense | Double | 研究開發費用 |
+| is_exploration_expense | Double | 探勘/乾孔費用（含核銷） |
+| is_depreciation_sga | Double | 銷售一般及行政費用的折舊 |
+| is_amort_intangibles_sga | Double | SGA 費用中無形資產的攤銷 |
+| is_o_and_m_utility | Double | 操作與維護（公用事業） |
+| is_inv_mgmt_fees | Double | 投資管理費 |
+| is_inv_mgmt_base_fees | Double | 投資管理 - 基本費用 |
+| is_incentive_fees | Double | 績效/激勵投資費 |
+| is_sga_other | Double | 銷售一般及行政費用 - 其他 - 總計 |
+| is_advertising_expense | Double | 廣告費 |
+| is_property_other_taxes | Double | 財產稅及其他稅項 |
+| is_rental_expense | Double | 租金費用 |
+| is_occupancy_expense | Double | 入住費用 - 其他 |
+| is_pre_opening_expenses | Double | 開業前費用 |
+| is_doubtful_accounts_provision | Double | 呆帳準備金與核銷 |
+| is_equipment_occupancy_expense | Double | 設備/佔用費用 - 銀行/金融 - 其他 |
+| is_other_operating_expense_net | Double | 其他營運支出/（收入）- 淨額 |
+| is_other_operating_income | Double | 其他營業收入 - 總計 |
+| is_other_operating_expense | Double | 其他營業費用 |
+| is_decommissioning_provision | Double | 退役基金與環境義務的規定 |
+| is_operating_provisions_change | Double | 經營準備 - 增加/（減少） |
+| is_bank_guarantee_contributions | Double | 向銀行擔保基金的捐款和轉帳 |
+| is_non_recurring_op_adj | Double | 非經常性調整 - 營運 - 減少/（增加） |
+| is_supplementary_op_adj | Double | 補充調整 - 營運 - 減少/（增加） |
+| is_op_expenses_revenue_acct | Double | 營業費用 - 收入帳戶 |
+| is_op_expenses_capital_acct | Double | 營業費用 - 資本帳 |
+| is_op_expenses_total | Double | 營業費用 - 總計 |
+| is_total_op_exp_before_int_loan_loss | Double | 利息支出與貸款損失證明前的總營運支出 |
+| is_op_profit_before_non_recurring | Double | 扣除非經常性收入/（費用）之前的營業利潤 |
+| is_financing_income_net | Double | 融資收入/（支出） - 淨額 - 總計 |
+| is_int_expense_net | Double | 利息支出 - 扣除（利息收入） |
+| is_int_income_non_bank | Double | 利息收入 - 非銀行 |
+| is_int_expense_net_cap | Double | 利息支出 - 扣除資本化利息 |
+| is_int_expense_capital_fin | Double | 資本融資利息支出 - 總金額 |
+| is_hybrid_div_liability | Double | 混合金融工具的股利 - 負債 |
+| is_int_capitalized | Double | 利息資本化 |
+| is_allowance_construction_funds | Double | 建設期間使用的資金補貼 - 債務部分 |
+| is_non_int_financial_income | Double | 非利息財務收入/（支出） - 總計 |
+| is_dividend_inv_income | Double | 股利及投資收益 |
+| is_fx_gl_non_business | Double | 外匯收益/（損失）- 非業務 |
+| is_amort_deferred_financing | Double | 延遲融資費用攤提 |
+| is_sale_inv_gl | Double | 投資出售 AFS、HTM 和交易 - 收益/（損失） |
+| is_accretion_closure_expense | Double | 增生 - 場地關閉和復墾費用 |
+| is_non_int_fin_income_other | Double | 非利息財務收入/（支出） - 其他 - 淨額 |
+| is_sale_fixed_assets_gl | Double | 出售有形和無形固定資產 - 收益/（損失） |
+| is_sale_leased_assets_gl | Double | 出售租賃固定資產 - （收益/損失） |
+| is_equity_earnings_bt | Double | 稅前權益收益/（損失），包括非經常性收益 |
+| is_non_recurring_equity_earnings | Double | 稅前非經常性股權收益部分 |
+| is_other_non_op_income | Double | 其他非營業收入/（支出）-總計 |
+| is_non_op_rental_income | Double | 營業外租金收入 |
+| is_transfer_untaxed_reserves | Double | 轉自/（轉至）免稅儲備金 |
+| is_trading_deriv_gl | Double | 衍生性商品交易 - 收益/（損失） |
+| is_deriv_hedge_effective_gl | Double | 衍生品 - 對沖 - 有效收益/（損失） |
+| is_deriv_hedge_realized_gl | Double | 衍生品 - 對沖 - 已實現收益/（損失） |
+| is_non_recurring_non_op_adj | Double | 非經常性調整 - 非營運 - Decr/（Incr） |
+| is_supplementary_non_op_adj | Double | 補充調整 - 非營運 - Decr/（Incr） |
+| is_normalized_pretax_profit | Double | 標準化稅前盈餘 |
+| is_non_recurring_income | Double | 非經常性收入/（支出） - 總計 |
+| is_impairment_tangible_intangible | Double | 減損 - 有形與無形固定資產 |
+| is_impairment_fixed_assets | Double | 減損 - 固定資產 |
+| is_impairment_goodwill | Double | 減損 - 商譽 |
+| is_impairment_intangibles_excl_gw | Double | 減損 - 無形資產（不含商譽） |
+| is_impairment_oil_gas | Double | 減損 - 石油與天然氣資產 |
+| is_impairment_inv_property | Double | 減損 - 投資性房地產 |
+| is_impairment_fin_inv | Double | 減損 - 金融投資 |
+| is_impairment_deferred_costs | Double | 減損 - 延遲成本 |
+| is_otti_losses | Double | 除暫時投資減損損失外 |
+| is_restructuring_charges | Double | 重組費用 |
+| is_r_and_d_in_process | Double | 研究與發展 - 進行中 |
+| is_property_acquisition_exp | Double | 與財產相關的購置費用 |
+| is_write_off_real_estate | Double | 待售房地產的核銷 |
+| is_litigation_expenses | Double | 訴訟費用/和解 |
+| is_exceptional_claims | Double | 支付的特殊索賠和福利（災難） |
+| is_ipo_merger_costs | Double | 與首次公開發行與合併相關的成本 |
+| is_deriv_hedge_gl | Double | 衍生性商品 - 對沖 - 收益/（損失） |
+| is_early_term_deriv_hedge_gl | Double | 衍生性商品提前終止 - 對沖 - 收益/（損失） |
+| is_deriv_hedge_ineffective_gl | Double | 衍生品 - 對沖 - 無效收益/（損失） |
+| is_unrealized_deriv_adj | Double | 未實現的衍生性商品套期調整 |
+| is_early_extinguish_lease_debt_gl | Double | 租賃相關債務的提前清償 - 收益/（損失） |
+| is_negative_goodwill | Double | 負商譽的確認 |
+| is_fv_adj_inv_property | Double | 公允價值調整 - 投資性房地產 |
+| is_fv_adj_biological_assets | Double | 公允價值調整 - 生物資產 |
+| is_fv_adj_fin_inv | Double | 公允價值調整 - 金融投資 |
+| is_fv_adj_other_assets | Double | 公允價值調整 - 其他資產 |
+| is_disaster_compensation | Double | 災難賠償 - 稅前 |
+| is_debt_restructuring_gl | Double | 債務重組 - 收益/（損失） |
+| is_sale_acquisition_group_gl | Double | 集團公司的出售與收購 - 收益/（損失） |
+| is_inventory_valuation_gl | Double | 庫存估值 - 收益/（損失） |
+| is_covid_19_income_expense | Double | COVID-19 非經常性收入/（支出） - 總計 |
+| is_covid_19_other | Double | COVID-19 非經常性收入/（費用）- 其他 |
+| is_covid_19_provisions | Double | COVID-19 一次性規定 |
+| is_covid_19_restructuring | Double | COVID-19 重組費用與規定 |
+| is_covid_19_impairment | Double | COVID-19 長期資產減損 |
+| is_covid_19_grants | Double | COVID-19 一次性政府補助金 |
+| is_other_non_recurring | Double | 非經常性收入/（支出）-其他-總計 |
+| is_income_bt | Double | 稅前收入 |
+| is_income_taxes | Double | 所得稅 |
+| is_taxes_capital | Double | 資本帳稅 |
+| is_taxes_revenue | Double | 收入帳戶稅 |
+| is_income_tax_provision | Double | 所得稅準備金 - 未分類 |
+| is_income_tax_provision | Double | 所得稅準備金 – 未分類 |
+| is_income_taxes_domestic | Double | 所得稅 - 國內 |
+| is_income_taxes_foreign | Double | 所得稅 - 外國 |
+| is_income_taxes_other_region | Double | 所得稅 - 其他（依地區） |
+| is_income_taxes_current | Double | 今年所得稅 - 目前 |
+| is_income_taxes_domestic_current | Double | 所得稅 - 國內 - 當期 |
+| is_income_taxes_foreign_current | Double | 所得稅 - 外國 - 經常 |
+| is_income_taxes_other_current | Double | 所得稅 - 其他 (KFAS/NLST) - 目前 |
+| is_income_taxes_deferred | Double | 所得稅 - 延遲 |
+| is_income_taxes_domestic_deferred | Double | 所得稅 - 國內 - 延遲 |
+| is_income_taxes_foreign_deferred | Double | 所得稅 - 外國 - 延遲 |
+| is_income_taxes_other_deferred | Double | 所得稅 - 其他 - 延遲 |
+| is_income_taxes_other_type | Double | 所得稅 - 其他（依類型） |
+| is_net_income_after_tax | Double | 稅後淨利 |
+| is_equity_earnings_affiliates | Double | 附屬公司的收益/（損失）權益（稅後） |
+| is_non_recurring_equity_earnings | Double | 非經常性股權收益部分 |
+| is_after_tax_adj_other | Double | 稅後調整 - 其他 - 收入/（支出） - 總計 |
+| is_tax_impact_discontinued_ops | Double | 對稅前停產業務的估計稅務影響 |
+| is_zakat | Double | 天課 |
+| is_after_tax_special_reserves | Double | 稅後調整 - 特別儲備金 |
+| is_income_before_discontinued | Double | 終止經營與非經常性項目之前的收入 |
+| is_extraordinary_after_tax | Double | 特別活動 - 稅後 - 收益/（損失） |
+| is_discontinued_ops_net | Double | 終止營業淨額 - 總計 - 收入/（支出） |
+| is_discontinued_ops_income | Double | 終止營業 - 淨額 - 收入/（支出） |
+| is_sale_discontinued_ops_gl | Double | 出售終止經營業務 - 淨值 - 收益/（損失） |
+| is_discontinued_ops_bt | Double | 稅前已終止營業業務總計 - 收入/（支出） |
+| is_discontinued_ops_bt_income | Double | 稅前終止營業 - 收入/（支出） |
+| is_sale_discontinued_ops_bt_gl | Double | 稅前出售已終止業務 - 收益/（損失） |
+| is_discontinued_ops_tax | Double | 停產業務 - 稅務影響 |
+| is_accounting_changes | Double | 會計準則變更的影響 |
+| is_extraordinary_items | Double | 非凡物品 |
+| is_covid_19_tax_charge | Double | COVID-19 所得稅 - 一次性費用/（貸項） |
+| is_extraordinary_tax_impact | Double | 特別項目 - 稅務影響 |
+| is_net_income_before_minority | Double | 扣除少數股東權益之前的淨利 |
+| is_minority_interest | Double | 少數股東權益 |
+| is_net_income | Double | 扣除少數股東權益後的淨利 |
+| is_hybrid_debt_interest | Double | 利息支出 - 混合債務工具 - 股權 |
+| is_general_partner_dist | Double | 普通合夥人的分配 |
+| is_preferred_shares_dist | Double | 優先股分配 |
+| is_policyholders_surplus | Double | 保單持有人盈餘 |
+| is_earnings_adj | Double | 淨利的盈餘調整 - 其他費用/（收入） |
+| is_income_available_common | Double | 普通股可用收入 |
+| is_oci_start | Double | 其他綜合收入 - 起跑線 |
+| is_oci_fx | Double | 其他綜合收入 - 外幣 |
+| is_oci_unrealized_inv_gl | Double | 其他綜合收入 - 未實現投資收益/（損失） |
+| is_oci_hedging_gl | Double | 其他綜合收益 - 對沖收益/（損失） |
+| is_oci_revaluation | Double | 其他綜合公司 - 有形與無形資產重估 |
+| is_oci_other | Double | 其他綜合收入 - 其他 |
+| is_oci_unearned | Double | 其他綜合收入 - 非勞動收入 |
+| is_oci_discontinued | Double | 其他綜合收益 - 已終止經營業務 |
+| is_oci_associated | Double | 其他綜合收入 - 聯營公司 |
+| is_oci_pension | Double | 其他綜合收入 - 退休金相關 |
+| is_oci_tax | Double | 其他綜合收入 - 所得稅 |
+| is_oci_net | Double | 其他綜合收入 - 稅後 - 總計 |
+| is_comprehensive_income_before_minority | Double | 扣除少數股東權益之前的綜合收入 - 總計 |
+| is_comprehensive_income_minority | Double | 綜合收入 - 少數股東權益 - 總計 |
+| is_comprehensive_income_pref_div | Double | 綜合收益 - 優先股股息 |
+| is_comprehensive_income_parent | Double | 綜合收益 - 母公司股東 - 合計 |
+| is_basic_eps_inc_exord | Double | 淨利基本上包含特別項目，普通 - 總計 |
+| is_income_common_excl_exord | Double | 一般人可獲得的收入（不含特殊項目） |
+| is_basic_eps_shares | Double | 用於計算基本每股盈餘的股份 - 總計 |
+| is_eps_basic_inc_exord | Double | EPS - 基本 - 包含特殊項目、普通 - 總計 |
+| is_eps_basic_excl_exord | Double | EPS - 基本 - 不包含特殊項目，普通 - 總計 |
+| is_eps_basic_normalized | Double | EPS - 基本 - 不包括特殊項目 - 標準化 - 總計 |
+| is_eps_basic_non_gaap | Double | 每股盈餘 - 基本 - 非 GAAP - 總計 |
+| is_allocated_net_income_inc_exord | Double | 分配的淨利潤，包括 Exord，普通 - 特定問題 |
+| is_earnings_alloc_factor_basic | Double | 收益分配因素 - 基本 - 特定問題 |
+| is_basic_eps_shares_issue | Double | 用於計算基本每股盈餘的股份 - 特定問題 |
+| is_eps_basic_inc_exord_issue | Double | EPS - 基本 - 包含特殊、常見 - 特定問題 |
+| is_eps_basic_excl_exord_issue | Double | EPS - 基本 - 排除 Exord 項目，常見 - 特定問題 |
+| is_eps_basic_normalized_issue | Double | EPS - 基本 - 排除 Exord 項目 - 標準化 - 特定問題 |
+| is_eps_basic_non_gaap_issue | Double | EPS - 基本 - 非 GAAP - 特定問題 |
+| is_basic_eps_shares_dr | Double | 用於計算基本每股盈餘的股票 - 特定問題 - DR |
+| is_eps_basic_inc_exord_dr | Double | EPS - 基本 - 包含 Exord 項目，常見 - 特定問題 - DR |
+| is_eps_basic_excl_exord_dr | Double | EPS - 基本 - 排除 Exord，通用 - 特定問題 - DR |
+| is_eps_basic_normalized_dr | Double | EPS - 基本排除 Exord 專案規範化特定問題 - DR |
+| is_eps_basic_non_gaap_dr | Double | EPS - 基本 - 非 GAAP - 特定問題 - DR |
+| is_basic_eps_shares_cpo | Double | 用於計算基本每股盈餘的股票 - 特定發行 - CPO |
+| is_eps_basic_inc_exord_cpo | Double | EPS - 基本 - 包含 Exord 項目，常見 - 特定問題 - CPO |
+| is_eps_basic_excl_exord_cpo | Double | EPS - 基本 - 不包含 Exord，通用 - 特定問題 - CPO |
+| is_eps_basic_normalized_cpo | Double | EPS - 基本上排除 Exord 專案規範化特定問題 - CPO |
+| is_eps_basic_non_gaap_cpo | Double | EPS - 基本 - 非 GAAP - 特定問題 - CPO |
+| is_eps_basic_discontinued | Double | EPS - 基本上來自停產行動和特殊物品 |
+| is_participation_weight_primary | Double | EPS Calc 的主要參與權重 - 特定問題 |
+| is_earnings_participation_factor | Double | 收益參與因子 - 特定問題 |
+| is_priority_dividends | Double | 優先股利 - 特定問題 |
+| is_comp_eps_basic_issue | Double | 每股綜合收益 - 基本 - 特定問題 |
+| is_comp_eps_basic_dr | Double | 綜合每股盈餘 - 基本問題特定預託憑證 |
+| is_comp_eps_basic_cpo | Double | 綜合每股收益 - 基本問題特定 CPO |
+| is_dilution_adj | Double | 稀釋調整 |
+| is_diluted_eps_inc_exord | Double | 攤薄淨利潤，包括非經常性項目，普通 - 總計 |
+| is_diluted_income_excl_exord | Double | 稀釋收入，不含非常項目，普通 |
+| is_diluted_shares | Double | 用於計算稀釋每股盈餘的股份 - 總計 |
+| is_eps_diluted_inc_exord | Double | EPS - 稀釋後 - 包含特殊項目，普通 - 總計 |
+| is_eps_diluted_excl_exord | Double | EPS - 稀釋 - 不包含適用於共同總計的 Exord 項目 |
+| is_eps_diluted_normalized | Double | EPS - 稀釋後 - 不包括特殊項目 - 標準化 - 總計 |
+| is_eps_diluted_non_gaap | Double | 每股盈餘 - 稀釋後 - 非 GAAP - 總計 |
+| is_allocated_diluted_inc_exord | Double | 已分配稀釋淨額公司，包括 Exord、普通問題特定問題 |
+| is_earnings_alloc_factor_diluted | Double | 盈餘分配係數 - 稀釋 - 特定問題 |
+| is_diluted_shares_issue | Double | 用於計算每股收益的股份 - 稀釋 - 特定發行 |
+| is_eps_diluted_inc_exord_issue | Double | EPS - 稀釋 - 包含 Exord 項目，常見 - 特定問題 |
+| is_eps_diluted_excl_exord_issue | Double | EPS - 稀釋 - 不包含 Exord 項目，常見 - 特定問題 |
+| is_eps_diluted_normalized_issue | Double | EPS - 稀釋 - 不包括 Exord 項目 - 標準化 - 問題規格 |
+| is_eps_diluted_non_gaap_issue | Double | 每股盈餘 - 稀釋 - 非 GAAP - 特定問題 |
+| is_diluted_shares_dr | Double | 用於計算稀釋每股盈餘的股票 - 特定問題 - DR |
+| is_eps_diluted_inc_exord_dr | Double | EPS - 稀釋 - 包括 Exord、普通 - 特定問題 - DR |
+| is_eps_diluted_excl_exord_dr | Double | EPS - 稀釋 - 不包括 Exord，普通 - 特定問題 - DR |
+| is_eps_diluted_normalized_dr | Double | EPS - Dil - 排除 Exord 項目 - 標準化 - 問題規範 - DR |
+| is_eps_diluted_non_gaap_dr | Double | EPS - 稀釋 - 非 GAAP - 特定問題 - DR |
+| is_diluted_shares_cpo | Double | 用於計算稀釋每股盈餘的股票 - 特定發行 - CPO |
+| is_eps_diluted_inc_exord_cpo | Double | EPS - 稀釋 - 包含 Exord，普通 - 特定問題 - CPO |
+| is_eps_diluted_excl_exord_cpo | Double | EPS - Dil - 排除 Exord 項目，常見 - 特定問題 - CPO |
+| is_eps_diluted_normalized_cpo | Double | EPS Dil - 排除 Exord 專案 - 標準化 - 問題規格 - CPO |
+| is_eps_diluted_non_gaap_cpo | Double | EPS - 稀釋 - 非 GAAP - 特定問題 - CPO |
+| is_eps_diluted_discontinued | Double | EPS - 因停產業務和特殊項目而稀釋 |
+| is_comp_eps_diluted_issue | Double | 每股綜合收益 - 稀釋 - 特定問題 |
+| is_comp_eps_diluted_dr | Double | 綜合每股收益 - 稀釋發行特定預託憑證 |
+| is_comp_eps_diluted_cpo | Double | 綜合每股收益 - 稀釋 - 特定問題 - CPO |
+| is_dps_common_gross | Double | 每股股利 - 普通股 - 總額 - 特定發行股 |
+| is_dps_common_net | Double | 每股股利 - 普通 - 淨額 - 特定發行 |
+| is_dps_special | Double | 每股股息 - 特別 - 特定發行 |
+| is_dps_special_net | Double | 每股股息 - 特別 - 淨額 - 特定發行 |
+| is_dps_common_gross_dr | Double | 每股股利 - 普通股利 - 總額 - 特定發行 - DR |
+| is_dps_common_net_dr | Double | 每股股利 - 普通股利 - 淨額 - 特定發行 - DR |
+| is_dps_special_gross_dr | Double | 每股股息 - 特別 - 總額 - 特定發行 - DR |
+| is_dps_special_net_dr | Double | 每股股利 - 特別 - 淨額 - 特定發行 - DR |
+| is_dps_common_gross_cpo | Double | 每股股利 - 普通股 - 總金額 - 特定發行股 - CPO |
+| is_dps_common_net_cpo | Double | 每股股利 - 普通股利 - 淨額 - 特定發行 - CPO |
+| is_dps_special_gross_cpo | Double | 每股股息 - 特別 - 總額 - 特定發行 - CPO |
+| is_dps_special_net_cpo | Double | 每股股息 - 特別 - 淨額 - 特定發行 - CPO |
+| is_ebit | Double | 息稅前利潤 (EBIT) |
+| is_ebitda | Double | 利息稅折舊及攤銷前利潤 |
+| is_ebitda_exploration | Double | 利息稅前收益 Depr 攤銷及探勘費用 |
+| is_ebitda_lease | Double | 利息稅前盈餘 Depr & Amort & Optg Lease Pymt |
+| is_depr_inv_property | Double | 折舊 - 投資性房地產 - 補充 |
+| is_depr_amort | Double | 折舊與攤提 - 補充 |
+| is_depr_expense | Double | 折舊費用 - 總計 - 補充 |
+| is_depr_finance_lease_rou | Double | 折舊 - 融資租賃使用權資產 - 補充 |
+| is_amort_total | Double | 攤銷 - 總計 - 補充 |
+| is_goodwill_amort | Double | 商譽攤銷 - 補充 |
+| is_other_intang_amort | Double | 無形攤銷 - 其他 - 補充 |
+| is_amort_below_above_market_leases | Double | 低於/高於市場租賃的攤銷 - 補充 |
+| is_amort_tenant_leases | Double | 租戶關係與就地租賃的攤銷 - Supp |
+| is_amort_license_contract | Double | 授權、特許經營權、版權、基於合約的供應的金額 |
+| is_amort_software | Double | 電腦軟體攤提 - 補充 |
+| is_amort_brands_patents | Double | 品牌、專利、商標、市場和藝術的數量 -Suppl |
+| is_amort_fin_lease_rou | Double | 融資租賃使用權資產攤提 - 補充 |
+| is_amort_cap_r_and_d | Double | 資本化研發費用攤銷 - 補充 |
+| is_amort_deferred_costs | Double | 延遲成本攤銷 - 補充 |
+| is_depr_depletion_amort | Double | 折舊消耗與攤銷 - 總計 |
+| is_depreciation | Double | 折舊 - 總計 |
+| is_amort_intang_incl_gw | Double | 包括商譽在內的無形資產攤銷 - 總計 |
+| is_amort_goodwill | Double | 商譽攤銷 - 總計 |
+| is_amort_intang_excl_gw | Double | 無形資產攤銷（不含商譽） - 總計 |
+| is_amort_deferred_charges | Double | 延遲費用攤銷 - 總計 |
+| is_islamic_financing_income | Double | 伊斯蘭融資與投資收入 |
+| is_islamic_income | Double | 伊斯蘭收入 |
+| is_r_and_d_total | Double | 研發費用 - 費用化與資本化 - 總計 - 補充 |
+| is_r_and_d_expense | Double | 研究與發展費用 - 補充 |
+| is_r_and_d_capitalized | Double | 研究開發費用 - 資本化 - 補充 |
+| is_labor_expenses | Double | 人工及相關費用 - 總計 |
+| is_labor_expenses_supp | Double | 人工及相關費用 - 補充 |
+| is_stock_comp_net_tax | Double | 股票補償費用 - 稅後 - 補充 |
+| is_stock_comp_pretax | Double | 股票補償費用 - 稅前 - 補充 |
+| is_stock_comp_tax_benefit | Double | 股票補償 - 稅收優惠 - 補充 |
+| is_auditor_fees | Double | 審計費 |
+| is_audit_related_fees | Double | 稽核相關費用 |
+| is_tax_fees | Double | 稅金 |
+| is_fees_other | Double | 費用 - 其他 |
+| is_non_gaap_revenue | Double | 非 GAAP 收入 - 公司報告 |
+| is_non_gaap_op_income | Double | 非公認會計原則營運收入 - 公司報告 |
+| is_non_gaap_net_income | Double | 非 GAAP 調整後淨利 - 公司報告 |
+| is_non_gaap_ebitda | Double | 非 GAAP 調整後 EBITDA - 公司報告 |
+| is_non_gaap_eps_basic | Double | 非公認會計準則每股收益基本 - 公司報告 |
+| is_non_gaap_eps_diluted | Double | 非 GAAP 攤薄每股收益 - 公司報告 |
+| is_non_gaap_op_margin | Double | 非 GAAP 營業利益率 % - 公司報告 |
+| is_reported_net_income_ng | Double | 報告 - 淨利 - 非 GAAP |
+| is_reported_non_recurring_ng | Double | 報告 - 非經常性項目 - 非 GAAP |
+| is_reported_tax_impact_ng | Double | 報告 - 非經常性項目的稅務影響 - 非公認會計原則 |
+| is_reported_normalized_ni | Double | 報告 - 標準化淨利 |
+| is_non_recurring_tax_impact | Double | 非經常性/異常項目 - 稅務影響 |
+| is_non_recurring_tax_impact | Double | 非經常性項目 - 對所得稅的影響 |
+| is_normalized_after_tax | Double | 標準化稅後盈餘 |
+| is_normalized_ni_cont_ops | Double | 持續經營業務標準化淨利 |
+| is_normalized_ni | Double | 標準化淨利 - 底線 |
+| is_normalized_ebit | Double | 息稅前利潤 (EBIT) - 標準化 |
+| is_normalized_ebitda | Double | 利息稅前盈餘折舊及攤提 - 標準化 |
+| is_deriv_realized_gl_rev | Double | 衍生性商品 - 已實現收益/（損失） - 收入 - 補充 |
+| is_deriv_realized_gl_cogs | Double | 衍生品 - 已實現收益/（損失） - COGS - Suppl |
+| is_deriv_realized_gl_int | Double | 衍生品 - 已實現收益/（損失） - 利息費用補充 |
+| is_deriv_realized_gl_other | Double | 衍生品 - 已實現收益/（損失） - 其他 - 補充 |
+| is_deriv_realized_gl_total | Double | 衍生品 - 已實現收益/（損失） - 總計 - 補充 |
+| is_deriv_hedge_gl_total | Double | 衍生品 - 對沖 - 收益/（損失） - 總計 - 補充 |
+| is_unrealized_deriv_adj | Double | 對沖衍生品的未實現調整 - Suppl |
+| is_deriv_hedge_realized_gl_total | Double | 衍生品 - 對沖 - 已實現收益/（損失） - 總計 - 補充 |
+| is_deriv_hedge_effective_gl | Double | 衍生品 - 對沖 - 有效收益/（損失） - 補充 |
+| is_deriv_hedge_ineffective_gl | Double | 衍生品 - 對沖 - 無效收益/（損失） - Suppl |
+| is_early_term_deriv_hedge_gl | Double | 衍生性商品對沖提前終止 - 收益/（損失） - Suppl |
+| is_trading_deriv_gl | Double | 衍生性商品交易 - 收益/（損失） - 補充 |
+| is_loan_losses_net | Double | 貸款損失 - 淨額 |
+| is_loan_recoveries | Double | 貸款回收 - 實際 |
+| is_loan_losses | Double | 貸款損失 - 實際 |
+| is_avg_employees | Double | 員工 - 平均 |
+| is_operating_lease_expense | Double | 租金/營業租賃費用 |
+| is_advertising_expense | Double | 廣告費用 - 補充 |
+| is_exploration_expense | Double | 探勘費用 |
+| is_us_gaap_adj | Double | 美國公認會計準則調整 |
+| is_int_div_income_after_llp | Double | LLP 後的利息和股息收入 - 淨 - 財務 |
+| is_revenue_after_loan_prov | Double | 扣除貸款準備後的收入 - 淨額 - 財務 |
+| is_purchase_inv_sec | Double | 購買投資證券 - 補充 |
+| is_sale_inv_sec | Double | 投資證券銷售 - 補充 |
+| is_epra_net_income | Double | EPRA/經常性淨利 |
+| is_sec_comm_fees | Double | 證券活動的佣金與費用 |
+| is_cost_revenue_inc_o_and_m | Double | 收入成本，包括營運和維護（公用事業）總計 |
+| is_cost_revenues_excl_depr | Double | 不包括折舊的收入成本 |
+| is_fx_gl | Double | 外匯收益/（損失） |
+| is_generation_cost | Double | 發電成本 |
+| is_interest_expense | Double | 利息支出 |
+| is_inv_gl | Double | 投資收益/（損失） |
+| is_inv_income_insurance | Double | 投資收入 - 保險 |
+| is_losses_benefits_insurance | Double | 損失福利與調整 - 保險 |
+| is_non_int_expense_bank | Double | 非利息費用 - 銀行 |
+| is_operating_expenses | Double | 營業費用 |
+| is_premiums_ceded_unearned_total | Double | 分出與不勞而獲的保費 - 總計 |
+| is_sga_excl_r_and_d | Double | 銷售一般及行政費用，不含研發費用 |
+| is_total_claim_loss_exp | Double | 索賠和損失費用總額 |
+| is_underwriting_commissions | Double | 承保及佣金 |
+| is_underwriting_exp_insurance | Double | 承保費用 - 保險 |
+| is_net_premiums_written | Double | 淨保費承保 |
+| is_losses_benefits_total | Double | 損失、收益與調整 - 總計 |
+| is_op_exp_excl_non_cash | Double | 不包含非現金費用的營運費用 - 總計 |
+| is_premiums_earned | Double | 已賺取保費 - 總計 |
+| is_commissions_fees | Double | 佣金與費用 |
+| is_est_tax_rate | Double | 預計稅率 |
+| is_exploration_int_exp_after_tax | Double | 探勘費用與利息費用（稅後） |
+| is_fixed_charges | Double | 固定費用 |
+| is_income_common_before_depr_amort | Double | 折舊及攤銷前普通股可用收入 |
+| is_income_bt_before_loan_prov | Double | 稅前收入與貸款損失撥備 |
+| is_income_earning_assets | Double | 賺取資產的收入 |
+| is_revenue_net_int_before_loan_prov | Double | 貸款損失撥備前的收入扣除利息支出 |
+| is_tax_adj_op_income | Double | 稅務調整後營業收入 |
+| is_underwriting_minus_losses | Double | 承保費用減去損失、福利和調整 - 保險 |
+| is_water_steam_revenue | Double | 水與蒸氣收入 |
+| is_reported_recurring_revenue | Double | 報告 - 收入 - 經常性 |
+| is_reported_net_premiums_written | Double | 報表 - 淨保費承保 |
+| is_reported_revenue | Double | 報告 - 收入 - 總計 |
+| is_reported_op_revenue | Double | 報告-營業收入 |
+| is_reported_cost_revenues | Double | 報告 - 收入成本 |
+| is_reported_sga | Double | 報告 - 銷售一般及行政費用 |
+| is_reported_gross_profit | Double | 報告 - 毛利 |
+| is_reported_op_profit | Double | 報告-營業利潤 |
+| is_reported_op_margin | Double | 報告 - 營業利益率 |
+| is_reported_ordinary_profit | Double | 報告 - 普通利潤 |
+| is_reported_net_income | Double | 申報 - 稅後淨利 |
+| is_reported_basic_eps | Double | 報告 - 基本每股收益 |
+| is_reported_diluted_eps | Double | 報告 - 稀釋每股收益 |
+| is_reported_business_profit | Double | 報告 - 營業利潤 - 淨額 |
+| is_lease_expense_total | Double | 租借費用-總計-補充 |
+| is_operating_lease_expense | Double | 營運/租賃費用 - 補充 |
+| is_depr_fin_lease_rou | Double | 融資租賃 ROU 資產折舊 - 補充 |
+| is_amort_fin_lease_rou | Double | 融資租賃 ROU 資產攤提 - 補充 |
+| is_variable_lease_expense | Double | 可變租賃費用 - 未分類 - 補充 |
+| is_variable_op_lease_expense | Double | 可變營業租賃費用 - 美國公認會計準則 - 補充 |
+| is_variable_fin_lease_expense | Double | 可變融資租賃費用 - 補充 |
+| is_int_exp_fin_lease | Double | 融資租賃負債的利息支出 - Supplement |
+| is_short_term_lease_cost | Double | 短期租賃成本 - 補充 |
+| is_sublease_income | Double | 轉租收入 - 補充 |
+| is_ffo | Double | 營運資金 (FFO) - REIT |
+| is_effective_tax_rate | Double | 實際有效稅率 |
+| is_statutory_tax_rate | Double | 正常有效法定稅率 |
+
+#### 2.4. 使用範例
+
+##### 2.4.1. 取得某季度內某檔股票的財務季度報告
+
+```python
+import tqx_data
+result = tqx_data.get_financial_statement(
+    market="hk",
+    symbol="0700.HK",
+    start_quarter="2020q1",
+    end_quarter="2024q4",
+    date="20241014",
+    is_latest=False,
+    fields=[]
+)
+print(result)
+```
+
+**回應範例**
+
+```text
+symbol fy_period date ... is_write_off_real_estate is_zakat quarter
+0 0700.HK FY2020Q1 20200513 ... None None 2020q1
+1 0700.HK FY2020Q2 20200826 ... None None 2020q2
+... ... ... ... ... ... ...
+14 0700.HK FY2023Q3 20231115 ... None None 2023q3
+```
+
+##### 2.4.2. 取得某一季度內某檔股票的最新財務季度報告且使用fields
+
+```python
+import tqx_data
+
+result = tqx_data.get_financial_statement(
+    market="hk",
+    symbol="0700.HK",
+    start_quarter="2020q1",
+    end_quarter="2024q4",
+    date="20241014",
+    is_latest=True,
+    interim_type="cumulative",
+    fields=["symbol", "fy_period", "date", "bs_asset_accruals"],
+)
+print(result)
+```
+
+**回應範例**
+
+```text
+symbol fy_period date bs_asset_accruals
+0 0700.HK FY2024Q2 20240827 1.497963e+12
+```
+
+這裡的「最新」表示 `0700.HK` 在 `20241014` 及之前公告日期最大的一行。它不會返回每個歷史財期各自的
+最新版，因此不能直接用於年比計算。
+
+##### 2.4.3. 歷史剖面與同比計算
+
+```python
+import re
+import numpy as np
+import pandas as pd
+import tqx_data
+
+as_of_date = "20250101"
+rows = tqx_data.get_financial_statement(
+    market="nb",
+    symbol=["NVDA.NB", "AVGO.NB"],
+    start_quarter="2023q1",
+    end_quarter="2024q4",
+    date=as_of_date,
+    is_latest=False,
+    interim_type="cumulative",
+    fields=[
+        "symbol", "fy_period", "date",
+        "is_reported_revenue", "is_revenue_business_total",
+        "is_reported_gross_profit", "is_gross_profit",
+        "cfs_net_cf_operating", "cfs_reported_cf_operating",
+    ],
+)
+
+# 同一财期可能存在多次披露，只保留截止日前公告日期最新的版本。
+rows["date_key"] = pd.to_datetime(rows["date"], errors="coerce")
+rows = rows.dropna(subset=["symbol", "fy_period", "date_key"])
+rows = rows.sort_values("date_key").drop_duplicates(
+    ["symbol", "fy_period"], keep="last"
+)
+
+def parse_period(value):
+    match = re.fullmatch(r"FY(\d{4})(.+)", str(value).upper())
+    return (int(match.group(1)), match.group(2)) if match else None
+
+def previous_year_period(value):
+    parsed = parse_period(value)
+    return f"FY{parsed[0] - 1}{parsed[1]}" if parsed else None
+
+def period_sort_key(value):
+    parsed = parse_period(value)
+    if not parsed:
+        return (0, 0, "")
+    year, suffix = parsed
+    rank = {"Q1": 1, "H1": 2, "Q2": 2, "Q3": 3,
+            "H2": 4, "Q4": 4, "FY": 4}.get(suffix, 0)
+    return (year, rank, suffix)
+
+def first_finite(row, candidates):
+    for field in candidates:
+        value = pd.to_numeric(row.get(field), errors="coerce")
+        if pd.notna(value) and np.isfinite(value):
+            return float(value)
+    return None
+
+# 按财期而不是公告日期选择当前可见的最新财期，再匹配上年同财期。
+period_keys = rows["fy_period"].map(period_sort_key)
+rows[["period_year", "period_rank", "period_suffix"]] = pd.DataFrame(
+    period_keys.tolist(), index=rows.index
+)
+latest = rows.sort_values(
+    ["symbol", "period_year", "period_rank", "period_suffix", "date_key"]
+).groupby("symbol", as_index=False).tail(1)
+history = rows.set_index(["symbol", "fy_period"])
+screening = []
+for _, current in latest.iterrows():
+    prior_key = (current["symbol"], previous_year_period(current["fy_period"]))
+    if prior_key[1] is None or prior_key not in history.index:
+        continue
+    prior = history.loc[prior_key]
+    current_revenue = first_finite(
+        current, ["is_reported_revenue", "is_revenue_business_total"]
+    )
+    prior_revenue = first_finite(
+        prior, ["is_reported_revenue", "is_revenue_business_total"]
+    )
+    gross_profit = first_finite(
+        current, ["is_reported_gross_profit", "is_gross_profit"]
+    )
+    operating_cf = first_finite(
+        current, ["cfs_net_cf_operating", "cfs_reported_cf_operating"]
+    )
+    if None in (current_revenue, prior_revenue, gross_profit, operating_cf):
+        continue
+    if current_revenue <= 0 or prior_revenue <= 0:
+        continue
+    revenue_growth = current_revenue / prior_revenue - 1.0
+    gross_margin = gross_profit / current_revenue
+    screening.append({
+        "symbol": current["symbol"],
+        "fy_period": current["fy_period"],
+        "revenue_growth": revenue_growth,
+        "gross_margin": gross_margin,
+        "operating_cf": operating_cf,
+        "eligible": revenue_growth > 0.20 and gross_margin > 0.20 and operating_cf > 0,
+    })
+
+screening = pd.DataFrame(screening)
+```
+
+收入、毛利和經營現金流在不同公司可能只填充相容欄位之一。常用候選依序為：
+
+- 收入：`is_reported_revenue`、`is_revenue_business_total`
+- 毛利：`is_reported_gross_profit`、`is_gross_profit`
+- 經營現金流量：`cfs_net_cf_operating`、`cfs_reported_cf_operating`
+
+選擇字段後先用 `pd.to_numeric(..., errors="coerce")` 轉換，刪除空字串、`NaN` 和正負無窮；收入同比的
+上年同財期收入必須大於 0。財期應按返回的 `fy_period` 實際後綴匹配，不要假定所有市場都只返回季度格式。
+
+##### 2.4.4. 為一年回測建立無未來資料的動態財務面板
+
+以下示範一次預取、逐調倉日切片的關鍵順序。 `period_sort_key`、`previous_year_period` 和字段清洗可以重複使用
+上一節函數：
+
+```python
+import pandas as pd
+import tqx_data
+
+backtest_end = "20251231"
+all_rows = tqx_data.get_financial_statement(
+    market="nb",
+    symbol=nasdaq_100_symbols,
+    # 公司财年可能领先公告自然年；同时要覆盖同比所需的上年同财期。
+    start_quarter="2023q1",
+    end_quarter="2026q4",
+    date=backtest_end,
+    is_latest=False,
+    interim_type="cumulative",
+    fields=required_financial_fields,
+)
+all_rows["date_key"] = pd.to_datetime(all_rows["date"], errors="coerce")
+all_rows = all_rows.dropna(subset=["symbol", "fy_period", "date_key"])
+
+def visible_financials(as_of_date):
+    cutoff = pd.to_datetime(as_of_date, format="%Y%m%d")
+
+    # 必须先按调仓日过滤，再处理同一财期的重述版本。
+    visible = all_rows[all_rows["date_key"] <= cutoff].copy()
+    visible = visible.sort_values("date_key").drop_duplicates(
+        ["symbol", "fy_period"], keep="last"
+    )
+    assert visible.empty or visible["date_key"].max() <= cutoff
+
+    keys = visible["fy_period"].map(period_sort_key)
+    visible[["period_year", "period_rank", "period_suffix"]] = pd.DataFrame(
+        keys.tolist(), index=visible.index
+    )
+    latest = visible.sort_values(
+        ["symbol", "period_year", "period_rank", "period_suffix", "date_key"]
+    ).groupby("symbol", as_index=False).tail(1)
+    return visible, latest
+
+panel_rows = []
+for rebalance_date in rebalance_dates:  # 例如每 5 个交易日
+    history, latest = visible_financials(rebalance_date)
+    history = history.set_index(["symbol", "fy_period"])
+    for _, current in latest.iterrows():
+        prior_period = previous_year_period(current["fy_period"])
+        prior_key = (current["symbol"], prior_period)
+        if prior_period is None or prior_key not in history.index:
+            continue
+        prior = history.loc[prior_key]
+        # 按 2.4.3 的兼容字段和有限值规则计算同比、毛利率、经营现金流。
+        metrics = calculate_financial_metrics(current, prior)
+        if metrics is None:
+            continue
+        panel_rows.append({
+            "date": rebalance_date,
+            "symbol": current["symbol"],
+            "fy_period": current["fy_period"],
+            "source_date": current["date"],
+            **metrics,
+        })
+
+financial_panel = pd.DataFrame(panel_rows)
+```
+
+`calculate_financial_metrics` 應返回清洗後的 `revenue_growth`、`gross_margin`、`operating_cf` 和 `eligible`。
+若調倉頻率是每 5 個交易日，則面板也以每 5 個交易日產生；財務數值可在兩次公告之間保持不變，但資格
+判斷必須在新公告後的下一調倉日更新。不要在 `handle_data` 每個 bar 重新查詢接口，應在離線階段或
+`initialize` 中一次建置並快取面板。
+
+**四. 交易工具**
+
+**1.取得匯率資料**

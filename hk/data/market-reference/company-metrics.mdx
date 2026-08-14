@@ -1,3 +1,599 @@
 ---
 title: "公司指標"
+description: "取得標準化營運、財務、行業與價量指標。"
 ---
+
+### 14. 取得公司標準化營運指標
+
+#### 14.1. 方法名稱：get_company_oper_metrics
+
+#### 14.2. 入參
+
+| 欄位 | 類型 | 說明 | 是否必填 |
+|:---|:---|:---|:---|
+| start_year | str | 開始財政年度,eg:"2025" | 必填 |
+| end_year | str | 結束財政年度,eg:"2025" | 必填 |
+| symbol | Optional\[Union\[str, List\[str\]\]\] | 股票代號 | 非必填 |
+| fields | Optional\[Union\[str, List\[str\]\]\] | 傳回欄位 | 非必填 |
+| market | str | 市場，支持"hk" ,"us"，預設為"hk" | 必填 |
+
+#### 14.3. 回應參數
+
+| 字段 | 類型 | 描述 |
+|:--------------------------|:-------|:----------------------|
+| symbol | str | 檔 |
+| is_final | int | 是否是最終報告 |
+| financial_year | str | 財政年度 |
+| financial_period_end_date | str | 財報截止日期 |
+| report_type | str | 報告類型（原始/重述） |
+| data_type | str | 資料型別 |
+| consol_basis | str | 資料合併基礎 |
+| report_source | str | 報告來源 |
+| item_name | str | 指標名稱 |
+| is_pershare_item | str | 是否為每股指標 |
+| is_percent_item | str | 是否為百分比指標 |
+| item_unit | str | 指標單位縮放 |
+| item_currency | str | 指標貨幣單位 |
+| item_num | double | 指標值 |
+
+#### 14.4. 使用範例
+
+##### 14.4.1. 取得某財政年度全部港股公司標準化營運指標
+
+```python
+import tqx_data
+result = tqx_data.get_company_oper_metrics(
+    market='hk',
+    symbol=[""],
+    fields=[""],
+    start_year="2023",
+    end_year="2025",
+)
+print(result)
+```
+
+**回應範例**
+
+```text
+symbol is_final financial_year ... item_unit item_currency item_num
+0 0004.HK 1 2023 ... Units HKD 142989.000000
+1 0004.HK 1 2023 ... No scaling HKD 0.000047
+2 0004.HK 1 2023 ... Units HKD 142989.000000
+3 0004.HK 1 2023 ... No scaling HKD 0.000047
+4 0004.HK 1 2024 ... Units HKD 136832.000000
+... ... ... ... ... ... ... ...
+3273 9993.HK 1 2023 ... Units CNY 23952.919000
+3274 9993.HK 1 2024 ... Units CNY 14833.422000
+3275 9993.HK 1 2024 ... Units CNY 14833.422000
+3276 9993.HK 0 2025 ... Units CNY 7914.030000
+3277 9993.HK 0 2025 ... Units CNY 7914.030000
+```
+
+### 15. 取得公司最新市場財務統計指標
+
+#### 15.1. 方法名稱：get_company_current
+
+#### 15.2. 入參
+
+| 欄位 | 類型 | 說明 | 是否必填 |
+|:---|:---|:---|:---|
+| symbol | Optional\[Union\[str, List\[str\]\]\] | 股票代號 | 非必填 |
+| fields | Optional\[Union\[str, List\[str\]\]\] | 傳回欄位 | 非必填 |
+| market | str | 市場，支持"hk" ,"us"，預設為"hk" | 必填 |
+
+#### 15.3. 回應參數
+
+備註：資料每日刷新，對於每個symbol的每個欄位會盡可能傳回已知的最新日期的資料
+
+| 字段 | 類型 | 描述 |
+|:---|:---|:---|
+| symbol | str | 檔 |
+| date | str | 資料日期 |
+| period_end_date | str | 財報截止日期 |
+| curr_ebitda_to_ev_ratio | double | EBITDA佔企業價值比重 |
+| curr_ebitda_to_ev_ratio_ttm | double | EBITDA佔企業價值比重（TTM） |
+| curr_ev_to_ebitda | double | 企業價值/EBITDA |
+| curr_ev_to_ebitda_ttm | double | 企業價值/EBITDA（TTM） |
+| curr_ev_to_fcf | double | 企業價值/自由現金流 |
+| curr_ev_to_fcf_ttm | double | 企業價值/自由現金流（TTM） |
+| curr_ev_to_fcf | double | 企業價值/自由現金流 |
+| curr_ev_to_fcf_ttm | double | 企業價值/自由現金流（TTM） |
+| curr_ev_to_ocf | double | 企業價值/經營現金流 |
+| curr_ev_to_ocf_ttm | double | 企業價值/經營現金流（TTM） |
+| curr_ev_to_rev | double | 企業價值/營業收入 |
+| curr_ev_to_rev_ttm | double | 企業價值/營業收入（TTM） |
+| curr_fcf_to_ev_ratio | double | 自由現金流佔企業價值比重 |
+| curr_fcf_to_ev_ratio_ttm | double | 自由現金流佔企業價值比重（TTM） |
+| curr_rev_to_ev_ratio | double | 營業收入佔企業價值比重 |
+| curr_rev_to_ev_ratio_ttm | double | 營業收入佔企業價值比重（TTM） |
+| curr_ev_to_fcf | double | 企業價值/自由現金流 |
+| curr_ev_to_fcf_ttm | double | 企業價值/自由現金流（TTM） |
+| curr_ev_to_ebit | double | 企業價值/稅前利潤 |
+| curr_ev_to_ebit_ttm | double | 企業價值/稅前利潤（TTM） |
+| curr_price_to_fcf_pershr | double | 股價/每股自由現金流 |
+| curr_price_to_fcf_pershr_ttm | double | 股價/每股自由現金流（TTM） |
+| curr_price_to_fcf_pershr_issue | double | 股價/每股自由現金流（發行特定） |
+| curr_price_to_fcf_pershr_issue_ttm | double | 股價/每股自由現金流（發行特定，TTM） |
+| curr_fcf_to_ev_ratio | double | 自由現金流佔企業價值比重 |
+| curr_fcf_to_ev_ratio_ttm | double | 自由現金流佔企業價值比重（TTM） |
+| curr_div_yld_issue_ratio | double | 股息率-普通股淨額（發行特定） |
+| curr_div_yld_gross_issue_ratio | double | 股息率-普通股毛額（發行特定） |
+| curr_div_yld_issue_ratio_ann | double | 股息率-普通股淨額（年化，發行特定） |
+| curr_div_yld_gross_issue_ratio_ann | double | 股息率-普通股毛額（年化，發行特定） |
+| curr_div_yld_issue_ratio_ttm | double | 股息率-普通股淨額（TTM，發行特定） |
+| curr_div_yld_gross_issue_ratio_ttm | double | 股息率-普通股毛額（TTM，發行特定） |
+| curr_cash_to_mcap_ratio | double | 現金及短期投資佔市值比重 |
+| curr_price_to_cf_pershr | double | 股價/每股現金流 |
+| curr_price_to_cf_pershr_ttm | double | 股價/每股現金流（TTM） |
+| curr_price_to_cf_pershr_ann | double | 股價/每股現金流（年化） |
+| curr_price_to_cf_pershr_issue | double | 股價/每股現金流（發行特定） |
+| curr_price_to_cf_pershr_issue_ttm | double | 股價/每股現金流（發行特定，TTM） |
+| curr_price_to_fcf_pershr_issue | double | 股價/每股自由現金流（發行特定） |
+| curr_price_to_fcf_pershr_issue_ttm | double | 股價/每股自由現金流（發行特定，TTM） |
+| curr_price_to_ocf_pershr | double | 股價/每股營運現金流量 |
+| curr_price_to_ocf_pershr_ttm | double | 股價/每股營業現金流（TTM） |
+| curr_price_to_ocf_pershr_issue | double | 股價/每股營業現金流（發行特定） |
+| curr_price_to_ocf_pershr_issue_ttm | double | 股價/每股營業現金流量（發行特定，TTM） |
+| curr_price_to_rev_pershr | double | 股價/每股營業收入 |
+| curr_price_to_rev_pershr_ann | double | 股價/每股營業收入（年化） |
+| curr_price_to_rev_pershr_ttm | double | 股價/每股營業收入（TTM） |
+| curr_price_to_rev_pershr_issue | double | 股價/每股營業收入（發行特定） |
+| curr_price_to_rev_pershr_issue_ttm | double | 股價/每股營業收入（發行特定，TTM） |
+| curr_price_to_fcf_pershr_issue | double | 股價/每股自由現金流（發行特定） |
+| curr_price_to_fcf_pershr_issue_ttm | double | 股價/每股自由現金流（發行特定，TTM） |
+| curr_price_to_dps_issue | double | 股價/每股股息-普通股淨額（發行特定） |
+| curr_price_to_dps_gross_issue | double | 股價/每股股息-普通股毛額（發行特定） |
+| curr_price_to_dps_issue_ttm | double | 股價/每股股息-普通股淨額（TTM，發行特定） |
+| curr_price_to_dps_gross_issue_ttm | double | 股價/每股股息-普通股毛額（TTM，發行特定） |
+| curr_pe_dil_excl_issue | double | 市盈率-稀釋扣非（發行特定） |
+| curr_pe_dil_excl_issue_ttm | double | 市盈率-稀釋扣非（TTM，發行特定） |
+| curr_pe_dil_excl | double | 市盈率-稀釋扣非 |
+| curr_pe_dil_excl_ttm | double | 市盈率-稀釋扣非（TTM） |
+| curr_pe_dil_norm_issue | double | 市盈率-稀釋扣非標準化（發行特定） |
+| curr_pe_dil_norm_issue_ttm | double | 市盈率-稀釋扣非標準化（TTM，發行特定） |
+| curr_pe_dil_norm | double | 市盈率-稀釋扣非標準化 |
+| curr_pe_dil_norm_ttm | double | 市盈率-稀釋扣非標準化（TTM） |
+| curr_pe_dil_incl_issue | double | 市盈率-稀釋含非常項目（發行特定） |
+| curr_pe_dil_incl_issue_ttm | double | 市盈率-稀釋含非常項目（TTM，發行特定） |
+| curr_pe_dil_incl | double | 市盈率-稀釋含非常項目 |
+| curr_pe_dil_incl_ttm | double | 市盈率-稀釋含非常項目（TTM） |
+| curr_price_to_ebitda_pershr_issue | double | 股價/每股EBITDA（發行特定） |
+| curr_price_to_ebitda_pershr_issue_ttm | double | 股價/每股EBITDA（TTM，發行特定） |
+| curr_price_to_ebitda_pershr | double | 股價/每股EBITDA |
+| curr_price_to_ebitda_pershr_ttm | double | 股價/每股EBITDA（TTM） |
+| curr_pe_basic_excl_issue | double | 市盈率-基本扣非（發行特定） |
+| curr_pe_basic_excl_issue_ttm | double | 市盈率-基本扣非（TTM，發行特定） |
+| curr_pe_basic_excl | double | 市盈率-基本扣非 |
+| curr_pe_basic_excl_ttm | double | 市盈率-基本扣非（TTM） |
+| curr_pe_basic_incl_issue | double | 市盈率-基本含非常項目（發行特定） |
+| curr_pe_basic_incl_issue_ttm | double | 市盈率-基本上包含非常項目（TTM，發行特定） |
+| curr_pe_basic_incl | double | 市盈率-基本含非常項目 |
+| curr_pe_basic_incl_ttm | double | 市盈率-基本含非常項目（TTM） |
+| curr_earn_yld_basic_excl_issue_ratio | double | 每股基本收益（扣非）佔股價比重（發行特定） |
+| curr_earn_yld_basic_excl_issue_ratio_ttm | double | 每股基本收益（扣非）佔股價比重（TTM，發行特定） |
+| curr_earn_yld_basic_excl_ratio | double | 每股基本盈餘（扣非）佔股價比重 |
+| curr_earn_yld_basic_excl_ratio_ttm | double | 每股基本收益（扣非）佔股價比重（TTM） |
+| curr_earn_yld_basic_incl_issue_ratio | double | 每股基本收益（含非常）佔股價比重（發行特定） |
+| curr_earn_yld_basic_incl_issue_ratio_ttm | double | 每股基本收益（含非常）佔股價比重（TTM，發行特定） |
+| curr_earn_yld_basic_incl_ratio | double | 每股基本收益（含非常）佔股價比重 |
+| curr_earn_yld_basic_incl_ratio_ttm | double | 每股基本收益（含非常）佔股價比重（TTM） |
+| curr_earn_yld_dil_excl_issue_ratio | double | 每股稀釋收益（扣非）佔股價比重（發行特定） |
+| curr_earn_yld_dil_excl_issue_ratio_ttm | double | 每股稀釋收益（扣非）佔股價比重（TTM，發行特定） |
+| curr_earn_yld_dil_excl_ratio | double | 每股稀釋收益（扣非）佔股價比重 |
+| curr_earn_yld_dil_excl_ratio_ttm | double | 每股稀釋收益（扣非）佔股價比重（TTM） |
+| curr_earn_yld_dil_incl_issue_ratio | double | 每股稀釋收益（含非常）佔股價比重（發行特定） |
+| curr_earn_yld_dil_incl_issue_ratio_ttm | double | 每股稀釋收益（含非常）佔股價比重（TTM，發行特定） |
+| curr_earn_yld_dil_incl_ratio | double | 每股稀釋收益（含非常）佔股價比重 |
+| curr_earn_yld_dil_incl_ratio_ttm | double | 每股稀釋收益（含非常）佔股價比重（TTM） |
+| curr_rel_pe_dil_excl_issue_ratio | double | 相對本益比分位數（發行特定） |
+| curr_rel_pe_dil_excl_ratio | double | 相對本益比分位數 |
+| curr_peg | double | 本益比相對獲利成長比率 |
+| curr_peg_issue | double | 本益比相對獲利成長比率（發行特定） |
+| curr_peg_ttm | double | 本益比相對獲利成長比率（TTM） |
+| curr_peg_issue_ttm | double | 市盈率相對盈利增長比率（TTM，發行特定） |
+| curr_pegy_issue | double | 本益比相對獲利成長及股利比率（發行特定） |
+| curr_pegy_issue_ttm | double | 本益比相對獲利成長及股利比率（TTM，發行特定） |
+| curr_pe_dil_excl_ttm_incl_neg | double | 市盈率-稀釋扣非（TTM，含負值） |
+| curr_pe_dil_excl_issue_ttm_incl_neg | double | 市盈率-稀釋扣非（TTM，發行特定，含負值） |
+| curr_sales_per_emp_ann | double | 人均銷售額（年化） |
+| curr_sales_per_emp_currency_ann | str | 人均銷售額-貨幣單位（年化） |
+| curr_sales_per_emp_ttm | double | 人均銷售額（TTM） |
+| curr_sales_per_emp_currency_ttm | str | 人均銷售額-貨幣單位（TTM） |
+| curr_net_inc_per_emp_ann | double | 人均稅後淨利（年化） |
+| curr_net_inc_per_emp_currency_ann | str | 人均稅後淨利-貨幣單位（年化） |
+| curr_net_inc_per_emp_ttm | double | 人均稅後淨利（TTM） |
+| curr_net_inc_per_emp_currency_ttm | str | 人均稅後淨利-貨幣單位（TTM） |
+| curr_ev | double | 企業價值 |
+| curr_ev_currency | str | 企業價值-貨幣單位 |
+| curr_pb | double | 市淨率 |
+| curr_pb_issue | double | 市淨率（發行特定） |
+| curr_ptb | double | 市淨率-有形 |
+| curr_ptb_issue | double | 市淨率-有形（發行特定） |
+| curr_ev_excl_lt_inv | double | 企業價值（扣除長期投資） |
+| curr_ev_excl_lt_inv_currency | str | 企業價值-貨幣單位（扣除長期投資） |
+| curr_cash_to_mcap_ratio_lfy | double | 現金及短期投資佔市值比重（上一財年） |
+| curr_pb_lfy | double | 市淨率（上一財政年度） |
+| curr_pb_issue_lfy | double | 市淨率（上一財年，發行特定） |
+| curr_ptb_lfy | double | 市淨率-有形（上一財年） |
+| curr_ptb_issue_lfy | double | 市淨率-有形（上一財年，發行特定） |
+| curr_ev_out | double | 企業價值（基於流通股本） |
+| curr_ev_out_currency | str | 企業價值-貨幣單位（基於流通股本） |
+| curr_net_debt_to_ev_ratio | double | 淨債務佔企業價值比重 |
+| curr_price_to_fcf_pershr | double | 股價/每股自由現金流 |
+| curr_price_to_fcf_pershr_ttm | double | 股價/每股自由現金流（TTM） |
+| curr_price_to_fcf_pershr | double | 股價/每股自由現金流 |
+| curr_price_to_fcf_pershr_ttm | double | 股價/每股自由現金流（TTM） |
+| curr_high_to_pe_dil_excl_ttm | double | 52週最高價/每股盈餘（TTM） |
+| curr_high_to_pe_dil_excl_issue_ttm | double | 52週最高價/每股盈餘（TTM，發行特定） |
+| curr_low_to_pe_dil_excl_ttm | double | 52週最低價/每股盈餘（TTM） |
+| curr_low_to_pe_dil_excl_issue_ttm | double | 52週最低價/每股盈餘（TTM，發行特定） |
+| curr_earn_yld_dil_excl_issue_to_high_ratio_ttm | double | 每股收益佔52週最高價比重（發行特定，TTM） |
+| curr_earn_yld_dil_excl_to_high_ratio_ttm | double | 每股盈餘佔52週最高價比（TTM） |
+| curr_earn_yld_dil_excl_issue_to_low_ratio_ttm | double | 每股收益佔52週最低價比重（發行特定，TTM） |
+| curr_earn_yld_dil_excl_to_low_ratio_ttm | double | 每股盈餘佔52週最低價比重（TTM） |
+| curr_high_to_pb | double | 52週最高價/每股帳面價值 |
+| curr_high_to_pb_issue | double | 52週最高價/每股帳面價值（發行特定） |
+| curr_low_to_pb | double | 52週最低價/每股帳面價值 |
+| curr_low_to_pb_issue | double | 52週最低價/每股帳面價值（發行特定） |
+
+#### 15.4. 使用範例
+
+##### 15.4.1. 取得全港股公司最新的部分市場財務統計指標
+
+```python
+import tqx_data
+result = tqx_data.get_company_current(
+    market='hk',
+    symbol=[""],
+    fields=["curr_price_to_dps_issue_ttm","curr_div_yld_gross_issue_ratio","curr_fcf_to_ev_ratio_ttm"]
+)
+print(result)
+```
+
+**回應範例**
+
+```text
+symbol date curr_price_to_dps_issue_ttm curr_div_yld_gross_issue_ratio curr_fcf_to_ev_ratio_ttm
+0 0001.HK 20251231 NaN NaN NaN
+1 0001.HK 20260422 NaN NaN 7.405582
+2 0002.HK 20251231 NaN NaN NaN
+3 0002.HK 20260421 26.089543 4.185285 NaN
+4 0002.HK 20260422 NaN NaN 2.373637
+... ... ... ... ... ...
+5651 9998.HK 20260422 NaN NaN NaN
+5652 9999.HK 20251231 NaN NaN NaN
+5653 9999.HK 20260416 NaN NaN 12.294160
+5654 9999.HK 20260421 NaN NaN NaN
+5655 9999.HK 20260422 37.359101 2.677018 NaN
+```
+
+### 16. 取得公司最新行業中位數統計數據
+
+#### 16.1. 方法名稱：get_company_imed
+
+#### 16.2. 入參
+
+| 欄位 | 類型 | 說明 | 是否必填 |
+|:---|:---|:---|:---|
+| symbol | Optional\[Union\[str, List\[str\]\]\] | 股票代號 | 非必填 |
+| fields | Optional\[Union\[str, List\[str\]\]\] | 傳回欄位 | 非必填 |
+| market | str | 市場，支持"hk" ,"us"，預設為"hk" | 必填 |
+
+#### 16.3. 回應參數
+
+| 字段 | 類型 | 描述 |
+|:---|:---|:---|
+| symbol | str | 檔 |
+| date | str | 日期 |
+| industry_name | str | 產業名稱 |
+| imed_rec_turnover_ttm | double | 應收帳款週轉率TTM |
+| imed_asset_turnover_ttm | double | 總資產週轉率TTM |
+| imed_net_trade_cycle_days_ttm | double | 平均淨營業週期(天)TTM |
+| imed_gross_div_yield_ttm | double | 當前股息率(毛利)TTM |
+| imed_net_div_yield_ttm | double | 目前股息率(淨利)TTM |
+| imed_price_to_fcf_per_shr_ttm | double | 股價/每股自由現金流TTM |
+| imed_gross_div_yield_ttm | double | 股息率(毛利)TTM |
+| imed_retention_ratio_ttm | double | 獲利留存率TTM |
+| imed_fa_turnover_ttm | double | 固定資產週轉率TTM |
+| imed_inv_turnover_ttm | double | 存貨週轉率TTM |
+| imed_inv_ratio_ttm | double | 投資比率TTM |
+| imed_net_debt_to_ebitda_ttm | double | 淨債務/EBITDA TTM |
+| imed_pretax_roa_ratio_ttm | double | 稅前總資產報酬率TTM |
+| imed_pretax_roe_ratio_ttm | double | 稅前淨資產收益率TTM |
+| imed_pe_excl_exord_ttm | double | 市盈率(不含非常項目)TTM |
+| imed_price_to_fcf_net_div_ttm | double | 股價/每股FCF(扣股息)TTM |
+| imed_price_to_cfo_per_shr_ttm | double | 股價/每股營業現金流量TTM |
+| imed_price_to_rev_per_shr_ttm | double | 股價/每股總收入TTM |
+| imed_loan_loss_prov_to_loans_ratio_ttm | double | 貸款損失準備/淨貸款TTM |
+| imed_reinv_ratio_ttm | double | 再投資率TTM |
+| imed_roe_avg_common_ttm | double | 平均普通股ROE TTM |
+| imed_roic_ratio_ttm | double | 投入資本回報率TTM |
+| imed_sales_per_emp_ttm | double | 人均銷售額TTM |
+| imed_sales_per_emp_ccy_ttm | str | 人均銷售額-貨幣單位TTM |
+| imed_wcap_to_rev_pct_chg_ttm | double | 營運資本/收入(環比變動)TTM |
+| imed_pe_ttm | double | 目前本益比TTM |
+| imed_pb_ttm | double | 目前市淨率TTM |
+| imed_pcfo_ttm | double | 目前股價/經營現金流TTM |
+| imed_ps_ttm | double | 目前市銷率TTM |
+| imed_core_tier1_ratio_fye_mid | double | 核心一級資本充足率 |
+| imed_combined_ratio_insur_fye_mid | double | 綜合比率-保險 |
+| imed_curr_ratio_fye_mid | double | 流動比率 |
+| imed_deposits_pct_chg_fye_mid | double | 存款環比變化 |
+| imed_ebitda_margin_ratio_fye_mid | double | EBITDA利潤率 |
+| imed_efficiency_ratio_fye_mid | double | 效率比率 |
+| imed_expense_ratio_insur_fye_mid | double | 費用率-保險 |
+| imed_fee_rev_ratio_fye_mid | double | 手續費收入佔比 |
+| imed_gross_margin_ratio_fye_mid | double | 毛利率 |
+| imed_net_income_margin_excl_exord_fye_mid | double | 普通股淨利潤率(不含非常) |
+| imed_tax_rate_ratio_fye_mid | double | 所得稅率 |
+| imed_insur_reserves_pct_chg_fye_mid | double | 保險準備金環比變化 |
+| imed_int_coverage_ratio_fye_mid | double | 利息覆蓋率 |
+| imed_net_loans_pct_chg_fye_mid | double | 淨貸款季變動 |
+| imed_nonperf_loans_to_gross_loans_ratio_fye_mid | double | 不良及減損貸款/總貸款 |
+| imed_loans_to_deposits_ratio_fye_mid | double | 存貸比 |
+| imed_loss_ratio_insur_fye_mid | double | 損失率-保險 |
+| imed_lt_debt_to_tot_cap_ratio_fye_mid | double | 長期債務/總資本 |
+| imed_cfo_abs_fye_mid | double | 營業活動現金流量淨額(絕對) |
+| imed_cfo_ccy_fye_mid | str | 經營活動現金流-貨幣單位 |
+| imed_nim_ratio_fye_mid | double | 淨利差 |
+| imed_net_margin_ratio_fye_mid | double | 淨利率 |
+| imed_net_premiums_earned_diff_fye_mid | double | 已賺淨保費(環比變動) |
+| imed_net_premiums_earned_diff_ccy_fye_mid | str | 已賺淨保費-貨幣單位 |
+| imed_nonint_inc_to_op_inc_ratio_fye_mid | double | 非利息收入/營業收入 |
+| imed_op_lev_fye_mid | double | 經營槓桿 |
+| imed_op_margin_ratio_fye_mid | double | 營業利益率 |
+| imed_op_ratio_insur_fye_mid | double | 經營比率-保險 |
+| imed_pb_fye_mid | double | 市淨率(財政年度中期) |
+| imed_prov_doubtful_to_rec_ratio_fye_mid | double | 壞帳準備/應收款項 |
+| imed_quick_ratio_fye_mid | double | 速動比率 |
+| imed_foreclosed_assets_to_loans_ratio_fye_mid | double | 止贖房地產/總貸款 |
+| imed_securities_to_earn_assets_ratio_fye_mid | double | 證券/獲利資產 |
+| imed_tax_complement_fye_mid | double | 稅務互補率 |
+| imed_assets_to_equity_ratio_fye_mid | double | 總資產/總權益 |
+| imed_debt_to_equity_ratio_fye_mid | double | 總債務/普通股權益 |
+| imed_rec_turnover_fye | double | 應收帳款週轉率(財年) |
+| imed_asset_turnover_fye | double | 總資產週轉率(財年) |
+| imed_net_trade_cycle_days_fye | double | 平均淨營業週期(財年) |
+| imed_core_tier1_ratio_fye | double | 核心一級資本充足率(財年) |
+| imed_combined_ratio_insur_fye | double | 綜合比率-保險(財年) |
+| imed_curr_ratio_fye | double | 流動比率(財政年度) |
+| imed_deposits_pct_chg_fye | double | 存款環比變化(財年) |
+| imed_gross_div_yield_fye | double | 股息率(毛利-財政年度) |
+| imed_retention_ratio_fye | double | 獲利留存率(財年) |
+| imed_ebitda_margin_ratio_fye | double | EBITDA利潤率(財政年度) |
+| imed_efficiency_ratio_fye | double | 效率比率(財政年度) |
+| imed_expense_ratio_insur_fye | double | 費用率-保險(財政年度) |
+| imed_fee_rev_ratio_fye | double | 手續費收入佔比(財政年度) |
+| imed_fa_turnover_fye | double | 固定資產週轉率(財年) |
+| imed_gross_margin_ratio_fye | double | 毛利率(財年) |
+| imed_net_income_margin_excl_exord_fye | double | 普通股淨利潤率(不含非常-財年) |
+| imed_tax_rate_ratio_fye | double | 所得稅率(財政年度) |
+| imed_insur_reserves_pct_chg_fye | double | 保險準備金環比變動(財年) |
+| imed_int_coverage_ratio_fye | double | 利息覆蓋率(財年) |
+| imed_inv_turnover_fye | double | 存貨週轉率(財年) |
+| imed_inv_ratio_fye | double | 投資比率(財政年度) |
+| imed_net_loans_pct_chg_fye | double | 淨貸款季變動(財年) |
+| imed_nonperf_loans_to_gross_loans_ratio_fye | double | 不良貸款率(財年) |
+| imed_loans_to_deposits_ratio_fye | double | 存貸比(財政年度) |
+| imed_loss_ratio_insur_fye | double | 損失率-保險(財政年度) |
+| imed_lt_debt_to_tot_cap_ratio_fye | double | 長期債務/總資本(財政年度) |
+| imed_cfo_abs_fye | double | 營業現金流量淨額(財年) |
+| imed_cfo_ccy_fye | str | 經營現金流量-貨幣單位(財政年度) |
+| imed_net_debt_to_ebitda_fye | double | 淨債務/EBITDA(財政年度) |
+| imed_nim_ratio_fye | double | 淨利差(財年) |
+| imed_net_margin_ratio_fye | double | 淨利率(財年) |
+| imed_net_premiums_earned_diff_fye | double | 已賺淨保費（環比變化），行業中位數 - 最近財年 |
+| imed_net_premiums_earned_diff_ccy_fye | str | 已賺淨保費（環比變動）- 貨幣單位，產業中位數 - 最近財年 |
+| imed_nonint_inc_to_op_inc_ratio_fye | double | 非利息收入 / 營業收入，行業中位數 - 最近財年 |
+| imed_op_lev_fye | double | 經營槓桿，產業中位數 - 最近財年 |
+| imed_op_margin_ratio_fye | double | 營業利益率（%），行業中位數 - 最近財年 |
+| imed_op_ratio_insur_fye | double | 經營比率 - 保險（%），行業中位數 - 最近財年 |
+| imed_pretax_roa_ratio_fye | double | 稅前總資產收益率（%），行業中位數 - 最近財年 |
+| imed_pretax_roe_ratio_fye | double | 稅前淨資產收益率（%），行業中位數 - 最近財年 |
+| imed_pb_fye | double | 股價 / 每股淨資產，行業中位數 - 最近財年 |
+| imed_pe_excl_exord_fye | double | 股價 / 稀釋每股收益（不含非常項目），行業中位數 - 最近財年 |
+| imed_price_to_fcf_net_div_fye | double | 股價 / 每股自由現金流（扣除股息），行業中位數 - 最近財年 |
+| imed_price_to_cfo_per_shr_fye | double | 股價 / 每股營運活動現金流，產業中位數 - 近期財政年度 |
+| imed_price_to_rev_per_shr_fye | double | 股價 / 每股總收入，產業中位數 - 最近財年 |
+| imed_prov_doubtful_to_rec_ratio_fye | double | 壞帳準備 / 應收款項淨額（%），行業中位數 - 最近財政年度 |
+| imed_loan_loss_prov_to_loans_ratio_fye | double | 貸款損失準備 / 淨貸款總額（%），行業中位數 - 最近財年 |
+| imed_quick_ratio_fye | double | 速動比率，行業中位數 - 最近財年 |
+| imed_foreclosed_assets_to_loans_ratio_fye | double | 法拍房地產 / 總貸款總額（%），行業中位數 - 最近財年 |
+| imed_reinv_ratio_fye | double | 再投資率（%），產業中位數 - 最近財年 |
+| imed_roe_avg_common_fye | double | 平均普通股回報率（%），行業中位數 - 最近財年 |
+| imed_roic_ratio_fye | double | 投入資本回報率（%），行業中位數 - 最近財年 |
+| imed_sales_per_emp_fye | double | 人均銷售額，行業中位數 - 近期財政年度 |
+| imed_sales_per_emp_ccy_fye | str | 人均銷售額 - 貨幣單位，行業中位數 - 近期財政年度 |
+| imed_securities_to_earn_assets_ratio_fye | double | 證券佔平均獲利資產比例（%），產業中位數 - 最近財年 |
+| imed_tax_complement_fye | double | 稅務互補率，行業中位數 - 最近財年 |
+| imed_assets_to_equity_ratio_fye | double | 總資產 / 總權益，產業中位數 - 最近財年 |
+| imed_debt_to_equity_ratio_fye | double | 總債務 / 普通股權益，產業中位數 - 最近財年 |
+| imed_wcap_to_rev_pct_chg_fye | double | 營運資本佔總收入百分比（環比變化），行業中位數 - 最近財年 |
+| imed_rec_turnover_prev_fye | double | 應收帳款週轉率，行業中位數 - 上一財年 |
+| imed_asset_turnover_prev_fye | double | 總資產週轉率，行業中位數 - 上一財年 |
+| imed_net_trade_cycle_days_prev_fye | double | 平均淨營業週期（天），行業中位數 - 上一財年 |
+| imed_core_tier1_ratio_prev_fye | double | 核心一級資本充足率（%），行業中位數 - 上一財年 |
+| imed_combined_ratio_insur_prev_fye | double | 綜合比率 - 保險（%），行業中位數 - 上一財年 |
+| imed_curr_ratio_prev_fye | double | 流動比率，行業中位數 - 上一財年 |
+| imed_deposits_pct_chg_prev_fye | double | 存款總額（環比%變化），行業中位數 - 上一財年 |
+| imed_gross_div_yield_prev_fye | double | 股息率（普通股-毛率-%），行業中位數 - 上一財政年度 |
+| imed_retention_ratio_prev_fye | double | 獲利留存率，產業中位數 - 上一財年 |
+| imed_ebitda_margin_ratio_prev_fye | double | EBITDA 利潤率（%），行業中位數 - 上一財年 |
+| imed_efficiency_ratio_prev_fye | double | 效率比率（%），行業中位數 - 上一財年 |
+| imed_expense_ratio_insur_prev_fye | double | 費用率 - 保險（%），行業中位數 - 上一財年 |
+| imed_fee_rev_ratio_prev_fye | double | 手續費收入佔比（%），行業中位數 - 上一財年 |
+| imed_fa_turnover_prev_fye | double | 固定資產週轉率，產業中位數 - 上一財年 |
+| imed_gross_margin_ratio_prev_fye | double | 毛利率（%），行業中位數 - 上一財年 |
+| imed_net_income_margin_excl_exord_prev_fye | double | 普通股可分配淨利潤率（不含非常項目，%），行業中位數 - 上一財年 |
+| imed_tax_rate_ratio_prev_fye | double | 所得稅率（%），行業中位數 - 上一財政年度 |
+| imed_insur_reserves_pct_chg_prev_fye | double | 保險準備金總額（環比%變化），行業中位數 - 上一財年 |
+| imed_int_coverage_ratio_prev_fye | double | 利息覆蓋率，行業中位數 - 上一財年 |
+| imed_inv_turnover_prev_fye | double | 存貨週轉率，行業中位數 - 上一財年 |
+| imed_inv_ratio_prev_fye | double | 投資比率（%），行業中位數 - 上一財年 |
+| imed_net_loans_pct_chg_prev_fye | double | 淨貸款總額（季減%），產業中位數 - 上一財年 |
+| imed_nonperf_loans_to_gross_loans_ratio_prev_fye | double | 不良及減損貸款 / 總貸款總額（%），行業中位數 - 上一財年 |
+| imed_loans_to_deposits_ratio_prev_fye | double | 存貸比（期末），行業中位數 - 上一財年 |
+| imed_loss_ratio_insur_prev_fye | double | 損失率 - 保險（%），行業中位數 - 上一財年 |
+| imed_lt_debt_to_tot_cap_ratio_prev_fye | double | 長期債務佔總資本比（%），產業中位數 - 上一財政年度 |
+| imed_cfo_abs_prev_fye | double | 經營活動現金流量淨額，產業中位數 - 上一財年 |
+| imed_cfo_ccy_prev_fye | str | 經營活動現金流量淨額 - 貨幣單位，產業中位數 - 上一財政年度 |
+| imed_net_debt_to_ebitda_prev_fye | double | 淨債務 / EBITDA，產業中位數 - 上一財政年度 |
+| imed_nim_ratio_prev_fye | double | 淨利差（%），行業中位數 - 上一財年 |
+| imed_net_margin_ratio_prev_fye | double | 淨利潤率（%），行業中位數 - 上一財年 |
+| imed_net_premiums_earned_diff_prev_fye | double | 已賺淨保費（環比變化），行業中位數 - 上一財年 |
+| imed_net_premiums_earned_diff_ccy_prev_fye | str | 已賺淨保費（環比變動）- 貨幣單位，產業中位數 - 上一財年 |
+| imed_nonint_inc_to_op_inc_ratio_prev_fye | double | 非利息收入 / 營業收入，產業中位數 - 上一財政年度 |
+| imed_op_lev_prev_fye | double | 經營槓桿，產業中位數 - 上一財年 |
+| imed_op_margin_ratio_prev_fye | double | 營業利益率（%），行業中位數 - 上一財年 |
+| imed_op_ratio_insur_prev_fye | double | 經營比率 - 保險（%），行業中位數 - 上一財年 |
+| imed_pretax_roa_ratio_prev_fye | double | 稅前總資產收益率（%），行業中位數 - 上一財年 |
+| imed_pretax_roe_ratio_prev_fye | double | 稅前淨資產收益率（%），行業中位數 - 上一財年 |
+| imed_pb_prev_fye | double | 股價 / 每股淨資產，行業中位數 - 上一財年 |
+| imed_pe_excl_exord_prev_fye | double | 股價 / 稀釋每股收益（不含非常項目），行業中位數 - 上一財年 |
+| imed_price_to_fcf_net_div_prev_fye | double | 股價 / 每股自由現金流（扣除股息），行業中位數 - 上一財年 |
+| imed_price_to_cfo_per_shr_prev_fye | double | 股價 / 每股營業活動現金流，產業中位數 - 上一財年 |
+| imed_price_to_rev_per_shr_prev_fye | double | 股價 / 每股總收入，產業中位數 - 上一財年 |
+| imed_prov_doubtful_to_rec_ratio_prev_fye | double | 壞帳準備 / 應收款項淨額（%），產業中位數 - 上一財政年度 |
+| imed_loan_loss_prov_to_loans_ratio_prev_fye | double | 貸款損失準備 / 淨貸款總額（%），行業中位數 - 上一財年 |
+| imed_quick_ratio_prev_fye | double | 速動比率，行業中位數 - 上一財年 |
+| imed_foreclosed_assets_to_loans_ratio_prev_fye | double | 止贖房地產 / 總貸款總額（%），行業中位數 - 上一財年 |
+| imed_reinv_ratio_prev_fye | double | 再投資率（%），產業中位數 - 上一財年 |
+| imed_roe_avg_common_prev_fye | double | 平均普通股回報率（%），行業中位數 - 上一財年 |
+| imed_roic_ratio_prev_fye | double | 投入資本回報率（%），行業中位數 - 上一財年 |
+| imed_sales_per_emp_prev_fye | double | 人均銷售額，行業中位數 - 上一財年 |
+| imed_sales_per_emp_ccy_prev_fye | str | 人均銷售額 - 貨幣單位，產業中位數 - 上一財政年度 |
+| imed_securities_to_earn_assets_ratio_prev_fye | double | 證券佔平均獲利資產比例（%），產業中位數 - 上一財年 |
+| imed_tax_complement_prev_fye | double | 稅務互補率，行業中位數 - 上一財年 |
+| imed_assets_to_equity_ratio_prev_fye | double | 總資產 / 總權益，產業中位數 - 上一財年 |
+| imed_debt_to_equity_ratio_prev_fye | double | 總債務 / 普通股權益，產業中位數 - 上一財年 |
+| imed_wcap_to_rev_pct_chg_prev_fye | double | 營運資本佔總收入百分比（季減），產業中位數 - 上一財年 |
+| imed_dps_yield_cur_fye | double | 每股股息率（%），行業中位數 - 當前財政年度 |
+| imed_fwd_ev_to_ebit_cur_fye | double | 前瞻企業價值 / EBIT，產業中位數 - 當前財政年度 |
+| imed_fwd_ev_to_ebitda_cur_fye | double | 前瞻企業價值 / EBITDA，產業中位數 - 當前財政年度 |
+| imed_fwd_ev_to_cfo_cur_fye | double | 前瞻企業價值 / 經營現金流，產業中位數 - 當前財政年度 |
+| imed_fwd_ev_to_sales_cur_fye | double | 前瞻企業價值 / 銷售額，產業中位數 - 當前財政年度 |
+| imed_fwd_net_debt_to_ebitda_cur_fye | double | 前瞻淨債務 / EBITDA，產業中位數 - 當前財政年度 |
+| imed_fwd_pe_cur_fye | double | 前瞻本益比（P/E），產業中位數 - 當前財年 |
+| imed_fwd_peg_cur_fye | double | 前瞻本益比相對獲利成長（P/E/G），產業中位數 - 當前財年 |
+| imed_fwd_pb_cur_fye | double | 前瞻股價 / 每股淨值，產業中位數 - 目前財政年度 |
+| imed_fwd_pcfo_cur_fye | double | 前瞻股價 / 每股現金流，產業中位數 - 當前財年 |
+| imed_fwd_ps_cur_fye | double | 前瞻股價 / 每股銷售額，產業中位數 - 當前財年 |
+| imed_fwd_total_debt_to_ebitda_cur_fye | double | 前瞻總債務 / EBITDA，產業中位數 - 當前財政年度 |
+| imed_dps_yield_ntm | double | 每股股息率（%），行業中位數 - 未來十二個月 |
+| imed_fwd_ev_to_ebit_ntm | double | 前瞻企業價值 / EBIT，產業中位數 - 未來十二個月 |
+| imed_fwd_ev_to_ebitda_ntm | double | 前瞻企業價值 / EBITDA，產業中位數 - 未來十二個月 |
+| imed_fwd_ev_to_cfo_ntm | double | 前瞻企業價值 / 經營現金流，產業中位數 - 未來十二個月 |
+| imed_fwd_ev_to_sales_ntm | double | 前瞻企業價值 / 銷售額，產業中位數 - 未來十二個月 |
+| imed_fwd_net_debt_to_ebitda_ntm | double | 前瞻淨債務 / EBITDA，產業中位數 - 未來十二個月 |
+| imed_fwd_pe_ntm | double | 前瞻本益比（P/E），產業中位數 - 未來十二個月 |
+| imed_fwd_peg_ntm | double | 前瞻本益比相對獲利成長（P/E/G），產業中位數 - 未來十二個月 |
+| imed_fwd_pcfo_ntm | double | 前瞻股價 / 每股現金流，產業中位數 - 未來十二個月 |
+| imed_fwd_ps_ntm | double | 前瞻股價 / 每股銷售額，產業中位數 - 未來十二個月 |
+| imed_fwd_total_debt_to_ebitda_ntm | double | 前瞻總債務 / EBITDA，產業中位數 - 未來十二個月 |
+
+#### 16.4. 使用範例
+
+##### 16.4.1. 取得全港股公司最新的部分產業中位數統計數據
+
+```python
+import tqx_data
+result = tqx_data.get_company_imed(
+    market='hk',
+    symbol=[""],
+    fields=["imed_net_trade_cycle_days_ttm","imed_pretax_roa_ratio_ttm"]
+)
+print(result)
+```
+
+**回應範例**
+
+```text
+symbol date imed_net_trade_cycle_days_ttm imed_pretax_roa_ratio_ttm
+0 0002.HK 20240920 46.081797 NaN
+1 0002.HK 20260331 NaN NaN
+2 0002.HK 20260421 NaN 1.716472
+3 0018.HK 20240920 23.065888 NaN
+4 0018.HK 20260421 NaN 4.118784
+.. ... ... ... ...
+531 9938.HK 20260421 NaN 5.000255
+532 9977.HK 20240920 67.514588 NaN
+533 9977.HK 20260421 NaN 4.453275
+534 9991.HK 20240920 35.499386 NaN
+535 9991.HK 20260421 NaN 5.831199
+```
+
+### 17. 取得公司最新價量指標數據
+
+#### 17.1. 方法名稱：get_company_price_vol
+
+#### 17.2. 入參
+
+| 欄位 | 類型 | 說明 | 是否必填 |
+|:---|:---|:---|:---|
+| symbol | Optional\[Union\[str, List\[str\]\]\] | 股票代號 | 非必填 |
+| fields | Optional\[Union\[str, List\[str\]\]\] | 傳回欄位 | 非必填 |
+| market | str | 市場，支持"hk" ,"us"，預設為"hk" | 必填 |
+
+#### 17.3. 回應參數
+
+| 字段 | 類型 | 描述 |
+|:-----------------------|:-------|:--------------------------------|
+| symbol | str | 檔 |
+| pv_beta_5y | double | 5年貝塔值（股價波動相對於市場） |
+| pv_return_mtd | double | 本月至今漲跌幅（%） |
+| pv_market_cap | double | 市值（數值） |
+| pv_market_cap_currency | str | 市值（貨幣單位） |
+| pv_market_cap_date | str | 市值（計算日期） |
+| pv_high_52w | double | 52週最高價 |
+| pv_high_52w_date | str | 52週最高價發生日期 |
+| pv_low_52w | double | 52週最低價 |
+| pv_low_52w_date | str | 52週最低價發生日期 |
+| pv_rel_return_4w | double | 相對基準4週漲跌幅（%） |
+| pv_return_13w | double | 13週漲跌幅（%） |
+| pv_rel_return_13w | double | 相對基準13週漲跌幅（%） |
+| pv_return_1d | double | 1日漲跌幅（%） |
+| pv_return_26w | double | 26週漲跌幅（%） |
+| pv_rel_return_26w | double | 相對基準26週漲跌幅（%） |
+| pv_return_52w | double | 52週漲跌幅（%） |
+| pv_rel_return_52w | double | 相對基準52週漲跌幅（%） |
+| pv_return_5d | double | 5日漲跌幅（%） |
+| pv_return_ytd | double | 年初至今漲跌幅（%） |
+| pv_rel_return_ytd | double | 相對基準年初至今漲跌幅（%） |
+| pv_avg_vol_10d | double | 10日平均成交量 |
+| pv_avg_monthly_vol_13w | double | 13週平均月成交量 |
+| pv_close | double | 最新收盤價 |
+| pv_close_date | str | 最新收盤價日期 |
+| pv_close_currency | str | 收盤價貨幣單位 |
+| pv_avg_vol_90d | double | 90日平均成交量 |
+| pv_avg_val_3m | double | 3個月平均日成交金額 |
+
+#### 17.4. 使用範例
+
+##### 17.4.1. 取得某一港股公司股東持股報告
+
+```python
+import tqx_data
+result = tqx_data.get_company_price_vol(
+    market='hk',
+    symbol=[""],
+    fields=["pv_beta_5y","pv_rel_return_26w"]
+)
+print(result)
+```
+
+**回應範例**
+
+```text
+symbol pv_beta_5y pv_rel_return_26w
+0 0001.HK 0.592207 25.364034
+1 0002.HK 0.244215 12.544505
+2 0003.HK 0.434090 -0.222832
+3 0004.HK 0.451330 11.580112
+4 0005.HK 1.355217 23.942310
+... ... ... ...
+2850 9995.HK 1.052884 21.851235
+2851 9996.HK 1.294652 14.637149
+2852 9997.HK 0.681334 12.775834
+2853 9998.HK 0.748572 -16.618340
+2854 9999.HK 0.883445 -23.775904
+```

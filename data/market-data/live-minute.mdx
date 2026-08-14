@@ -1,3 +1,178 @@
 ---
 title: "Live minute data"
+description: "Retrieve live minute bars for Hong Kong and US stocks."
 ---
+
+#### 5.1. Method name: get_min_data
+
+#### 5.2. Enter parameters
+
+| Field | Type | Description | Is it required |
+|:---|:---|:---|:---|
+| symbol | Optional\[Union\[str, List\[str\]\]\] | Stock code | Optional |
+| count | int | The number of minute lines returned (500 lines are returned by default) | Optional |
+| market | Optional\[str\] | Market, default is ‘hk’, optional ‘hk’, ‘nb’ | Optional |
+| frequency | Optional\[str\] | Frequency, supports "1m", "5m", "10m", "60m", default is "1m" | Optional |
+
+#### 5.3. Response parameters
+
+| Field | Type | Description |
+|:-------|:-------|:-------------|
+| date | str | date and time |
+| symbol | str | stock code |
+| open | double | minute opening price |
+| high | double | highest price per minute |
+| low | double | lowest price per minute |
+| close | double | minute closing price |
+| volume | double | minute volume |
+| amount | double | minute transaction amount |
+
+#### 5.4. Usage examples
+
+##### 5.4.1. Get real-time minute line data of 2 stocks
+
+```python
+import tqx_data
+result = tqx_data.get_min_data(
+    symbol=["0700.HK","AAPL.NB"],
+    count=500,
+)
+print(result)
+```
+
+**Response Example**
+
+```text
+symbol date open ... close volume amount
+0 0700.HK 2026-03-17 13:10:00 561.00 ... 561.0000 14500.0 8.134500e+06
+1 0700.HK 2026-03-17 13:11:00 561.00 ... 558.0000 82500.0 4.603500e+07
+2 0700.HK 2026-03-17 13:12:00 558.00 ... 559.0000 39100.0 2.185690e+07
+3 0700.HK 2026-03-17 13:13:00 559.50 ... 559.0000 20600.0 1.151540e+07
+4 0700.HK 2026-03-17 13:14:00 559.00 ... 559.0000 9400.0 5.254600e+06
+.. ... ... ... ... ... ... ...
+995 AAPL.NB 2026-03-18 23:13:00 252.81 ... 252.7700 20841.0 5.267796e+06
+996 AAPL.NB 2026-03-18 23:14:00 252.76 ... 252.5200 25664.0 6.482680e+06
+997 AAPL.NB 2026-03-18 23:15:00 252.77 ... 252.4700 16429.0 4.148977e+06
+998 AAPL.NB 2026-03-18 23:16:00 252.52 ... 252.3900 20952.0 5.289706e+06
+999 AAPL.NB 2026-03-18 23:17:00 252.38 ... 252.5082 16155.0 4.078721e+06
+```
+
+##### 5.4.2. Obtain real-time minute line data of all Hong Kong stocks
+
+```python
+import tqx_data
+result = tqx_data.get_min_data(
+    symbol=[],
+    count=500,
+    market="hk",
+)
+print(result)
+```
+
+**Response Example**
+
+```text
+symbol date open ... close volume amount
+0 0856.HK 2026-03-17 13:10:00 8.250 ... 8.250 0.0 0.0
+1 0856.HK 2026-03-17 13:11:00 8.240 ... 8.230 38000.0 312740.0
+2 0856.HK 2026-03-17 13:12:00 8.220 ... 8.240 76000.0 626240.0
+3 0856.HK 2026-03-17 13:13:00 8.230 ... 8.230 8000.0 65840.0
+4 0856.HK 2026-03-17 13:14:00 8.230 ... 8.230 0.0 0.0
+... ... ... ... ... ... ... ...
+1365648 0855.HK 2026-03-18 15:55:00 5.335 ... 5.335 0.0 0.0
+1365649 0855.HK 2026-03-18 15:56:00 5.340 ... 5.340 2000.0 10680.0
+1365650 0855.HK 2026-03-18 15:57:00 5.340 ... 5.340 6000.0 32040.0
+1365651 0855.HK 2026-03-18 15:58:00 5.340 ... 5.340 0.0 0.0
+1365652 0855.HK 2026-03-18 15:59:00 5.340 ... 5.340 2000.0 10680.0
+```
+
+##### 5.4.3. Obtain real-time minute line data of U.S. stocks
+
+```python
+import tqx_data
+result = tqx_data.get_min_data(
+    symbol=[],
+    count=500,
+    market="nb",
+)
+print(result)
+```
+
+**Response Example**
+
+```text
+symbol date open ... close volume amount
+0 BDTX.NB 2026-03-17 21:31:00 2.1900 ... 2.2100 3008.0 6647.68
+1 BDTX.NB 2026-03-17 21:32:00 2.1931 ... 2.2050 2790.0 6151.95
+2 BDTX.NB 2026-03-17 21:33:00 2.2050 ... 2.1622 950.0 2054.09
+3 BDTX.NB 2026-03-17 21:34:00 2.1747 ... 2.2200 5590.0 12409.80
+4 BDTX.NB 2026-03-17 21:35:00 2.2200 ... 2.2300 800.0 1784.00
+... ... ... ... ... ... ... ...
+3241075 WDH.NB 2026-03-18 23:20:00 1.7200 ... 1.7100 0.0 0.00
+3241076 WDH.NB 2026-03-18 23:21:00 1.7200 ... 1.7100 0.0 0.00
+3241077 WDH.NB 2026-03-18 23:22:00 1.7200 ... 1.7100 0.0 0.00
+3241078 WDH.NB 2026-03-18 23:23:00 1.7200 ... 1.7100 0.0 0.00
+3241079 WDH.NB 2026-03-18 23:24:00 1.7200 ... 1.7100 0.0 0.00
+```
+
+##### 5.4.4. Obtain real-time 10-minute line data of all Hong Kong stocks
+
+```python
+import tqx_data
+result = tqx_data.get_min_data(
+    symbol=[],
+    count=500,
+    market="hk",
+    frequency="10m",
+)
+print(result)
+```
+
+**Response Example**
+
+```text
+symbol date amount ... low open volume
+0 0001.HK 2026-03-23 13:30:00 16617500.0 ... 57.70 57.9 287500.0
+1 0001.HK 2026-03-23 13:40:00 6336000.0 ... 57.60 57.8 110000.0
+2 0001.HK 2026-03-23 13:50:00 15596050.0 ... 57.50 57.6 271000.0
+3 0001.HK 2026-03-23 14:00:00 18556350.0 ... 57.40 57.5 323000.0
+4 0001.HK 2026-03-23 14:10:00 15868800.0 ... 57.45 57.5 275500.0
+... ... ... ... ... ... ... ...
+1356075 9999.HK 2026-04-16 13:30:00 13094930.0 ... 185.60 186.0 70500.0
+1356076 9999.HK 2026-04-16 13:40:00 11862670.0 ... 185.40 185.7 63900.0
+1356077 9999.HK 2026-04-16 13:50:00 17880440.0 ... 185.70 185.9 96200.0
+1356078 9999.HK 2026-04-16 14:00:00 16669740.0 ... 185.70 186.0 89700.0
+1356079 9999.HK 2026-04-16 14:10:00 24277210.0 ... 185.90 186.0 130500.0
+```
+
+##### 5.4.5. Get real-time 5-minute line data of U.S. stocks
+
+```python
+import tqx_data
+result = tqx_data.get_min_data(
+    symbol=[],
+    count=500,
+    market="nb",
+    frequency="5m"
+)
+print(result)
+```
+
+**Response Example**
+
+```text
+symbol date open ... close volume amount
+0 A.NB 2026-04-08 01:20:00 113.850 ... 113.9300 1200.0 1.367160e+05
+1 A.NB 2026-04-08 01:25:00 113.955 ... 114.0200 1962.0 2.237072e+05
+2 A.NB 2026-04-08 01:30:00 114.040 ... 114.0625 2655.0 3.028359e+05
+3 A.NB 2026-04-08 01:35:00 114.200 ... 114.3600 2940.0 3.362184e+05
+4 A.NB 2026-04-08 01:40:00 114.360 ... 114.2700 6615.0 7.558960e+05
+... ... ... ... ... ... ... ...
+3229329 ZYME.NB 2026-04-16 03:35:00 27.820 ... 27.8400 966.0 2.689344e+04
+3229330 ZYME.NB 2026-04-16 03:40:00 27.820 ... 27.8500 4555.0 1.268568e+05
+3229331 ZYME.NB 2026-04-16 03:45:00 27.850 ... 27.8900 4377.0 1.220745e+05
+3229332 ZYME.NB 2026-04-16 03:50:00 27.890 ... 27.7400 10878.0 3.017557e+05
+3229333 ZYME.NB 2026-04-16 03:55:00 27.730 ... 27.7500 70975.0 1.969556e+06
+```
+
+**6. Obtain the latest tick data of Hong Kong and US stocks**

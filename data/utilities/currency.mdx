@@ -1,3 +1,42 @@
 ---
-title: "Currency"
+title: "Currency data"
+description: "Retrieve currency conversion data used by TQX research workflows."
 ---
+
+### 1. Get currency data
+
+#### 1.1. Method name: get_currency
+
+#### 1.2. Enter parameters
+
+| Field | Type | Description | Is it required |
+|:---|:---|:---|:---|
+| start_date | Optional\[str\] | Start date,eg:"20250702" | Optional |
+| end_date | Optional\[str\] | End date,eg:"20250702" | Optional |
+| fields | Optional\[Union\[str, List\[str\]\]\] | Exchange rate list | Optional |
+
+#### 1.3. Response parameters
+
+| Field | Type | Description |
+|:--------|:-------|:-------------|
+| date | str | date |
+| CNY_HKD | double | RMB to Hong Kong dollar |
+| CNY_USD | double | RMB to US dollar |
+| HKD_USD | double | Hong Kong dollar to US dollar |
+| HKD_CNY | double | Hong Kong dollar to Chinese yuan |
+| USD_CNY | double | US dollar to Chinese yuan |
+| USD_HKD | double | US dollar to Hong Kong dollar |
+
+#### 1.4. Usage examples
+
+##### 1.4.1. Obtain some backtest factors of a single Hong Kong stock
+
+```python
+import tqx_data
+result = tqx_data.get_currency(
+    start_date="20260101",
+    end_date="20260131",
+    field=[],
+)
+print(result)
+```

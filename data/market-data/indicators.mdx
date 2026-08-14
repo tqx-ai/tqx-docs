@@ -1,3 +1,64 @@
 ---
-title: "Indicators"
+title: "Technical indicators"
+description: "Calculate technical indicators from market data."
 ---
+
+#### 7.1. Method name: calculate_indicators
+
+#### 7.2. Enter parameters
+
+
+| Field | Type | Description |
+|:---|:---|:---|
+| market_data | Dict[str, List[Dict]] | Dictionary of real-time market data grouped by stock code |
+| indicator_params | Dict[str, Dict] | Dictionary of indicator parameters. Format: `{"rsi": {"period": 7, "limit": 30}, "macd": {"period": 26, "limit": 30}}`. `period` is required; for MACD it is the slow-line period. `limit` is optional and defaults to `period`. Supported indicators: rsi, macd, atr, ema, boll |
+
+
+#### 7.3 Response parameters
+
+| Field | Type | Description |
+|:---------------|:-------|:------------------|
+| symbol | str | stock code |
+| rsi\_{period} | Double | RSI indicator result list |
+| macd\_{period} | Double | MACD indicator result list |
+| atr\_{period} | Double | ATR indicator result list |
+| ema\_{period} | Double | EMA indicator result list |
+| boll\_{period} | Double | BOLL indicator result list |
+
+#### 7.4 Usage examples
+
+```python
+import tqx_data
+market_data = tqx_data.get_live_market_data(
+    symbols=["0005.HK"],
+    count=60,
+)
+result = tqx_data.calculate_indicators(
+    market_data = market_data,
+    indicator_params={
+        "rsi": {"period": 7, "limit": 5},
+        "macd": {"period": 26, "limit": 5},
+    },
+)
+print(result)
+```
+
+**Response Example**
+
+```json
+{'0005.HK': {'rsi_7': [
+51.38758258818659,
+51.38758258818659,
+51.38758258818659,
+59.3371266618274,
+59.3371266618274
+], 'macd_26': [
+0.07868518510328215,
+0.0743897749055975,
+0.07015702290236447,
+0.07528413372823195,
+0.07831080401081181
+]
+}
+}
+```

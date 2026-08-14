@@ -1,3 +1,237 @@
 ---
-title: "分鐘線數據"
+title: "分鐘數據"
+description: "取得港股與美股的歷史分鐘線資料。"
 ---
+
+### 3. 取得港股分鐘線數據
+
+#### 3.1. 方法名稱：get_hk_min
+
+#### 3.2. 入參
+
+| 欄位 | 類型 | 說明 | 是否必填 |
+|:---|:---|:---|:---|
+| start_date | str | 開始日期,eg:"20250702" | 必填 |
+| end_date | str | 結束日期,eg:"20250702" | 必填 |
+| symbol | Optional\[Union\[str, List\[str\]\]\] | 股票代號, 當symbol為空時，開始與結束日期不能超過1個月 | 非必填 |
+| fields | Optional\[Union\[str, List\[str\]\]\] | 返回欄位,如果不傳,預設為 "open","high", "low","close","volume"和"amount" | 非必填 |
+| time_zone | Optional\[tuple\] | 時段過濾,格式為("HH:MM", "HH:MM")，例如("10:00", "23:00") | 非必填 |
+| frequency | Optional\[str\] | 頻率, 支援 "1m", "5m", "10m", "60m",預設為"1m" | 非必填 |
+
+#### 3.3. 回應參數
+
+| 字段 | 類型 | 描述 |
+|:-----------|:-------|:---------------------|
+| date | str | 日期 |
+| datetime | str | 日期與時間 |
+| minute | str | 時間（精準至分） |
+| symbol | str | 檔 |
+| open | double | 分鐘開盤價 |
+| high | double | 分鐘最高價 |
+| low | double | 分鐘最低價 |
+| close | double | 分鐘收盤價 |
+| volume | double | 分鐘成交量 |
+| amount | double | 分鐘成交金額 |
+| num_trades | double | 分鐘成交筆數 |
+| high_yld | double | 分鐘最高收益率 |
+| low_yld | double | 分鐘最低收益率 |
+| open_yld | double | 分鐘開盤收益率 |
+| yield | double | 分鐘收盤收益率 |
+| vwap | double | 分鐘成交量加權平均價 |
+| bid_high | double | 買盤最高優惠 |
+| bid_low | double | 買盤最低報價 |
+| open_bid | double | 開盤買盤價 |
+| bid | double | 收盤買盤價 |
+| bid_nummov | double | 買盤變動次數 |
+| ask_high | double | 賣盤最高報價 |
+| ask_low | double | 賣盤最低報價 |
+| open_ask | double | 開盤賣價 |
+| ask | double | 收盤賣盤價 |
+| ask_nummov | double | 賣盤變動次數 |
+| mid_high | double | 中間價最高值 |
+| mid_low | double | 中間價最低值 |
+| mid_open | double | 開盤中間價 |
+| mid_price | double | 收盤中間價 |
+
+#### 3.4. 使用範例
+
+##### 3.4.1. 取得單一股票的1分鐘線資料並使用fields
+
+```python
+import tqx_data
+result = tqx_data.get_hk_min(
+    symbol="0700.HK",
+    start_date="20260101",
+    end_date="20260131",
+    fields=["symbol", "date", "num_trades", "amount", "volume"],
+    frequency="1m",
+    time_zone=("10:00", "11:00")
+)
+print(result)
+```
+
+**回應範例**
+
+```text
+symbol date num_trades ... volume datetime minute
+0 0700.HK 20260102 415.0 ... 109000.0 2026-01-02 10:00:00 100000
+1 0700.HK 20260102 89.0 ... 26900.0 2026-01-02 10:01:00 100100
+2 0700.HK 20260102 61.0 ... 17200.0 2026-01-02 10:02:00 100200
+3 0700.HK 20260102 250.0 ... 97900.0 2026-01-02 10:03:00 100300
+4 0700.HK 20260102 266.0 ... 182600.0 2026-01-02 10:04:00 100400
+... ... ... ... ... ... ... ...
+1276 0700.HK 20260130 37.0 ... 12700.0 2026-01-30 10:56:00 105600
+1277 0700.HK 20260130 32.0 ... 6900.0 2026-01-30 10:57:00 105700
+1278 0700.HK 20260130 96.0 ... 29800.0 2026-01-30 10:58:00 105800
+1279 0700.HK 20260130 43.0 ... 10300.0 2026-01-30 10:59:00 105900
+1280 0700.HK 20260130 140.0 ... 62900.0 2026-01-30 11:00:00 110000
+```
+
+##### 3.4.2. 取得多支股票的10分鐘線數據
+
+```python
+import tqx_data
+result = tqx_data.get_hk_min(
+    symbol=["0700.HK","0003.HK"],
+    start_date="20260101",
+    end_date="20260131",
+    fields=[],
+    frequency="10m",
+    time_zone=("10:00", "11:00")
+)
+print(result)
+```
+
+**回應範例**
+
+```text
+symbol date datetime ... close volume amount
+0 0003.HK 20260102 2026-01-02 10:00:00 ... 7.07 305000.0 2156350.0
+1 0003.HK 20260102 2026-01-02 10:10:00 ... 7.09 333000.0 2360970.0
+2 0003.HK 20260102 2026-01-02 10:20:00 ... 7.09 463000.0 3282670.0
+3 0003.HK 20260102 2026-01-02 10:30:00 ... 7.09 324000.0 2297160.0
+4 0003.HK 20260102 2026-01-02 10:40:00 ... 7.09 368000.0 2609120.0
+.. ... ... ... ... ... ... ...
+289 0700.HK 20260130 2026-01-30 10:20:00 ... 613.00 392600.0 240663800.0
+290 0700.HK 20260130 2026-01-30 10:30:00 ... 612.50 797000.0 488162500.0
+291 0700.HK 20260130 2026-01-30 10:40:00 ... 613.50 397200.0 243682200.0
+292 0700.HK 20260130 2026-01-30 10:50:00 ... 614.00 333900.0 205014600.0
+293 0700.HK 20260130 2026-01-30 11:00:00 ... 614.50 296100.0 181953450.0
+```
+
+### 4. 取得美股分鐘線數
+
+#### 4.1. 方法名稱：get_us_min
+
+#### 4.2. 入參
+
+| 欄位 | 類型 | 說明 | 是否必填 |
+|:---|:---|:---|:---|
+| start_date | str | 開始日期,eg:"20250702"此為美國紐約日期） | 必填 |
+| end_date | str | 結束日期,eg:"20250702"（此為美國紐約日期） | 必填 |
+| symbol | Optional\[Union\[str, List\[str\]\]\] | 股票代號, 當symbol為空時，開始與結束日期不能超過1個月 | 非必填 |
+| fields | Optional\[Union\[str, List\[str\]\]\] | 返回欄位,如果不傳,預設為 "open","high", "low","close","volume"和"amount" | 非必填 |
+| time_zone | Optional\[tuple\] | 時段過濾,格式為("HH:MM", "HH:MM")，例如("10:00", "23:00") | 非必填 |
+| frequency | Optional\[str\] | 頻率, 支援 "1m", "5m", "10m", "60m",預設為"1m" | 非必填 |
+
+#### 4.3. 回應參數
+
+| 字段 | 類型 | 描述 |
+|:------------|:-------|:---------------------------|
+| us_date | str | 美國紐約日期 |
+| us_datetime | str | 美國紐約日期與時間 |
+| us_minute | str | 美國紐約時間（精準至分） |
+| cn_date | str | 中國日期 |
+| cn_datetime | str | 中國日期與時間 |
+| cn_minute | str | 中國時間（精準至分） |
+| symbol | str | 檔 |
+| open | double | 分鐘開盤價 |
+| high | double | 分鐘最高價 |
+| low | double | 分鐘最低價 |
+| close | double | 分鐘收盤價 |
+| volume | double | 分鐘成交量 |
+| amount | double | 分鐘成交金額 |
+| num_trades | double | 分鐘成交筆數 |
+| high_yld | double | 分鐘最高收益率 |
+| low_yld | double | 分鐘最低收益率 |
+| open_yld | double | 分鐘開盤收益率 |
+| yield | double | 分鐘收盤收益率 |
+| vwap | double | 分鐘成交量加權平均價 |
+| bid_high | double | 買盤最高優惠 |
+| bid_low | double | 買盤最低報價 |
+| open_bid | double | 開盤買盤價 |
+| bid | double | 收盤買盤價 |
+| bid_nummov | double | 買盤變動次數 |
+| ask_high | double | 賣盤最高報價 |
+| ask_low | double | 賣盤最低報價 |
+| open_ask | double | 開盤賣價 |
+| ask | double | 收盤賣盤價 |
+| ask_nummov | double | 賣盤變動次數 |
+
+#### 4.4. 使用範例
+
+##### 4.4.1. 取得單一股票的1分鐘線資料並使用fields
+
+```python
+import tqx_data
+result = tqx_data.get_us_min(
+    symbol="AAPL.NB",
+    start_date="20260101",
+    end_date="20260131",
+    fields=["symbol", "date", "num_trades", "amount", "volume"],
+    frequency="1m",
+    time_zone=("10:00", "11:00")
+)
+print(result)
+```
+
+**回應範例**
+
+```text
+symbol us_date num_trades ... volume us_datetime us_minute
+0 AAPL.NB 20260102 557.0 ... 96820.0 2026-01-02 10:00:00 100000
+1 AAPL.NB 20260102 417.0 ... 80610.0 2026-01-02 10:01:00 100100
+2 AAPL.NB 20260102 458.0 ... 88307.0 2026-01-02 10:02:00 100200
+3 AAPL.NB 20260102 429.0 ... 84335.0 2026-01-02 10:03:00 100300
+4 AAPL.NB 20260102 517.0 ... 93921.0 2026-01-02 10:04:00 100400
+... ... ... ... ... ... ... ...
+1215 AAPL.NB 20260130 327.0 ... 72088.0 2026-01-30 10:56:00 105600
+1216 AAPL.NB 20260130 265.0 ... 62458.0 2026-01-30 10:57:00 105700
+1217 AAPL.NB 20260130 507.0 ... 88342.0 2026-01-30 10:58:00 105800
+1218 AAPL.NB 20260130 287.0 ... 51118.0 2026-01-30 10:59:00 105900
+1219 AAPL.NB 20260130 504.0 ... 100017.0 2026-01-30 11:00:00 110000
+```
+
+##### 4.4.2. 取得多檔股票的10分鐘線數據
+
+```python
+import tqx_data
+result = tqx_data.get_us_min(
+    symbol=["AAPL.NB", "TSLE.NB"],
+    start_date="20260101",
+    end_date="20260131",
+    fields=[],
+    frequency="10m",
+    time_zone=("10:00", "11:00")
+)
+print(result)
+```
+
+**回應範例**
+
+```text
+symbol us_date ... us_datetime us_minute
+0 AAPL.NB 20260102 ... 2026-01-02 10:00:00 100000
+1 AAPL.NB 20260102 ... 2026-01-02 10:10:00 101000
+2 AAPL.NB 20260102 ... 2026-01-02 10:20:00 102000
+3 AAPL.NB 20260102 ... 2026-01-02 10:30:00 103000
+4 AAPL.NB 20260102 ... 2026-01-02 10:40:00 104000
+.. ... ... ... ... ...
+275 TSLA.NB 20260130 ... 2026-01-30 10:20:00 102000
+276 TSLA.NB 20260130 ... 2026-01-30 10:30:00 103000
+277 TSLA.NB 20260130 ... 2026-01-30 10:40:00 104000
+278 TSLA.NB 20260130 ... 2026-01-30 10:50:00 105000
+279 TSLA.NB 20260130 ... 2026-01-30 11:00:00 110000
+```
+
+5\. **取得港美股即時分鐘線數據**

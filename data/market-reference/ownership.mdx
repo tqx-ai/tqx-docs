@@ -1,3 +1,310 @@
 ---
-title: "Ownership and insider activity"
+title: "Ownership data"
+description: "Retrieve investor concentration, rankings, insider transactions, and shareholder reports."
 ---
+
+### 8. Obtain the company’s investor concentration ratio
+
+#### 8.1. Method name: get_company_concentration
+
+#### 8.2. Enter parameters
+
+| Field | Type | Description | Is it required |
+|:---|:---|:---|:---|
+| symbol | Optional\[Union\[str, List\[str\]\]\] | Stock code | Optional |
+| fields | Optional\[Union\[str, List\[str\]\]\] | Return fields | Optional |
+| market | str | Market, supports "hk", "us", default is "hk" | required |
+
+#### 8.3. Response parameters
+
+| Field | Type | Description |
+|:---------------------------|:-------|:-------------------------|
+| symbol | str | stock code |
+| currency | str | Transaction currency |
+| total_investors | int | Total number of investors |
+| investor_outstanding_ratio | double | Ratio of investors’ holdings to total outstanding shares |
+| total_sharehold | double | total shareholding |
+| total_holdings_value | double | Total holdings value |
+
+#### 8.4. Usage examples
+
+##### 8.4.1. Obtain investor concentration data of all Hong Kong stock companies
+
+```python
+import tqx_data
+result = tqx_data.get_company_concentration(
+    market='hk',
+    symbol="",
+    fields=[],
+)
+print(result)
+```
+
+**Response Example**
+
+```text
+symbol currency ... total_sharehold total_holdings_value
+0 0001.HK HKD ... 2.042810e+09 1.294356e+10
+1 0002.HK HKD ... 1.026492e+09 9.308294e+09
+2 0003.HK HKD ... 9.963026e+09 8.726823e+09
+3 0004.HK HKD ... 2.243385e+09 6.330515e+09
+4 0005.HK USD ... 8.827207e+09 1.567821e+11
+... ... ... ... ... ...
+2707 9995.HK CNY ... 7.764612e+07 7.876332e+08
+2708 9996.HK CNY ... 3.606810e+08 2.498107e+08
+2709 9997.HK CNY ... 2.440423e+08 2.016341e+08
+2710 9998.HK SGD ... 6.000000e+08 1.467572e+07
+2711 9999.HK CNY ... 2.200467e+09 4.651509e+10
+```
+
+### 9. Obtain the concentration ratio of the top 20 investors in the company
+
+#### 9.1. Method name: get_company_top_concentration
+
+#### 9.2. Enter parameters
+
+| Field | Type | Description | Is it required |
+|:---|:---|:---|:---|
+| symbol | Optional\[Union\[str, List\[str\]\]\] | Stock code | Optional |
+| fields | Optional\[Union\[str, List\[str\]\]\] | Return fields | Optional |
+| market | str | Market, supports "hk", "us", default is "hk" | required |
+
+#### 9.3. Response parameters
+
+| Field | Type | Description |
+|:---|:---|:---|
+| symbol | str | stock code |
+| currency | str | Transaction currency |
+| top_investors_num | int | The number of top n investors (usually 20 for this interface, if there are less than 20 investors, less than 20 will be returned) |
+| investor_outstanding_ratio | double | Ratio of investors’ holdings to total outstanding shares |
+| sharehold | double | Total shareholdings of the top n investors |
+| holdings_value | double | The total stock market value of the top n investors |
+
+#### 9.4. Usage examples
+
+##### 9.4.1. Obtain investor concentration data of all Hong Kong stock companies
+
+```python
+import tqx_data
+result = tqx_data.get_company_top_concentration(
+    market='hk',
+    symbol="",
+    fields=[],
+)
+print(result)
+```
+
+**Response Example**
+
+```text
+symbol currency ... sharehold holdings_value
+0 0001.HK HKD ... 1.726426e+09 1.058605e+10
+1 0002.HK HKD ... 9.395121e+08 8.506187e+09
+2 0003.HK HKD ... 9.405393e+09 8.208555e+09
+3 0004.HK HKD ... 2.212428e+09 6.234463e+09
+4 0005.HK USD ... 6.809123e+09 1.225648e+11
+... ... ... ... ... ...
+2707 9995.HK CNY ... 7.010446e+07 7.125567e+08
+2708 9996.HK CNY ... 3.605222e+08 2.496836e+08
+2709 9997.HK CNY ... 2.433189e+08 2.009243e+08
+2710 9998.HK SGD ... 6.000000e+08 1.467572e+07
+2711 9999.HK CNY ... 1.847153e+09 3.801278e+10
+```
+
+### 10. Obtain the ranking of company investors
+
+#### 10.1. Method name: get_company_investor
+
+#### 10.2. Enter parameters
+
+| Field | Type | Description | Is it required |
+|:---|:---|:---|:---|
+| symbol | Optional\[Union\[str, List\[str\]\]\] | Stock code | Optional |
+| fields | Optional\[Union\[str, List\[str\]\]\] | Return fields | Optional |
+| market | str | Market, supports "hk", "us", default is "hk" | required |
+| max_rank | Optional\[int\] | The maximum returned ranking (a positive integer less than or equal to 20), the default is empty to return the top 20 | Optional |
+
+#### 10.3. Response parameters
+
+| Field | Type | Description |
+|:---------------------------|:-------|:---------------------------|
+| symbol | str | stock code |
+| investor_name | str | investor name |
+| investor_type | str | investor type |
+| investor_outstanding_ratio | double | Ratio of investors’ holdings to total outstanding shares |
+| sharehold | double | investor holdings |
+| sharehold_change | double | Investor shareholding change since last report |
+| info_date | str | Date of this report |
+| turnover_rating | str | turnover rating |
+| currency | str | Transaction currency |
+| rank | int | ranking |
+
+#### 10.4. Usage examples
+
+##### 10.4.1. Obtain the top 10 investor data of all Hong Kong stock companies
+
+```python
+import tqx_data
+result = tqx_data.get_company_investor(
+    market='hk',
+    symbol="",
+    fields=[],
+    max_rank=10
+)
+print(result)
+```
+
+**Response Example**
+
+```text
+symbol investor_name ... rank currency
+0 0001.HK Li (Ka Shing) ... 1 HKD
+1 0001.HK BlackRock Institutional Trust Company, N.A. ... 2 HKD
+2 0001.HK The Vanguard Group, Inc. ... 3 HKD
+3 0001.HK Norges Bank Investment Management (NBIM) ... 4 HKD
+4 0001.HK Hang Seng Investment Management Ltd. ... 5 HKD
+... ... ... ... ... ...
+18252 9999.HK CSOP Asset Management Limited ... 6 CNY
+18253 9999.HK China Asset Management Co., Ltd. ... 7 CNY
+18254 9999.HK BlackRock Advisors (UK) Limited ... 8 CNY
+18255 9999.HK Hang Seng Investment Management Ltd. ... 9 CNY
+18256 9999.HK Norges Bank Investment Management (NBIM) ... 10 CNY
+```
+
+### 11. Obtain company insider trading activity
+
+#### 11.1. Method name: get_company_insider_transaction
+
+#### 11.2. Enter parameters
+
+| Field | Type | Description | Is it required |
+|:---|:---|:---|:---|
+| start_date | str | Start date, eg: "20250702" (this interface queries the message date) | Required |
+| end_date | str | End date, eg: "20250702" (this interface queries the message date) | Required |
+| symbol | Optional\[Union\[str, List\[str\]\]\] | Stock code | Optional |
+| fields | Optional\[Union\[str, List\[str\]\]\] | Return fields | Optional |
+| market | str | Market, supports "hk", "us", default is "hk" | required |
+
+#### 11.3. Response parameters
+
+| Field | Type | Description |
+|:---|:---|:---|
+| symbol | str | stock code |
+| investor_name | str | investor name |
+| investor_type | str | investor type |
+| info_date | str | Message date (date filtering basis) |
+| insider_role | str | insider identity |
+| is_main_role | int | Whether it is the main person (if an internal transaction involves multiple insiders, the one with this field set to 1 is the main person) |
+| insider_active_date | str | Date of becoming an insider |
+| insider_inactive_date | str | Date when no longer considered an insider |
+| transaction_date | str | Transaction occurrence date |
+| transaction_type | str | transaction type |
+| acquisition_type | str | Disposal behavior type |
+| adjusted_trade_shares | double | adjusted number of traded shares |
+| reported_trade_shares | double | Number of reported trading shares |
+| trade_outstanding_ratio | double | The ratio of the number of traded shares to the total outstanding shares |
+| transaction_price | double | transaction price |
+| filing_currency_price | double | The price of the currency at the time of filing |
+| filing_type | str | filing document type |
+| transaction_holding_type | str | Transaction holding method |
+| adjusted_sharehold | double | Number of shares held after adjustment |
+| reported_sharehold | double | reported number of shares held |
+| adjusted_indirect_sharehold | double | Number of indirect shares held after adjustment |
+| reported_indirect_sharehold | double | reported number of indirect shares held |
+| currency | str | Transaction currency |
+
+#### 11.4. Usage examples
+
+##### 11.4.1. Obtain insider trading activities of a Hong Kong stock company within a certain period of time
+
+```python
+import tqx_data
+result = tqx_data.get_company_insider_transaction(
+    market='hk',
+    symbol="0004.HK",
+    fields=[],
+    start_date="20250101",
+    end_date="20251231",
+)
+print(result)
+```
+
+**Response Example**
+
+```text
+symbol investor_name info_date ... adjusted_indirect_sharehold reported_indirect_sharehold currency
+0 0004.HK Fang (Kang Vincent) 20250425 ... NaN NaN HKD
+1 0004.HK Fang (Kang Vincent) 20250428 ... NaN NaN HKD
+2 0004.HK Fang (Kang Vincent) 20250429 ... NaN NaN HKD
+3 0004.HK Fang (Kang Vincent) 20250430 ... NaN NaN HKD
+4 0004.HK Fang (Kang Vincent) 20250502 ... NaN NaN HKD
+5 0004.HK Fang (Kang Vincent) 20250506 ... NaN NaN HKD
+```
+
+### 12. Obtain the company’s shareholder shareholding report
+
+#### 12.1. Method name: get_company_shareholder_report
+
+#### 12.2. Enter parameters
+
+| Field | Type | Description | Is it required |
+|:---|:---|:---|:---|
+| start_date | str | Start date, eg: "20250702" (this interface queries the shareholding report date) | Required |
+| end_date | str | End date, eg: "20250702" (this interface queries the date of shareholding report) | Required |
+| symbol | Optional\[Union\[str, List\[str\]\]\] | Stock code | Optional |
+| fields | Optional\[Union\[str, List\[str\]\]\] | Return fields | Optional |
+| market | str | Market, supports "hk", "us", default is "hk" | required |
+
+#### 12.3. Response parameters
+
+| Field | Type | Description |
+|:---|:---|:---|
+| symbol | str | stock code |
+| investor_name | str | investor name |
+| investor_category | str | Investor category |
+| investor_type | str | Investor detailed category |
+| investment_activeness_orientation | str | investment activity orientation |
+| turnover_rating | str | turnover rating |
+| Turnover_ratio | double | Turnover ratio (the amount of trading activity relative to investors’ total assets) |
+| total_equity_assets | double | total equity assets |
+| sharehold | double | number of shares held |
+| outstanding_ratio | double | Ratio of shares held to total outstanding shares |
+| hold_portfolio_ratio | double | The proportion of holdings in investor's portfolio |
+| sharehold_value | double | position market value |
+| holding_date | str | Holding report date (date filtering basis) |
+| filing_type | str | filing type |
+| sharehold_change | double | Number of shareholding changes since the last reported time |
+| sharehold_value_change | double | Position market value change |
+| outstanding_ratio_change | double | Change in proportion of total outstanding shares |
+| sharehold_change_ratio | double | percentage change in shareholding number |
+| prev_sharehold | double | Number of shares held in the previous period |
+| prev_outstanding_ratio | double | Ratio of the previous period to total outstanding shares |
+| prev_sharehold_value | double | market value of positions in the previous period |
+| prev_holding_date | str | Last holding report date |
+| prev_filing_type | str | Previous reporting type |
+| currency | str | Transaction currency |
+
+#### 12.4. Usage examples
+
+##### 12.4.1. Obtain the shareholder shareholding report of a certain Hong Kong stock company within a certain period of time
+
+```python
+import tqx_data
+result = tqx_data.get_company_shareholder_report(
+    market='hk',
+    symbol="8510.HK",
+    fields=[],
+    start_date="20250101",
+    end_date="20251231",
+)
+print(result)
+```
+
+**Response Example**
+
+```text
+symbol currency investor_name ... prev_sharehold_value prev_holding_date prev_filing_type
+0 8510.HK HKD Chuk (Stanley) ... 457944.91 20241231 Hong Kong Insider
+1 8510.HK HKD Chuan (Hng Bok) ... 328943.66 20241231 Shareholder Report
+2 8510.HK HKD Lau (Wing Kee) ... 228433.10 20241231 Shareholder Report NaN HKD
+```

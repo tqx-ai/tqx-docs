@@ -1,3 +1,310 @@
 ---
-title: "持股與內部人活動"
+title: "持股資料"
+description: "取得投資者集中度、排行、內部人交易與股東持股報告。"
 ---
+
+### 8. 取得公司投資人集中度
+
+#### 8.1. 方法名稱：get_company_concentration
+
+#### 8.2. 入參
+
+| 欄位 | 類型 | 說明 | 是否必填 |
+|:---|:---|:---|:---|
+| symbol | Optional\[Union\[str, List\[str\]\]\] | 股票代號 | 非必填 |
+| fields | Optional\[Union\[str, List\[str\]\]\] | 傳回欄位 | 非必填 |
+| market | str | 市場，支持"hk" ,"us"，預設為"hk" | 必填 |
+
+#### 8.3. 回應參數
+
+| 字段 | 類型 | 描述 |
+|:---------------------------|:-------|:-------------------------|
+| symbol | str | 檔 |
+| currency | str | 交易幣種 |
+| total_investors | int | 總投資者數 |
+| investor_outstanding_ratio | double | 投資人持有佔總流通股比例 |
+| total_sharehold | double | 總持股 |
+| total_holdings_value | double | 總持股市值 |
+
+#### 8.4. 使用範例
+
+##### 8.4.1. 取得全港股公司投資人集中度數據
+
+```python
+import tqx_data
+result = tqx_data.get_company_concentration(
+    market='hk',
+    symbol="",
+    fields=[],
+)
+print(result)
+```
+
+**回應範例**
+
+```text
+symbol currency ... total_sharehold total_holdings_value
+0 0001.HK HKD ... 2.042810e+09 1.294356e+10
+1 0002.HK HKD ... 1.026492e+09 9.308294e+09
+2 0003.HK HKD ... 9.963026e+09 8.726823e+09
+3 0004.HK HKD ... 2.243385e+09 6.330515e+09
+4 0005.HK USD ... 8.827207e+09 1.567821e+11
+... ... ... ... ... ...
+2707 9995.HK CNY ... 7.764612e+07 7.876332e+08
+2708 9996.HK CNY ... 3.606810e+08 2.498107e+08
+2709 9997.HK CNY ... 2.440423e+08 2.016341e+08
+2710 9998.HK SGD ... 6.000000e+08 1.467572e+07
+2711 9999.HK CNY ... 2.200467e+09 4.651509e+10
+```
+
+### 9. 取得公司前20投資者集中度
+
+#### 9.1. 方法名稱：get_company_top_concentration
+
+#### 9.2. 入參
+
+| 欄位 | 類型 | 說明 | 是否必填 |
+|:---|:---|:---|:---|
+| symbol | Optional\[Union\[str, List\[str\]\]\] | 股票代號 | 非必填 |
+| fields | Optional\[Union\[str, List\[str\]\]\] | 傳回欄位 | 非必填 |
+| market | str | 市場，支持"hk" ,"us"，預設為"hk" | 必填 |
+
+#### 9.3. 回應參數
+
+| 字段 | 類型 | 描述 |
+|:---|:---|:---|
+| symbol | str | 檔 |
+| currency | str | 交易幣種 |
+| top_investors_num | int | 前n個投資者數（對於此介面通常為20，不足20個投資者的會回傳小於20） |
+| investor_outstanding_ratio | double | 投資人持有佔總流通股比例 |
+| sharehold | double | 前n個投資者總持股 |
+| holdings_value | double | 前n個投資人總持股市值 |
+
+#### 9.4. 使用範例
+
+##### 9.4.1. 取得全港股公司投資人集中度數據
+
+```python
+import tqx_data
+result = tqx_data.get_company_top_concentration(
+    market='hk',
+    symbol="",
+    fields=[],
+)
+print(result)
+```
+
+**回應範例**
+
+```text
+symbol currency ... sharehold holdings_value
+0 0001.HK HKD ... 1.726426e+09 1.058605e+10
+1 0002.HK HKD ... 9.395121e+08 8.506187e+09
+2 0003.HK HKD ... 9.405393e+09 8.208555e+09
+3 0004.HK HKD ... 2.212428e+09 6.234463e+09
+4 0005.HK USD ... 6.809123e+09 1.225648e+11
+... ... ... ... ... ...
+2707 9995.HK CNY ... 7.010446e+07 7.125567e+08
+2708 9996.HK CNY ... 3.605222e+08 2.496836e+08
+2709 9997.HK CNY ... 2.433189e+08 2.009243e+08
+2710 9998.HK SGD ... 6.000000e+08 1.467572e+07
+2711 9999.HK CNY ... 1.847153e+09 3.801278e+10
+```
+
+### 10. 取得公司投資者排行
+
+#### 10.1. 方法名稱：get_company_investor
+
+#### 10.2. 入參
+
+| 欄位 | 類型 | 說明 | 是否必填 |
+|:---|:---|:---|:---|
+| symbol | Optional\[Union\[str, List\[str\]\]\] | 股票代號 | 非必填 |
+| fields | Optional\[Union\[str, List\[str\]\]\] | 傳回欄位 | 非必填 |
+| market | str | 市場，支持"hk" ,"us"，預設為"hk" | 必填 |
+| max_rank | Optional\[int\] | 最大回傳排名（小於等於20的正整數），預設為空白回傳前20名 | 非必填 |
+
+#### 10.3. 回應參數
+
+| 字段 | 類型 | 描述 |
+|:---------------------------|:-------|:---------------------------|
+| symbol | str | 檔 |
+| investor_name | str | 投資人名稱 |
+| investor_type | str | 投資人類型 |
+| investor_outstanding_ratio | double | 投資人持有佔總流通股比例 |
+| sharehold | double | 投資人持股 |
+| sharehold_change | double | 投資人持股較上一次報告變動 |
+| info_date | str | 此次報告日期 |
+| turnover_rating | str | 換手率評級 |
+| currency | str | 交易幣種 |
+| rank | int | 排行 |
+
+#### 10.4. 使用範例
+
+##### 10.4.1. 取得全港股公司前10投資者數據
+
+```python
+import tqx_data
+result = tqx_data.get_company_investor(
+    market='hk',
+    symbol="",
+    fields=[],
+    max_rank=10
+)
+print(result)
+```
+
+**回應範例**
+
+```text
+symbol investor_name ... rank currency
+0 0001.HK Li (Ka Shing) ... 1 HKD
+1 0001.HK BlackRock Institutional Trust Company, N.A. ... 2 HKD
+2 0001.HK The Vanguard Group, Inc. ... 3 HKD
+3 0001.HK Norges Bank Investment Management (NBIM) ... 4 HKD
+4 0001.HK Hang Seng Investment Management Ltd. ... 5 HKD
+... ... ... ... ... ...
+18252 9999.HK CSOP Asset Management Limited ... 6 CNY
+18253 9999.HK China Asset Management Co., Ltd. ... 7 CNY
+18254 9999.HK BlackRock Advisors (UK) Limited ... 8 CNY
+18255 9999.HK Hang Seng Investment Management Ltd. ... 9 CNY
+18256 9999.HK Norges Bank Investment Management (NBIM) ... 10 CNY
+```
+
+### 11. 取得公司內部人交易活動
+
+#### 11.1. 方法名稱：get_company_insider_transaction
+
+#### 11.2. 入參
+
+| 欄位 | 類型 | 說明 | 是否必填 |
+|:---|:---|:---|:---|
+| start_date | str | 開始日期,eg:"20250702"（此介面查詢訊息日期） | 必填 |
+| end_date | str | 結束日期,eg:"20250702"（此介面查詢訊息日期） | 必填 |
+| symbol | Optional\[Union\[str, List\[str\]\]\] | 股票代號 | 非必填 |
+| fields | Optional\[Union\[str, List\[str\]\]\] | 傳回欄位 | 非必填 |
+| market | str | 市場，支持"hk" ,"us"，預設為"hk" | 必填 |
+
+#### 11.3. 回應參數
+
+| 字段 | 類型 | 描述 |
+|:---|:---|:---|
+| symbol | str | 檔 |
+| investor_name | str | 投資人名稱 |
+| investor_type | str | 投資人類型 |
+| info_date | str | 訊息日期（日期篩選依據） |
+| insider_role | str | 內部人身分 |
+| is_main_role | int | 是否為主要人物（若某次內部交易涉及多個內部人，則此欄位為1的為主要人物） |
+| insider_active_date | str | 成為內部人日期 |
+| insider_inactive_date | str | 不再視為內部人日期 |
+| transaction_date | str | 交易發生日期 |
+| transaction_type | str | 交易類型 |
+| acquisition_type | str | 處置行為類型 |
+| adjusted_trade_shares | double | 調整後交易股數 |
+| reported_trade_shares | double | 申報交易股數 |
+| trade_outstanding_ratio | double | 交易股數佔總流通股數 |
+| transaction_price | double | 交易價格 |
+| filing_currency_price | double | 申報時貨幣的價格 |
+| filing_type | str | 申報文件類型 |
+| transaction_holding_type | str | 交易持有方式 |
+| adjusted_sharehold | double | 調整後持有股數 |
+| reported_sharehold | double | 申報持有股數 |
+| adjusted_indirect_sharehold | double | 調整後間接持有股數 |
+| reported_indirect_sharehold | double | 申報間接持有股數 |
+| currency | str | 交易幣種 |
+
+#### 11.4. 使用範例
+
+##### 11.4.1. 取得某一港股公司內部人在一定時間內交易活動
+
+```python
+import tqx_data
+result = tqx_data.get_company_insider_transaction(
+    market='hk',
+    symbol="0004.HK",
+    fields=[],
+    start_date="20250101",
+    end_date="20251231",
+)
+print(result)
+```
+
+**回應範例**
+
+```text
+symbol investor_name info_date ... adjusted_indirect_sharehold reported_indirect_sharehold currency
+0 0004.HK Fang (Kang Vincent) 20250425 ... NaN NaN HKD
+1 0004.HK Fang (Kang Vincent) 20250428 ... NaN NaN HKD
+2 0004.HK Fang (Kang Vincent) 20250429 ... NaN NaN HKD
+3 0004.HK Fang (Kang Vincent) 20250430 ... NaN NaN HKD
+4 0004.HK Fang (Kang Vincent) 20250502 ... NaN NaN HKD
+5 0004.HK Fang (Kang Vincent) 20250506 ... NaN NaN HKD
+```
+
+### 12. 取得公司股東持股報告
+
+#### 12.1. 方法名稱：get_company_shareholder_report
+
+#### 12.2. 入參
+
+| 欄位 | 類型 | 說明 | 是否必填 |
+|:---|:---|:---|:---|
+| start_date | str | 開始日期,eg:"20250702"（此介面查詢持股報表日期） | 必填 |
+| end_date | str | 結束日期,eg:"20250702"（此介面查詢持股報告日期） | 必填 |
+| symbol | Optional\[Union\[str, List\[str\]\]\] | 股票代號 | 非必填 |
+| fields | Optional\[Union\[str, List\[str\]\]\] | 傳回欄位 | 非必填 |
+| market | str | 市場，支持"hk" ,"us"，預設為"hk" | 必填 |
+
+#### 12.3. 回應參數
+
+| 字段 | 類型 | 描述 |
+|:---|:---|:---|
+| symbol | str | 檔 |
+| investor_name | str | 投資人名稱 |
+| investor_category | str | 投資人大類 |
+| investor_type | str | 投資人詳細類別 |
+| investment_activeness_orientation | str | 投資活動傾向 |
+| turnover_rating | str | 換手率評級 |
+| turnover_ratio | double | 換手率比例（相對於投資者總資產的交易活動量） |
+| total_equity_assets | double | 總權益資產 |
+| sharehold | double | 持有股數 |
+| outstanding_ratio | double | 持股佔總流通股數 |
+| hold_portfolio_ratio | double | 持股佔投資者投資組合比例 |
+| sharehold_value | double | 持股市值 |
+| holding_date | str | 持股報表日期（日期篩選依據） |
+| filing_type | str | 申報類型 |
+| sharehold_change | double | 較上一次報告持股變動數量 |
+| sharehold_value_change | double | 持股市值變動 |
+| outstanding_ratio_change | double | 佔總流通股比例變動 |
+| sharehold_change_ratio | double | 持股數變動百分比 |
+| prev_sharehold | double | 上期持股數量 |
+| prev_outstanding_ratio | double | 上期佔總流通股比例 |
+| prev_sharehold_value | double | 上期持股市值 |
+| prev_holding_date | str | 上期持股報表日期 |
+| prev_filing_type | str | 上期申報類型 |
+| currency | str | 交易幣種 |
+
+#### 12.4. 使用範例
+
+##### 12.4.1. 取得某一港股公司股東持股報告
+
+```python
+import tqx_data
+result = tqx_data.get_company_shareholder_report(
+    market='hk',
+    symbol="8510.HK",
+    fields=[],
+    start_date="20250101",
+    end_date="20251231",
+)
+print(result)
+```
+
+**回應範例**
+
+```text
+symbol currency investor_name ... prev_sharehold_value prev_holding_date prev_filing_type
+0 8510.HK HKD Chuk (Stanley) ... 457944.91 20241231 Hong Kong Insider
+1 8510.HK HKD Chuan (Hng Bok) ... 328943.66 20241231 Shareholder Report
+2 8510.HK HKD Lau (Wing Kee) ... 228433.10 20241231 Shareholder Report NaN HKD
+```

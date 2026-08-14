@@ -1,3 +1,136 @@
 ---
 title: "Consensus estimates"
+description: "Retrieve consensus estimates and analyst recommendations."
 ---
+
+### 18. Obtain consensus expectations of non-cyclical indicators
+
+#### 18.1. Method name: get_consensus_nonperiod
+
+#### 18.2. Enter parameters
+
+| Field | Type | Description | Is it required |
+|:---|:---|:---|:---|
+| symbol | Optional\[Union\[str, List\[str\]\]\] | Stock code | Optional |
+| fields | Optional\[Union\[str, List\[str\]\]\] | Return fields | Optional |
+| market | str | Market, supports "hk", "us", default is "hk" | required |
+
+#### 18.3. Response parameters
+
+Note: For parameters other than symbol, currency, and indicator, the default is the prediction of the latest date, and there are historical dimension derived fields. The derived suffix is ​​week, and 1month~12month constitutes a total of thirteen derived fields for each field, indicating the predicted value of the corresponding field one week, one month to twelve months ago.
+
+Example: mean_week represents the predicted mean one week ago, std_6month represents the predicted standard deviation six months ago.
+
+| Field | Type | Description |
+|:---|:---|:---|
+| symbol | str | stock code |
+| currency | str | currency unit |
+| indicator | str | Indicator name: LTGROWTH is the long-term growth in the next 3 to 5 years, TP is the target price in the next 1 year |
+| mean | double | predicted mean |
+| median | double | predicted median |
+| high | double | predicted highest value |
+| low | double | predicted lowest value |
+| std | double | forecast standard deviation |
+| estimates_num | double | forecast number |
+| included_estimates_num | double | Number of forecasts included in statistics |
+
+#### 18.4. Usage examples
+
+##### 18.4.1. Obtain some consensus expectations of all Hong Kong stock non-cyclical indicators
+
+```python
+import tqx_data
+result = tqx_data.get_consensus_nonperiod(
+    market='hk',
+    symbol=[""],
+    fields=["indicator","mean","std_6month","high_week"]
+)
+print(result)
+```
+
+**Response Example**
+
+```text
+symbol indicator mean std_6month high_week
+0 0001.HK LTGROWTH 4.60000 NaN 4.60
+1 0001.HK TP 69.43333 1.50000 78.00
+2 0002.HK LTGROWTH 2.70000 0.00000 2.70
+3 0002.HK TP 77.02000 4.06262 86.64
+4 0003.HK LTGROWTH 6.38000 0.00000 7.30
+.. ... ... ... ... ...
+972 9996.HK TP 9.43200 0.55741 10.66
+973 9997.HK LTGROWTH NaN 0.00000 NaN
+974 9997.HK TP NaN 0.00000 NaN
+975 9999.HK LTGROWTH 4.80000 0.00000 4.80
+976 9999.HK TP 235.88571 46.77894 289.00
+```
+
+### 19. Obtain consensus expectations for buying and selling recommendations
+
+#### 19.1. Method name: get_consensus_recommend
+
+#### 19.2. Enter parameters
+
+| Field | Type | Description | Is it required |
+|:---|:---|:---|:---|
+| symbol | Optional\[Union\[str, List\[str\]\]\] | Stock code | Optional |
+| fields | Optional\[Union\[str, List\[str\]\]\] | Return fields | Optional |
+| market | str | Market, supports "hk", "us", default is "hk" | required |
+
+#### 19.3. Response parameters
+
+Note 1: For parameters other than symbol and currency, the default is the prediction of the latest date, and there are historical dimension derived fields. The derived suffix is ​​week, and 1month~12month constitutes a total of thirteen derived fields for each field, indicating the predicted value of the corresponding field one week, one month to twelve months ago.
+
+Example: mean_week represents the expected mean one week ago, and low_6month represents the expected lowest value 6 months ago.
+Note 2: Strong sell, sell, hold, buy, and strong buy are scored as 5, 4, 3, 2, and 1 in sequence.
+
+| Field | Type | Description |
+|:--------------------|:-------|:-----------|
+| symbol | str | stock code |
+| currency | str | currency unit |
+| mean | double | expected mean |
+| median | double | expected median |
+| high | double | expected highest value |
+| low | double | expected lowest value |
+| strong_buy_num | double | Number of strong buy recommendations |
+| buy_num | double | Number of buy recommendations |
+| hold | double | recommended number of positions |
+| sell_num | double | Sell recommendation number |
+| strong_sell_num | double | Number of strong sell recommendations |
+| no_opinion_num | double | No opinion number |
+| recommendations_num | double | total number of recommendations |
+
+#### 19.4. Usage examples
+
+##### 19.4.1. Obtain some consensus expectations for all Hong Kong stock trading recommendations
+
+```python
+import tqx_data
+result = tqx_data.get_consensus_recommend(
+    market='hk',
+    symbol=[""],
+    fields=["strong_buy_num","buy_num_week"]
+)
+print(result)
+```
+
+**Response Example**
+
+```text
+symbol strong_buy_num buy_num_week
+0 0001.HK 2.0 5.0
+1 0002.HK 1.0 2.0
+2 0003.HK 1.0 2.0
+3 0004.HK 0.0 2.0
+4 0005.HK 3.0 6.0
+.. ... ... ...
+816 9992.HK 12.0 14.0
+817 9995.HK 6.0 6.0
+818 9996.HK 1.0 3.0
+819 9997.HK NaN NaN
+820 9999.HK 7.0 12.0
+```
+
+**3. Financial and market factors**
+
+**1. Obtain Hong Kong and US stock backtest factors**
