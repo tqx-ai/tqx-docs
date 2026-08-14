@@ -13,7 +13,7 @@ description: "Retrieve investor concentration, rankings, insider transactions, a
 |:---|:---|:---|:---|
 | symbol | Optional\[Union\[str, List\[str\]\]\] | Stock code | Optional |
 | fields | Optional\[Union\[str, List\[str\]\]\] | Return fields | Optional |
-| market | str | Market, supports "hk", "us", default is "hk" | required |
+| market | str | Market, supports `hk`, `us`, default is `hk` | required |
 
 ### Response parameters
 
@@ -67,7 +67,7 @@ symbol currency ... total_sharehold total_holdings_value
 |:---|:---|:---|:---|
 | symbol | Optional\[Union\[str, List\[str\]\]\] | Stock code | Optional |
 | fields | Optional\[Union\[str, List\[str\]\]\] | Return fields | Optional |
-| market | str | Market, supports "hk", "us", default is "hk" | required |
+| market | str | Market, supports `hk`, `us`, default is `hk` | required |
 
 ### Response parameters
 
@@ -121,7 +121,7 @@ symbol currency ... sharehold holdings_value
 |:---|:---|:---|:---|
 | symbol | Optional\[Union\[str, List\[str\]\]\] | Stock code | Optional |
 | fields | Optional\[Union\[str, List\[str\]\]\] | Return fields | Optional |
-| market | str | Market, supports "hk", "us", default is "hk" | required |
+| market | str | Market, supports `hk`, `us`, default is `hk` | required |
 | max_rank | Optional\[int\] | The maximum returned ranking (a positive integer less than or equal to 20), the default is empty to return the top 20 | Optional |
 
 ### Response parameters
@@ -183,7 +183,7 @@ symbol investor_name ... rank currency
 | end_date | str | End date, eg: "20250702" (this interface queries the message date) | Required |
 | symbol | Optional\[Union\[str, List\[str\]\]\] | Stock code | Optional |
 | fields | Optional\[Union\[str, List\[str\]\]\] | Return fields | Optional |
-| market | str | Market, supports "hk", "us", default is "hk" | required |
+| market | str | Market, supports `hk`, `us`, default is `hk` | required |
 
 ### Response parameters
 
@@ -253,7 +253,7 @@ symbol investor_name info_date ... adjusted_indirect_sharehold reported_indirect
 | end_date | str | End date, eg: "20250702" (this interface queries the date of shareholding report) | Required |
 | symbol | Optional\[Union\[str, List\[str\]\]\] | Stock code | Optional |
 | fields | Optional\[Union\[str, List\[str\]\]\] | Return fields | Optional |
-| market | str | Market, supports "hk", "us", default is "hk" | required |
+| market | str | Market, supports `hk`, `us`, default is `hk` | required |
 
 ### Response parameters
 
