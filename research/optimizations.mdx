@@ -1,0 +1,33 @@
+---
+title: "Optimizations"
+description: "Review strategy and factor parameter optimization tasks in Qube."
+---
+
+Optimizations are background research tasks that evaluate multiple parameter combinations. Qube keeps the task status, individual combinations, metrics, and failure reasons so you can review the search instead of looking only at one winning result.
+
+## Choose an optimization type
+
+Use the type filter on the Optimizations page:
+
+| Type | What it searches | What to review |
+| --- | --- | --- |
+| Strategy | Strategy parameters across backtest combinations. | Objective metric, return, drawdown, trade count, and nearby combinations. |
+| Factor | Factor analysis parameters across analysis combinations. | Objective metric, IC metrics, return curves, and sensitivity. |
+
+Select a strategy or factor, then select an optimization task from its history. Running and failed combinations remain visible with their current status or failure reason.
+
+## Evaluate the result
+
+1. Confirm the version and search space used by the task.
+2. Check the objective metric and compare it with nearby combinations.
+3. Look for a stable region instead of an isolated historical peak.
+4. Apply a candidate only when its parameters are understandable and reproducible.
+5. Validate the candidate on a different or later period.
+
+An optimization result is a research candidate, not a production decision. A high historical score can come from overfitting.
+
+## Continue
+
+- [Optimize strategy parameters](/research/strategy/optimization)
+- [Optimize factor parameters](/research/factor/optimization)
+- [View run history](/research/run-history)

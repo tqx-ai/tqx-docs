@@ -1,0 +1,34 @@
+---
+title: "Optimize factor parameters"
+description: "Search a bounded factor parameter grid and apply the selected result as a new version."
+---
+
+Factor optimization runs several factor analyses with different parameter combinations. It is useful for sensitivity checks, but it does not replace out-of-sample validation.
+
+## How optimization works
+
+<Steps>
+  <Step title="Save the current factor">
+    Qube saves the current code and uses the latest factor version as the optimization baseline.
+  </Step>
+  <Step title="Design the search grid">
+    Ask Qube to identify sensible code or analysis parameters. Keep the grid at 64 combinations or fewer so you can inspect each result.
+  </Step>
+  <Step title="Run the combinations">
+    Each combination creates a child factor analysis. The task keeps progress, status, metrics, and failure reasons for every child.
+  </Step>
+  <Step title="Review the best and nearby results">
+    Compare the objective, IC metrics, return curves, and sensitivity across neighboring combinations.
+  </Step>
+  <Step title="Apply and validate">
+    Apply the best parameters to create a new factor version, then run a fresh analysis on a separate period.
+  </Step>
+</Steps>
+
+The default objective is `ic_mean`. Applying the best parameters changes the analysis parameters, not the factor code.
+
+<Warning>
+Do not select an isolated historical peak as proof of quality. Prefer a stable region of parameter values and confirm it outside the optimization period.
+</Warning>
+
+After validation, use [Turn a factor into a strategy](/research/strategy/factor-to-strategy) to add position and risk rules.

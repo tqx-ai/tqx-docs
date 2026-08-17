@@ -154,10 +154,8 @@ The operator set is shared across markets, but the fields available to an expres
 
 | Market | Common fields | Restrictions |
 |---|---|---|
-| A-share | `open`, `close`, `high`, `low`, `volume`, `amount`, `turnover`, `market_cap`, and financial fields | Financial fields are available when provided by the factor data source |
-| Hong Kong | `open`, `close`, `high`, `low`, `volume`, `amount`, `turnover`, `market_cap` | Do not use A-share financial fields |
-| US | `open`, `close`, `high`, `low`, `volume`, `amount`, `turnover`, `market_cap` | Do not use A-share financial fields |
-| Futures | `open`, `close`, `high`, `low`, `volume`, `amount`, `oi` | Stock financial fields are not available |
+| Hong Kong | `open`, `close`, `high`, `low`, `volume`, `amount`, `turnover`, `market_cap` | Use fields available for the selected market |
+| US | `open`, `close`, `high`, `low`, `volume`, `amount`, `turnover`, `market_cap` | Use fields available for the selected market |
 
 ## Examples
 

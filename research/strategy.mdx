@@ -1,3 +1,47 @@
 ---
 title: "Strategy"
+sidebarTitle: "Overview"
+description: "Design, version, backtest, and improve market-specific trading strategies in Qube."
 ---
+
+A strategy is a market-specific trading program. It turns market data into signals and orders while applying position, cost, and risk rules.
+
+Qube keeps the strategy identity separate from the code snapshot used in a run:
+
+| Object | What it represents |
+| --- | --- |
+| Strategy | The research idea, market, name, description, and current code. |
+| Version | A versioned code snapshot with the associated backtest parameter baseline. |
+| Backtest run | One execution of a selected version with saved results. |
+| Optimization task | A search across parameter combinations for a selected version. |
+
+## Strategy lifecycle
+
+1. Define the market, instruments, signal, position rules, and risk limits.
+2. Create or update the strategy in chat or in the Strategy Library.
+3. Review the generated code and backtest parameters.
+4. Save a version, then run a backtest against that version.
+5. Compare results, revise the strategy, and repeat with a new version.
+6. Optionally optimize parameters after you review the strategy.
+
+## Choose a workflow
+
+- [Create a strategy](/research/strategy/create): Start from a trading idea or an existing code sample.
+- [Strategy code](/research/strategy/code): Learn the runtime lifecycle and market-specific data rules.
+- [Run a backtest](/research/strategy/backtest): Configure and run a historical simulation.
+- [Versions and reproducibility](/research/strategy/versions): Compare, label, and revert code snapshots.
+- [Parameter optimization](/research/strategy/optimization): Search a defined parameter space and review the best result.
+- [Turn a factor into a strategy](/research/strategy/factor-to-strategy): Convert a validated factor into a selectable strategy after confirmation.
+
+## Supported markets
+
+Qube creates a strategy for one market. The market controls the available data APIs, symbols, trading rules, and backtest fields.
+
+| Market | Typical symbol | Main consideration |
+| --- | --- | --- |
+| Hong Kong | `0700.HK` | HK data APIs, lot sizes, and HK trading calendar. |
+| US | `AAPL.NB` | US data APIs and US trading calendar. |
+
+<Note>
+Historical results are evidence about the selected code, parameters, data, and period. They are not a guarantee of future performance.
+</Note>

@@ -1,0 +1,42 @@
+---
+title: "Versions and reproducibility"
+description: "Use strategy versions to compare code, parameters, and backtest evidence."
+---
+
+Qube creates a new strategy version when a meaningful code or saved-parameter change is recorded. A version identifies the code snapshot and its current backtest parameter baseline. Each backtest run also stores its own effective parameters.
+
+## What a version records
+
+- Version number and optional label.
+- Strategy source code.
+- Current backtest parameter baseline.
+- Creation time and origin, such as manual edit, AI edit, or revert.
+- Code and parameter change summary.
+- Backtests and optimization tasks linked to the version.
+
+## Compare versions
+
+1. Open the **Versions** tab on the strategy detail page.
+2. Select a historical version to preview its code and parameters.
+3. Choose **Compare to current** to review code and parameter differences.
+4. Label or star versions that represent a meaningful research milestone.
+
+The current editor content is the latest version, also called `HEAD`. A historical preview does not silently replace `HEAD`.
+
+Running a backtest can update the saved parameters used for the next run without creating a code version. Use the run record as the authoritative record of the parameters used by that simulation.
+
+## Edit or revert
+
+When you edit an older version, Qube bases the change on the latest version and saves a new version after confirmation. Reverting also creates a new version; it does not overwrite the historical record.
+
+<Warning>
+A backtest is tied to the version selected when it starts. Editing the strategy later does not change that run. Always record the version and parameters when comparing results.
+</Warning>
+
+## Reproducibility checklist
+
+- Record the strategy version and label.
+- Keep the market and symbols unchanged.
+- Keep the backtest period, capital, frequency, and cost settings from the run record.
+- Compare runs with the same data assumptions.
+- Treat a changed code or parameter as a new experiment.

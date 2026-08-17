@@ -1,0 +1,51 @@
+---
+title: "Read analysis results"
+description: "Interpret factor group returns, IC statistics, and stability charts in Qube."
+---
+
+Qube keeps the selected analysis run, its progress state, parameters, and result payload together. Use the result timestamp to switch between historical runs.
+
+## Start with the target group
+
+The factor direction determines which group represents the intended signal:
+
+- **Positive**: the highest factor-value group is the target group.
+- **Negative**: the lowest factor-value group is the target group.
+
+Factor return, Sharpe, annualized return, and maximum drawdown use the same directional target group. Do not assume that the first row in the group table is the target.
+
+## Review the key metrics
+
+| Metric | What it tells you |
+| --- | --- |
+| Factor return | Return of the directionally selected group or factor return series. |
+| Sharpe | Return relative to volatility for the selected group. |
+| Annualized return | Annualized performance over the selected period. |
+| Maximum drawdown | The largest peak-to-trough loss for the selected group. |
+| `IC_mean` | Average Pearson information coefficient between factor values and forward returns. |
+| `Rank_IC` | Rank correlation between factor ordering and forward returns. |
+| `IC_std` | Dispersion of the IC observations. |
+| `IC_IR` | IC mean relative to IC variability. |
+| `IR` | Information ratio for the selected return series. |
+| `t-stat` | Statistical strength of the measured relationship. |
+| `P(IC<-0.02)` | Share of observations where IC is below -0.02. |
+| `P(IC>0.02)` | Share of observations where IC is above 0.02. |
+
+No single metric proves that a factor is useful. Check the sign, consistency, sample period, and economic explanation together.
+
+## Read the charts and tables
+
+- **Group cumulative return** shows how each group behaved over time.
+- **Group return table** compares annualized return, excess return, drawdown, volatility, turnover, Sharpe, and information ratio.
+- **Latest data** lists the latest symbols and factor values in the selected direction.
+- **IC and Rank_IC sequence** shows whether predictive strength persists through time.
+- **IC and Rank_IC distribution** shows the spread and outliers of the observations.
+- **IC and Rank_IC decay** shows how the relationship changes across forward horizons.
+- **IC and Rank_IC autocorrelation** shows whether the signal is persistent or rapidly mean-reverting.
+- **3D group return and excess return** help you compare the shape of the group spread across time.
+
+<Warning>
+Historical factor results are evidence about one code version, dataset, universe, and period. Validate the signal on a later or separate period before turning it into a strategy.
+</Warning>
+
+When the signal is ready for trading rules, use [Turn a factor into a strategy](/research/strategy/factor-to-strategy). Backtest the generated strategy from the Strategy workflow.

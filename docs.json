@@ -34,12 +34,30 @@
               {
                 "group": "Factor",
                 "pages": [
-                  "research/factor/overview",
+                  "research/factor",
+                  "research/factor/create",
+                  "research/factor/code",
+                  "research/factor/analyze",
+                  "research/factor/results",
+                  "research/factor/versions",
+                  "research/factor/optimization",
                   "research/factor/operator-reference"
                 ]
               },
-              "research/strategy",
-              "research/backtest"
+              {
+                "group": "Strategy",
+                "pages": [
+                  "research/strategy",
+                  "research/strategy/create",
+                  "research/strategy/code",
+                  "research/strategy/backtest",
+                  "research/strategy/versions",
+                  "research/strategy/optimization",
+                  "research/strategy/factor-to-strategy"
+                ]
+              },
+              "research/run-history",
+              "research/optimizations"
             ]
           },
           {
@@ -138,14 +156,32 @@
             "pages": [
               "hk/research/info",
               {
-                "group": "因子",
+                "group": "\u56e0\u5b50",
                 "pages": [
-                  "hk/research/factor/overview",
+                  "hk/research/factor",
+                  "hk/research/factor/create",
+                  "hk/research/factor/code",
+                  "hk/research/factor/analyze",
+                  "hk/research/factor/results",
+                  "hk/research/factor/versions",
+                  "hk/research/factor/optimization",
                   "hk/research/factor/operator-reference"
                 ]
               },
-              "hk/research/strategy",
-              "hk/research/backtest"
+              {
+                "group": "\u7b56\u7565",
+                "pages": [
+                  "hk/research/strategy",
+                  "hk/research/strategy/create",
+                  "hk/research/strategy/code",
+                  "hk/research/strategy/backtest",
+                  "hk/research/strategy/versions",
+                  "hk/research/strategy/optimization",
+                  "hk/research/strategy/factor-to-strategy"
+                ]
+              },
+              "hk/research/run-history",
+              "hk/research/optimizations"
             ]
           },
           {

@@ -1,0 +1,46 @@
+---
+title: "Run history"
+description: "Review strategy backtest runs and factor analysis runs in Qube."
+---
+
+Run history is the central record of research executions in Qube. It includes strategy backtest runs and factor analysis runs, with each result linked to the version and parameters used for that execution.
+
+## Choose a result type
+
+Use the type filter on the Run history page:
+
+| Type | What it contains | Open this when you want to |
+| --- | --- | --- |
+| Strategy | Backtest runs for saved strategy versions. | Review performance, trades, equity, and logs. |
+| Factor | Analysis runs for saved factor versions. | Review group returns, IC metrics, and factor stability. |
+
+You can filter the list by market and search for a strategy or factor. Select an item to view its executions, then open a row to inspect the full result.
+
+## Review a strategy run
+
+A strategy run is one historical simulation of a saved strategy version. Check the version, period, capital, frequency, and cost assumptions before comparing it with another run.
+
+Review these areas in the result:
+
+- Key performance metrics, such as total return, Sharpe ratio, and maximum drawdown.
+- The equity curve to see when gains and drawdowns occurred.
+- Trade details to check symbols, direction, price, quantity, fees, and order reasons.
+- The strategy log to investigate missing data, rejected orders, or runtime errors.
+
+See [Run a backtest](/research/strategy/backtest) to create a new strategy run and [Compare strategy versions](/research/strategy/versions) to review changes between experiments.
+
+## Review a factor analysis
+
+A factor analysis evaluates a saved factor version with a parameter snapshot, date range, groups, direction, and market universe. Use the result to review group returns, IC, Rank_IC, and stability before turning the factor into a strategy.
+
+See [Analyze a factor](/research/factor/analyze) to create an analysis run and [Read analysis results](/research/factor/results) to interpret its metrics.
+
+<Note>
+Historical results are evidence about the selected version, parameters, data, and period. They are not a guarantee of future performance.
+</Note>
+
+## Continue
+
+- [Optimize parameters](/research/optimizations)
+- [Optimize strategy parameters](/research/strategy/optimization)
+- [Optimize factor parameters](/research/factor/optimization)

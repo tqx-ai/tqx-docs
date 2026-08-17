@@ -1,0 +1,40 @@
+---
+title: "Turn a factor into a strategy"
+description: "Convert a factor into a selectable strategy after reviewing and confirming the proposal."
+---
+
+A factor produces a value or signal. A strategy adds a universe, ranking or selection rule, rebalancing, position sizing, and exits. Qube keeps this conversion explicit so you can review the assumptions before creating a strategy.
+
+## Conversion flow
+
+<Steps>
+  <Step title="Analyze the factor">
+    Create and analyze a factor for a supported market. Review its direction, coverage, and stability.
+  </Step>
+  <Step title="Request a strategy proposal">
+    Ask Qube to turn the factor into a strategy. Qube shows the factor, market, and proposed selection and risk parameters.
+  </Step>
+  <Step title="Confirm the proposal">
+    Review the proposal before confirming. The proposal stage does not create a strategy or start a backtest.
+  </Step>
+  <Step title="Create and backtest">
+    After confirmation, Qube generates a market-specific strategy and saves its first version. Run a backtest to evaluate the generated rules.
+  </Step>
+</Steps>
+
+## Parameters you may review
+
+| Parameter | Meaning |
+| --- | --- |
+| Rebalance period | How often the strategy refreshes the selected portfolio. |
+| Top N | How many instruments the strategy selects. |
+| Factor direction | Whether higher or lower factor values are preferred. |
+| Weighting | Equal weighting or factor-based weighting. |
+| Position cap | Maximum allocation to one instrument. |
+| Take-profit and stop-loss | Optional exit thresholds. |
+| Minimum holding period | Minimum time to hold before an exit rule can trigger. |
+| Universe | The market-specific set of instruments considered by the strategy. |
+
+<Note>
+The generated strategy is a new strategy object. Later factor edits do not silently change its code; create and review a new version when you want to update it.
+</Note>

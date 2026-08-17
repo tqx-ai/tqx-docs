@@ -1,13 +1,9 @@
 ---
 title: "Start research"
-description: "TQX investment research product"
+description: "Use Qube to move from a research idea to a versioned strategy and reviewable evidence."
 ---
 
-<Callout icon={<svg viewBox="0 0 16 16" width="16" height="16"><text x="8" y="11.9" fontSize="11.5" textAnchor="middle">🚧</text></svg>} color="#FFF200">
-  Working in progress
-</Callout>
-
-TQX's investment research product is Qube.
+Qube is TQX's workspace for quantitative research. Start with a market hypothesis, factor, dataset, existing strategy, or workflow you want to improve.
 
 <Tabs>
   <Tab title="CLI for Agent">
@@ -18,31 +14,43 @@ TQX's investment research product is Qube.
   </Tab>
 </Tabs>
 
-1. Describe or select what you want to explore
+## Start with a research question
 
-Tell the agent:
+Tell Qube:
 
 - Which market you are interested in.
-- Which factors to study.
-- What strategy you want to test.
-- Your preferred time period and holding horizon.
-- Any backtest.
+- Which data or factors you want to study.
+- What strategy or signal you want to test.
+- Your preferred period, frequency, and holding horizon.
+- Whether you want a backtest after the strategy is saved.
 
-Or select a card:
+Choose a starting card:
 
-Browse the available starting points. Click the card that best matches your goal. 
+Browse the available starting points. Click the card that best matches your goal.
 
 - **HK Strategies** — Hong Kong trend and breakout strategies.
 - **US Strategies** — US stock strategy templates.
 - **Factor Research** — Momentum, volume, and correlation analysis.
-- **Common Tools** — Backtesting, optimization, and strategy summaries. 
+- **Common Tools** — Backtesting, optimization, and strategy summaries.
 
-QUBE will use the selected card as the starting point for your conversation.
+Qube uses the selected card as the starting point for your conversation.
 
-2. Optimize the strategy and do the backtest
+## Follow the strategy lifecycle
 
-Let QUBE run the research or backtest, then review the results in the panel on the right. Check the **total return, annualized return, maximum drawdown, Sharpe ratio, number of trades, and final equity**. Use the chat box to adjust the strategy, rerun the test, and compare the updated results.<br />
-
-<br />
-
-<br />
+<Columns cols={3}>
+  <Card title="Create a strategy" href="/research/strategy/create">
+    Start from a trading idea or existing code.
+  </Card>
+  <Card title="Run a backtest" href="/research/strategy/backtest">
+    Simulate a saved strategy version with historical data.
+  </Card>
+  <Card title="Read run history" href="/research/run-history">
+    Review metrics, trades, and the equity curve.
+  </Card>
+  <Card title="Compare versions" href="/research/strategy/versions">
+    Compare and review versioned code snapshots.
+  </Card>
+  <Card title="Optimize parameters" href="/research/strategy/optimization">
+    Search a defined parameter space for better candidates.
+  </Card>
+</Columns>

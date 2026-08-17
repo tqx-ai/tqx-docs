@@ -1,0 +1,52 @@
+---
+title: "Strategy code"
+description: "Understand the Qube strategy runtime and market-specific coding rules."
+---
+
+Qube runs strategy code through a backtest engine. Keep the code focused on trading logic. Set the run period, capital, frequency, and other simulation controls in the canvas or chat tools.
+
+## Runtime lifecycle
+
+Use this lifecycle for a strategy:
+
+```python
+def initialize(context):
+    # Set accounts, symbols, parameters, and empty caches.
+    init_market_data(context)
+
+
+def init_market_data(context):
+    # Load the required history once and prepare reusable data.
+    pass
+
+
+def handle_data(context, data):
+    # Read prepared data, create signals, and submit orders.
+    pass
+```
+
+The exact imports and order functions depend on the market. Use the market-specific generation flow when you create code with Qube.
+
+## Rules that apply to every market
+
+- Load full history in `init_market_data`, not on every bar.
+- Initialize custom `context` fields before reading them.
+- Keep `handle_data` focused on signal checks and orders.
+- Do not use future data or future-return fields to create a signal.
+- Do not call chat tools such as `set_backtest_params` or `run_backtest` from strategy source.
+- Check for missing data and return explicitly instead of hiding errors.
+
+## Market-specific differences
+
+| Market | Data and execution focus |
+| --- | --- |
+| Hong Kong | Use HK data APIs, `.HK` symbols, the HK calendar, and valid board lots. |
+| US | Use US data APIs, `.NB` symbols, and the US calendar. |
+
+<Info>
+For minute strategies, the backtest frequency is `1M`. The history API may use a different spelling such as `1m`; do not confuse the task frequency with the data query period.
+</Info>
+
+## Keep simulation settings outside the source
+
+The canvas or chat controls the initial capital, dates, frequency, commission multiplier, slippage, and benchmark. A strategy should read the runtime context and implement the trading rules instead of hard-coding a user's one-off backtest request.

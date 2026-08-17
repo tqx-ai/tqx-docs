@@ -1,0 +1,44 @@
+---
+title: "因子"
+sidebarTitle: "概覽"
+description: "在 Qube 建立、分析、管理版本及調優市場訊號。"
+---
+
+因子會把市場或財務資料轉換成數值訊號。你可以先分析訊號，再決定是否把它加入交易策略。
+
+## 因子流程
+
+1. 在因子庫中為一個市場建立因子。
+2. 使用公式模式或 Python 模式編寫訊號。
+3. 設定日期、分組、方向和市場範圍並執行分析。
+4. 查看分組收益、IC 統計和穩定性圖表。
+5. 將重要的程式碼或參數變更保存為新版本。
+6. 需要檢查敏感度時執行參數調優。
+7. [將已驗證的因子轉換為策略](/hk/research/strategy/factor-to-strategy)，再設定交易規則。
+
+## 因子物件
+
+| 物件 | 代表內容 |
+| --- | --- |
+| 因子 | 研究想法、市場、名稱、備註和目前程式碼。 |
+| 因子版本 | 程式碼、編寫模式、市場及可重用分析參數的完整快照。 |
+| 分析記錄 | 使用指定版本和參數執行的一次評估，以及其結果。 |
+| 調優任務 | 用來比較多組參數的分析網格。 |
+
+<Frame caption="因子庫的市場篩選、搜尋和新增因子入口">
+  <img src="/images/factor/factor-library.png" alt="Qube 因子庫顯示市場篩選、搜尋列和因子卡片" />
+</Frame>
+
+## 選擇工作流程
+
+- [建立因子](/hk/research/factor/create)：新增因子並選擇市場。
+- [編寫因子程式碼](/hk/research/factor/code)：選擇公式或 Python 模式並遵守執行契約。
+- [分析因子](/hk/research/factor/analyze)：設定分析期間、分組、方向和市場範圍。
+- [閱讀分析結果](/hk/research/factor/results)：解讀收益、IC、Rank_IC 和穩定性圖表。
+- [管理因子版本](/hk/research/factor/versions)：比較、標記和回退快照，同時保留歷史。
+- [調優因子參數](/hk/research/factor/optimization)：執行受限網格，並將最佳參數套用為新版本。
+- [算子參考](/hk/research/factor/operator-reference)：查找公式算子和市場相容性。
+
+<Note>
+因子分析評估訊號本身，不會定義下單、持倉或風險規則。驗證因子後，請在 Strategy 工作流程中設定並回測這些規則。
+</Note>

@@ -1,0 +1,39 @@
+---
+title: "編寫因子程式碼"
+description: "使用公式或 Python 編寫有效因子，避免讀取未來資料。"
+---
+
+因子編輯器支援 **公式** 和 **Python** 模式。Qube 會在提交分析前驗證程式碼。
+
+## 公式模式
+
+每個非空行都必須是一個完整表達式。欄位名稱使用小寫，算子名稱使用大寫。
+
+```text
+RANK(close / DELAY(close, 20) - 1)
+```
+
+公式模式不可使用賦值、匯入、Python 屬性或控制流程關鍵字。不要使用 `FUTURE_RETURNS`，它會讀取未來資料並被因子品質門拒絕。
+
+## Python 模式
+
+定義一個繼承 `Factor` 的類別，從 `calculate(self, factors)` 回傳 `Series`，並保留 `symbol`/`date` MultiIndex。
+
+```python
+class MomentumFactor(Factor):
+    def calculate(self, factors):
+        close = factors["close"]
+        return close.groupby(level="symbol").transform(
+            lambda series: series / series.shift(20) - 1
+        )
+```
+
+優先使用能保留輸入索引的 `transform`、`pct_change` 和滾動運算。`groupby(...).apply(...)` 若會額外加入分組層級，會導致驗證錯誤。
+
+## 確認市場契約
+
+請使用[算子參考](/hk/research/factor/operator-reference)查閱所選市場可用的欄位、支援的表達式和限制。
+
+<Warning>
+只有程式碼、市場、資料欄位和分析參數都相容，分析結果才可以重現。請在不同期間驗證訊號，再判斷它是否穩健。
+</Warning>

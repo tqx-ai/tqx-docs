@@ -1,0 +1,38 @@
+---
+title: "Parameter optimization"
+description: "Search a defined parameter space and evaluate the resulting strategy versions."
+---
+
+Parameter optimization tests several values for parameters exposed by the strategy. It helps you explore sensitivity; it does not remove the need for out-of-sample validation or risk review.
+
+## How optimization works
+
+<Steps>
+  <Step title="Choose the strategy version">
+    Start from the version whose code and backtest settings you understand.
+  </Step>
+  <Step title="Define the search space">
+    Ask Qube to identify tunable parameters or specify the candidate values yourself. Keep the grid small enough to inspect and explain.
+  </Step>
+  <Step title="Run the combinations">
+    Qube runs the selected combinations and tracks each result in the optimization task. Failed combinations remain visible with their failure reason.
+  </Step>
+  <Step title="Review the best result and sensitivity">
+    Compare the objective metric, equity curves, trade count, and drawdown. Check whether nearby parameter values behave similarly.
+  </Step>
+  <Step title="Apply and verify">
+    Applying the selected parameters saves a new strategy version. Run a fresh backtest and compare it with the prior version before treating the change as an improvement.
+  </Step>
+</Steps>
+
+## What to review
+
+- The objective used to rank combinations, such as Sharpe ratio.
+- Total return, annualized return, maximum drawdown, and trade count.
+- Whether the best result is an isolated peak or part of a stable region.
+- Whether the selected period and costs are realistic.
+- Whether the result survives a different or later validation period.
+
+<Warning>
+Do not select a parameter set only because it has the highest historical return. A more stable result with lower drawdown may be a better research candidate.
+</Warning>

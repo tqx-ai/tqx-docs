@@ -1,0 +1,39 @@
+---
+title: "Write factor code"
+description: "Write valid formula or Python factor code without introducing future data."
+---
+
+The factor editor supports **Formula** and **Python** modes. Qube validates the code before it submits an analysis.
+
+## Formula mode
+
+Write one complete expression per non-empty line. Use lowercase field names and uppercase operator names.
+
+```text
+RANK(close / DELAY(close, 20) - 1)
+```
+
+Formula mode does not allow assignments, imports, Python attributes, or control-flow keywords. Do not use `FUTURE_RETURNS`; it reads future data and is rejected by the factor quality gate.
+
+## Python mode
+
+Define one class that inherits from `Factor`. Return a `Series` from `calculate(self, factors)` and preserve the `symbol`/`date` MultiIndex.
+
+```python
+class MomentumFactor(Factor):
+    def calculate(self, factors):
+        close = factors["close"]
+        return close.groupby(level="symbol").transform(
+            lambda series: series / series.shift(20) - 1
+        )
+```
+
+Prefer `transform`, `pct_change`, and rolling operations that preserve the input index. `groupby(...).apply(...)` causes a validation error when it adds another grouping level to the result.
+
+## Check the market contract
+
+Use the [Operator reference](/research/factor/operator-reference) for the fields, supported expressions, and market restrictions available to your factor.
+
+<Warning>
+An analysis can only be reproduced when the code, market, data fields, and analysis parameters are all compatible. Validate the signal on a different period before treating it as robust.
+</Warning>

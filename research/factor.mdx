@@ -1,0 +1,44 @@
+---
+title: "Factor"
+sidebarTitle: "Overview"
+description: "Create, analyze, version, and optimize market signals in Qube."
+---
+
+A factor converts market or financial data into a numeric signal. You can analyze the signal before you decide whether to use it in a trading strategy.
+
+## Factor lifecycle
+
+1. Create a factor for one market in the Factor Library.
+2. Write the signal in formula mode or Python mode.
+3. Run a factor analysis with a date range, groups, direction, and market universe.
+4. Review group returns, IC statistics, and stability charts.
+5. Save meaningful code or parameter changes as a new version.
+6. Optimize parameters when you need a sensitivity check.
+7. [Turn a validated factor into a strategy](/research/strategy/factor-to-strategy) when you are ready to define trading rules.
+
+## Factor objects
+
+| Object | What it represents |
+| --- | --- |
+| Factor | The research idea, market, name, description, and current code. |
+| Factor version | An immutable snapshot of code, code type, market, and reusable analysis parameters. |
+| Analysis run | One evaluation of a selected version with a saved parameter snapshot and results. |
+| Optimization task | A grid of analysis runs used to compare parameter combinations. |
+
+<Frame caption="Factor Library with market filters, search, and new factor actions">
+  <img src="/images/factor/factor-library.png" alt="Qube Factor Library showing market filters, search, and factor cards" />
+</Frame>
+
+## Choose a workflow
+
+- [Create a factor](/research/factor/create): Add a factor to the library and choose its market.
+- [Write factor code](/research/factor/code): Choose formula or Python mode and follow the runtime contract.
+- [Analyze a factor](/research/factor/analyze): Set the analysis period, groups, direction, and universe.
+- [Read analysis results](/research/factor/results): Interpret returns, IC, Rank_IC, and stability charts.
+- [Manage factor versions](/research/factor/versions): Compare, label, and revert snapshots without losing history.
+- [Optimize factor parameters](/research/factor/optimization): Test a bounded grid and apply the best parameters as a new version.
+- [Operator reference](/research/factor/operator-reference): Look up formula operators and market compatibility.
+
+<Note>
+Factor analysis evaluates the signal. It does not define order execution, position sizing, or risk controls. Configure and backtest those rules in Strategy after you validate the factor.
+</Note>
