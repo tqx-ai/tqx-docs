@@ -28,6 +28,7 @@
 - Code formatting for file names, commands, paths, and code references
 - Localize all user-visible copy according to the active language. Translate user-provided text into natural, idiomatic wording for each supported language instead of reusing one language's copy across locales. Configure language-specific labels through Mintlify's `navigation.languages` structure.
 - Keep product screenshots in localized pages even when the screenshot UI is in English. Account details shown in screenshots are simulated account data and may remain visible.
+- When editing a localized page, update every corresponding page in all configured languages in the same change. Before finishing, compare the language-specific page paths in `docs.json` and verify that component and user-visible content changes are synchronized across locales.
 
 ## Content boundaries
 
