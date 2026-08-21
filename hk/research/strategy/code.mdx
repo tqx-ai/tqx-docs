@@ -35,6 +35,7 @@ def handle_data(context, data):
 - 不要使用未來資料或未來收益欄位產生訊號。
 - 不要在策略源碼中呼叫 `set_backtest_params` 或 `run_backtest` 等對話工具。
 - 明確檢查資料缺失並返回，不要吞掉錯誤。
+- 限價單請使用 `style=LimitOrderStyle(limit_price)`。
 
 ## 市場差異
 
