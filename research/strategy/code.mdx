@@ -35,6 +35,7 @@ The exact imports and order functions depend on the market. Use the market-speci
 - Do not use future data or future-return fields to create a signal.
 - Do not call chat tools such as `set_backtest_params` or `run_backtest` from strategy source.
 - Check for missing data and return explicitly instead of hiding errors.
+- For limit orders, use `style=LimitOrderStyle(limit_price)`.
 
 ## Market-specific differences
 
