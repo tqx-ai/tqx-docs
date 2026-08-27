@@ -1,7 +1,56 @@
 ---
 title: "查詢成交記錄"
+description: "按市場或訂單篩選已執行的成交記錄。"
 ---
 
-<Callout icon={<svg viewBox="0 0 16 16" width="16" height="16"><text x="8" y="11.9" fontSize="11.5" textAnchor="middle">🚧</text></svg>} color="#FFF200">
-  施工中
-</Callout>
+返回已驗證帳戶的成交記錄。
+
+## CLI
+
+```bash
+tqx trading trades --json
+tqx trading trades --market=US --limit=100 --json
+tqx trading trades --orderId=<order-id> --json
+tqx trading trades --cursor=<next-cursor> --limit=100 --json
+```
+
+`--market` 只接受 `HK` 或 `US`；`--limit` 必須是 1 至 100，省略時預設為 50；`--orderId` 按訂單 ID 篩選；`--cursor` 是不透明分頁游標。
+
+## HTTP
+
+```bash
+curl --request GET \
+  --url 'https://www.tqx.trade/openapi/v1/trading/trades?market=US&order_id=<order-id>&limit=100&cursor=<next-cursor>' \
+  --header "X-API-Key: $TQX_API_KEY" \
+  --header 'Accept: application/json'
+```
+
+所有查詢參數均為可選。
+
+## 回應
+
+JSON envelope 包含 `code`（string；`"0"` 表示成功）、`message`（string）、`data`（`TradesData` 或 `null`）、`request_id`（string 或 `null`）和 `timestamp`（Unix 毫秒時間戳整數）。成功時，`data` 是 `TradesData`：
+
+| 欄位 | 類型 | 說明 |
+| --- | --- | --- |
+| `items` | `TradeData` 陣列 | 已執行的成交記錄。 |
+| `next_cursor` | string 或 `null` | 下一頁的不透明游標；沒有下一頁時為 `null`。 |
+
+每個 `items[]` 項目包含：
+
+| 欄位 | 類型 | 說明 |
+| --- | --- | --- |
+| `trade_id` | string | 唯一成交識別碼。 |
+| `order_id` | string | 產生成交的 TQX 訂單。 |
+| `symbol` | string | 交易標的。 |
+| `symbol_name` | string | 可讀的標的名稱。 |
+| `market` | `HK` 或 `US` | 成交市場。 |
+| `currency` | string | 成交貨幣。 |
+| `side` | `BUY` 或 `SELL` | 成交方向。 |
+| `quantity` | string | 成交數量。 |
+| `price` | string | 成交價格。 |
+| `amount` | string | 成交名義金額。 |
+| `commission` | string 或 `null` | 此次成交收取的佣金。 |
+| `executed_at` | date-time string | 成交時間。 |
+| `client_order_id` | string 或 `null`（可選） | 用戶提供的訂單識別碼（如可用）。 |
+| `order_type` | `MARKET`、`LIMIT` 或 `null`（可選） | 產生成交的訂單類型。此欄位由目前 OpenAPI schema 宣告；`tqx-ts` SDK 目前的類型未暴露此欄位。 |

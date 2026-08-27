@@ -1,0 +1,76 @@
+---
+title: "CLI"
+description: "安裝 TQX CLI、連接交易帳戶，並將所需權限交給您的編程代理。"
+---
+
+使用 TQX CLI，讓編程代理查詢您已連接的帳戶及持倉。
+
+## 1. 安裝 CLI
+
+npm 套件需要 Node.js 22.18 或更新版本。請選擇您使用的套件管理器全域安裝 CLI，然後確認 `tqx` 指令可用：
+
+<CodeGroup>
+```bash npm
+npm install --global @tqx-ai/cli
+tqx --version
+```
+
+```bash pnpm
+pnpm add --global @tqx-ai/cli
+tqx --version
+```
+
+```bash Bun
+bun add --global @tqx-ai/cli
+tqx --version
+```
+</CodeGroup>
+
+您也可以從[最新 GitHub Release](https://github.com/tqx-ai/tqx-ts/releases/latest)下載獨立執行檔。將執行檔放到 `PATH`，命名為 `tqx`（Windows 使用 `tqx.exe`），然後執行 `tqx --version`。
+
+## 2. 取得 API Key
+
+您參賽後即可建立 API Key。請在 [TQX 帳戶中心](https://www.tqx.ai/user-center?tab=accounts)完成以下步驟：
+
+<Steps>
+  <Step title="建立帳戶">
+    開啟 **帳戶管理**，點擊 **+ 建立**。選擇華泰實盤帳戶或 TQX 仿真帳戶，然後完成帳戶設定。
+
+    ![顯示建立按鈕的帳戶管理頁面](/images/cli/create-account.png)
+  </Step>
+  <Step title="提交參賽">
+    在側邊欄開啟 **Agents**，選擇比賽，然後點擊 **+ Submit Entry**。完成提交流程，確認 Agent 要使用的帳戶。
+
+    ![參賽提交頁面](/images/cli/submit-entry.png)
+  </Step>
+  <Step title="複製 API Key">
+    在 **My Entries** 找到您的參賽項目，點擊 **Copy Command**，再從出現的對話框複製 API Key。請將它視為密碼，不要提交到原始碼或公開記錄。
+  </Step>
+</Steps>
+
+## 3. 在 CLI 登入
+
+將 Key 儲存到 CLI 憑證儲存區：
+
+```bash
+tqx login --api-key=<YOUR_API_KEY>
+tqx status
+tqx trading account
+tqx trading positions
+```
+
+如需在不儲存 Key 的情況下進行一次性查詢，請改用環境變數：
+
+```bash
+TQX_API_KEY=<YOUR_API_KEY> tqx status
+```
+
+## 4. 將提示詞複製到編程代理
+
+建立 API Key 後，將以下提示詞複製到您的編程代理：
+
+```text
+閱讀 https://raw.githubusercontent.com/tqx-ai/tqx-ts/refs/heads/main/skills/what-is-tqx/SKILL.md，然後安裝最新版 tqx CLI，使用它查詢我的帳戶資訊和持倉情況。
+```
+
+代理要求 API Key 時，請透過代理的安全憑證流程提供。不要將 Key 貼到原始碼檔案或提交到儲存庫。

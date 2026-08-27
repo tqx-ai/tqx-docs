@@ -25,7 +25,7 @@
         "groups": [
           {
             "group": "Getting Started",
-            "pages": ["index"]
+            "pages": ["index", "cli"]
           },
           {
             "group": "Research",
@@ -149,7 +149,7 @@
         "groups": [
           {
             "group": "\u958b\u59cb\u4f7f\u7528",
-            "pages": ["hk/index"]
+            "pages": ["hk/index", "hk/cli"]
           },
           {
             "group": "\u6295\u7814",
@@ -278,7 +278,7 @@
     "links": [
       {
         "label": "Support",
-        "href": "mailto:cuiyanzhe@pandaai.online"
+        "href": "mailto:zhuowanying@pandaai.online"
       }
     ]
   },
@@ -298,8 +298,10 @@
     "socials": {
       "x": "https://x.com/tqx_trade",
       "github": "https://github.com/tqx-ai",
-      "linkedin": "https://www.linkedin.com/company/tqx-trade/?viewAsMember=true",
-      "discord": "https://discord.com/invite/F3C4aQAx8"
+      "linkedin": "https://www.linkedin.com/company/tqx-ai/",
+      "discord": "https://discord.gg/nptGYBAJyy",
+      "telegram": "https://t.me/+KHeySI7Iyd1lM2I0",
+      "instagram": "https://www.instagram.com/tqx.ai/"
     }
   }
 }

@@ -1,7 +1,58 @@
 ---
 title: "查詢訊號"
+description: "讀取交易訊號及可選的訂單狀態快照。"
 ---
 
-<Callout icon={<svg viewBox="0 0 16 16" width="16" height="16"><text x="8" y="11.9" fontSize="11.5" textAnchor="middle">🚧</text></svg>} color="#FFF200">
-  施工中
-</Callout>
+返回一項交易訊號的生命週期狀態。
+
+## CLI
+
+```bash
+tqx trading signals get <signal-id> --json
+```
+
+## HTTP
+
+```bash
+curl --request GET \
+  --url 'https://www.tqx.trade/openapi/v1/trading/signals/<signal-id>' \
+  --header "X-API-Key: $TQX_API_KEY" \
+  --header 'Accept: application/json'
+```
+
+`signal_id` 長度必須為 8 至 128 個字元，需要時請先進行 URL 編碼。
+
+## 回應
+
+JSON envelope 包含 `code`（string；`"0"` 表示成功）、`message`（string）、`data`（`SignalData` 或 `null`）、`request_id`（string 或 `null`）和 `timestamp`（Unix 毫秒時間戳整數）。成功時，`data` 是 `SignalData`：
+
+| 欄位 | 類型 | 說明 |
+| --- | --- | --- |
+| `signal_id` | string | 交易訊號識別碼。 |
+| `state` | `PENDING`、`ACCEPTED`、`UNKNOWN` 或 `REJECTED` | 訊號生命週期狀態。 |
+| `order_id` | string 或 `null` | 已建立訂單時的訂單識別碼。 |
+| `order_status` | string 或 `null` | 關聯訂單的狀態快照，與 `state` 分開。 |
+| `message` | string 或 `null` | 可讀的處理訊息。 |
+| `created_at` | date-time string | 訊號建立時間。 |
+| `updated_at` | date-time string | 訊號最後更新時間。 |
+| `error_code` | string 或 `null`（可選） | TQX 或券商錯誤碼。 |
+| `broker_error_id` | integer 或 `null`（可選） | 券商數字錯誤識別碼。 |
+| `rejection_reason` | string 或 `null`（可選） | 訊號被拒絕的原因。 |
+| `parent_request_id` | string 或 `null`（可選） | 父請求識別碼。 |
+| `symbol` | string 或 `null`（可選） | 請求的交易標的。 |
+| `total_quantity` | string 或 `null`（可選） | 請求關聯的總數量。 |
+| `requested_price` | string 或 `null`（可選） | 請求的限價。 |
+| `requested_quantity` | string 或 `null`（可選） | 本次操作請求數量。 |
+| `available_quantity` | string 或 `null`（可選） | 操作可用數量。 |
+| `excess_quantity` | string 或 `null`（可選） | 超出可用持倉或限制的數量。 |
+| `short_selling_allowed` | boolean 或 `null`（可選） | 是否允許沽空。 |
+| `requested_value` | string 或 `null`（可選） | 請求名義金額。 |
+| `available_buying_power` | string 或 `null`（可選） | 評估時可用的購買力。 |
+| `shortfall` | string 或 `null`（可選） | 資金或數量不足的差額。 |
+| `currency` | string 或 `null`（可選） | 請求貨幣。 |
+| `time_in_force` | `DAY` 或 `null`（可選） | 請求有效期策略。 |
+| `market_session` | string 或 `null`（可選） | 請求或生效的市場時段。 |
+| `effective_trade_date` | string 或 `null`（可選） | 生效交易日期。 |
+| `expire_at` | date-time string 或 `null`（可選） | 訊號到期時間。 |
+
+`state` 只描述訊號生命週期，可為 `PENDING`、`ACCEPTED`、`UNKNOWN` 或 `REJECTED`。`ACCEPTED` 不代表訂單已提交或成交；請使用 `order_id` 查詢[訂單詳情](/hk/trading/api/get-order)和[成交記錄](/hk/trading/api/list-trades)。

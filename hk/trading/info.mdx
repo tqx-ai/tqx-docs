@@ -1,10 +1,23 @@
 ---
 title: "開始交易"
-description: "TQX 交易工具"
+description: "連接仿真或實盤帳戶，使用 TQX CLI 進行交易。"
 ---
 
-<Callout icon={<svg viewBox="0 0 16 16" width="16" height="16"><text x="8" y="11.9" fontSize="11.5" textAnchor="middle">🚧</text></svg>} color="#FFF200">
-  施工中
-</Callout>
+歡迎使用 TQX 交易功能。您可以使用編程代理查詢帳戶、持倉、訂單、成交記錄和訊號，或提交已獲授權的訂單。
 
-TQX 支援你使用 agent（Codex / Claude Code......）進行下單，我們配備了強大的 CLI 工具，讓你在本地直接連接模擬帳戶或華泰實盤帳戶。
+請先安裝 [TQX CLI](/hk/cli)。它可以從本地環境連接 TQX **仿真**帳戶或華泰**實盤**帳戶。
+
+取得 API Key 後，登入並確認連線：
+
+```bash
+tqx login --api-key=<YOUR_API_KEY>
+tqx status --json
+tqx trading account --json
+tqx trading positions --json
+```
+
+請參閱[交易 API 參考](/hk/trading/api/place-order)，了解帳戶資料、持倉、訂單、成交記錄和訊號的 CLI 指令及 curl 請求。
+
+<Warning>
+  交易指令可能改變帳戶狀態。下單、修改或撤單前，請確認市場、帳戶模式、標的、數量、價格和風險限制。**仿真**帳戶不涉及真實資金；**實盤**帳戶可能影響真實資金。
+</Warning>

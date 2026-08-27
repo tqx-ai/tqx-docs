@@ -1,7 +1,55 @@
 ---
 title: "查詢訂單詳情"
+description: "按訂單 ID 讀取目前訂單狀態。"
 ---
 
-<Callout icon={<svg viewBox="0 0 16 16" width="16" height="16"><text x="8" y="11.9" fontSize="11.5" textAnchor="middle">🚧</text></svg>} color="#FFF200">
-  施工中
-</Callout>
+返回已驗證帳戶的一項目前訂單快照。
+
+## CLI
+
+```bash
+tqx trading orders get <order-id> --json
+```
+
+## HTTP
+
+```bash
+curl --request GET \
+  --url 'https://www.tqx.trade/openapi/v1/trading/orders/<order-id>' \
+  --header "X-API-Key: $TQX_API_KEY" \
+  --header 'Accept: application/json'
+```
+
+`order_id` 長度必須為 1 至 128 個字元，需要時請先進行 URL 編碼。
+
+## 回應
+
+JSON envelope 包含 `code`（string；`"0"` 表示成功）、`message`（string）、`data`（`OrderData` 或 `null`）、`request_id`（string 或 `null`）和 `timestamp`（Unix 毫秒時間戳整數）。成功時，`data` 是一個 `OrderData`：
+
+| 欄位 | 類型 | 說明 |
+| --- | --- | --- |
+| `order_id` | string | TQX 訂單識別碼。 |
+| `client_order_id` | string 或 `null` | 用戶提供的訂單識別碼（如有）。 |
+| `symbol` | string | 交易標的。 |
+| `symbol_name` | string | 可讀的標的名稱。 |
+| `market` | `HK` 或 `US` | 訂單市場。 |
+| `currency` | string | 訂單貨幣。 |
+| `side` | `BUY` 或 `SELL` | 訂單方向。 |
+| `order_type` | `MARKET` 或 `LIMIT` | 訂單類型。 |
+| `status` | enum | 訂單目前生命週期狀態。 |
+| `quantity` | string | 請求數量。 |
+| `price` | string 或 `null` | 限價；市價單為 `null`。 |
+| `filled_quantity` | string | 已成交數量。 |
+| `remaining_quantity` | string | 尚未成交數量。 |
+| `average_fill_price` | string 或 `null` | 平均成交價；尚未成交時為 `null`。 |
+| `submitted_at` | date-time string 或 `null` | 提交時間（如可用）。 |
+| `updated_at` | date-time string 或 `null` | 最後更新時間（如可用）。 |
+| `time_in_force` | `DAY`（可選） | 訂單有效期策略。 |
+| `market_session` | string 或 `null`（可選） | 券商回報的市場時段。 |
+| `effective_trade_date` | string 或 `null`（可選） | 券商回報的生效交易日期。 |
+| `expire_at` | date-time string 或 `null`（可選） | 到期時間（如適用）。 |
+| `cancel_request_id` | string 或 `null`（可選） | 取消請求識別碼（如有）。 |
+
+`status` 與[訂單列表](/hk/trading/api/list-orders)使用相同的列舉值。
+
+`order_not_found` 不代表訂單必然已成交、撤銷或拒絕；請交叉核對原始訊號和成交記錄。

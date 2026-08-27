@@ -1,7 +1,33 @@
 ---
-title: "Modify Order"
+title: "Modify order"
+description: "Request a price change for an existing order."
 ---
 
-<Callout icon={<svg viewBox="0 0 16 16" width="16" height="16"><text x="8" y="11.9" fontSize="11.5" textAnchor="middle">🚧</text></svg>} color="#FFF200">
-  Working in progress
-</Callout>
+Requests a price modification for an existing order.
+
+## CLI
+
+```bash
+tqx trading orders modify <order-id> --price=<positive-price> --json
+```
+
+`price` must be a positive decimal string. The order ID must be 1 to 128 characters.
+
+## HTTP
+
+```bash
+curl --request PATCH \
+  --url 'https://www.tqx.trade/openapi/v1/trading/orders/<order-id>' \
+  --header "X-API-Key: $TQX_API_KEY" \
+  --header 'Content-Type: application/json' \
+  --header 'Accept: application/json' \
+  --data '{"price":"350.00"}'
+```
+
+The request body requires only `price`.
+
+## Response
+
+Success returns HTTP `202` with the standard envelope. `data` contains `order_id` and `accepted`. `accepted: true` acknowledges the modification request; it does not mean the order reached its final state. Query [Get order](/trading/api/get-order) afterward.
+
+Possible action errors include `order_not_found`, `order_not_modifiable`, and broker rejection.

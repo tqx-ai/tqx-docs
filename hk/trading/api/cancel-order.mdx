@@ -1,7 +1,29 @@
 ---
 title: "撤單"
+description: "請求撤銷現有訂單。"
 ---
 
-<Callout icon={<svg viewBox="0 0 16 16" width="16" height="16"><text x="8" y="11.9" fontSize="11.5" textAnchor="middle">🚧</text></svg>} color="#FFF200">
-  施工中
-</Callout>
+請求撤銷現有訂單。
+
+## CLI
+
+```bash
+tqx trading orders cancel <order-id> --json
+```
+
+## HTTP
+
+```bash
+curl --request DELETE \
+  --url 'https://www.tqx.trade/openapi/v1/trading/orders/<order-id>' \
+  --header "X-API-Key: $TQX_API_KEY" \
+  --header 'Accept: application/json'
+```
+
+訂單 ID 長度必須為 1 至 128 個字元。
+
+## 回應
+
+成功時返回 HTTP `202`。`data` 包含 `order_id` 和 `accepted`。`accepted: true` 只確認撤單請求已接受，不代表最終狀態一定是 `CANCELLED`；請之後查詢[訂單詳情](/hk/trading/api/get-order)。
+
+可能的錯誤包括 `order_not_found`、`order_not_cancellable`、`invalid_trade_date` 和券商拒絕。

@@ -1,10 +1,23 @@
 ---
 title: "Start trading"
-description: "TQX trading tools"
+description: "Connect a PAPER or LIVE account and operate it through the TQX CLI."
 ---
 
-<Callout icon={<svg viewBox="0 0 16 16" width="16" height="16"><text x="8" y="11.9" fontSize="11.5" textAnchor="middle">🚧</text></svg>} color="#FFF200">
-  Working in progress
-</Callout>
+Welcome to TQX Trading. Use a coding agent to inspect your account, positions, orders, trades, and signals, or to submit an authorized order.
 
-TQX supports you in placing orders using agents (Codex / Claude Code......). We provide powerful CLI tools that let you connect directly to a simulated account or a Huatai live account from your local environment.
+Start by installing the [TQX CLI](/cli). It connects to either a TQX **PAPER** account or a Huatai **LIVE** account from your local environment.
+
+After you have an API key, log in and verify the connection:
+
+```bash
+tqx login --api-key=<YOUR_API_KEY>
+tqx status --json
+tqx trading account --json
+tqx trading positions --json
+```
+
+Use the [Trading API reference](/trading/api/place-order) for the exact CLI commands and curl requests for account data, positions, orders, trades, and signals.
+
+<Warning>
+  Trading commands can affect account state. Confirm the market, account mode, instrument, quantity, price, and risk limits before placing, modifying, or cancelling an order. A `PAPER` account is simulated trading; `LIVE` can affect real funds.
+</Warning>

@@ -1,7 +1,33 @@
 ---
 title: "修改訂單"
+description: "請求修改現有訂單的價格。"
 ---
 
-<Callout icon={<svg viewBox="0 0 16 16" width="16" height="16"><text x="8" y="11.9" fontSize="11.5" textAnchor="middle">🚧</text></svg>} color="#FFF200">
-  施工中
-</Callout>
+請求修改現有訂單的價格。
+
+## CLI
+
+```bash
+tqx trading orders modify <order-id> --price=<positive-price> --json
+```
+
+`price` 必須是正小數字串，訂單 ID 長度必須為 1 至 128 個字元。
+
+## HTTP
+
+```bash
+curl --request PATCH \
+  --url 'https://www.tqx.trade/openapi/v1/trading/orders/<order-id>' \
+  --header "X-API-Key: $TQX_API_KEY" \
+  --header 'Content-Type: application/json' \
+  --header 'Accept: application/json' \
+  --data '{"price":"350.00"}'
+```
+
+請求 body 只需要 `price`。
+
+## 回應
+
+成功時返回 HTTP `202`。`data` 包含 `order_id` 和 `accepted`。`accepted: true` 只確認修改請求已接受，不代表訂單已進入最終狀態；請之後查詢[訂單詳情](/hk/trading/api/get-order)。
+
+可能的操作錯誤包括 `order_not_found`、`order_not_modifiable` 和券商拒絕。

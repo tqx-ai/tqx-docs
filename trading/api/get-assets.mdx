@@ -1,7 +1,48 @@
 ---
-title: "Get Assets"
+title: "Get account assets"
+description: "Read balances, buying power, market value, and account mode."
 ---
 
-<Callout icon={<svg viewBox="0 0 16 16" width="16" height="16"><text x="8" y="11.9" fontSize="11.5" textAnchor="middle">🚧</text></svg>} color="#FFF200">
-  Working in progress
-</Callout>
+Returns the authenticated trading account snapshot. The response distinguishes **PAPER** from **LIVE** mode and includes a staleness flag.
+
+## CLI
+
+```bash
+tqx trading account --json
+tqx trading account --currency=HKD --json
+tqx trading account --currency=USD --json
+```
+
+`--currency` accepts `HKD` or `USD`.
+
+## HTTP
+
+```bash
+curl --request GET \
+  --url 'https://www.tqx.trade/openapi/v1/trading/account?currency=HKD' \
+  --header "X-API-Key: $TQX_API_KEY" \
+  --header 'Accept: application/json'
+```
+
+Omit `currency` to use the account default.
+
+## Response
+
+The JSON envelope contains `code` (string; `"0"` means success), `message` (string), `data` (`TradingAccountData` or `null`), `request_id` (string or `null`), and `timestamp` (integer Unix time in milliseconds). On success, `data` is `TradingAccountData`:
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `account_id` | string | Trading account identifier. |
+| `mode` | `LIVE` or `PAPER` | Account execution mode. |
+| `base_currency` | string | Currency used for account-level totals. |
+| `total_assets` | string | Total account assets, represented as a decimal string. |
+| `cash` | string or `null` | Cash balance. |
+| `available_cash` | string or `null` | Cash available for new orders. |
+| `frozen_cash` | string or `null` | Cash reserved by pending orders. |
+| `buying_power` | string or `null` | Buying power currently reported by the broker. |
+| `market_value` | string or `null` | Market value of held positions. |
+| `unrealized_pnl` | string or `null` | Unrealized profit or loss. |
+| `as_of` | date-time string | Time at which the snapshot was produced. |
+| `is_stale` | boolean | Whether the snapshot may be behind the latest broker state. |
+
+`is_stale: true` means the snapshot may not reflect the latest broker state.
