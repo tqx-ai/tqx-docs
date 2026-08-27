@@ -1,7 +1,54 @@
 ---
 title: "查詢持倉"
+description: "按市場和標的篩選目前持倉。"
 ---
 
-<Callout icon={<svg viewBox="0 0 16 16" width="16" height="16"><text x="8" y="11.9" fontSize="11.5" textAnchor="middle">🚧</text></svg>} color="#FFF200">
-  施工中
-</Callout>
+返回已驗證交易帳戶的持倉。
+
+## CLI
+
+```bash
+tqx trading positions --json
+tqx trading positions --symbol=00700.HK --market=HK --limit=100 --json
+tqx trading positions --cursor=<next-cursor> --limit=100 --json
+```
+
+`--market` 只接受 `HK` 或 `US`；`--limit` 必須是 1 至 100 的整數，省略時預設為 50；`--cursor` 是上一頁回應中的不透明 `next_cursor`。
+
+## HTTP
+
+```bash
+curl --request GET \
+  --url 'https://www.tqx.trade/openapi/v1/trading/positions?symbol=00700.HK&market=HK&limit=100&cursor=<next-cursor>' \
+  --header "X-API-Key: $TQX_API_KEY" \
+  --header 'Accept: application/json'
+```
+
+所有查詢參數均為可選。
+
+## 回應
+
+JSON envelope 包含 `code`（string；`"0"` 表示成功）、`message`（string）、`data`（`PositionsData` 或 `null`）、`request_id`（string 或 `null`）和 `timestamp`（Unix 毫秒時間戳整數）。成功時，`data` 是 `PositionsData`：
+
+| 欄位 | 類型 | 說明 |
+| --- | --- | --- |
+| `items` | `PositionData` 陣列 | 符合篩選條件的持倉記錄；沒有持倉時仍返回空陣列。 |
+| `next_cursor` | string 或 `null` | 下一頁的不透明游標；為 `null` 表示沒有下一頁。 |
+
+每個 `items[]` 項目包含：
+
+| 欄位 | 類型 | 說明 |
+| --- | --- | --- |
+| `symbol` | string | 交易標的，例如 `00700.HK`。 |
+| `symbol_name` | string | 可讀的標的名稱。 |
+| `market` | `HK` 或 `US` | 持倉所在市場。 |
+| `currency` | string | 持倉貨幣。 |
+| `side` | string | 券商回報的持倉方向。 |
+| `quantity` | string | 持倉總數量，以十進制字串表示。 |
+| `available_quantity` | string | 可賣出或可使用的數量。 |
+| `average_cost` | string 或 `null` | 每單位平均成本。 |
+| `last_price` | string 或 `null` | 最新可用價格。 |
+| `market_value` | string 或 `null` | 持倉目前市值。 |
+| `unrealized_pnl` | string 或 `null` | 未實現損益。 |
+| `unrealized_pnl_ratio` | string 或 `null` | 未實現回報率。 |
+| `as_of` | date-time string | 持倉快照產生時間。 |

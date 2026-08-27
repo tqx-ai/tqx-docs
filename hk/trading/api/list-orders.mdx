@@ -1,7 +1,63 @@
 ---
 title: "訂單列表"
+description: "列出已驗證帳戶目前的有效訂單。"
 ---
 
-<Callout icon={<svg viewBox="0 0 16 16" width="16" height="16"><text x="8" y="11.9" fontSize="11.5" textAnchor="middle">🚧</text></svg>} color="#FFF200">
-  施工中
-</Callout>
+列出目前訂單。終止狀態的訂單可能不會出現；請用訊號、成交記錄、帳戶和持倉接口交叉核對結果。
+
+## CLI
+
+```bash
+tqx trading orders list --limit=100 --json
+tqx trading orders list --cursor=<next-cursor> --limit=100 --json
+```
+
+`--limit` 必須是 1 至 100 的整數，省略時預設為 50；`--cursor` 使用上一頁的 `next_cursor`。
+
+## HTTP
+
+```bash
+curl --request GET \
+  --url 'https://www.tqx.trade/openapi/v1/trading/orders?limit=100&cursor=<next-cursor>' \
+  --header "X-API-Key: $TQX_API_KEY" \
+  --header 'Accept: application/json'
+```
+
+兩個查詢參數均為可選。
+
+## 回應
+
+JSON envelope 包含 `code`（string；`"0"` 表示成功）、`message`（string）、`data`（`OrdersData` 或 `null`）、`request_id`（string 或 `null`）和 `timestamp`（Unix 毫秒時間戳整數）。成功時，`data` 是 `OrdersData`：
+
+| 欄位 | 類型 | 說明 |
+| --- | --- | --- |
+| `items` | `OrderData` 陣列 | 此帳戶返回的訂單。 |
+| `next_cursor` | string 或 `null` | 下一頁的不透明游標；沒有下一頁時為 `null`。 |
+
+每個 `items[]` 項目包含：
+
+| 欄位 | 類型 | 說明 |
+| --- | --- | --- |
+| `order_id` | string | TQX 訂單識別碼。 |
+| `client_order_id` | string 或 `null` | 用戶提供的訂單識別碼（如有）。 |
+| `symbol` | string | 交易標的。 |
+| `symbol_name` | string | 可讀的標的名稱。 |
+| `market` | `HK` 或 `US` | 訂單市場。 |
+| `currency` | string | 訂單貨幣。 |
+| `side` | `BUY` 或 `SELL` | 訂單方向。 |
+| `order_type` | `MARKET` 或 `LIMIT` | 訂單類型。 |
+| `status` | enum | 訂單目前生命週期狀態。 |
+| `quantity` | string | 請求數量。 |
+| `price` | string 或 `null` | 限價；市價單為 `null`。 |
+| `filled_quantity` | string | 已成交數量。 |
+| `remaining_quantity` | string | 尚未成交數量。 |
+| `average_fill_price` | string 或 `null` | 平均成交價；尚未成交時為 `null`。 |
+| `submitted_at` | date-time string 或 `null` | 提交時間（如可用）。 |
+| `updated_at` | date-time string 或 `null` | 最後更新時間（如可用）。 |
+| `time_in_force` | `DAY`（可選） | 訂單有效期策略。 |
+| `market_session` | string 或 `null`（可選） | 券商回報的市場時段。 |
+| `effective_trade_date` | string 或 `null`（可選） | 券商回報的生效交易日期。 |
+| `expire_at` | date-time string 或 `null`（可選） | 到期時間（如適用）。 |
+| `cancel_request_id` | string 或 `null`（可選） | 取消請求識別碼（如有）。 |
+
+`status` 只接受 `PENDING`、`SUBMITTED`、`PARTIAL_FILLED`、`MODIFYING`、`CANCELLING`、`FILLED`、`CANCELLED`、`REJECTED`、`TIMEOUT` 或 `FAILED`。

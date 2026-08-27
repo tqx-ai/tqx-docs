@@ -1,7 +1,58 @@
 ---
-title: "Get Signal"
+title: "Get signal"
+description: "Read a trading signal and its optional order-status snapshot."
 ---
 
-<Callout icon={<svg viewBox="0 0 16 16" width="16" height="16"><text x="8" y="11.9" fontSize="11.5" textAnchor="middle">🚧</text></svg>} color="#FFF200">
-  Working in progress
-</Callout>
+Returns the lifecycle state of one trading signal.
+
+## CLI
+
+```bash
+tqx trading signals get <signal-id> --json
+```
+
+## HTTP
+
+```bash
+curl --request GET \
+  --url 'https://www.tqx.trade/openapi/v1/trading/signals/<signal-id>' \
+  --header "X-API-Key: $TQX_API_KEY" \
+  --header 'Accept: application/json'
+```
+
+The signal ID must be 8 to 128 characters. URL-encode it when necessary.
+
+## Response
+
+The JSON envelope contains `code` (string; `"0"` means success), `message` (string), `data` (`SignalData` or `null`), `request_id` (string or `null`), and `timestamp` (integer Unix time in milliseconds). `data` is `SignalData` on success.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `signal_id` | string | Trading signal identifier. |
+| `state` | `PENDING`, `ACCEPTED`, `UNKNOWN`, or `REJECTED` | Signal lifecycle state. |
+| `order_id` | string or `null` | Linked order identifier, when an order exists. |
+| `order_status` | string or `null` | Snapshot of the linked order status; separate from `state`. |
+| `message` | string or `null` | Human-readable processing message. |
+| `created_at` | date-time string | Signal creation time. |
+| `updated_at` | date-time string | Last signal update time. |
+| `error_code` | string or `null` (optional) | TQX or broker error code. |
+| `broker_error_id` | integer or `null` (optional) | Numeric broker error identifier. |
+| `rejection_reason` | string or `null` (optional) | Reason the signal was rejected. |
+| `parent_request_id` | string or `null` (optional) | Parent request identifier, when this signal was derived from another request. |
+| `symbol` | string or `null` (optional) | Requested trading symbol. |
+| `total_quantity` | string or `null` (optional) | Total quantity associated with the request. |
+| `requested_price` | string or `null` (optional) | Requested limit price. |
+| `requested_quantity` | string or `null` (optional) | Quantity requested in the current operation. |
+| `available_quantity` | string or `null` (optional) | Quantity available for the operation. |
+| `excess_quantity` | string or `null` (optional) | Quantity exceeding the available position or limit. |
+| `short_selling_allowed` | boolean or `null` (optional) | Whether short selling is allowed. |
+| `requested_value` | string or `null` (optional) | Requested notional value. |
+| `available_buying_power` | string or `null` (optional) | Buying power available when evaluated. |
+| `shortfall` | string or `null` (optional) | Amount by which funds or quantity fell short. |
+| `currency` | string or `null` (optional) | Request currency. |
+| `time_in_force` | `DAY` or `null` (optional) | Request validity policy. |
+| `market_session` | string or `null` (optional) | Requested or effective market session. |
+| `effective_trade_date` | string or `null` (optional) | Effective trading date. |
+| `expire_at` | date-time string or `null` (optional) | Signal expiration time. |
+
+`state` is the signal lifecycle, not the order lifecycle. `ACCEPTED` does not mean submitted or filled. Use `order_id` with [Get order](/trading/api/get-order) and [List trades](/trading/api/list-trades) to confirm the result.

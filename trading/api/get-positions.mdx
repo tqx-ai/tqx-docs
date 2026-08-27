@@ -1,7 +1,54 @@
 ---
-title: "Get Positions"
+title: "Get positions"
+description: "List current positions with optional market and symbol filters."
 ---
 
-<Callout icon={<svg viewBox="0 0 16 16" width="16" height="16"><text x="8" y="11.9" fontSize="11.5" textAnchor="middle">🚧</text></svg>} color="#FFF200">
-  Working in progress
-</Callout>
+Returns positions for the authenticated trading account.
+
+## CLI
+
+```bash
+tqx trading positions --json
+tqx trading positions --symbol=00700.HK --market=HK --limit=100 --json
+tqx trading positions --cursor=<next-cursor> --limit=100 --json
+```
+
+`--market` accepts `HK` or `US`. `--limit` must be an integer from 1 to 100 and defaults to 50 when omitted. `--cursor` is the opaque `next_cursor` returned by the previous response.
+
+## HTTP
+
+```bash
+curl --request GET \
+  --url 'https://www.tqx.trade/openapi/v1/trading/positions?symbol=00700.HK&market=HK&limit=100&cursor=<next-cursor>' \
+  --header "X-API-Key: $TQX_API_KEY" \
+  --header 'Accept: application/json'
+```
+
+All query parameters are optional.
+
+## Response
+
+The JSON envelope contains `code` (string; `"0"` means success), `message` (string), `data` (`PositionsData` or `null`), `request_id` (string or `null`), and `timestamp` (integer Unix time in milliseconds). `data` is `PositionsData` on success:
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `items` | array of `PositionData` | Position records matching the filters. The array is present even when empty. |
+| `next_cursor` | string or `null` | Opaque cursor for the next page. `null` means there is no next page. |
+
+Each `items[]` entry contains:
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `symbol` | string | Trading symbol, such as `00700.HK`. |
+| `symbol_name` | string | Human-readable symbol name. |
+| `market` | `HK` or `US` | Market where the position is held. |
+| `currency` | string | Position currency. |
+| `side` | string | Position side reported by the broker. |
+| `quantity` | string | Total position quantity as a decimal string. |
+| `available_quantity` | string | Quantity available to sell or otherwise use. |
+| `average_cost` | string or `null` | Average cost per unit. |
+| `last_price` | string or `null` | Latest available price. |
+| `market_value` | string or `null` | Current market value of the position. |
+| `unrealized_pnl` | string or `null` | Unrealized profit or loss. |
+| `unrealized_pnl_ratio` | string or `null` | Unrealized return ratio. |
+| `as_of` | date-time string | Time at which this position snapshot was produced. |

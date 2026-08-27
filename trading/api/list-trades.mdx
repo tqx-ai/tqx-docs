@@ -1,7 +1,56 @@
 ---
-title: "List Trades"
+title: "List trades"
+description: "List executed trades with optional market and order filters."
 ---
 
-<Callout icon={<svg viewBox="0 0 16 16" width="16" height="16"><text x="8" y="11.9" fontSize="11.5" textAnchor="middle">🚧</text></svg>} color="#FFF200">
-  Working in progress
-</Callout>
+Returns executed trade records for the authenticated account.
+
+## CLI
+
+```bash
+tqx trading trades --json
+tqx trading trades --market=US --limit=100 --json
+tqx trading trades --orderId=<order-id> --json
+tqx trading trades --cursor=<next-cursor> --limit=100 --json
+```
+
+`--market` accepts `HK` or `US`. `--limit` must be an integer from 1 to 100 and defaults to 50 when omitted. `--orderId` filters by order ID. `--cursor` is the opaque pagination cursor.
+
+## HTTP
+
+```bash
+curl --request GET \
+  --url 'https://www.tqx.trade/openapi/v1/trading/trades?market=US&order_id=<order-id>&limit=100&cursor=<next-cursor>' \
+  --header "X-API-Key: $TQX_API_KEY" \
+  --header 'Accept: application/json'
+```
+
+All query parameters are optional.
+
+## Response
+
+The JSON envelope contains `code` (string; `"0"` means success), `message` (string), `data` (`TradesData` or `null`), `request_id` (string or `null`), and `timestamp` (integer Unix time in milliseconds). `data` is `TradesData` on success:
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `items` | array of `TradeData` | Executed trade records. |
+| `next_cursor` | string or `null` | Opaque cursor for the next page; `null` when there is no next page. |
+
+Each `items[]` entry contains:
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `trade_id` | string | Unique execution identifier. |
+| `order_id` | string | TQX order that produced the execution. |
+| `symbol` | string | Trading symbol. |
+| `symbol_name` | string | Human-readable symbol name. |
+| `market` | `HK` or `US` | Execution market. |
+| `currency` | string | Trade currency. |
+| `side` | `BUY` or `SELL` | Execution direction. |
+| `quantity` | string | Executed quantity. |
+| `price` | string | Execution price. |
+| `amount` | string | Executed notional amount. |
+| `commission` | string or `null` | Commission charged for this execution. |
+| `executed_at` | date-time string | Execution time. |
+| `client_order_id` | string or `null` (optional) | Client-supplied order identifier, when available. |
+| `order_type` | `MARKET`, `LIMIT`, or `null` (optional) | Type of the order that produced the execution. This field is declared by the live OpenAPI schema; the current `tqx-ts` SDK type does not expose it. |

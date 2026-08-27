@@ -1,7 +1,29 @@
 ---
-title: "Cancel Order"
+title: "Cancel order"
+description: "Request cancellation of an existing order."
 ---
 
-<Callout icon={<svg viewBox="0 0 16 16" width="16" height="16"><text x="8" y="11.9" fontSize="11.5" textAnchor="middle">🚧</text></svg>} color="#FFF200">
-  Working in progress
-</Callout>
+Requests cancellation of an existing order.
+
+## CLI
+
+```bash
+tqx trading orders cancel <order-id> --json
+```
+
+## HTTP
+
+```bash
+curl --request DELETE \
+  --url 'https://www.tqx.trade/openapi/v1/trading/orders/<order-id>' \
+  --header "X-API-Key: $TQX_API_KEY" \
+  --header 'Accept: application/json'
+```
+
+The order ID must be 1 to 128 characters.
+
+## Response
+
+Success returns HTTP `202` with the standard envelope. `data` contains `order_id` and `accepted`. `accepted: true` acknowledges the cancellation request; it does not confirm the final `CANCELLED` order status. Query [Get order](/trading/api/get-order) afterward.
+
+Possible errors include `order_not_found`, `order_not_cancellable`, `invalid_trade_date`, and broker rejection.

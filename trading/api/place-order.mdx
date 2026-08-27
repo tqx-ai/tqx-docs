@@ -1,7 +1,60 @@
 ---
-title: "Place Order"
+title: "Place order"
+description: "Submit a MARKET or LIMIT order and receive its signal state."
 ---
 
-<Callout icon={<svg viewBox="0 0 16 16" width="16" height="16"><text x="8" y="11.9" fontSize="11.5" textAnchor="middle">🚧</text></svg>} color="#FFF200">
-  Working in progress
-</Callout>
+Submits an order to the authenticated trading account. The API acknowledges the request with a signal envelope; it does not synchronously guarantee that the order was filled.
+
+<Warning>
+  Only submit an order after confirming the account mode, market, symbol, side, quantity, price, and risk limits. Use a `PAPER` account to test an integration. `LIVE` orders can affect real funds.
+</Warning>
+
+## CLI
+
+Market order:
+
+```bash
+tqx trading orders place --symbol=AAPL.US --side=BUY --quantity=1 --yes --json
+```
+
+Limit order:
+
+```bash
+tqx trading orders place --symbol=00700.HK --side=BUY --quantity=100 --orderType=LIMIT --price=350.00 --timeInForce=DAY --reason=<reason> --idempotencyKey=<stable-key> --yes --json
+```
+
+The CLI defaults `orderType` to `MARKET` and `timeInForce` to `DAY`. `--yes` is required. `symbol` must use `<code>.<market>` with `HK` or `US`; the CLI trims whitespace and uppercases it. `quantity` is a positive integer string. `LIMIT` requires a positive `price`; `MARKET` must omit `price`. `reason` is optional and is limited to 512 characters.
+
+`idempotencyKey` is 8 to 128 characters, starts with a letter or number, and then uses only letters, numbers, `.`, `_`, `:`, or `-`. The CLI generates one when omitted. Reuse the same stable key only when safely retrying the same intent.
+
+## HTTP
+
+```bash
+curl --request POST \
+  --url 'https://www.tqx.trade/openapi/v1/trading/orders' \
+  --header "X-API-Key: $TQX_API_KEY" \
+  --header 'Idempotency-Key: <stable-key>' \
+  --header 'Content-Type: application/json' \
+  --header 'Accept: application/json' \
+  --data '{
+    "symbol": "00700.HK",
+    "side": "BUY",
+    "order_type": "LIMIT",
+    "quantity": "100",
+    "price": "350.00",
+    "reason": "rebalance",
+    "time_in_force": "DAY"
+  }'
+```
+
+`X-API-Key` is required. `Idempotency-Key` is required and must satisfy the constraints above. The request body requires `symbol`, `side`, `order_type`, and `quantity`; `price` is nullable, `reason` is nullable, and `time_in_force` defaults to `DAY`.
+
+## Response
+
+Success returns HTTP `202` with the standard envelope. `data` is `SignalData` with `signal_id`, `state`, nullable `order_id`, nullable `order_status`, `message`, `created_at`, and `updated_at`, plus optional order context and rejection fields.
+
+`state` is `PENDING`, `ACCEPTED`, `UNKNOWN`, or `REJECTED`. `ACCEPTED` means the signal request was accepted, not that the order was submitted or filled. Query the returned signal, then use [Get order](/trading/api/get-order) and [List trades](/trading/api/list-trades) to confirm the outcome.
+
+Common failures include `409 idempotency_conflict`, `409 insufficient_funds`, `409 insufficient_position`, `409 market_closed`, `409 account_locked`, `422 invalid_lot_size`, `422 invalid_order_price`, and `422 invalid_symbol`. A `409` or `422` response may still carry a `SignalData` payload in `data`.
+
+`502` is an unclassified upstream broker rejection and returns `SignalData` with `error_code`, `broker_error_id`, and `rejection_reason`. `503` means the trading channel is unavailable, and `504` means the broker or trading channel timed out; neither returns `data`, and the order may still exist upstream, so query the signal and [Get order](/trading/api/get-order) before retrying.

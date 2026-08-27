@@ -1,7 +1,63 @@
 ---
-title: "List Orders"
+title: "List orders"
+description: "List current active orders for the authenticated account."
 ---
 
-<Callout icon={<svg viewBox="0 0 16 16" width="16" height="16"><text x="8" y="11.9" fontSize="11.5" textAnchor="middle">🚧</text></svg>} color="#FFF200">
-  Working in progress
-</Callout>
+Lists current orders. Terminal orders may be omitted; use the signal, trades, account, and positions endpoints to cross-check a completed operation.
+
+## CLI
+
+```bash
+tqx trading orders list --limit=100 --json
+tqx trading orders list --cursor=<next-cursor> --limit=100 --json
+```
+
+`--limit` must be an integer from 1 to 100 and defaults to 50 when omitted. Pass the opaque `next_cursor` from the previous response to continue pagination.
+
+## HTTP
+
+```bash
+curl --request GET \
+  --url 'https://www.tqx.trade/openapi/v1/trading/orders?limit=100&cursor=<next-cursor>' \
+  --header "X-API-Key: $TQX_API_KEY" \
+  --header 'Accept: application/json'
+```
+
+Both query parameters are optional.
+
+## Response
+
+The JSON envelope contains `code` (string; `"0"` means success), `message` (string), `data` (`OrdersData` or `null`), `request_id` (string or `null`), and `timestamp` (integer Unix time in milliseconds). `data` is `OrdersData` on success:
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `items` | array of `OrderData` | Orders returned for the account. |
+| `next_cursor` | string or `null` | Opaque cursor for the next page; `null` when there is no next page. |
+
+Each `items[]` entry contains:
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `order_id` | string | TQX order identifier. |
+| `client_order_id` | string or `null` | Client-supplied order identifier, when provided. |
+| `symbol` | string | Trading symbol. |
+| `symbol_name` | string | Human-readable symbol name. |
+| `market` | `HK` or `US` | Order market. |
+| `currency` | string | Order currency. |
+| `side` | `BUY` or `SELL` | Order direction. |
+| `order_type` | `MARKET` or `LIMIT` | Order type. |
+| `status` | enum | Current order lifecycle status. |
+| `quantity` | string | Requested quantity. |
+| `price` | string or `null` | Limit price; `null` for market orders. |
+| `filled_quantity` | string | Quantity filled so far. |
+| `remaining_quantity` | string | Quantity not yet filled. |
+| `average_fill_price` | string or `null` | Average execution price; `null` when nothing has filled. |
+| `submitted_at` | date-time string or `null` | Submission time, when available. |
+| `updated_at` | date-time string or `null` | Last update time, when available. |
+| `time_in_force` | `DAY` (optional) | Order validity policy. |
+| `market_session` | string or `null` (optional) | Broker market session associated with the order. |
+| `effective_trade_date` | string or `null` (optional) | Effective trading date reported by the broker. |
+| `expire_at` | date-time string or `null` (optional) | Expiration time, when applicable. |
+| `cancel_request_id` | string or `null` (optional) | Identifier of the cancellation request, when one exists. |
+
+`status` is one of `PENDING`, `SUBMITTED`, `PARTIAL_FILLED`, `MODIFYING`, `CANCELLING`, `FILLED`, `CANCELLED`, `REJECTED`, `TIMEOUT`, or `FAILED`.

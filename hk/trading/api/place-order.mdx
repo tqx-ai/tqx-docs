@@ -1,7 +1,60 @@
 ---
 title: "下單"
+description: "提交 MARKET 或 LIMIT 訂單並取得訊號狀態。"
 ---
 
-<Callout icon={<svg viewBox="0 0 16 16" width="16" height="16"><text x="8" y="11.9" fontSize="11.5" textAnchor="middle">🚧</text></svg>} color="#FFF200">
-  施工中
-</Callout>
+向已驗證的交易帳戶提交訂單。API 會返回訊號 envelope，不會同步保證訂單已成交。
+
+<Warning>
+  下單前請確認帳戶模式、市場、標的、方向、數量、價格和風險限制。請使用**仿真**帳戶測試整合；**實盤**訂單可能影響真實資金。
+</Warning>
+
+## CLI
+
+市價單：
+
+```bash
+tqx trading orders place --symbol=AAPL.US --side=BUY --quantity=1 --yes --json
+```
+
+限價單：
+
+```bash
+tqx trading orders place --symbol=00700.HK --side=BUY --quantity=100 --orderType=LIMIT --price=350.00 --timeInForce=DAY --reason=<reason> --idempotencyKey=<stable-key> --yes --json
+```
+
+CLI 預設 `orderType` 為 `MARKET`，`timeInForce` 為 `DAY`。必須使用 `--yes`。`symbol` 必須使用 `<code>.<market>` 格式，市場只能是 `HK` 或 `US`，CLI 會自動去除前後空白並轉為大寫；`quantity` 必須是正整數字串。`LIMIT` 必須提供正數 `price`；`MARKET` 不得提供 `price`。`reason` 可選，最多 512 個字元。
+
+`idempotencyKey` 長度為 8 至 128 個字元，首字元為字母或數字，其後只能使用字母、數字、`.`、`_`、`:` 或 `-`。省略時 CLI 會自動產生；重試同一意圖時才重用同一個穩定 Key。
+
+## HTTP
+
+```bash
+curl --request POST \
+  --url 'https://www.tqx.trade/openapi/v1/trading/orders' \
+  --header "X-API-Key: $TQX_API_KEY" \
+  --header 'Idempotency-Key: <stable-key>' \
+  --header 'Content-Type: application/json' \
+  --header 'Accept: application/json' \
+  --data '{
+    "symbol": "00700.HK",
+    "side": "BUY",
+    "order_type": "LIMIT",
+    "quantity": "100",
+    "price": "350.00",
+    "reason": "rebalance",
+    "time_in_force": "DAY"
+  }'
+```
+
+請求 body 必須包含 `symbol`、`side`、`order_type` 和 `quantity`；`price`、`reason` 可為 `null`，`time_in_force` 預設為 `DAY`。
+
+## 回應
+
+成功時返回 HTTP `202` 和標準 envelope。`data` 是 `SignalData`，包含 `signal_id`、`state`、`order_id`、`order_status`、`message`、`created_at` 和 `updated_at`。
+
+`state` 可為 `PENDING`、`ACCEPTED`、`UNKNOWN` 或 `REJECTED`。`ACCEPTED` 只表示訊號請求已接受，不代表訂單已提交或成交。請查詢訊號，再使用[訂單詳情](/hk/trading/api/get-order)和[成交記錄](/hk/trading/api/list-trades)確認結果。
+
+常見錯誤包括 `409 idempotency_conflict`、`409 insufficient_funds`、`409 insufficient_position`、`409 market_closed`、`409 account_locked`、`422 invalid_lot_size`、`422 invalid_order_price` 和 `422 invalid_symbol`。`409` 和 `422` 的 `data` 仍可能帶有 `SignalData`。
+
+`502` 表示未分類的上游券商拒絕，會返回 `SignalData`，包含 `error_code`、`broker_error_id` 和 `rejection_reason`。`503` 表示交易通道不可用，`504` 表示券商或交易通道逾時；兩者都不返回 `data`，且訂單可能已在上游存在，重試前請先查詢訊號和[訂單詳情](/hk/trading/api/get-order)。

@@ -1,7 +1,48 @@
 ---
-title: "查詢資產"
+title: "查詢帳戶資產"
+description: "讀取餘額、購買力、市值和帳戶模式。"
 ---
 
-<Callout icon={<svg viewBox="0 0 16 16" width="16" height="16"><text x="8" y="11.9" fontSize="11.5" textAnchor="middle">🚧</text></svg>} color="#FFF200">
-  施工中
-</Callout>
+返回已驗證交易帳戶的快照。回應會區分**仿真**和**實盤**模式，並包含資料是否過時的標記。
+
+## CLI
+
+```bash
+tqx trading account --json
+tqx trading account --currency=HKD --json
+tqx trading account --currency=USD --json
+```
+
+`--currency` 只接受 `HKD` 或 `USD`。
+
+## HTTP
+
+```bash
+curl --request GET \
+  --url 'https://www.tqx.trade/openapi/v1/trading/account?currency=HKD' \
+  --header "X-API-Key: $TQX_API_KEY" \
+  --header 'Accept: application/json'
+```
+
+省略 `currency` 即使用帳戶預設貨幣。
+
+## 回應
+
+JSON envelope 包含 `code`（string；`"0"` 表示成功）、`message`（string）、`data`（`TradingAccountData` 或 `null`）、`request_id`（string 或 `null`）和 `timestamp`（Unix 毫秒時間戳整數）。成功時，`data` 是 `TradingAccountData`：
+
+| 欄位 | 類型 | 說明 |
+| --- | --- | --- |
+| `account_id` | string | 交易帳戶識別碼。 |
+| `mode` | `LIVE` 或 `PAPER` | 帳戶執行模式。 |
+| `base_currency` | string | 帳戶總額使用的貨幣。 |
+| `total_assets` | string | 帳戶總資產，以十進制字串表示。 |
+| `cash` | string 或 `null` | 現金餘額。 |
+| `available_cash` | string 或 `null` | 可用於新訂單的現金。 |
+| `frozen_cash` | string 或 `null` | 由未完成訂單鎖定的現金。 |
+| `buying_power` | string 或 `null` | 券商目前回報的購買力。 |
+| `market_value` | string 或 `null` | 持倉的市值。 |
+| `unrealized_pnl` | string 或 `null` | 未實現損益。 |
+| `as_of` | date-time string | 快照產生時間。 |
+| `is_stale` | boolean | 指示快照可能落後於券商最新狀態。 |
+
+`is_stale: true` 表示快照可能未反映券商的最新狀態。
