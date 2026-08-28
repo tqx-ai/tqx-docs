@@ -272,7 +272,8 @@
   },
   "logo": {
     "light": "/logo/tqx-black.png",
-    "dark": "/logo/tqx-white.png"
+    "dark": "/logo/tqx-white.png",
+    "href": "https://www.tqx.ai/"
   },
   "navbar": {
     "links": [
