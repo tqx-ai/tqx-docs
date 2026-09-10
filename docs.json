@@ -138,7 +138,7 @@
             },
             {
               "anchor": "Competitions",
-              "href": "https://www.tqx.ai/competition-manage?catalog=2",
+              "href": "https://www.tqx.ai/user-center?tab=dashboard",
               "icon": "newspaper"
             }
           ]
@@ -262,7 +262,7 @@
             },
             {
               "anchor": "\u53c3\u8cfd",
-              "href": "https://www.tqx.ai/competition-manage?catalog=2",
+              "href": "https://www.tqx.ai/user-center?tab=dashboard",
               "icon": "newspaper"
             }
           ]
