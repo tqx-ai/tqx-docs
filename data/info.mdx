@@ -13,10 +13,46 @@ Download the `tqx-data` package from [PyPI](https://pypi.org/project/tqx-data/):
 pip install tqx-data
 ```
 
+`tqx-data` 0.1.2 needs Python 3.10 to 3.12. It requires `numpy` below 2.0, which doesn't install on Python 3.13 or later.
+
 <Note>
   You currently need a TQX data account to use `tqx_data`. Contact Audrey at [audrey@tqx.trade](mailto:audrey@tqx.trade) to get access.
 </Note>
 
-<Warning>
-  The methods on these pages follow the `tqx_data` built into Qube. The `tqx-data` package on PyPI is being updated, so some method names and parameters may differ until the new version is released.
-</Warning>
+## Log in
+
+Log in with the email and password of your TQX data account before you call a method:
+
+```python
+import tqx_data
+
+tqx_data.init_token(username="<data-account-email>", password="<password>")
+print(tqx_data.get_hk_daily(symbol=["0700.HK"], start_date="20260901", end_date="20260930"))
+```
+
+In `tqx-data` 0.1.2, a login lasts only for the current Python process, so call `init_token` again in each new process. Keep the password out of source files and repositories.
+
+### Use tqx-data with a coding agent
+
+Copy the following prompt into your coding agent:
+
+```text
+Read https://raw.githubusercontent.com/tqx-ai/tqx-ts/refs/heads/main/skills/tqx-data/SKILL.md, set up tqx-data on this computer, and show me the daily bars of 0700.HK for September 2026.
+```
+
+The agent asks for your data account email and password once and saves them in your operating system's credential store, so later tasks don't ask again.
+
+## Qube and the PyPI package
+
+The methods on these pages follow the `tqx_data` built into Qube. The `tqx-data` 0.1.2 package on PyPI differs in these ways:
+
+- Pages and methods marked **Qube only** aren't in the package: minute data, live minute data, tick data, technical indicators, backtest factors, and index components.
+- Every `market` parameter in the package takes `"hk"` or `"nb"`. Where these pages list `"us"`, for example in stock details, events, ownership, company metrics, and consensus, pass `"nb"` to the package instead.
+- The package's trading calendar takes `exchange="HK"` or `exchange="NB"` instead of `market`.
+- The package adds methods that these pages don't cover yet, such as `get_us_short_interest` and a real-time tick stream. Read the `tqx_data.md` file that is installed with the package.
+
+## Use the data in backtests
+
+- Daily bars aren't adjusted for dividends or splits, and `alt_close` equals `close`. To build an adjusted or total-return series, apply the events from `get_event_devidend`.
+- Data marked **Latest data only** has no history. Don't use it for historical signals in a backtest, because it would leak later information into earlier dates.
+- Use an event only from its announcement date onward.

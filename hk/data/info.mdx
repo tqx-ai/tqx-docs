@@ -13,10 +13,46 @@ TQX 提供港股與美股的行情、參考、財務與市場因子資料。股�
 pip install tqx-data
 ```
 
+`tqx-data` 0.1.2 需要 Python 3.10 至 3.12。它要求 `numpy` 低於 2.0，在 Python 3.13 及以上版本無法安裝。
+
 <Note>
   目前使用 `tqx_data` 需要 TQX 數據帳號。請聯絡 Audrey（[audrey@tqx.trade](mailto:audrey@tqx.trade)）開通權限。
 </Note>
 
-<Warning>
-  本文件中的方法以 Qube 內建的 `tqx_data` 為準。PyPI 上的 `tqx-data` 套件正在更新，新版發布前，部分方法名稱與參數可能與文件不一致。
-</Warning>
+## 登入
+
+呼叫任何方法前，先用 TQX 數據帳號的電郵與密碼登入：
+
+```python
+import tqx_data
+
+tqx_data.init_token(username="<數據帳號電郵>", password="<密碼>")
+print(tqx_data.get_hk_daily(symbol=["0700.HK"], start_date="20260901", end_date="20260930"))
+```
+
+在 `tqx-data` 0.1.2 中，登入狀態只在目前的 Python 程序內有效，每個新程序都要重新呼叫 `init_token`。請勿把密碼寫進原始碼或程式碼倉庫。
+
+### 透過編程助手使用 tqx-data
+
+把以下提示詞複製給你的編程助手：
+
+```text
+Read https://raw.githubusercontent.com/tqx-ai/tqx-ts/refs/heads/main/skills/tqx-data/SKILL.md, set up tqx-data on this computer, and show me the daily bars of 0700.HK for September 2026.
+```
+
+助手只會向你索取一次數據帳號的電郵與密碼，並把它們存進作業系統的憑證儲存區，之後的任務不會再要求登入。
+
+## Qube 與 PyPI 套件的差異
+
+本文件中的方法以 Qube 內建的 `tqx_data` 為準。PyPI 上的 `tqx-data` 0.1.2 套件有以下差異：
+
+- 標示為**僅限 Qube** 的頁面與方法不在套件中：分鐘數據、即時分鐘數據、Tick 數據、技術指標、回測因子與指數成分股。
+- 套件中所有 `market` 參數只接受 `"hk"` 或 `"nb"`。本文件中寫作 `"us"` 的地方，例如股票詳情、事件、持股、公司指標與一致預期，在套件中請改傳 `"nb"`。
+- 套件的交易日曆使用 `exchange="HK"` 或 `exchange="NB"`，而不是 `market`。
+- 套件另有本文件尚未收錄的方法，例如 `get_us_short_interest` 與即時 Tick 推送。請參閱隨套件安裝的 `tqx_data.md` 檔案。
+
+## 在回測中使用數據
+
+- 日線數據未做除權除息調整，`alt_close` 與 `close` 相同。如需復權或總回報序列，請自行套用 `get_event_devidend` 回傳的事件。
+- 標示為**僅提供最新數據**的資料沒有歷史版本。請勿在回測中把它當作歷史訊號，否則會把未來資訊帶入較早的日期。
+- 事件只能從其公告日期起使用。
