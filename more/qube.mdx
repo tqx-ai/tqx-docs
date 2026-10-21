@@ -5,105 +5,75 @@ title: "使用qube中的常见问题"
 
 1. **生成的策略可以直接实盘吗**
 
-   不建议，也不应该。回测是历史检验，和真实交易之间还隔着信号时点、成交价格、流动性与资金占用这些问题。正确顺序是：回测确定参数 → 进 <u>仿真盘</u> 用实时行情连续跑一段 → 核对信号时点、成交价与盘口是否一致、换月与开平方向、保证金占用 → 再考虑接入实盘。**Qube 生成的内容仅用于研究，不构成投资建议。**
-2. Qube 用的是什么数据？<br />Qube 提供港股和美股的行情、参考数据、财务数据和市场因子。代码必须带市场后缀。<br />- 港股用 `.HK`，例如 `0001.HK`、`0700.HK`。<br />- 美股用 NASDAQ BASIC 的 `.NB`，例如 `AAPL.NB`。不要写成 `AAPL` 或 `AAPL.US`。<br />数据说明在数据文档中。日线没有做除权除息调整。
+   不建议，也不应该。回测是历史检验，和真实交易之间还隔着信号时点、成交价格、流动性与资金占用这些问题。正确顺序是：回测确定参数 → 进[仿真盘](https://www.tqx.trade/en/user-center?tab=agents) ，用实时行情连续跑一段 → 核对信号时点、成交价与盘口是否一致、换月与开平方向、保证金占用 → 再考虑接入实盘。**Qube 生成的内容仅用于研究，不构成投资建议。**
+2. Qube 用的是什么数据？<br />Qube 提供港股和美股的行情、参考数据、财务数据和市场因子。代码必须带市场后缀。<br />- 港股用 `.HK`，例如 `0001.HK`、`0700.HK`。<br />- 美股用 NASDAQ BASIC 的 `.NB`，例如 `AAPL.NB`。不要写成 `AAPL` 或 `AAPL.US`。<br />数据说明在数据文档中。日线没有做除权除息调整。查看更多[数据信息](https://app.mintlify.com/tqx/tqx/~/TQX-data-e43030cf-189f-4626-8da7-01a8f771331f)。
 3. 对话历史保存在哪里
 
    在 Qube 左侧的历史会话里，按需求摘要列出，点开即可恢复完整上下文。登录后产生的会话、策略与回测记录会留在你的账号下；策略与因子另外沉淀在策略库、因子库，每次运行在运行历史里留痕，见 策略库 · 因子库 · 运行历史。
 4. qube现在怎么使用？<br />可以使用cli + ai agent进行本地化使用；网页版qube产品正在不断调整中
-5. <br /><br />
-2. 目前qube会出现回测失败等这些问题该怎么解决？<br />- 使用cli来进行接入
-3. 什么是cli？什么是ai agent？为什么使用ai agent进行命令？<br />- cli是**Command Line Interface，命令行界面，**这并不是tqx特有的东西；<br />tqx cli就是tqx专门为ai agent开发的一个命令行工具，装上之后ai就能操纵tqx，从而调用qube的能力。<br />- AI Agent（AI 智能体）指的是一种可以自主完成任务的 AI 系统。和传统聊天式 AI 不同，AI Agent 不只是回答问题，而是可以 理解目标 → 制定步骤 → 调用工具 → 执行任务 → 根据结果继续行动。换句话说，它更像一个会使用工具的数字员工。<br />最近一年，AI Agent 的爆发主要集中在 **开发者工具**领域。最常见的几类产品包括：<br />- Codex：OpenAI 推出的 AI 编程 Agent，可以在云端完成完整的软件工程任务，例如写功能、修复 Bug、分析代码库等。它可以通过 CLI、IDE 或 ChatGPT 直接运行，并逐渐发展为一个面向开发团队的自动化工程平台。<br />- Claude Code：是 Anthropic 推出的 AI 编程 Agent，特点是 **完全基于终端（CLI）工作**。<br />**- cursor：**<br />- workbuddy：<br />
-4. 在网页端使用qube和cli使用qube都会消耗算力吗？<br />是的，即使通过cli调用qube，也是需要消耗qube的算力的
-
-qube的订阅系统是什么的呢？在哪里可以找到呢？<br />订阅网页在这里：[https://www.tqx.ai/en/payment](https://www.tqx.ai/en/payment)，**Get 7 days of Basic membership for free**<br />分为月度和年度订阅计划，年度订阅节省约20%
+5. qube订阅在哪里呢？订阅计划是什么样的呢？<br />请查看[订阅页](https://www.tqx.ai/en/payment)。新用户可以领取 7 天 Basic。页面上的年付标注为节省约 20%。
 
 <table>
   <colgroup>
-    <col width="152" />
-    <col width="309" />
-    <col width="301" />
+    <col width="96" />
+    <col width="114" />
+    <col width="116" />
+    <col width="135" />
   </colgroup>
   <thead>
     <tr>
-      <td>**monthly plan**</td>
-      <td>basic</td>
-      <td>**pro**</td>
+      <th></th>
+      <th>**Free**</th>
+      <th>**Basic**</th>
+      <th>**Pro**</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td>price</td>
-      <td>usd \$19 per month</td>
-      <td>usd \$49 per month</td>
+      <td>月付</td>
+      <td>\$0</td>
+      <td>\$19 / 月</td>
+      <td>\$49 / 月</td>
     </tr>
     <tr>
-      <td>credits</td>
-      <td>1500/per month</td>
-      <td>4500 /per month</td>
+      <td>年付</td>
+      <td>\$0</td>
+      <td>\$182 / 年</td>
+      <td>\$470 / 年</td>
     </tr>
     <tr>
-      <td>simulated account<br />(\$10M)</td>
-      <td>3</td>
-      <td>10</td>
+      <td>算力</td>
+      <td>0 / 月</td>
+      <td>1,500 / 月</td>
+      <td>4,500 / 月</td>
     </tr>
     <tr>
-      <td>Live account</td>
-      <td>unlimited</td>
-      <td>unlimited</td>
+      <td>模拟账户（\$10M）</td>
+      <td>1 个</td>
+      <td>3 个</td>
+      <td>10 个</td>
     </tr>
     <tr>
-      <td>Community Customer Support</td>
-      <td>/</td>
-      <td>24/7</td>
+      <td>实盘账户</td>
+      <td>1 个</td>
+      <td>不限</td>
+      <td>不限</td>
+    </tr>
+    <tr>
+      <td>支持</td>
+      <td>Basic Community Access</td>
+      <td>Basic Community Access</td>
+      <td>专属顾问 24/7，Premium 社区</td>
     </tr>
   </tbody>
 </table>
 
-<table>
-  <colgroup>
-    <col width="152" />
-    <col width="309" />
-    <col width="301" />
-  </colgroup>
-  <thead>
-    <tr>
-      <td>**annual plan**</td>
-      <td>basic</td>
-      <td>**pro**</td>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>price</td>
-      <td>usd \$182 per month</td>
-      <td>usd \$470 per month</td>
-    </tr>
-    <tr>
-      <td>credits</td>
-      <td>1500/per month</td>
-      <td>4500 /per month</td>
-    </tr>
-    <tr>
-      <td>simulated account<br />(\$10M)</td>
-      <td>3</td>
-      <td>10</td>
-    </tr>
-    <tr>
-      <td>Live account</td>
-      <td>unlimited</td>
-      <td>unlimited</td>
-    </tr>
-    <tr>
-      <td>Community Customer Support</td>
-      <td>/</td>
-      <td>24/7</td>
-    </tr>
-  </tbody>
-</table>
+6. 在哪里看算力消耗？<br />登录后打开[订阅页](https://www.tqx.ai/en/payment)，页面下方有 Bill Records、Compute Top-up 和 My Subscription。账单在 Bill Records。
+7. 后面还有什么产品？<br />Qube 会继续迭代。网页上已经可以用一句话开始研究、回测，不必先写完整代码。交易账户和比赛指令仍通过 TQX CLI。
 
-5. 我在qube使用过程中，怎么查看自己的算力消耗历史呢？<br />（这里我没有找到，之前可以看到，现在看不到了）
-6. 后续还会有什么样的产品呢？<br />qube将会不断完成迭代，并达到可以在网页使用，不调用cli，一句话开始你的量化研究，让交易想法真正跑起来。<br />2026年年底之前将推出新产品evo，AI原生量化研究工作台，把更完整的研究过程交给AI。如果说 Qube 解决的是“怎么把想法跑起来”，那 EVO 解决的是另一个问题：跑起来之后，然后呢？它的入口很宽：一份研报、一条新闻、一张 K 线截图，甚至一个还没想清楚的问题，都可以是起点。但它真正的不同，不在入口，而在出口：普通大模型给你一个答案，然后对话就结束了；EVO 给你一个答案，然后继续往下一步走。普通大模型：问 → 答 → 结束。EVO：问 → 研究 → 出结果 → 发现问题 → 接着研究。它和普通对话式 AI 最大的区别，不只是“能做更多事”。而是研究不会在得到一个答案之后立刻结束。<br /><br /><br />Account setup
+   按目前的计划，2026 年年底前会推出 EVO，一个 AI 原生的量化研究工作台，把更完整的研究过程交给 AI。Qube 解决「想法怎么跑起来」。EVO 解决「跑起来之后下一步研究什么」。起点可以是一份研报、一条新闻、一张 K 线截图，或一个还没想清楚的问题。普通对话是「问，答，结束」。EVO 是「问，研究，出结果，发现问题，接着研究」。
+
+   <br /><br /><br /><br /><br /><br /><br />Account setup
 
 ### What if I chose the wrong broker on LongPort? {#wrong-broker-on-longport}
 
