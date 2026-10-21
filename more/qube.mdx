@@ -1,0 +1,113 @@
+---
+description: "Answers to common questions about account setup and using TQX."
+title: "使用qube中的常见问题"
+---
+
+1. qube中使用的数据来源？<br />提供香港和美国股票的市场、参考、财务和市场因素数据。每个股票代码使用市场后缀：.HK香港股票使用市场后缀（例如，[0001.HK和0700.HK](http://0001.HK和0700.HK)），.NB纳斯达克基础股票使用市场后缀（例如，AAPL.NB和0013.NB）。
+2. 目前qube会出现回测失败等这些问题该怎么解决？<br />- 使用cli来进行接入
+3. 什么是cli？什么是ai agent？为什么使用ai agent进行命令？<br />- cli是**Command Line Interface，命令行界面，**这并不是tqx特有的东西；<br />tqx cli就是tqx专门为ai agent开发的一个命令行工具，装上之后ai就能操纵tqx，从而调用qube的能力。<br />- AI Agent（AI 智能体）指的是一种可以自主完成任务的 AI 系统。和传统聊天式 AI 不同，AI Agent 不只是回答问题，而是可以 理解目标 → 制定步骤 → 调用工具 → 执行任务 → 根据结果继续行动。换句话说，它更像一个会使用工具的数字员工。<br />最近一年，AI Agent 的爆发主要集中在 **开发者工具**领域。最常见的几类产品包括：<br />- Codex：OpenAI 推出的 AI 编程 Agent，可以在云端完成完整的软件工程任务，例如写功能、修复 Bug、分析代码库等。它可以通过 CLI、IDE 或 ChatGPT 直接运行，并逐渐发展为一个面向开发团队的自动化工程平台。<br />- Claude Code：是 Anthropic 推出的 AI 编程 Agent，特点是 **完全基于终端（CLI）工作**。<br />**- cursor：**<br />- workbuddy：<br />
+4. 在网页端使用qube和cli使用qube都会消耗算力吗？<br />是的，即使通过cli调用qube，也是需要消耗qube的算力的
+
+qube的订阅系统是什么的呢？在哪里可以找到呢？<br />订阅网页在这里：[https://www.tqx.ai/en/payment](https://www.tqx.ai/en/payment)，**Get 7 days of Basic membership for free**<br />分为月度和年度订阅计划，年度订阅节省约20%
+
+<table>
+  <colgroup>
+    <col width="152" />
+    <col width="309" />
+    <col width="301" />
+  </colgroup>
+  <thead>
+    <tr>
+      <td>**monthly plan**</td>
+      <td>basic</td>
+      <td>**pro**</td>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>price</td>
+      <td>usd \$19 per month</td>
+      <td>usd \$49 per month</td>
+    </tr>
+    <tr>
+      <td>credits</td>
+      <td>1500/per month</td>
+      <td>4500 /per month</td>
+    </tr>
+    <tr>
+      <td>simulated account<br />(\$10M)</td>
+      <td>3</td>
+      <td>10</td>
+    </tr>
+    <tr>
+      <td>Live account</td>
+      <td>unlimited</td>
+      <td>unlimited</td>
+    </tr>
+    <tr>
+      <td>Community Customer Support</td>
+      <td>/</td>
+      <td>24/7</td>
+    </tr>
+  </tbody>
+</table>
+
+<table>
+  <colgroup>
+    <col width="152" />
+    <col width="309" />
+    <col width="301" />
+  </colgroup>
+  <thead>
+    <tr>
+      <td>**annual plan**</td>
+      <td>basic</td>
+      <td>**pro**</td>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>price</td>
+      <td>usd \$182 per month</td>
+      <td>usd \$470 per month</td>
+    </tr>
+    <tr>
+      <td>credits</td>
+      <td>1500/per month</td>
+      <td>4500 /per month</td>
+    </tr>
+    <tr>
+      <td>simulated account<br />(\$10M)</td>
+      <td>3</td>
+      <td>10</td>
+    </tr>
+    <tr>
+      <td>Live account</td>
+      <td>unlimited</td>
+      <td>unlimited</td>
+    </tr>
+    <tr>
+      <td>Community Customer Support</td>
+      <td>/</td>
+      <td>24/7</td>
+    </tr>
+  </tbody>
+</table>
+
+5. 我在qube使用过程中，怎么查看自己的算力消耗历史呢？<br />（这里我没有找到，之前可以看到，现在看不到了）
+6. 后续还会有什么样的产品呢？<br />qube将会不断完成迭代，并达到可以在网页使用，不调用cli，一句话开始你的量化研究，让交易想法真正跑起来。<br />2026年年底之前将推出新产品evo，AI原生量化研究工作台，把更完整的研究过程交给AI。如果说 Qube 解决的是“怎么把想法跑起来”，那 EVO 解决的是另一个问题：跑起来之后，然后呢？它的入口很宽：一份研报、一条新闻、一张 K 线截图，甚至一个还没想清楚的问题，都可以是起点。但它真正的不同，不在入口，而在出口：普通大模型给你一个答案，然后对话就结束了；EVO 给你一个答案，然后继续往下一步走。普通大模型：问 → 答 → 结束。EVO：问 → 研究 → 出结果 → 发现问题 → 接着研究。它和普通对话式 AI 最大的区别，不只是“能做更多事”。而是研究不会在得到一个答案之后立刻结束。<br /><br /><br />Account setup
+
+### What if I chose the wrong broker on LongPort? {#wrong-broker-on-longport}
+
+> Scenario: I already selected a different broker on LongPort instead of Panda, and TQX now shows "Unsupported broker".
+
+Go back to [https://open.longportapp.com/dashboard](https://open.longportapp.com/dashboard), click your avatar in the top-right corner, and select **Logout** to sign out, as shown below.
+
+<Frame caption="Click your avatar in the top-right corner, then select Logout">
+  <img
+    src="/images/faq/longport-logout.png"
+    alt="LongPort dashboard avatar menu with the Logout option highlighted"
+  />
+</Frame>
+
+Then return to [https://www.tqx.ai/en/user-center/longport?broker=panda](https://www.tqx.ai/en/user-center/longport?broker=panda) and start the binding process again.

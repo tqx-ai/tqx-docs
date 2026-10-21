@@ -1,0 +1,94 @@
+---
+description: "Answers to common questions about account setup and using TQX."
+title: "参加gatc大赛中可能遇到的问题"
+---
+
+在这里将会帮大家解答gatc是什么？经常问到的问题大致分为四类：怎么进入，比赛本身（包含一些glossary+数据指标），比赛规则细节，奖金问题等
+
+# general问题
+
+1. gatc是什么？这个大赛是只面向特定地区，还是面向全球用户开放的呢？<br />gatc是global ai trading championship的简称，the world's first global, real-money, AI-only trading competition.
+
+   Organized by GATL with TQX, alongside international brokerages, computing power providers and AI technology platforms. More than a contest: a mission to legitimize AI-driven investing through real trades and long-term consistency.
+
+   大赛面向全球用户
+2. gatc进入的步骤是什么呢？（这里再附上详细的图片流程）<br />- Register a dedicated contest account on TQX<br />- Bind a verified real-money brokerage account<br />- Submit a verifiable, original AI trading strategy
+3. 现在支持的券商有哪些？<br />hk地区：zhangle，panada，tiger<br />新加坡地区：tiger<br />美国地区：等待<br />其他还有一些支持的券商账户，都在逐渐接通中
+4. 参与gatc大赛会消耗qube的算力吗？<br />如果你调用qube cli，去进行策略的建立和回测，并在此基础上进行ai trading，是会消耗算力的
+
+# entry部分的问题
+
+1. What are the entry requirements?<br />All of the following are required:
+   - The participant is at least 18 and legally permitted to trade securities
+   - A competition account has been registered on TQX
+   - A supported broker has been linked. tiger, Panda Securities and Zhangle are currently supported
+   - 根据香港的规定，开证券账户需要10000hkd的入金，但是对于gatc大赛来说，我们只需要高于1000hkd，即可进入轻量组。
+   - A verifiable, original AI strategy is submitted through TQX-CLI and passes review
+
+   Phase 1 covers Hong Kong stocks and U.S. stocks. Once the review is approved, the account enters that month’s leaderboard and the points system.
+2. When can I register?  How are the active days counted?
+3. Is GATC live trading or paper trading?<br />Live trading. Participants bind a live brokerage account at a partner broker. Results are produced from that account, which distinguishes GATC from paper-trading contests.
+4. Is a Qube membership required before entry?<br />Entry requires a competition account, a live brokerage account, and an original strategy submitted through TQX-CLI. A Qube membership and compute credits are for research and backtesting. They are not a condition for being scored on the leaderboard.
+5. May a strategy built in Qube be submitted directly?<br />Competition materials are submitted only through TQX-CLI. A participant may revise a strategy built in Qube and then submit it through the CLI. A public template submitted without revision is not treated as an original strategy.
+6. How is an entry completed?<br />- Obtain an API key. Join the competition, create the trading account, and select the account type. **GATC accepts only a live account**. Submit the entry in My Agents, select the local model, and obtain the API key.<br />- Configure the CLI. Enter the API key in the AI agent you use. Codex, Claude Code, Cursor, Trae, GitHub Copilot, and Windsurf are supported.<br />- After configuration, use the prompts on the following page to build a strategy, refine it, and issue order instructions: [https://c.tqx.ai/e/workshop](https://c.tqx.ai/e/workshop)
+7. How are daily position checks and weekly rebalances scheduled?<br />The competition system does not execute a live strategy on a daily or weekly schedule. The participant's AI agent must schedule the position check and rebalance. A daily task checks positions and rebalances daily. The weekly rebalance requires a separate weekly task. <br />- **Cursor**: use Automations in the Agent Window.<br />- **Codex**: use Scheduled to create a daily or weekly task.<br />- **Claude Code**: use Routines. Run /schedule in the CLI, or create one at [claude.ai/code/routines](http://claude.ai/code/routines). The frequency may be daily or weekly. A cloud routine continues to run after the computer is closed. A local scheduled task in the Desktop app runs only while the application is open and the computer is awake.
+8. 连接券商的界面在哪里？我怎么可以快速找到？<br />[https://www.tqx.trade/en/user-center?tab=accounts](https://www.tqx.trade/en/user-center?tab=accounts)
+   ![Img V3 0216m F8e10b69 813e 4cc7 B75b C9fa89aac49g](/images/img_v3_0216m_f8e10b69-813e-4cc7-b75b-c9fa89aac49g-2.jpg "Img V3 0216m F8e10b69 813e 4cc7 B75b C9fa89aac49g")
+   ![Img V3 0216m 753a6f0b 0abb 4c06 B78b 9b7a668e3e5g](/images/img_v3_0216m_753a6f0b-0abb-4c06-b78b-9b7a668e3e5g.jpg "Img V3 0216m 753a6f0b 0abb 4c06 B78b 9b7a668e3e5g")
+
+# competition部分的问题
+
+1. Where are the quarterly and annual rankings published?<br />[https://www.tqx.ai/en/competition?currentPage=2&pageDetail=Ranking](https://www.tqx.ai/en/competition?currentPage=2&pageDetail=Ranking)
+
+   Quarterly and annual rankings are also shown separately for the Lightweight Group and the Heavyweight Group.
+2. How can I view my own trade history and other people's trade history?<br />[https://www.tqx.ai/en/competition?currentPage=3](https://www.tqx.ai/en/competition?currentPage=3)
+3. What should be done if the leaderboard does not update?<br />After a first entry, the name appears on the leaderboard in about **15 minutes**: [https://www.tqx.ai/en/competition?currentPage=2&pageDetail=Championship](https://www.tqx.ai/en/competition?currentPage=2&pageDetail=Championship) <br />If the status remains **Pending**, waiting until the next day does not change it to Connected. The participant must query account funds or positions once through the CLI. The status becomes Competing only after that query is sent. If **two hours** have passed since the relevant action and the points and other figures remain unchanged, leave a message on Discord or email the staff: [audrey@tqx.](mailto:audrey@tqx.trade)ai <br />Leaderboard results come from fills in the linked brokerage account that were reported through TQX-CLI. A failed Qube backtest does not update those results on its own. An order placed only in a broker application and not reported through TQX-CLI is not scored.
+4. 可以调用的数据有哪些？这些是实时数据吗？
+
+# rules部分的问题
+
+1. What's the formula for the main scores? What's the meaning of the different indicators?
+2. 现在重量组和轻量组的标准是什么？如果月中又再次入金怎么计算呢？
+3. If a mid-month withdrawal leaves equity below HKD 100,000 next month, does the account move to Light?
+4. If a mid-month deposit takes equity above HKD 100,000, which group applies this month?
+   ![Image](/images/image-1.png "Image")
+5. How is a quarter judged with two Lightweight months and one Heavyweight month? How is the year judged?<br />For a quarter or a year, the group is the one that appears more often among valid participation months. If the counts are equal, the period is assigned to the Heavyweight Group. Points are the sum of the monthly totals. The pool is not recalculated.
+
+   A month with a composite score of 0, without valid competition capital, or under a mandatory cooling-off period is not a valid participation month. A quarterly award requires at least 2 valid participation months. An annual award requires at least 8.
+   ![Image](/images/image.png "Image")
+6. active day的定义，以及我底进入比赛，月底计算结果，我的积分可以用吗？
+7. How are rankings and awards determined?
+   ![Image](/images/image-4.png "Image")
+8. How do points work?<br />The group is determined by total equity before the market opens on the first trading day of the month. The two groups are scored and ranked separately.
+9. 如果大家的**Expected Points （monthly scores）都一样，我们该怎么根据发奖？**<br />如果大家的expected points出现一个排名两个人的话，将按照main score的分数拉开排名
+
+# awards部分的问题
+
+1. **How are awards paid, and when do they arrive?**<br />Staff will contact the recipient by email. Please check the message and verify that the sender’s email suffix is an official address, so that the message is not a fraudulent request. Staff will collect a bank account number and other payment details.
+
+   The award is paid within five business days after the period ends. A public holiday may delay receipt. Transfer fees are borne by each party. The recipient is responsible for understanding the applicable local tax rules and for meeting the tax obligation on the award.
+2. What does each rank receive?<br />The Lightweight Group and the Heavyweight Group are ranked separately. Amounts are in HKD and are paid per person. For a range such as 4th–10th, the figure is the award for each recipient in that range. Vacant ranks are not rolled up.
+
+![Image](/images/image-5.png "Image")
+
+![Image](/images/image-6.png "Image")
+
+![Image](/images/image-7.png "Image")
+
+3. When are monthly, quarterly, and annual awards settled, and what is the pool?<br />Monthly results are settled after the month ends. Official points are fixed on the first business day of the following month and published for three calendar days. August is settled on the first business day of September.
+   ![Image](/images/image-9.png "Image")
+   ![Image](/images/image-10.png "Image")
+4. 00<br /><br /><br /><br /><br /><br /><br /><br /><br />What if I chose the wrong broker on LongPort?
+
+> Scenario: I already selected a different broker on LongPort instead of Panda, and TQX now shows "Unsupported broker".
+
+Go back to [https://open.longportapp.com/dashboard](https://open.longportapp.com/dashboard), click your avatar in the top-right corner, and select **Logout** to sign out, as shown below.
+
+<Frame caption="Click your avatar in the top-right corner, then select Logout">
+  <img
+    src="/images/faq/longport-logout.png"
+    alt="LongPort dashboard avatar menu with the Logout option highlighted"
+  />
+</Frame>
+
+Then return to [https://www.tqx.ai/en/user-center/longport?broker=panda](https://www.tqx.ai/en/user-center/longport?broker=panda) and start the binding process again.
