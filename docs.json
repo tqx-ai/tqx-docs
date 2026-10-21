@@ -124,10 +124,15 @@
           {
             "group": "More",
             "pages": [
-              "more/faq",
-              "more/qube",
-              "more/gatc",
-              "more/contact-us"
+              "more/contact-us",
+              {
+                "group": "FAQ",
+                "pages": [
+                  "more/faq",
+                  "more/qube",
+                  "more/gatc"
+                ]
+              }
             ]
           }
         ],
