@@ -1,0 +1,89 @@
+---
+title: "TQX FAQ"
+sidebarTitle: "TQX"
+description: "Common questions about TQX, Qube, trading accounts, and coding agents."
+zh-Hant_link: "/hk/faq/tqx"
+---
+
+## Products and getting started {#getting-started}
+
+### What is TQX? {#what-is-tqx}
+
+TQX is PandaAI's international platform for AI-assisted quantitative research and trading. You can research factors, backtest strategies, test them in simulation accounts, and connect supported live brokerage accounts.
+
+- **Qube** supports factor and strategy research, backtesting, and optimization.
+- **Agent Factory** is being developed to support agent workflows. Availability and release details will be announced separately.
+
+Visit the [TQX website](https://www.tqx.ai/en/) to get started.
+
+### Who can use TQX? {#who-can-use-tqx}
+
+TQX supports several workflows:
+
+- **Research:** use Qube to create and evaluate factors and strategies.
+- **Simulation:** use TQX CLI with a coding agent to test a strategy in a simulation account.
+- **Competition:** enter GATC with a supported live brokerage account and an original AI strategy executed through TQX CLI. Participants must be at least 18 and meet the applicable securities trading and competition eligibility requirements.
+
+### How do I get started? {#quick-start}
+
+<Steps>
+  <Step title="Research and backtest">
+    Create a strategy in Qube and run a backtest.
+  </Step>
+  <Step title="Test in simulation">
+    [Install TQX CLI](/cli), connect a simulation account, and test the strategy's execution.
+  </Step>
+  <Step title="Choose whether to compete">
+    If you choose to enter GATC, review the [competition FAQ](/faq/gatc) and connect a supported live brokerage account. Simulation results do not count toward competition rankings.
+  </Step>
+</Steps>
+
+<Accordion title="View the workflow diagram" id="workflow-diagram">
+<Frame caption="Overview of the TQX workflow">
+  <img src="/images/2c7c7a4e-4bb3-4c00-82c4-07e8725ce438.jpeg" alt="TQX research, simulation, and trading workflow" />
+</Frame>
+</Accordion>
+
+### Do I need separate accounts for research, simulation, and competition? {#accounts}
+
+Your TQX login gives you access to Qube. Simulation accounts and live trading accounts are separate account types managed under that login. To enter GATC, link a supported live brokerage account.
+
+## Tools and terminology {#terminology}
+
+### What is a CLI? {#what-is-cli}
+
+CLI stands for command-line interface. TQX CLI lets you or a coding agent sign in to TQX, use Qube research tools, and manage trading accounts from a terminal. See the [CLI guide](/cli).
+
+### What is an AI agent? {#what-is-an-agent}
+
+An AI agent can plan steps, call tools, and use their results to continue a task. A coding agent with terminal access can use TQX CLI for workflows that involve research, backtesting, and simulation. Examples include Codex, Claude Code, and Cursor. You can also run CLI commands yourself.
+
+## Account setup {#account-setup}
+
+### What if I selected the wrong broker on LongPort? {#wrong-broker-on-longport}
+
+<Steps>
+  <Step title="Sign out of LongPort">
+    If TQX displays **Unsupported broker** after you selected a different broker on LongPort, open the [LongPort dashboard](https://open.longportapp.com/dashboard). Click your profile picture in the upper-right corner and select **Logout**.
+
+<Frame caption="Open the profile menu and select Logout">
+  <img src="/images/faq/longport-logout.png" alt="LongPort profile menu with the Logout option highlighted" />
+</Frame>
+  </Step>
+  <Step title="Link your account again">
+    Then return to the [Panda account linking page](https://www.tqx.ai/en/user-center/longport?broker=panda) and start the linking process again.
+  </Step>
+</Steps>
+
+## Related questions {#related-questions}
+
+<Columns cols={2}>
+  <Card title="Qube" icon="flask" href="/faq/qube">
+    Research, data, and subscriptions.
+  </Card>
+  <Card title="GATC" icon="trophy" href="/faq/gatc">
+    Registration, scoring, and prizes.
+  </Card>
+</Columns>
+
+[Contact support](/more/contact-us)

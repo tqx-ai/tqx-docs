@@ -1,0 +1,89 @@
+---
+title: "關於 TQX 的常見問題"
+sidebarTitle: "TQX"
+description: "關於 TQX、Qube、交易帳戶與編程代理的常見問題。"
+en_link: "/faq/tqx"
+---
+
+## 產品與入門 {#getting-started}
+
+### TQX 是甚麼？ {#what-is-tqx}
+
+TQX 是 PandaAI 面向國際市場的 AI 量化研究與交易平台。你可以研究因子、回測策略、使用模擬帳戶測試，並連接支援的真實券商帳戶。
+
+- **Qube** 提供因子與策略研究、回測及參數調優功能。
+- **Agent Factory（智能體工廠）** 正在開發中，用於支援智能體工作流程。開放時間與發布詳情將另行公告。
+
+你可以從 [TQX 官網](https://www.tqx.ai/hk/)開始。
+
+### TQX 適合哪些使用情境？ {#who-can-use-tqx}
+
+TQX 支援以下工作流程：
+
+- **研究：** 使用 Qube 建立及評估因子和策略。
+- **模擬測試：** 透過 TQX CLI 與編程代理，在模擬帳戶中測試策略。
+- **參賽：** 以支援的真實券商帳戶參加 GATC，透過 TQX CLI 執行原創 AI 策略。參賽者須年滿 18 歲，並符合適用的證券交易及賽事資格要求。
+
+### 如何開始使用？ {#quick-start}
+
+<Steps>
+  <Step title="研究與回測">
+    在 Qube 建立策略並執行回測。
+  </Step>
+  <Step title="模擬測試">
+    [安裝 TQX CLI](/hk/cli)，連接模擬帳戶，測試策略的執行情況。
+  </Step>
+  <Step title="選擇參賽">
+    如選擇參加 GATC，請先閱讀[參賽常見問題](/hk/faq/gatc)，再連接支援的真實券商帳戶。模擬帳戶的成績不計入賽事排名。
+  </Step>
+</Steps>
+
+<Accordion title="查看流程圖" id="workflow-diagram">
+<Frame caption="TQX 使用流程概覽">
+  <img src="/images/2c7c7a4e-4bb3-4c00-82c4-07e8725ce438.jpeg" alt="TQX 的研究、模擬測試與交易流程" />
+</Frame>
+</Accordion>
+
+### 研究、模擬測試和參賽需要不同帳戶嗎？ {#accounts}
+
+你可以使用同一個 TQX 登入帳戶進入 Qube。模擬帳戶與實盤交易帳戶是該登入帳戶下管理的不同帳戶類型。參加 GATC 時，需要關聯支援的真實券商帳戶。
+
+## 工具與術語 {#terminology}
+
+### 甚麼是 CLI？ {#what-is-cli}
+
+CLI 是命令列介面。你或編程代理可以透過 TQX CLI 在終端登入 TQX、使用 Qube 研究工具，以及管理交易帳戶。詳見 [CLI 指南](/hk/cli)。
+
+### 甚麼是 AI agent？ {#what-is-an-agent}
+
+AI agent（智能體）可以規劃步驟、呼叫工具，並根據執行結果繼續處理任務。具備終端操作能力的編程代理可以使用 TQX CLI，完成研究、回測及模擬測試等多步驟工作，例如 Codex、Claude Code 和 Cursor。你也可以自行執行 CLI 指令。
+
+## 關於開戶 {#account-setup}
+
+### 如果我在 LongPort 上選錯了券商怎麼辦？ {#wrong-broker-on-longport}
+
+<Steps>
+  <Step title="登出 LongPort">
+    如果你在 LongPort 選擇了其他券商，導致 TQX 顯示 **Unsupported broker**，請開啟 [LongPort 控制台](https://open.longportapp.com/dashboard)，點擊右上角的頭像，再選擇 **Logout** 登出。
+
+<Frame caption="點擊右上角頭像，然後選擇 Logout">
+  <img src="/images/faq/longport-logout.png" alt="LongPort 頭像選單，Logout 選項已標示" />
+</Frame>
+  </Step>
+  <Step title="重新關聯帳戶">
+    然後回到 [Panda 帳戶關聯頁](https://www.tqx.ai/hk/user-center/longport?broker=panda)，重新發起關聯。
+  </Step>
+</Steps>
+
+## 延伸閱讀 {#related-questions}
+
+<Columns cols={2}>
+  <Card title="Qube" icon="flask" href="/hk/faq/qube">
+    研究、數據與訂閱問題。
+  </Card>
+  <Card title="GATC" icon="trophy" href="/hk/faq/gatc">
+    報名、計分與獎勵問題。
+  </Card>
+</Columns>
+
+[聯絡支援](/hk/more/contact-us)

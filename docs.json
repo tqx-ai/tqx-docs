@@ -127,9 +127,9 @@
               {
                 "group": "FAQ",
                 "pages": [
-                  "more/faq",
-                  "more/qube",
-                  "more/gatc"
+                  "faq/tqx",
+                  "faq/qube",
+                  "faq/gatc"
                 ]
               },
               "more/contact-us"
@@ -255,7 +255,14 @@
           {
             "group": "\u66f4\u591a",
             "pages": [
-              "hk/more/faq",
+              {
+                "group": "常見問題",
+                "pages": [
+                  "hk/faq/tqx",
+                  "hk/faq/qube",
+                  "hk/faq/gatc"
+                ]
+              },
               "hk/more/contact-us"
             ]
           }
@@ -277,6 +284,32 @@
       }
     ]
   },
+  "redirects": [
+    {
+      "source": "/more/faq",
+      "destination": "/faq/tqx"
+    },
+    {
+      "source": "/more/qube",
+      "destination": "/faq/qube"
+    },
+    {
+      "source": "/more/gatc",
+      "destination": "/faq/gatc"
+    },
+    {
+      "source": "/hk/more/faq",
+      "destination": "/hk/faq/tqx"
+    },
+    {
+      "source": "/hk/more/qube",
+      "destination": "/hk/faq/qube"
+    },
+    {
+      "source": "/hk/more/gatc",
+      "destination": "/hk/faq/gatc"
+    }
+  ],
   "logo": {
     "light": "/logo/tqx-black.png",
     "dark": "/logo/tqx-white.png",

@@ -1,0 +1,73 @@
+---
+title: "關於 Qube 的常見問題"
+sidebarTitle: "Qube"
+description: "關於 Qube 研究、行情數據、訂閱與用量的常見問題。"
+en_link: "/faq/qube"
+---
+
+## 研究與執行 {#research-and-execution}
+
+### 生成的策略可以用於實盤交易嗎？ {#live-trading}
+
+<Warning>
+回測結果不能確定策略在實盤交易中的表現。訊號時點、成交價格、流動性、費用及資金需求都可能影響結果。
+</Warning>
+
+連接實盤帳戶前，你可以先在[模擬帳戶](https://www.tqx.ai/hk/user-center?tab=agents)中測試，並比較策略訊號、執行情況與回測結果。Qube 生成的內容僅供研究，不構成投資建議。
+
+### Qube 使用哪些數據？ {#data}
+
+Qube 提供港股與美股的行情、參考數據、財務報表及市場因子。研究數據的股票代碼須帶市場後綴：
+
+- 港股：`.HK`，例如 `0001.HK`、`0700.HK`。
+- 美股 NASDAQ BASIC：`.NB`，例如 `AAPL.NB`。
+
+以上是研究數據的代碼格式。交易指令須使用[交易 API 文件](/hk/trading/api/place-order)指定的格式。日線價格未作除權除息調整。數據覆蓋範圍與限制請參閱[數據指南](/hk/data/info)。
+
+### 對話和研究記錄儲存在哪裏？ {#history}
+
+你可以在 Qube 的歷史會話中查看過往對話。研究記錄可在以下頁面查看：
+
+<Columns cols={3}>
+  <Card title="策略庫" icon="chart-line" href="/hk/research/strategy">
+    已儲存的策略。
+  </Card>
+  <Card title="因子庫" icon="flask" href="/hk/research/factor">
+    已儲存的因子。
+  </Card>
+  <Card title="執行歷史" icon="clock-rotate-left" href="/hk/research/run-history">
+    歷次執行記錄。
+  </Card>
+</Columns>
+
+### 如何使用 Qube？ {#access}
+
+你可以透過 [TQX CLI](/hk/cli) 配合編程代理使用 Qube 研究工具。Qube 網頁介面也支援研究與回測；可用功能會隨產品更新而調整。
+
+## 訂閱與用量 {#subscriptions-and-usage}
+
+### 在哪裏查看訂閱方案？ {#plans}
+
+目前提供 Free、Basic 和 Pro 方案。新用戶可領取 7 天 Basic 試用，資格以[訂閱頁](https://www.tqx.ai/hk/payment)顯示為準。
+
+| 方案 | 月付價格 | 年付價格 | 每月算力 | 模擬帳戶（每個 \$10M） | 實盤帳戶 |
+| --- | --- | --- | --- | --- | --- |
+| Free | \$0 | \$0 | 0 | 1 個 | 1 個 |
+| Basic | \$19 | \$182 | 1,500 | 3 個 | 不限 |
+| Pro | \$49 | \$470 | 4,500 | 10 個 | 不限 |
+
+<Note>
+Free 與 Basic 包含基礎社群支援。Pro 包含 Premium 社群及 24/7 專屬顧問支援。訂閱前請在訂閱頁確認目前適用的價格、權益與試用資格。
+</Note>
+
+### 在哪裏查看用量和帳單？ {#billing}
+
+登入後開啟[訂閱頁](https://www.tqx.ai/hk/payment)，在 **Bill Records** 查看帳單記錄，在 **My Subscription** 查看訂閱方案。算力用量因任務而異；策略建立與回測並沒有統一的合計固定用量。
+
+## 產品更新 {#product-updates}
+
+### Agent Factory 有甚麼規劃？ {#agent-factory}
+
+<Info>
+Agent Factory（智能體工廠）正在開發中，用於支援量化研究的智能體工作流程。發布時間及可用功能將透過 TQX 官方渠道公告。
+</Info>

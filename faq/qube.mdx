@@ -1,0 +1,73 @@
+---
+title: "Qube FAQ"
+sidebarTitle: "Qube"
+description: "Common questions about Qube research, market data, subscriptions, and usage."
+zh-Hant_link: "/hk/faq/qube"
+---
+
+## Research and execution {#research-and-execution}
+
+### Can a generated strategy be used for live trading? {#live-trading}
+
+<Warning>
+A successful backtest does not establish how a strategy will perform in live trading. Signal timing, execution prices, liquidity, fees, and capital requirements can affect results.
+</Warning>
+
+Before connecting a live account, you can test the strategy in a [simulation account](https://www.tqx.ai/en/user-center?tab=agents) and compare its signals and execution with the backtest. Qube-generated content is for research and does not constitute investment advice.
+
+### What data does Qube use? {#data}
+
+Qube provides Hong Kong and US market data, reference data, financial statements, and market factors. Research symbols require a market suffix:
+
+- Hong Kong: `.HK`, for example `0001.HK` or `0700.HK`.
+- US NASDAQ BASIC: `.NB`, for example `AAPL.NB`.
+
+These are research data symbols. Trading commands use the symbol format specified in the [trading API documentation](/trading/api/place-order). Daily price data is not adjusted for corporate actions. See the [data guide](/data/info) for coverage and limitations.
+
+### Where are conversations and research records saved? {#history}
+
+Qube lists previous conversations in its conversation history. You can find saved research records here:
+
+<Columns cols={3}>
+  <Card title="Strategies" icon="chart-line" href="/research/strategy">
+    Saved strategies.
+  </Card>
+  <Card title="Factors" icon="flask" href="/research/factor">
+    Saved factors.
+  </Card>
+  <Card title="Run history" icon="clock-rotate-left" href="/research/run-history">
+    Previous runs.
+  </Card>
+</Columns>
+
+### How can I use Qube? {#access}
+
+You can use Qube research tools through [TQX CLI](/cli) with a coding agent. The Qube web interface also supports research and backtesting. Available features may change as the product is updated.
+
+## Subscriptions and usage {#subscriptions-and-usage}
+
+### Where can I view subscription plans? {#plans}
+
+The available plans are Free, Basic, and Pro. New users can claim a seven-day Basic trial, subject to the eligibility shown on the [subscription page](https://www.tqx.ai/en/payment).
+
+| Plan | Monthly price | Annual price | Monthly credits | Simulation accounts (\$10M each) | Live accounts |
+| --- | --- | --- | --- | --- | --- |
+| Free | \$0 | \$0 | 0 | 1 | 1 |
+| Basic | \$19 | \$182 | 1,500 | 3 | Unlimited |
+| Pro | \$49 | \$470 | 4,500 | 10 | Unlimited |
+
+<Note>
+Free and Basic include basic community access. Pro includes premium community access and a dedicated consultant with 24/7 support. Confirm current prices, benefits, and trial eligibility on the subscription page before subscribing.
+</Note>
+
+### Where can I check usage and billing? {#billing}
+
+Sign in and open the [subscription page](https://www.tqx.ai/en/payment). Use **Bill Records** to review billing records and **My Subscription** to check your plan. Credit usage varies by task; strategy creation and backtesting do not have a single fixed combined cost.
+
+## Product updates {#product-updates}
+
+### What is planned for Agent Factory? {#agent-factory}
+
+<Info>
+Agent Factory is being developed to support agent workflows for quantitative research. Release dates and available features will be announced through TQX's official channels.
+</Info>
