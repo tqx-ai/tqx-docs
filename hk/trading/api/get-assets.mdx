@@ -37,13 +37,26 @@ JSON envelope 包含 `code`（string；`"0"` 表示成功）、`message`（strin
 | `mode` | `LIVE` 或 `PAPER` | 帳戶執行模式。 |
 | `base_currency` | string | 帳戶總額使用的貨幣。 |
 | `total_assets` | string | 帳戶總資產，以十進制字串表示。 |
-| `cash` | string 或 `null` | 現金餘額。 |
-| `available_cash` | string 或 `null` | 可用於新訂單的現金。 |
+| `cash` | string 或 `null` | 整個帳戶的現金總額，以 `base_currency` 表示。 |
+| `available_cash` | string 或 `null` | 不使用融資即可用於新訂單的現金，只取 `base_currency` 這一個幣種的餘額，而非整個帳戶。當該幣種透支時可能為負數，即使 `cash` 仍為正數。若券商不提供純現金數字，這裡會回傳券商的可用資金，可能包含融資額度。如需查看所有幣種，請使用 `cash_balances`。 |
 | `frozen_cash` | string 或 `null` | 由未完成訂單鎖定的現金。 |
 | `buying_power` | string 或 `null` | 券商目前回報的購買力。 |
-| `market_value` | string 或 `null` | 持倉的市值。 |
+| `market_value` | string 或 `null` | 持倉的市值，由 TQX 根據持倉以 TQX 匯率計算。`total_assets`、`cash` 和 `buying_power` 是券商自己的數字，可能採用券商的匯率，因此 `total_assets` 不一定等於 `cash` 加 `market_value`。 |
 | `unrealized_pnl` | string 或 `null` | 未實現損益。 |
 | `as_of` | date-time string | 快照產生時間。 |
 | `is_stale` | boolean | 指示快照可能落後於券商最新狀態。 |
+| `cash_balances` | `CashBalanceData` 陣列或 `null`（可選） | 帳戶持有現金的每個幣種各一筆。券商不提供分幣種現金時為 `null`。 |
 
 `is_stale: true` 表示快照可能未反映券商的最新狀態。
+
+每筆 `cash_balances[]` 描述一個幣種自己的餘額。金額以該筆的 `currency` 表示，從不換算，因此不能與 `cash` 等帳戶層級欄位或其他幣種相加。
+
+| 欄位 | 類型 | 說明 |
+| --- | --- | --- |
+| `currency` | string | 此餘額的幣種，例如 `HKD` 或 `USD`。 |
+| `available_cash` | string 或 `null` | 此幣種不使用融資即可動用的現金。此幣種透支時為負數。 |
+| `frozen_cash` | string 或 `null` | 此幣種由未完成訂單鎖定的現金。 |
+| `settling_cash` | string 或 `null` | 此幣種已成交但尚未交收的款項。 |
+| `withdrawable_cash` | string 或 `null` | 此幣種可提取的現金。 |
+
+金額為 `null` 表示券商沒有提供該數字，並不代表為零。

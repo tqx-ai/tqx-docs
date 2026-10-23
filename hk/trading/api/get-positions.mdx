@@ -43,7 +43,7 @@ JSON envelope 包含 `code`（string；`"0"` 表示成功）、`message`（strin
 | `symbol` | string | 交易標的，例如 `00700.HK`。 |
 | `symbol_name` | string | 可讀的標的名稱。 |
 | `market` | `HK` 或 `US` | 持倉所在市場。 |
-| `currency` | string | 持倉貨幣。 |
+| `currency` | string | 金額欄位 `market_value` 和 `unrealized_pnl` 的貨幣。它可能與價格貨幣不同：港幣帳戶持有的美股，這裡會是 `HKD`。 |
 | `side` | string | 券商回報的持倉方向。 |
 | `quantity` | string | 持倉總數量，以十進制字串表示。 |
 | `available_quantity` | string | 可賣出或可使用的數量。 |
@@ -51,5 +51,6 @@ JSON envelope 包含 `code`（string；`"0"` 表示成功）、`message`（strin
 | `last_price` | string 或 `null` | 最新可用價格。 |
 | `market_value` | string 或 `null` | 持倉目前市值。 |
 | `unrealized_pnl` | string 或 `null` | 未實現損益。 |
-| `unrealized_pnl_ratio` | string 或 `null` | 未實現回報率。 |
+| `unrealized_pnl_ratio` | string 或 `null` | 未實現回報率，以小數表示，`0.01` 即 1%。券商有提供時沿用券商數值；否則多頭持倉按 `(last_price - average_cost) / average_cost` 計算。成本或價格無法取得時為 `null`。 |
 | `as_of` | date-time string | 持倉快照產生時間。 |
+| `price_currency` | string 或 `null`（可選） | `average_cost` 和 `last_price` 的貨幣，即該證券的交易貨幣，例如美股為 `USD`，以美元交易的港股櫃台（如 `9451.HK`）也是 `USD`。TQX 無法確定時為 `null`。請勿根據 `market` 推斷。 |

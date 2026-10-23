@@ -34,7 +34,7 @@ JSON envelope 包含 `code`（string；`"0"` 表示成功）、`message`（strin
 | `symbol` | string | 交易標的。 |
 | `symbol_name` | string | 可讀的標的名稱。 |
 | `market` | `HK` 或 `US` | 訂單市場。 |
-| `currency` | string | 訂單貨幣。 |
+| `currency` | string | 帳戶金額使用的貨幣。它不一定是 `price` 或 `average_fill_price` 的貨幣：港幣帳戶的美股訂單，這裡會是 `HKD`。請參閱 `price_currency`。 |
 | `side` | `BUY` 或 `SELL` | 訂單方向。 |
 | `order_type` | `MARKET` 或 `LIMIT` | 訂單類型。 |
 | `status` | enum | 訂單目前生命週期狀態。 |
@@ -50,6 +50,7 @@ JSON envelope 包含 `code`（string；`"0"` 表示成功）、`message`（strin
 | `effective_trade_date` | string 或 `null`（可選） | 券商回報的生效交易日期。 |
 | `expire_at` | date-time string 或 `null`（可選） | 到期時間（如適用）。 |
 | `cancel_request_id` | string 或 `null`（可選） | 取消請求識別碼（如有）。 |
+| `price_currency` | string 或 `null`（可選） | `price` 和 `average_fill_price` 的貨幣，即該證券的交易貨幣。TQX 無法確定時為 `null`。請勿根據 `market` 推斷。 |
 
 `status` 與[訂單列表](/hk/trading/api/list-orders)使用相同的列舉值。
 

@@ -43,7 +43,7 @@ Each `items[]` entry contains:
 | `symbol` | string | Trading symbol, such as `00700.HK`. |
 | `symbol_name` | string | Human-readable symbol name. |
 | `market` | `HK` or `US` | Market where the position is held. |
-| `currency` | string | Position currency. |
+| `currency` | string | Currency of the amount fields `market_value` and `unrealized_pnl`. It can differ from the price currency: a US stock held in an HKD account reports `HKD` here. |
 | `side` | string | Position side reported by the broker. |
 | `quantity` | string | Total position quantity as a decimal string. |
 | `available_quantity` | string | Quantity available to sell or otherwise use. |
@@ -51,5 +51,6 @@ Each `items[]` entry contains:
 | `last_price` | string or `null` | Latest available price. |
 | `market_value` | string or `null` | Current market value of the position. |
 | `unrealized_pnl` | string or `null` | Unrealized profit or loss. |
-| `unrealized_pnl_ratio` | string or `null` | Unrealized return ratio. |
+| `unrealized_pnl_ratio` | string or `null` | Unrealized return as a decimal fraction, where `0.01` means 1%. TQX uses the broker's figure when the broker reports one. Otherwise, for long positions, it is `(last_price - average_cost) / average_cost`. `null` when the cost or price is unavailable. |
 | `as_of` | date-time string | Time at which this position snapshot was produced. |
+| `price_currency` | string or `null` (optional) | Currency of `average_cost` and `last_price`, which use the instrument's trading currency, such as `USD` for a US stock or for a USD-traded Hong Kong counter like `9451.HK`. `null` when TQX cannot determine it. Do not infer it from `market`. |

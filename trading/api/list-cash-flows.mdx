@@ -1,0 +1,94 @@
+---
+title: "List cash flows"
+description: "List the broker cash ledger in each row's native currency, with signed amounts."
+zh-Hant_link: "/hk/trading/api/list-cash-flows"
+---
+
+Returns the broker's cash ledger for the authenticated account: trade settlements, fees, FX, deposits, and withdrawals. Use it to trace how each currency's cash balance changed.
+
+Each row keeps the broker's native currency and a signed amount. Amounts are never converted to another currency.
+
+## Supported channels
+
+| Channel | Supported | Notes |
+| --- | --- | --- |
+| LongPort (live and paper) | Yes | Full ledger, including trade fills and per-fill fees. |
+| Tiger standard (prime) accounts | Yes | Full ledger from Tiger fund details (securities segment). |
+| Tiger global and paper accounts | No | Tiger does not offer a fund ledger for these accounts. |
+| Huatai, Futu, TQX simulation | No | No complete cash ledger is available. |
+
+<Warning>
+On an unsupported channel, the request fails with `cash_flows_unsupported` (HTTP 501). It never returns an empty list for an unsupported channel. An empty `items` list means the channel is supported and had no cash movements in the requested range.
+</Warning>
+
+## CLI
+
+```bash
+tqx trading cash-flows --json
+tqx trading cash-flows --start=2026-10-01 --end=2026-10-21 --currency=USD --json
+tqx trading cash-flows --cursor=<next-cursor> --limit=100 --json
+```
+
+`--start` and `--end` are dates in `YYYY-MM-DD` format, interpreted as Hong Kong calendar days and inclusive. Without dates, the command returns the last 7 days. `--currency` filters by the row's native currency code. `--limit` must be an integer from 1 to 100 and defaults to 50. `--cursor` is the opaque pagination cursor.
+
+## HTTP
+
+```bash
+curl --request GET \
+  --url 'https://www.tqx.trade/openapi/v1/trading/cash-flows?start_date=2026-10-01&end_date=2026-10-21&currency=USD&limit=100' \
+  --header "X-API-Key: $TQX_API_KEY" \
+  --header 'Accept: application/json'
+```
+
+The API key needs the `trade:read` scope. All query parameters are optional:
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `start_date` | `YYYY-MM-DD` | First Hong Kong calendar day to include. Defaults to 6 days before `end_date`. |
+| `end_date` | `YYYY-MM-DD` | Last Hong Kong calendar day to include. Defaults to today in Hong Kong. |
+| `currency` | three-letter code | Keeps only rows in this native currency. No conversion is applied. |
+| `limit` | integer, 1–100 | Page size. Defaults to 50. |
+| `cursor` | string | Opaque cursor from `next_cursor`. A cursor only works with the same `start_date`, `end_date`, and `currency`. |
+
+The range can cover at most 90 days. When you page without explicit dates, the default range moves at midnight Hong Kong time and older cursors become invalid. Pass explicit dates when you page through results.
+
+## Response
+
+The JSON envelope contains `code` (string; `"0"` means success), `message` (string), `data` (`CashFlowsData` or `null`), `request_id` (string or `null`), and `timestamp` (integer Unix time in milliseconds). `data` is `CashFlowsData` on success:
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `items` | array of `CashFlowData` | Cash ledger rows, newest first. |
+| `next_cursor` | string or `null` | Opaque cursor for the next page; `null` when there is no next page. |
+
+Each `items[]` entry contains:
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `flow_id` | string | Stable row identifier. Tiger uses its own record ID. LongPort has no record ID, so TQX derives one from the row's content. |
+| `currency` | string | Native currency of the row. |
+| `amount` | string | Signed amount in `currency`. Positive is an inflow and negative is an outflow. |
+| `direction` | `IN` or `OUT` | Derived from the sign of `amount`. |
+| `category` | `TRADE`, `FEE`, `TRANSFER`, `FX`, `CORPORATE_ACTION`, `AWARD`, `OTHER`, or `null` | Present only when the broker classifies the row or the row's structure identifies it reliably (for example, both legs of an FX conversion). Never guessed from the broker's flow name. |
+| `symbol` | string or `null` | Related symbol, such as `AAPL.US` or `00700.HK`, when the broker provides one. |
+| `occurred_at` | date-time string or `null` | When the movement happened, as reported by the broker. `null` when the broker only reports an update time (Tiger). |
+| `business_date` | `YYYY-MM-DD` or `null` | The broker's booking date, which can be later than the occurrence date. |
+| `settle_date` | `YYYY-MM-DD` or `null` | The broker's cash settlement date, when provided. |
+| `settlement_status` | `SETTLED`, `SETTLING`, or `null` | Present only when the broker states it explicitly. No supported broker does today. TQX does not infer it from dates. |
+| `reference_id` | string or `null` | The broker's related business reference. This is not an order ID. |
+| `order_id` | string or `null` | Related trading order, only when the broker provides it. |
+| `broker_type` | string or `null` | The broker's raw type code, for troubleshooting. |
+| `business_name` | string or `null` | The broker's flow name. It can change with the account language, so do not build logic on it. |
+| `description` | string or `null` | The broker's description. |
+
+`null` means the broker does not provide the value. Never read `null` as zero or as settled. This endpoint reports cash movements, not balances. For the account's cash balances, use [Get account assets](/trading/api/get-assets).
+
+## Errors
+
+| HTTP | `code` | Meaning |
+| --- | --- | --- |
+| 400 | `invalid_request` | Invalid date, a range longer than 90 days, a cursor from a different query, or too many rows in the range. Narrow the range and retry. |
+| 429 | `broker_rate_limited` | The broker rate-limited the request. Retry shortly. |
+| 501 | `cash_flows_unsupported` | The account's channel cannot provide a complete cash ledger. Retrying does not help. |
+| 503 | `trading_service_unavailable` | The broker could not be reached. Retry later. |
+| 500 | `trading_data_mapping_error` | The broker returned a row TQX could not interpret. The whole request fails instead of returning a partial list. |

@@ -1,0 +1,94 @@
+---
+title: "查詢現金流水"
+description: "以每筆流水的原幣種查詢券商現金帳本，金額帶正負號。"
+en_link: "/trading/api/list-cash-flows"
+---
+
+返回已驗證帳戶的券商現金帳本，包括買賣交收、費用、換匯、入金和出金。可用來追蹤每個幣種的現金餘額是怎樣變動的。
+
+每筆流水保留券商的原幣種，金額帶正負號，不會折算成其他幣種。
+
+## 支援的渠道
+
+| 渠道 | 是否支援 | 說明 |
+| --- | --- | --- |
+| LongPort（實盤及模擬帳戶） | 支援 | 完整帳本，包括每筆成交及其手續費。 |
+| 老虎綜合帳戶 | 支援 | 來自老虎資金明細（證券分部）的完整帳本。 |
+| 老虎環球帳戶、模擬帳戶 | 不支援 | 老虎不為這兩類帳戶提供資金明細。 |
+| 華泰、富途、TQX 模擬交易 | 不支援 | 無法取得完整的現金帳本。 |
+
+<Warning>
+不支援的渠道會返回 `cash_flows_unsupported`（HTTP 501），不會以空列表代替。`items` 為空列表只表示：該渠道支援此接口，而所選範圍內沒有現金變動。
+</Warning>
+
+## CLI
+
+```bash
+tqx trading cash-flows --json
+tqx trading cash-flows --start=2026-10-01 --end=2026-10-21 --currency=USD --json
+tqx trading cash-flows --cursor=<next-cursor> --limit=100 --json
+```
+
+`--start` 和 `--end` 為 `YYYY-MM-DD` 格式的日期，按香港日曆日計算，包含首尾兩天；不指定日期時返回最近 7 天。`--currency` 按流水的原幣種篩選；`--limit` 必須是 1 至 100 的整數，省略時預設為 50；`--cursor` 是不透明分頁游標。
+
+## HTTP
+
+```bash
+curl --request GET \
+  --url 'https://www.tqx.trade/openapi/v1/trading/cash-flows?start_date=2026-10-01&end_date=2026-10-21&currency=USD&limit=100' \
+  --header "X-API-Key: $TQX_API_KEY" \
+  --header 'Accept: application/json'
+```
+
+API key 需要 `trade:read` 權限。所有查詢參數均為可選：
+
+| 參數 | 類型 | 說明 |
+| --- | --- | --- |
+| `start_date` | `YYYY-MM-DD` | 起始香港日曆日（包含當天）。預設為 `end_date` 往前 6 天。 |
+| `end_date` | `YYYY-MM-DD` | 結束香港日曆日（包含當天）。預設為香港時間今天。 |
+| `currency` | 三位字母幣種代碼 | 只保留此原幣種的流水，不做任何折算。 |
+| `limit` | 1–100 的整數 | 每頁筆數，預設為 50。 |
+| `cursor` | string | 取自 `next_cursor` 的不透明游標，只能配合相同的 `start_date`、`end_date` 和 `currency` 使用。 |
+
+查詢範圍最長 90 天。不指定日期翻頁時，預設範圍會在香港時間午夜改變，之前的游標會隨之失效；需要翻頁時請明確指定日期。
+
+## 回應
+
+JSON envelope 包含 `code`（string；`"0"` 表示成功）、`message`（string）、`data`（`CashFlowsData` 或 `null`）、`request_id`（string 或 `null`）和 `timestamp`（Unix 毫秒時間戳整數）。成功時，`data` 是 `CashFlowsData`：
+
+| 欄位 | 類型 | 說明 |
+| --- | --- | --- |
+| `items` | `CashFlowData` 陣列 | 現金流水，最新的排在最前。 |
+| `next_cursor` | string 或 `null` | 下一頁的不透明游標；沒有下一頁時為 `null`。 |
+
+每個 `items[]` 項目包含：
+
+| 欄位 | 類型 | 說明 |
+| --- | --- | --- |
+| `flow_id` | string | 穩定的流水識別碼。老虎使用其自身的記錄 ID；LongPort 沒有記錄 ID，由 TQX 按流水內容生成。 |
+| `currency` | string | 流水的原幣種。 |
+| `amount` | string | 以 `currency` 計的帶正負號金額：正數為流入，負數為流出。 |
+| `direction` | `IN` 或 `OUT` | 由 `amount` 的正負號得出。 |
+| `category` | `TRADE`、`FEE`、`TRANSFER`、`FX`、`CORPORATE_ACTION`、`AWARD`、`OTHER` 或 `null` | 只在券商明確分類，或能從流水結構可靠判斷時（例如換匯的兩筆流水）才會填寫，不會根據券商的流水名稱推測。 |
+| `symbol` | string 或 `null` | 券商提供的相關標的，例如 `AAPL.US` 或 `00700.HK`。 |
+| `occurred_at` | date-time string 或 `null` | 券商回報的發生時間。若券商只提供更新時間（老虎），則為 `null`。 |
+| `business_date` | `YYYY-MM-DD` 或 `null` | 券商的記帳日，可能晚於發生日。 |
+| `settle_date` | `YYYY-MM-DD` 或 `null` | 券商提供的資金交收日。 |
+| `settlement_status` | `SETTLED`、`SETTLING` 或 `null` | 只在券商明確給出時填寫；目前支援的券商都沒有提供。TQX 不會根據日期推算。 |
+| `reference_id` | string 或 `null` | 券商的關聯業務編號，並非訂單 ID。 |
+| `order_id` | string 或 `null` | 關聯的交易訂單，只在券商提供時填寫。 |
+| `broker_type` | string 或 `null` | 券商的原始類型代碼，供排查問題使用。 |
+| `business_name` | string 或 `null` | 券商的流水名稱，可能隨帳戶語言改變，請勿據此編寫判斷邏輯。 |
+| `description` | string 或 `null` | 券商的說明。 |
+
+`null` 表示券商沒有提供該值，切勿把 `null` 當作零或「已交收」。此接口只回報現金變動，不回報餘額；查詢帳戶現金餘額請使用[查詢帳戶資產](/hk/trading/api/get-assets)。
+
+## 錯誤
+
+| HTTP | `code` | 含義 |
+| --- | --- | --- |
+| 400 | `invalid_request` | 日期無效、範圍超過 90 天、游標屬於另一組查詢條件，或範圍內流水過多。請縮小範圍後重試。 |
+| 429 | `broker_rate_limited` | 券商限流，請稍後重試。 |
+| 501 | `cash_flows_unsupported` | 帳戶所屬渠道無法提供完整的現金帳本，重試也無法解決。 |
+| 503 | `trading_service_unavailable` | 暫時無法連接券商，請稍後重試。 |
+| 500 | `trading_data_mapping_error` | 券商返回了 TQX 無法解讀的流水。整個請求會失敗，不會只返回部分列表。 |

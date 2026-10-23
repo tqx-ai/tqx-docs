@@ -75,6 +75,7 @@
                   "trading/api/get-positions",
                   "trading/api/get-assets",
                   "trading/api/list-trades",
+                  "trading/api/list-cash-flows",
                   "trading/api/get-signal"
                 ]
               }
@@ -206,6 +207,7 @@
                   "hk/trading/api/get-positions",
                   "hk/trading/api/get-assets",
                   "hk/trading/api/list-trades",
+                  "hk/trading/api/list-cash-flows",
                   "hk/trading/api/get-signal"
                 ]
               }

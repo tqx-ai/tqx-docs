@@ -37,13 +37,26 @@ The JSON envelope contains `code` (string; `"0"` means success), `message` (stri
 | `mode` | `LIVE` or `PAPER` | Account execution mode. |
 | `base_currency` | string | Currency used for account-level totals. |
 | `total_assets` | string | Total account assets, represented as a decimal string. |
-| `cash` | string or `null` | Cash balance. |
-| `available_cash` | string or `null` | Cash available for new orders. |
+| `cash` | string or `null` | Total cash of the whole account, expressed in `base_currency`. |
+| `available_cash` | string or `null` | Cash you can spend on new orders without margin, taken from the `base_currency` balance only, not the account total. It can be negative when that currency is overdrawn, even while `cash` is positive. Brokers that do not report a cash-only figure return their available funds here, which may include margin. Use `cash_balances` to see every currency. |
 | `frozen_cash` | string or `null` | Cash reserved by pending orders. |
 | `buying_power` | string or `null` | Buying power currently reported by the broker. |
-| `market_value` | string or `null` | Market value of held positions. |
+| `market_value` | string or `null` | Market value of held positions, calculated by TQX from the positions with TQX exchange rates. `total_assets`, `cash`, and `buying_power` are the broker's own figures and may use the broker's rates, so `total_assets` need not equal `cash` plus `market_value`. |
 | `unrealized_pnl` | string or `null` | Unrealized profit or loss. |
 | `as_of` | date-time string | Time at which the snapshot was produced. |
 | `is_stale` | boolean | Whether the snapshot may be behind the latest broker state. |
+| `cash_balances` | array of `CashBalanceData` or `null` (optional) | One entry per currency the account holds cash in. `null` when the broker does not report per-currency cash. |
 
 `is_stale: true` means the snapshot may not reflect the latest broker state.
+
+Each `cash_balances[]` entry describes one currency's own balance. Its amounts are in that entry's `currency` and are never converted, so you cannot add them to account-level fields such as `cash` or to other entries.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `currency` | string | Currency of this balance, such as `HKD` or `USD`. |
+| `available_cash` | string or `null` | Cash in this currency you can spend without margin. Negative when this currency is overdrawn. |
+| `frozen_cash` | string or `null` | Cash in this currency reserved by pending orders. |
+| `settling_cash` | string or `null` | Proceeds in this currency from executed trades that have not settled yet. |
+| `withdrawable_cash` | string or `null` | Cash in this currency you can withdraw. |
+
+A `null` amount means the broker did not report that figure; it does not mean zero.

@@ -34,7 +34,7 @@ The JSON envelope contains `code` (string; `"0"` means success), `message` (stri
 | `symbol` | string | Trading symbol. |
 | `symbol_name` | string | Human-readable symbol name. |
 | `market` | `HK` or `US` | Order market. |
-| `currency` | string | Order currency. |
+| `currency` | string | Currency used for the account's amounts. It is not necessarily the currency of `price` or `average_fill_price`: a US order in an HKD account reports `HKD` here. See `price_currency`. |
 | `side` | `BUY` or `SELL` | Order direction. |
 | `order_type` | `MARKET` or `LIMIT` | Order type. |
 | `status` | enum | Current order lifecycle status. |
@@ -50,6 +50,7 @@ The JSON envelope contains `code` (string; `"0"` means success), `message` (stri
 | `effective_trade_date` | string or `null` (optional) | Effective trading date reported by the broker. |
 | `expire_at` | date-time string or `null` (optional) | Expiration time, when applicable. |
 | `cancel_request_id` | string or `null` (optional) | Identifier of the cancellation request, when one exists. |
+| `price_currency` | string or `null` (optional) | Currency of `price` and `average_fill_price`, which use the instrument's trading currency. `null` when TQX cannot determine it. Do not infer it from `market`. |
 
 `status` uses the same values as [List orders](/trading/api/list-orders).
 

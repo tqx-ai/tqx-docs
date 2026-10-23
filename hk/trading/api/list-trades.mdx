@@ -46,12 +46,15 @@ JSON envelope 包含 `code`（string；`"0"` 表示成功）、`message`（strin
 | `symbol` | string | 交易標的。 |
 | `symbol_name` | string | 可讀的標的名稱。 |
 | `market` | `HK` 或 `US` | 成交市場。 |
-| `currency` | string | 成交貨幣。 |
+| `currency` | string | 金額欄位 `amount`、`commission`、`total_fees` 和 `fees` 的貨幣。它可能與價格貨幣不同：港幣帳戶的美股成交，這裡會是 `HKD`。 |
 | `side` | `BUY` 或 `SELL` | 成交方向。 |
 | `quantity` | string | 成交數量。 |
 | `price` | string | 成交價格。 |
 | `amount` | string | 成交名義金額。 |
-| `commission` | string 或 `null` | 此次成交收取的佣金。 |
+| `commission` | string 或 `null` | 此次成交收取的佣金。佣金只是其中一項費用；實際收取的全部費用請看 `total_fees`。 |
 | `executed_at` | date-time string | 成交時間。 |
 | `client_order_id` | string 或 `null`（可選） | 用戶提供的訂單識別碼（如可用）。 |
 | `order_type` | `MARKET`、`LIMIT` 或 `null`（可選） | 產生成交的訂單類型。此欄位由目前 OpenAPI schema 宣告；`tqx-ts` SDK 目前的類型未暴露此欄位。 |
+| `total_fees` | string 或 `null`（可選） | 此次成交收取的全部費用，貨幣與 `amount` 相同。`null` 表示 TQX 沒有這筆成交的可靠費用記錄，並不代表這筆成交免費。 |
+| `fees` | object 或 `null`（可選） | 按費用名稱列出的分項，例如 `commission`、`stamp_duty`、`trading_fee`、`transaction_levy`、`platform_fee`、`system_fee`、`settlement_fee` 和 `frc_transaction_fees`。數值為十進制字串，貨幣與 `amount` 相同。分項無法取得或加總與 `total_fees` 不符時為 `null`。 |
+| `price_currency` | string 或 `null`（可選） | `price` 的貨幣，即該證券的交易貨幣。TQX 無法確定時為 `null`。請勿根據 `market` 推斷。 |

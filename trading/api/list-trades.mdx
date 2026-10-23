@@ -46,12 +46,15 @@ Each `items[]` entry contains:
 | `symbol` | string | Trading symbol. |
 | `symbol_name` | string | Human-readable symbol name. |
 | `market` | `HK` or `US` | Execution market. |
-| `currency` | string | Trade currency. |
+| `currency` | string | Currency of the amount fields `amount`, `commission`, `total_fees`, and `fees`. It can differ from the price currency: a US trade in an HKD account reports `HKD` here. |
 | `side` | `BUY` or `SELL` | Execution direction. |
 | `quantity` | string | Executed quantity. |
 | `price` | string | Execution price. |
 | `amount` | string | Executed notional amount. |
-| `commission` | string or `null` | Commission charged for this execution. |
+| `commission` | string or `null` | Commission charged for this execution. Commission is one fee item; use `total_fees` for everything charged. |
 | `executed_at` | date-time string | Execution time. |
 | `client_order_id` | string or `null` (optional) | Client-supplied order identifier, when available. |
 | `order_type` | `MARKET`, `LIMIT`, or `null` (optional) | Type of the order that produced the execution. This field is declared by the live OpenAPI schema; the current `tqx-ts` SDK type does not expose it. |
+| `total_fees` | string or `null` (optional) | All fees charged for this execution, in the same currency as `amount`. `null` means TQX has no reliable fee record for this execution; it does not mean the execution was free. |
+| `fees` | object or `null` (optional) | Itemized fees keyed by fee name, such as `commission`, `stamp_duty`, `trading_fee`, `transaction_levy`, `platform_fee`, `system_fee`, `settlement_fee`, and `frc_transaction_fees`. Values are decimal strings in the same currency as `amount`. `null` when the items are unavailable or do not add up to `total_fees`. |
+| `price_currency` | string or `null` (optional) | Currency of `price`, which uses the instrument's trading currency. `null` when TQX cannot determine it. Do not infer it from `market`. |
