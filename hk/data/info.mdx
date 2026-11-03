@@ -48,7 +48,7 @@ Read https://raw.githubusercontent.com/tqx-ai/tqx-ts/refs/heads/main/skills/tqx-
 本文件中的方法以 Qube 內建的 `tqx_data` 為準。PyPI 上的 `tqx-data` 0.1.2 套件有以下差異：
 
 - 標示為**僅限 Qube** 的頁面與方法不在套件中：分鐘數據、即時分鐘數據、Tick 數據、技術指標、回測因子與指數成分股。
-- 套件中所有 `market` 參數只接受 `"hk"` 或 `"nb"`。本文件中寫作 `"us"` 的地方，例如股票詳情、事件、持股、公司指標與一致預期，在套件中請改傳 `"nb"`。
+- 套件中所有 `market` 參數只接受 `hk` 或 `nb`。本文件中寫作 `us` 的地方，例如股票詳情、事件、持股、公司指標與一致預期，在套件中請改傳 `nb`。
 - 套件的交易日曆使用 `exchange="HK"` 或 `exchange="NB"`，而不是 `market`。
 - 套件另有本文件尚未收錄的方法，例如 `get_us_short_interest` 與即時 Tick 推送。請參閱隨套件安裝的 `tqx_data.md` 檔案。
 

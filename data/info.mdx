@@ -48,7 +48,7 @@ The agent asks for your data account email and password once and saves them in y
 The methods on these pages follow the `tqx_data` built into Qube. The `tqx-data` 0.1.2 package on PyPI differs in these ways:
 
 - Pages and methods marked **Qube only** aren't in the package: minute data, live minute data, tick data, technical indicators, backtest factors, and index components.
-- Every `market` parameter in the package takes `"hk"` or `"nb"`. Where these pages list `"us"`, for example in stock details, events, ownership, company metrics, and consensus, pass `"nb"` to the package instead.
+- Every `market` parameter in the package takes `hk` or `nb`. Where these pages list `us`, for example in stock details, events, ownership, company metrics, and consensus, pass `nb` to the package instead.
 - The package's trading calendar takes `exchange="HK"` or `exchange="NB"` instead of `market`.
 - The package adds methods that these pages don't cover yet, such as `get_us_short_interest` and a real-time tick stream. Read the `tqx_data.md` file that is installed with the package.
 
