@@ -8,26 +8,28 @@ en_link: "/data/market-reference/ownership"
 
 ### 方法名稱：get_company_concentration
 
-<Badge icon="clock" stroke>僅提供最新數據</Badge>
+<Badge icon="clock" stroke>
+  僅提供最新數據
+</Badge>
 
 ### 入參
 
-| 欄位 | 類型 | 說明 | 是否必填 |
-|:---|:---|:---|:---|
-| symbol | Optional\[Union\[str, List\[str\]\]\] | 股票代號 | 非必填 |
-| fields | Optional\[Union\[str, List\[str\]\]\] | 傳回欄位 | 非必填 |
-| market | str | 市場，支援 `hk`、`us`，預設為 `hk` | 必填 |
+| 欄位   | 類型                                  | 說明                               | 是否必填 |
+| :----- | :------------------------------------ | :--------------------------------- | :------- |
+| symbol | Optional\[Union\[str, List\[str\]\]\] | 股票代號                           | 非必填   |
+| fields | Optional\[Union\[str, List\[str\]\]\] | 傳回欄位                           | 非必填   |
+| market | str                                   | 市場，支援 `hk`、`us`，預設為 `hk` | 必填     |
 
 ### 回應參數
 
-| 字段 | 類型 | 描述 |
-|:---------------------------|:-------|:-------------------------|
-| symbol | str | 檔 |
-| currency | str | 交易幣種 |
-| total_investors | int | 總投資者數 |
+| 字段                       | 類型   | 描述                     |
+| :------------------------- | :----- | :----------------------- |
+| symbol                     | str    | 檔                       |
+| currency                   | str    | 交易幣種                 |
+| total_investors            | int    | 總投資者數               |
 | investor_outstanding_ratio | double | 投資人持有佔總流通股比例 |
-| total_sharehold | double | 總持股 |
-| total_holdings_value | double | 總持股市值 |
+| total_sharehold            | double | 總持股                   |
+| total_holdings_value       | double | 總持股市值               |
 
 ### 使用範例
 
@@ -64,26 +66,28 @@ symbol currency ... total_sharehold total_holdings_value
 
 ### 方法名稱：get_company_top_concentration
 
-<Badge icon="clock" stroke>僅提供最新數據</Badge>
+<Badge icon="clock" stroke>
+  僅提供最新數據
+</Badge>
 
 ### 入參
 
-| 欄位 | 類型 | 說明 | 是否必填 |
-|:---|:---|:---|:---|
-| symbol | Optional\[Union\[str, List\[str\]\]\] | 股票代號 | 非必填 |
-| fields | Optional\[Union\[str, List\[str\]\]\] | 傳回欄位 | 非必填 |
-| market | str | 市場，支援 `hk`、`us`，預設為 `hk` | 必填 |
+| 欄位   | 類型                                  | 說明                               | 是否必填 |
+| :----- | :------------------------------------ | :--------------------------------- | :------- |
+| symbol | Optional\[Union\[str, List\[str\]\]\] | 股票代號                           | 非必填   |
+| fields | Optional\[Union\[str, List\[str\]\]\] | 傳回欄位                           | 非必填   |
+| market | str                                   | 市場，支援 `hk`、`us`，預設為 `hk` | 必填     |
 
 ### 回應參數
 
-| 字段 | 類型 | 描述 |
-|:---|:---|:---|
-| symbol | str | 檔 |
-| currency | str | 交易幣種 |
-| top_investors_num | int | 前n個投資者數（對於此介面通常為20，不足20個投資者的會回傳小於20） |
-| investor_outstanding_ratio | double | 投資人持有佔總流通股比例 |
-| sharehold | double | 前n個投資者總持股 |
-| holdings_value | double | 前n個投資人總持股市值 |
+| 字段                       | 類型   | 描述                                                              |
+| :------------------------- | :----- | :---------------------------------------------------------------- |
+| symbol                     | str    | 檔                                                                |
+| currency                   | str    | 交易幣種                                                          |
+| top_investors_num          | int    | 前n個投資者數（對於此介面通常為20，不足20個投資者的會回傳小於20） |
+| investor_outstanding_ratio | double | 投資人持有佔總流通股比例                                          |
+| sharehold                  | double | 前n個投資者總持股                                                 |
+| holdings_value             | double | 前n個投資人總持股市值                                             |
 
 ### 使用範例
 
@@ -120,31 +124,33 @@ symbol currency ... sharehold holdings_value
 
 ### 方法名稱：get_company_investor
 
-<Badge icon="clock" stroke>僅提供最新數據</Badge>
+<Badge icon="clock" stroke>
+  僅提供最新數據
+</Badge>
 
 ### 入參
 
-| 欄位 | 類型 | 說明 | 是否必填 |
-|:---|:---|:---|:---|
-| symbol | Optional\[Union\[str, List\[str\]\]\] | 股票代號 | 非必填 |
-| fields | Optional\[Union\[str, List\[str\]\]\] | 傳回欄位 | 非必填 |
-| market | str | 市場，支援 `hk`、`us`，預設為 `hk` | 必填 |
-| max_rank | Optional\[int\] | 最大回傳排名（小於等於20的正整數），預設為空白回傳前20名 | 非必填 |
+| 欄位     | 類型                                  | 說明                                                     | 是否必填 |
+| :------- | :------------------------------------ | :------------------------------------------------------- | :------- |
+| symbol   | Optional\[Union\[str, List\[str\]\]\] | 股票代號                                                 | 非必填   |
+| fields   | Optional\[Union\[str, List\[str\]\]\] | 傳回欄位                                                 | 非必填   |
+| market   | str                                   | 市場，支援 `hk`、`us`，預設為 `hk`                       | 必填     |
+| max_rank | Optional\[int\]                       | 最大回傳排名（小於等於20的正整數），預設為空白回傳前20名 | 非必填   |
 
 ### 回應參數
 
-| 字段 | 類型 | 描述 |
-|:---------------------------|:-------|:---------------------------|
-| symbol | str | 檔 |
-| investor_name | str | 投資人名稱 |
-| investor_type | str | 投資人類型 |
-| investor_outstanding_ratio | double | 投資人持有佔總流通股比例 |
-| sharehold | double | 投資人持股 |
-| sharehold_change | double | 投資人持股較上一次報告變動 |
-| info_date | str | 此次報告日期 |
-| turnover_rating | str | 換手率評級 |
-| currency | str | 交易幣種 |
-| rank | int | 排行 |
+| 字段                       | 類型   | 描述                       |
+| :------------------------- | :----- | :------------------------- |
+| symbol                     | str    | 檔                         |
+| investor_name              | str    | 投資人名稱                 |
+| investor_type              | str    | 投資人類型                 |
+| investor_outstanding_ratio | double | 投資人持有佔總流通股比例   |
+| sharehold                  | double | 投資人持股                 |
+| sharehold_change           | double | 投資人持股較上一次報告變動 |
+| info_date                  | str    | 此次報告日期               |
+| turnover_rating            | str    | 換手率評級                 |
+| currency                   | str    | 交易幣種                   |
+| rank                       | int    | 排行                       |
 
 ### 使用範例
 
@@ -182,45 +188,50 @@ symbol investor_name ... rank currency
 
 ### 方法名稱：get_company_insider_transaction
 
-<Badge icon="calendar" stroke>港股歷史區間：2016-01-01 ~ 至今</Badge> <Badge icon="calendar" stroke>美股歷史區間：2018-01-01 ~ 至今</Badge>
+<Badge icon="calendar" stroke>
+  港股歷史區間：2016-01-01 ~ 至今
+</Badge>
+<Badge icon="calendar" stroke>
+  美股歷史區間：2018-01-01 ~ 至今
+</Badge>
 
 ### 入參
 
-| 欄位 | 類型 | 說明 | 是否必填 |
-|:---|:---|:---|:---|
-| start_date | str | 開始日期,eg:"20250702"（此介面查詢訊息日期） | 必填 |
-| end_date | str | 結束日期,eg:"20250702"（此介面查詢訊息日期） | 必填 |
-| symbol | Optional\[Union\[str, List\[str\]\]\] | 股票代號 | 非必填 |
-| fields | Optional\[Union\[str, List\[str\]\]\] | 傳回欄位 | 非必填 |
-| market | str | 市場，支援 `hk`、`us`，預設為 `hk` | 必填 |
+| 欄位       | 類型                                  | 說明                                         | 是否必填 |
+| :--------- | :------------------------------------ | :------------------------------------------- | :------- |
+| start_date | str                                   | 開始日期,eg:"20250702"（此介面查詢訊息日期） | 必填     |
+| end_date   | str                                   | 結束日期,eg:"20250702"（此介面查詢訊息日期） | 必填     |
+| symbol     | Optional\[Union\[str, List\[str\]\]\] | 股票代號                                     | 非必填   |
+| fields     | Optional\[Union\[str, List\[str\]\]\] | 傳回欄位                                     | 非必填   |
+| market     | str                                   | 市場，支援 `hk`、`us`，預設為 `hk`           | 必填     |
 
 ### 回應參數
 
-| 字段 | 類型 | 描述 |
-|:---|:---|:---|
-| symbol | str | 檔 |
-| investor_name | str | 投資人名稱 |
-| investor_type | str | 投資人類型 |
-| info_date | str | 訊息日期（日期篩選依據） |
-| insider_role | str | 內部人身分 |
-| is_main_role | int | 是否為主要人物（若某次內部交易涉及多個內部人，則此欄位為1的為主要人物） |
-| insider_active_date | str | 成為內部人日期 |
-| insider_inactive_date | str | 不再視為內部人日期 |
-| transaction_date | str | 交易發生日期 |
-| transaction_type | str | 交易類型 |
-| acquisition_type | str | 處置行為類型 |
-| adjusted_trade_shares | double | 調整後交易股數 |
-| reported_trade_shares | double | 申報交易股數 |
-| trade_outstanding_ratio | double | 交易股數佔總流通股數 |
-| transaction_price | double | 交易價格 |
-| filing_currency_price | double | 申報時貨幣的價格 |
-| filing_type | str | 申報文件類型 |
-| transaction_holding_type | str | 交易持有方式 |
-| adjusted_sharehold | double | 調整後持有股數 |
-| reported_sharehold | double | 申報持有股數 |
-| adjusted_indirect_sharehold | double | 調整後間接持有股數 |
-| reported_indirect_sharehold | double | 申報間接持有股數 |
-| currency | str | 交易幣種 |
+| 字段                        | 類型   | 描述                                                                    |
+| :-------------------------- | :----- | :---------------------------------------------------------------------- |
+| symbol                      | str    | 檔                                                                      |
+| investor_name               | str    | 投資人名稱                                                              |
+| investor_type               | str    | 投資人類型                                                              |
+| info_date                   | str    | 訊息日期（日期篩選依據）                                                |
+| insider_role                | str    | 內部人身分                                                              |
+| is_main_role                | int    | 是否為主要人物（若某次內部交易涉及多個內部人，則此欄位為1的為主要人物） |
+| insider_active_date         | str    | 成為內部人日期                                                          |
+| insider_inactive_date       | str    | 不再視為內部人日期                                                      |
+| transaction_date            | str    | 交易發生日期                                                            |
+| transaction_type            | str    | 交易類型                                                                |
+| acquisition_type            | str    | 處置行為類型                                                            |
+| adjusted_trade_shares       | double | 調整後交易股數                                                          |
+| reported_trade_shares       | double | 申報交易股數                                                            |
+| trade_outstanding_ratio     | double | 交易股數佔總流通股數                                                    |
+| transaction_price           | double | 交易價格                                                                |
+| filing_currency_price       | double | 申報時貨幣的價格                                                        |
+| filing_type                 | str    | 申報文件類型                                                            |
+| transaction_holding_type    | str    | 交易持有方式                                                            |
+| adjusted_sharehold          | double | 調整後持有股數                                                          |
+| reported_sharehold          | double | 申報持有股數                                                            |
+| adjusted_indirect_sharehold | double | 調整後間接持有股數                                                      |
+| reported_indirect_sharehold | double | 申報間接持有股數                                                        |
+| currency                    | str    | 交易幣種                                                                |
 
 ### 使用範例
 
@@ -254,46 +265,51 @@ symbol investor_name info_date ... adjusted_indirect_sharehold reported_indirect
 
 ### 方法名稱：get_company_shareholder_report
 
-<Badge icon="calendar" stroke>港股歷史區間：2024-07-01 ~ 至今</Badge> <Badge icon="calendar" stroke>美股歷史區間：2024-07-01 ~ 至今</Badge>
+<Badge icon="calendar" stroke>
+  港股歷史區間：2024-07-01 ~ 至今
+</Badge>
+<Badge icon="calendar" stroke>
+  美股歷史區間：2024-07-01 ~ 至今
+</Badge>
 
 ### 入參
 
-| 欄位 | 類型 | 說明 | 是否必填 |
-|:---|:---|:---|:---|
-| start_date | str | 開始日期,eg:"20250702"（此介面查詢持股報表日期） | 必填 |
-| end_date | str | 結束日期,eg:"20250702"（此介面查詢持股報告日期） | 必填 |
-| symbol | Optional\[Union\[str, List\[str\]\]\] | 股票代號 | 非必填 |
-| fields | Optional\[Union\[str, List\[str\]\]\] | 傳回欄位 | 非必填 |
-| market | str | 市場，支援 `hk`、`us`，預設為 `hk` | 必填 |
+| 欄位       | 類型                                  | 說明                                             | 是否必填 |
+| :--------- | :------------------------------------ | :----------------------------------------------- | :------- |
+| start_date | str                                   | 開始日期,eg:"20250702"（此介面查詢持股報表日期） | 必填     |
+| end_date   | str                                   | 結束日期,eg:"20250702"（此介面查詢持股報告日期） | 必填     |
+| symbol     | Optional\[Union\[str, List\[str\]\]\] | 股票代號                                         | 非必填   |
+| fields     | Optional\[Union\[str, List\[str\]\]\] | 傳回欄位                                         | 非必填   |
+| market     | str                                   | 市場，支援 `hk`、`us`，預設為 `hk`               | 必填     |
 
 ### 回應參數
 
-| 字段 | 類型 | 描述 |
-|:---|:---|:---|
-| symbol | str | 檔 |
-| investor_name | str | 投資人名稱 |
-| investor_category | str | 投資人大類 |
-| investor_type | str | 投資人詳細類別 |
-| investment_activeness_orientation | str | 投資活動傾向 |
-| turnover_rating | str | 換手率評級 |
-| turnover_ratio | double | 換手率比例（相對於投資者總資產的交易活動量） |
-| total_equity_assets | double | 總權益資產 |
-| sharehold | double | 持有股數 |
-| outstanding_ratio | double | 持股佔總流通股數 |
-| hold_portfolio_ratio | double | 持股佔投資者投資組合比例 |
-| sharehold_value | double | 持股市值 |
-| holding_date | str | 持股報表日期（日期篩選依據） |
-| filing_type | str | 申報類型 |
-| sharehold_change | double | 較上一次報告持股變動數量 |
-| sharehold_value_change | double | 持股市值變動 |
-| outstanding_ratio_change | double | 佔總流通股比例變動 |
-| sharehold_change_ratio | double | 持股數變動百分比 |
-| prev_sharehold | double | 上期持股數量 |
-| prev_outstanding_ratio | double | 上期佔總流通股比例 |
-| prev_sharehold_value | double | 上期持股市值 |
-| prev_holding_date | str | 上期持股報表日期 |
-| prev_filing_type | str | 上期申報類型 |
-| currency | str | 交易幣種 |
+| 字段                              | 類型   | 描述                                         |
+| :-------------------------------- | :----- | :------------------------------------------- |
+| symbol                            | str    | 檔                                           |
+| investor_name                     | str    | 投資人名稱                                   |
+| investor_category                 | str    | 投資人大類                                   |
+| investor_type                     | str    | 投資人詳細類別                               |
+| investment_activeness_orientation | str    | 投資活動傾向                                 |
+| turnover_rating                   | str    | 換手率評級                                   |
+| turnover_ratio                    | double | 換手率比例（相對於投資者總資產的交易活動量） |
+| total_equity_assets               | double | 總權益資產                                   |
+| sharehold                         | double | 持有股數                                     |
+| outstanding_ratio                 | double | 持股佔總流通股數                             |
+| hold_portfolio_ratio              | double | 持股佔投資者投資組合比例                     |
+| sharehold_value                   | double | 持股市值                                     |
+| holding_date                      | str    | 持股報表日期（日期篩選依據）                 |
+| filing_type                       | str    | 申報類型                                     |
+| sharehold_change                  | double | 較上一次報告持股變動數量                     |
+| sharehold_value_change            | double | 持股市值變動                                 |
+| outstanding_ratio_change          | double | 佔總流通股比例變動                           |
+| sharehold_change_ratio            | double | 持股數變動百分比                             |
+| prev_sharehold                    | double | 上期持股數量                                 |
+| prev_outstanding_ratio            | double | 上期佔總流通股比例                           |
+| prev_sharehold_value              | double | 上期持股市值                                 |
+| prev_holding_date                 | str    | 上期持股報表日期                             |
+| prev_filing_type                  | str    | 上期申報類型                                 |
+| currency                          | str    | 交易幣種                                     |
 
 ### 使用範例
 
@@ -319,4 +335,3 @@ symbol currency investor_name ... prev_sharehold_value prev_holding_date prev_fi
 1 8510.HK HKD Chuan (Hng Bok) ... 328943.66 20241231 Shareholder Report
 2 8510.HK HKD Lau (Wing Kee) ... 228433.10 20241231 Shareholder Report NaN HKD
 ```
-

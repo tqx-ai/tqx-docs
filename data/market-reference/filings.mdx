@@ -1,0 +1,46 @@
+---
+title: "Filing announcements"
+description: "Retrieve filing and disclosure records for Hong Kong and US stocks in Qube."
+zh-Hant_link: "/hk/data/market-reference/filings"
+---
+
+<Note>
+  This method is available in Qube. It is not part of the local PyPI package's documented
+  `tqx_data.md` interface.
+</Note>
+
+## Get filing announcements
+
+### Method name: get_filing_announcement
+
+### Enter parameters
+
+| Field      | Type                                  | Description                           | Is it required |
+| :--------- | :------------------------------------ | :------------------------------------ | :------------- |
+| symbol     | Optional\[Union\[str, List\[str\]\]\] | Stock code                            | Optional       |
+| start_date | Optional\[str\]                       | Start date in `YYYYMMDD` format       | Optional       |
+| end_date   | Optional\[str\]                       | End date in `YYYYMMDD` format         | Optional       |
+| fields     | Optional\[List\[str\]\]               | Return fields                         | Optional       |
+| market     | str                                   | Market, `hk` or `nb`; default is `hk` | Optional       |
+
+### Response
+
+The method returns a `pandas.DataFrame`. If `fields` is provided, the result
+also includes `symbol` and `date` so that the rows can be identified and sorted.
+When `fields` is omitted, the available filing fields are returned for the
+selected market.
+
+### Usage example
+
+```python
+import tqx_data
+
+result = tqx_data.get_filing_announcement(
+    symbol=["0700.HK"],
+    start_date="20250101",
+    end_date="20251231",
+    fields=["symbol", "date"],
+    market="hk",
+)
+print(result)
+```

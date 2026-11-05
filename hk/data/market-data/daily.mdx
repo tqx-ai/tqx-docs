@@ -8,49 +8,49 @@ en_link: "/data/market-data/daily"
 
 ### 方法名稱：get_hk_daily
 
-<Badge icon="calendar" stroke>歷史區間：1980-01-02 ~ 至今</Badge>
+<Badge icon="calendar" stroke>
+  歷史區間：1980-01-02 ~ 至今
+</Badge>
 
 ### 入參
 
-| 欄位 | 類型 | 說明 | 是否必填 |
-|:---|:---|:---|:---|
-| start_date | str | 開始日期,eg:"20250702"，與結束日期間不超過5年 | 必填 |
-| end_date | str | 結束日期,eg:"20250702"，與開始日期間不超過5年 | 必填 |
-| symbol | Optional\[Union\[str, List\[str\]\]\] | 股票代號 | 非必填 |
-| fields | Optional\[Union\[str, List\[str\]\]\] | 傳回欄位 | 非必填 |
+| 欄位       | 類型                                  | 說明                                          | 是否必填 |
+| :--------- | :------------------------------------ | :-------------------------------------------- | :------- |
+| start_date | str                                   | 開始日期,eg:"20250702"，與結束日期間不超過5年 | 必填     |
+| end_date   | str                                   | 結束日期,eg:"20250702"，與開始日期間不超過5年 | 必填     |
+| symbol     | Optional\[Union\[str, List\[str\]\]\] | 股票代號                                      | 非必填   |
+| fields     | Optional\[Union\[str, List\[str\]\]\] | 傳回欄位                                      | 非必填   |
 
 ### 回應參數
 
-| 字段 | 類型 | 描述 |
-|:-------------|:-------|:----------------------|
-| date | str | 交易日 |
-| symbol | str | 檔 |
-| open | str | 開盤價 |
-| high | double | 最高價 |
-| low | double | 最低價 |
-| close | double | 理論收市價 |
-| volume | double | 成交量 |
-| pre_close | double | 前一日收盤價 |
-| name | str | 股票名稱 |
-| trade_status | int | 交易狀態代碼 |
-| alt_close | double | 備用收市價，與 close 相同；未做除權除息調整 |
-| acvol_uns | double | 成交股數（同volume） |
-| bid | double | 買盤價 |
-| ask | double | 賣盤價 |
-| vwap | double | 成交量加權平均價 |
-| vwap_vol | double | 計算VWAP的成交量 |
-| opn_aucvol | double | 開市競價時段交易量 |
-| opn_auc | double | 開市競價時段價格 |
-| lmt_refpr2 | double | 限價參考價 |
-| lolimit | double | 價格下限 |
-| uplimit | double | 價格上限 |
-| lolimit_2 | double | 二級價格下限 |
-| uplimit_2 | double | 二級價格上限 |
-| navalue | double | 淨值 |
-| num_moves | double | 成交筆數 |
-| uplimit_3 | double | 三級價格上限 |
-| lolimit_3 | double | 三級價格下限 |
-| cls_aucvol | double | 收市競價時段成交量 |
+| 字段         | 類型   | 描述                                        |
+| :----------- | :----- | :------------------------------------------ |
+| date         | str    | 交易日                                      |
+| symbol       | str    | 檔                                          |
+| open         | str    | 開盤價                                      |
+| high         | double | 最高價                                      |
+| low          | double | 最低價                                      |
+| close        | double | 理論收市價                                  |
+| volume       | double | 成交量                                      |
+| pre_close    | double | 前一日收盤價                                |
+| name         | str    | 股票名稱                                    |
+| trade_status | int    | 交易狀態代碼                                |
+| alt_close    | double | 備用收市價，與 close 相同；未做除權除息調整 |
+| bid          | double | 買盤價                                      |
+| ask          | double | 賣盤價                                      |
+| vwap         | double | 成交量加權平均價                            |
+| vwap_vol     | double | 計算VWAP的成交量                            |
+| opn_aucvol   | double | 開市競價時段交易量                          |
+| opn_auc      | double | 開市競價時段價格                            |
+| lmt_refpr2   | double | 限價參考價                                  |
+| lolimit      | double | 價格下限                                    |
+| uplimit      | double | 價格上限                                    |
+| lolimit_2    | double | 二級價格下限                                |
+| uplimit_2    | double | 二級價格上限                                |
+| num_moves    | double | 成交筆數                                    |
+| uplimit_3    | double | 三級價格上限                                |
+| lolimit_3    | double | 三級價格下限                                |
+| cls_aucvol   | double | 收市競價時段成交量                          |
 
 ### 使用範例
 
@@ -128,38 +128,39 @@ symbol date ask bid vwap
 
 ### 方法名稱：get_us_daily
 
-<Badge icon="calendar" stroke>歷史區間：2014-03-07 ~ 至今</Badge>
+<Badge icon="calendar" stroke>
+  歷史區間：2014-03-07 ~ 至今
+</Badge>
 
 ### 入參
 
-| 欄位 | 類型 | 說明 | 是否必填 |
-|:---|:---|:---|:---|
-| start_date | str | 開始日期,eg:"20250702"，與結束日期間不超過5年 | 必填 |
-| end_date | str | 結束日期,eg:"20250702"，與開始日期間不超過5年 | 必填 |
-| symbol | Optional\[Union\[str, List\[str\]\]\] | 股票代號 | 非必填 |
-| fields | Optional\[Union\[str, List\[str\]\]\] | 傳回欄位 | 非必填 |
+| 欄位       | 類型                                  | 說明                                          | 是否必填 |
+| :--------- | :------------------------------------ | :-------------------------------------------- | :------- |
+| start_date | str                                   | 開始日期,eg:"20250702"，與結束日期間不超過5年 | 必填     |
+| end_date   | str                                   | 結束日期,eg:"20250702"，與開始日期間不超過5年 | 必填     |
+| symbol     | Optional\[Union\[str, List\[str\]\]\] | 股票代號                                      | 非必填   |
+| fields     | Optional\[Union\[str, List\[str\]\]\] | 傳回欄位                                      | 非必填   |
 
 ### 回應參數
 
-| 字段 | 類型 | 描述 |
-|:-------------|:-------|:-----------------|
-| date | str | 交易日 |
-| symbol | str | 檔 |
-| open | str | 開盤價 |
-| high | double | 最高價 |
-| low | double | 最低價 |
-| close | double | 理論收市價 |
-| volume | double | 成交量 |
-| pre_close | double | 前一日收盤價 |
-| name | str | 股票名稱 |
-| trade_status | int | 交易狀態代碼 |
-| blkcount | double | 大宗交易筆數 |
-| blkvolum | double | 大宗交易量數 |
-| bid | double | 買盤價 |
-| ask | double | 賣盤價 |
-| vwap | double | 成交量加權平均價 |
-| num_moves | double | 成交筆數 |
-| amount | double | 成交額 |
+| 字段         | 類型   | 描述             |
+| :----------- | :----- | :--------------- |
+| date         | str    | 交易日           |
+| symbol       | str    | 檔               |
+| open         | str    | 開盤價           |
+| high         | double | 最高價           |
+| low          | double | 最低價           |
+| close        | double | 理論收市價       |
+| volume       | double | 成交量           |
+| pre_close    | double | 前一日收盤價     |
+| name         | str    | 股票名稱         |
+| trade_status | int    | 交易狀態代碼     |
+| blkcount     | double | 大宗交易筆數     |
+| blkvolum     | double | 大宗交易量數     |
+| bid          | double | 買盤價           |
+| ask          | double | 賣盤價           |
+| vwap         | double | 成交量加權平均價 |
+| num_moves    | double | 成交筆數         |
 
 ### 使用範例
 
@@ -251,4 +252,3 @@ symbol date volume close pre_close
 38 AAPL.NB 20250130 55658279.0 237.59 239.36
 39 AAPL.NB 20250131 101075128.0 236.00 237.59
 ```
-

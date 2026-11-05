@@ -4,7 +4,7 @@ description: "tqx_data 提供的行情與參考資料。"
 en_link: "/data/info"
 ---
 
-TQX 提供港股與美股的行情、參考、財務與市場因子資料。股票代碼使用市場後綴：港股為 `.HK`（例如 `0001.HK`、`0700.HK`），美股 NASDAQ BASIC 為 `.NB`（例如 `AAPL.NB`、`0013.NB`）。
+TQX 提供港股與美股的行情、參考、財務與市場因子資料。港股代碼使用 `.HK` 後綴，例如 `0700.HK`。美股代碼格式視乎介面而定：部分 Qube 方法使用 `.NB` 後綴，例如 `AAPL.NB`；本機套件文件則使用 `AAPL`。
 
 ## 安裝 tqx_data
 
@@ -14,24 +14,27 @@ TQX 提供港股與美股的行情、參考、財務與市場因子資料。股�
 pip install tqx-data
 ```
 
-`tqx-data` 0.1.2 需要 Python 3.10 至 3.12。它要求 `numpy` 低於 2.0，在 Python 3.13 及以上版本無法安裝。
+API Key 版本的 `tqx-data` 需要 Python 3.10 或以上。請以已安裝套件內附的
+`tqx_data.md` 為準，確認實際依賴限制。
 
 <Note>
-  目前使用 `tqx_data` 需要 TQX 數據帳號。請聯絡 Audrey（[audrey@tqx.ai](mailto:audrey@tqx.ai)）開通權限。
+  本機數據套件使用具備數據存取權限的 API Key。它與 Qube 研究客戶端及交易 API
+  分開。
 </Note>
 
-## 登入
+## 使用 API Key 初始化
 
-呼叫任何方法前，先用 TQX 數據帳號的電郵與密碼登入：
+呼叫數據方法前，先傳入 API Key 與網關根地址：
 
 ```python
 import tqx_data
 
-tqx_data.init_token(username="<數據帳號電郵>", password="<密碼>")
+tqx_data.init(api_key="sk-tqx-...", base_url="https://tqxdata.tqx.ai")
 print(tqx_data.get_hk_daily(symbol=["0700.HK"], start_date="20260901", end_date="20260930"))
 ```
 
-在 `tqx-data` 0.1.2 中，登入狀態只在目前的 Python 程序內有效，每個新程序都要重新呼叫 `init_token`。請勿把密碼寫進原始碼或程式碼倉庫。
+也可以設定 `TQX_API_KEY` 與 `TQX_API_BASE_URL`，再呼叫
+`tqx_data.init()`。明確傳入的 `api_key` 優先於環境變數。請勿把 Key 寫進原始碼或程式碼倉庫。
 
 ### 透過編程助手使用 tqx-data
 
@@ -41,16 +44,30 @@ print(tqx_data.get_hk_daily(symbol=["0700.HK"], start_date="20260901", end_date=
 Read https://raw.githubusercontent.com/tqx-ai/tqx-ts/refs/heads/main/skills/tqx-data/SKILL.md, set up tqx-data on this computer, and show me the daily bars of 0700.HK for September 2026.
 ```
 
-助手只會向你索取一次數據帳號的電郵與密碼，並把它們存進作業系統的憑證儲存區，之後的任務不會再要求登入。
+助手只會在尚未保存 Key 時向你索取 API Key，並且不會在輸出中重複它。
 
 ## Qube 與 PyPI 套件的差異
 
-本文件中的方法以 Qube 內建的 `tqx_data` 為準。PyPI 上的 `tqx-data` 0.1.2 套件有以下差異：
+本文件中的方法以 Qube 內建的 `tqx_data` 為準。本機 API Key 套件有以下差異：
 
-- 標示為**僅限 Qube** 的頁面與方法不在套件中：分鐘數據、即時分鐘數據、Tick 數據、技術指標、回測因子與指數成分股。
-- 套件中所有 `market` 參數只接受 `hk` 或 `nb`。本文件中寫作 `us` 的地方，例如股票詳情、事件、持股、公司指標與一致預期，在套件中請改傳 `nb`。
-- 套件的交易日曆使用 `exchange="HK"` 或 `exchange="NB"`，而不是 `market`。
-- 套件另有本文件尚未收錄的方法，例如 `get_us_short_interest` 與即時 Tick 推送。請參閱隨套件安裝的 `tqx_data.md` 檔案。
+- 標示為**僅限 Qube** 的頁面與方法不在本機套件中：分鐘線、即時分鐘線、
+  最新 Tick 快照、指標計算、因子與指數成分股。
+- 本機套件文件列出的方法包括：
+
+  `get_hk_daily`、`get_us_daily`、`get_stock_detail`、
+  `get_trading_calendar`、`get_currency`、`get_event_devidend`、
+  `get_event_capital_market`、`get_event_corporate_actions`、
+  `get_event_fina_disclosure`、`get_event_investor_relation_activities`、
+  `get_company_concentration`、`get_company_top_concentration`、
+  `get_company_investor`、`get_company_insider_transaction`、
+  `get_company_shareholder_report`、`get_company_price_vol`、
+  `get_company_oper_metrics`、`get_company_current`、`get_company_imed`、
+  `get_consensus_nonperiod`、`get_consensus_recommend` 及
+  `get_financial_statement`。
+
+- 本機套件也文件化 `TickStreamClient`，用於接收即時 Tick 推送。
+  方法名稱、參數與欄位以套件內的 `tqx_data.md` 白名單為準。
+- 源碼中可能存在未寫入 `tqx_data.md` 的 reader；這些 reader 不屬於已支援的使用者介面。
 
 ## 在回測中使用數據
 

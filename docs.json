@@ -85,6 +85,7 @@
             "group": "Data",
             "pages": [
               "data/info",
+              "data/local-package",
               {
                 "group": "Market data",
                 "pages": [
@@ -101,6 +102,7 @@
                   "data/market-reference/stock-detail",
                   "data/market-reference/trading-calendar",
                   "data/market-reference/events",
+                  "data/market-reference/filings",
                   "data/market-reference/ownership",
                   "data/market-reference/index-components",
                   "data/market-reference/company-metrics",
@@ -116,9 +118,7 @@
               },
               {
                 "group": "Utilities",
-                "pages": [
-                  "data/utilities/currency"
-                ]
+                "pages": ["data/utilities/currency"]
               }
             ]
           },
@@ -127,11 +127,7 @@
             "pages": [
               {
                 "group": "FAQ",
-                "pages": [
-                  "faq/tqx",
-                  "faq/qube",
-                  "faq/gatc"
-                ]
+                "pages": ["faq/tqx", "faq/qube", "faq/gatc"]
               },
               "more/contact-us"
             ]
@@ -217,6 +213,7 @@
             "group": "\u6578\u64da",
             "pages": [
               "hk/data/info",
+              "hk/data/local-package",
               {
                 "group": "\u884c\u60c5\u6578\u64da",
                 "pages": [
@@ -233,6 +230,7 @@
                   "hk/data/market-reference/stock-detail",
                   "hk/data/market-reference/trading-calendar",
                   "hk/data/market-reference/events",
+                  "hk/data/market-reference/filings",
                   "hk/data/market-reference/ownership",
                   "hk/data/market-reference/index-components",
                   "hk/data/market-reference/company-metrics",
@@ -248,9 +246,7 @@
               },
               {
                 "group": "\u8f14\u52a9\u5de5\u5177",
-                "pages": [
-                  "hk/data/utilities/currency"
-                ]
+                "pages": ["hk/data/utilities/currency"]
               }
             ]
           },
@@ -259,11 +255,7 @@
             "pages": [
               {
                 "group": "常見問題",
-                "pages": [
-                  "hk/faq/tqx",
-                  "hk/faq/qube",
-                  "hk/faq/gatc"
-                ]
+                "pages": ["hk/faq/tqx", "hk/faq/qube", "hk/faq/gatc"]
               },
               "hk/more/contact-us"
             ]
@@ -326,16 +318,7 @@
     ]
   },
   "contextual": {
-    "options": [
-      "copy",
-      "view",
-      "chatgpt",
-      "claude",
-      "perplexity",
-      "mcp",
-      "cursor",
-      "vscode"
-    ]
+    "options": ["copy", "view", "chatgpt", "claude", "perplexity", "mcp", "cursor", "vscode"]
   },
   "footer": {
     "socials": {

@@ -1,0 +1,41 @@
+---
+title: "公告資料"
+description: "在 Qube 取得港股與美股的公告資料。"
+en_link: "/data/market-reference/filings"
+---
+
+<Note>此方法只在 Qube 提供。本機 PyPI 套件的 `tqx_data.md` 未列出此方法。</Note>
+
+## 取得公告資料
+
+### 方法名稱：get_filing_announcement
+
+### 入參
+
+| 欄位       | 類型                                  | 說明                                 | 是否必填 |
+| :--------- | :------------------------------------ | :----------------------------------- | :------- |
+| symbol     | Optional\[Union\[str, List\[str\]\]\] | 股票代號                             | 非必填   |
+| start_date | Optional\[str\]                       | 開始日期，格式為 `YYYYMMDD`          | 非必填   |
+| end_date   | Optional\[str\]                       | 結束日期，格式為 `YYYYMMDD`          | 非必填   |
+| fields     | Optional\[List\[str\]\]               | 傳回欄位                             | 非必填   |
+| market     | str                                   | 市場，支援 `hk` 或 `nb`，預設為 `hk` | 非必填   |
+
+### 回應
+
+方法回傳 `pandas.DataFrame`。傳入 `fields` 時，結果也會包含 `symbol` 與
+`date`，方便識別與排序。未傳入 `fields` 時，回傳所選市場可用的公告欄位。
+
+### 使用範例
+
+```python
+import tqx_data
+
+result = tqx_data.get_filing_announcement(
+    symbol=["0700.HK"],
+    start_date="20250101",
+    end_date="20251231",
+    fields=["symbol", "date"],
+    market="hk",
+)
+print(result)
+```

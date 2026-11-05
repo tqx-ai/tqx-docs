@@ -4,7 +4,7 @@ description: "Market and reference data available through tqx_data."
 zh-Hant_link: "/hk/data/info"
 ---
 
-TQX provides market, reference, financial, and market-factor data for Hong Kong and US stocks. Use a market suffix in each symbol: `.HK` for Hong Kong stocks (for example, `0001.HK` and `0700.HK`) and `.NB` for NASDAQ BASIC stocks (for example, `AAPL.NB` and `0013.NB`).
+TQX provides market, reference, financial, and market-factor data for Hong Kong and US stocks. Hong Kong symbols use `.HK`, for example `0700.HK`. US symbol formats depend on the interface: some Qube methods use a `.NB` suffix, for example `AAPL.NB`, while the local package's documented examples use `AAPL`.
 
 ## Install tqx_data
 
@@ -14,24 +14,29 @@ Download the `tqx-data` package from [PyPI](https://pypi.org/project/tqx-data/):
 pip install tqx-data
 ```
 
-`tqx-data` 0.1.2 needs Python 3.10 to 3.12. It requires `numpy` below 2.0, which doesn't install on Python 3.13 or later.
+The API-Key build of `tqx-data` requires Python 3.10 or later. Follow the
+`tqx_data.md` shipped inside the installed package for its exact dependency
+constraints.
 
 <Note>
-  You currently need a TQX data account to use `tqx_data`. Contact Audrey at [audrey@tqx.ai](mailto:audrey@tqx.ai) to get access.
+  The local data package uses an API key with data access permission. It is
+  separate from the Qube research client and trading APIs.
 </Note>
 
-## Log in
+## Initialize with an API key
 
-Log in with the email and password of your TQX data account before you call a method:
+Pass the key and service base URL before calling a data method:
 
 ```python
 import tqx_data
 
-tqx_data.init_token(username="<data-account-email>", password="<password>")
+tqx_data.init(api_key="sk-tqx-...", base_url="https://tqxdata.tqx.ai")
 print(tqx_data.get_hk_daily(symbol=["0700.HK"], start_date="20260901", end_date="20260930"))
 ```
 
-In `tqx-data` 0.1.2, a login lasts only for the current Python process, so call `init_token` again in each new process. Keep the password out of source files and repositories.
+You can instead set `TQX_API_KEY` and `TQX_API_BASE_URL`, then call
+`tqx_data.init()`. The explicit `api_key` takes precedence over the
+environment variable. Never put the key in source files or repositories.
 
 ### Use tqx-data with a coding agent
 
@@ -41,16 +46,35 @@ Copy the following prompt into your coding agent:
 Read https://raw.githubusercontent.com/tqx-ai/tqx-ts/refs/heads/main/skills/tqx-data/SKILL.md, set up tqx-data on this computer, and show me the daily bars of 0700.HK for September 2026.
 ```
 
-The agent asks for your data account email and password once and saves them in your operating system's credential store, so later tasks don't ask again.
+The agent asks for the API key only when it is not already saved and does not
+repeat it in output.
 
 ## Qube and the PyPI package
 
-The methods on these pages follow the `tqx_data` built into Qube. The `tqx-data` 0.1.2 package on PyPI differs in these ways:
+The methods on these pages follow the `tqx_data` built into Qube. The local
+API-Key package differs in these ways:
 
-- Pages and methods marked **Qube only** aren't in the package: minute data, live minute data, tick data, technical indicators, backtest factors, and index components.
-- Every `market` parameter in the package takes `hk` or `nb`. Where these pages list `us`, for example in stock details, events, ownership, company metrics, and consensus, pass `nb` to the package instead.
-- The package's trading calendar takes `exchange="HK"` or `exchange="NB"` instead of `market`.
-- The package adds methods that these pages don't cover yet, such as `get_us_short_interest` and a real-time tick stream. Read the `tqx_data.md` file that is installed with the package.
+- Pages and methods marked **Qube only** are not in the local package: minute
+  bars, live minute bars, latest tick snapshots, indicator calculation, factors,
+  and index components.
+- The local package documents these methods:
+
+  `get_hk_daily`, `get_us_daily`, `get_stock_detail`,
+  `get_trading_calendar`, `get_currency`, `get_event_devidend`,
+  `get_event_capital_market`, `get_event_corporate_actions`,
+  `get_event_fina_disclosure`, `get_event_investor_relation_activities`,
+  `get_company_concentration`, `get_company_top_concentration`,
+  `get_company_investor`, `get_company_insider_transaction`,
+  `get_company_shareholder_report`, `get_company_price_vol`,
+  `get_company_oper_metrics`, `get_company_current`, `get_company_imed`,
+  `get_consensus_nonperiod`, `get_consensus_recommend`, and
+  `get_financial_statement`.
+
+- The local package also documents `TickStreamClient` for real-time tick
+  delivery. Its `tqx_data.md` file is the allowlist for supported method names,
+  parameters, and fields.
+- Source files may contain readers that are not in `tqx_data.md`; those readers
+  are not documented or supported for users.
 
 ## Use the data in backtests
 

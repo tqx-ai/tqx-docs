@@ -1,0 +1,79 @@
+---
+title: "Local tqx-data package"
+description: "Documented API-Key interface of the tqx-data package installed on your computer."
+zh-Hant_link: "/hk/data/local-package"
+---
+
+<Note>
+  This page describes the local package. The pages under the Data sections
+  describe the `tqx_data` environment available in Qube. Check the package's
+  installed `tqx_data.md` for field-level details and version-specific changes.
+</Note>
+
+## Initialize
+
+```python
+import tqx_data
+
+tqx_data.init(
+    api_key="sk-tqx-...",
+    base_url="https://tqxdata.tqx.ai",
+)
+```
+
+You can set `TQX_API_KEY` and `TQX_API_BASE_URL` instead, then call
+`tqx_data.init()`. Do not put an API key in source code or repositories.
+
+## Documented methods
+
+All tabular methods return a `pandas.DataFrame`. The returned columns are the
+fields requested through `fields`, together with the identifying columns that
+the method requires. Read the installed `tqx_data.md` for the complete field
+list of each method.
+
+| Method                                   | Parameters                                                                                        | Return                           |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------- | -------------------------------- |
+| `get_hk_daily`                           | `symbol`, `start_date`, `end_date`, `fields`                                                      | Daily Hong Kong stock data       |
+| `get_us_daily`                           | `symbol`, `start_date`, `end_date`, `fields`                                                      | Daily US stock data              |
+| `get_stock_detail`                       | `symbol`, `market`, `status`, `fields`                                                            | Stock reference data             |
+| `get_trading_calendar`                   | `start_date`, `end_date`, `market`, `is_trading_day`, `fields`                                    | Trading and non-trading dates    |
+| `get_currency`                           | `start_date`, `end_date`, `fields`                                                                | Currency rates                   |
+| `get_event_devidend`                     | `symbol`, `market`, `fields`, `start_date`, `end_date`                                            | Dividend and split events        |
+| `get_event_capital_market`               | `symbol`, `market`, `fields`, `start_date`, `end_date`                                            | Capital-market events            |
+| `get_event_corporate_actions`            | `symbol`, `market`, `fields`, `start_date`, `end_date`                                            | Corporate meeting events         |
+| `get_event_fina_disclosure`              | `symbol`, `market`, `fields`, `start_date`, `end_date`                                            | Financial disclosure events      |
+| `get_event_investor_relation_activities` | `symbol`, `market`, `fields`, `start_date`, `end_date`                                            | Investor-relations events        |
+| `get_company_concentration`              | `symbol`, `market`, `fields`                                                                      | Investor concentration           |
+| `get_company_top_concentration`          | `symbol`, `market`, `fields`                                                                      | Top-investor concentration       |
+| `get_company_investor`                   | `symbol`, `market`, `fields`, `max_rank`                                                          | Investor rankings                |
+| `get_company_insider_transaction`        | `symbol`, `market`, `fields`, `start_date`, `end_date`                                            | Insider transactions             |
+| `get_company_shareholder_report`         | `symbol`, `market`, `fields`, `start_date`, `end_date`                                            | Shareholder reports              |
+| `get_company_price_vol`                  | `symbol`, `market`, `fields`                                                                      | Company price and volume metrics |
+| `get_company_oper_metrics`               | `symbol`, `market`, `fields`, `start_year`, `end_year`                                            | Operating metrics                |
+| `get_company_current`                    | `symbol`, `market`, `fields`                                                                      | Current company metrics          |
+| `get_company_imed`                       | `symbol`, `market`, `fields`                                                                      | Industry median metrics          |
+| `get_consensus_nonperiod`                | `symbol`, `market`, `fields`                                                                      | Non-period consensus data        |
+| `get_consensus_recommend`                | `symbol`, `market`, `fields`                                                                      | Recommendation consensus         |
+| `get_financial_statement`                | `start_quarter`, `end_quarter`, `symbol`, `fields`, `market`, `date`, `is_latest`, `interim_type` | Financial statement rows         |
+
+For combined methods, use `market="hk"` for Hong Kong and `market="us"` for
+US data, including `get_financial_statement`. Some methods also accept `nb`
+for compatibility; use `us` in new code. Dates use `YYYYMMDD`; financial
+quarters use `YYYYqN`.
+
+## TickStreamClient
+
+`TickStreamClient` delivers real-time Tick messages over WebSocket. The
+constructor requires `market="HK"` or `market="US"`; use `.HK` symbols for Hong
+Kong and bare symbols such as `AAPL` for US stocks.
+
+```python
+from tqx_data import TickStreamClient
+
+client = TickStreamClient(market="HK")
+client.subscribe_tick(["0700.HK"])
+client.listen(handler=print)
+```
+
+The public controls are `subscribe_tick`, `unsubscribe_tick`, `listen`,
+`close`, `subscribed_symbols`, `is_running`, and `get_stats`.
