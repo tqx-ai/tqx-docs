@@ -10,23 +10,59 @@ en_link: "/data/utilities/currency"
 
 ### 入參
 
-| 欄位 | 類型 | 說明 | 是否必填 |
-|:---|:---|:---|:---|
-| start_date | Optional\[str\] | 開始日期,eg:"20250702" | 非必填 |
-| end_date | Optional\[str\] | 結束日期,eg:"20250702" | 非必填 |
-| fields | Optional\[Union\[str, List\[str\]\]\] | 匯率清單 | 非必填 |
+| 欄位       | 類型                                  | 說明                   | 是否必填 |
+| :--------- | :------------------------------------ | :--------------------- | :------- |
+| start_date | Optional\[str\]                       | 開始日期,eg:"20250702" | 非必填   |
+| end_date   | Optional\[str\]                       | 結束日期,eg:"20250702" | 非必填   |
+| fields     | Optional\[Union\[str, List\[str\]\]\] | 匯率清單               | 非必填   |
 
 ### 回應參數
 
-| 字段 | 類型 | 描述 |
-|:--------|:-------|:-------------|
-| date | str | 日期 |
-| CNY_HKD | double | 人民幣對港幣 |
-| CNY_USD | double | 人民幣對美元 |
-| HKD_USD | double | 港幣對美元 |
-| HKD_CNY | double | 港幣對人民幣 |
-| USD_CNY | double | 美元對人民幣 |
-| USD_HKD | double | 美元對港幣 |
+| 字段    | 類型   | 描述                 |
+| :------ | :----- | :------------------- |
+| date    | str    | 日期                 |
+| CNY_HKD | double | 人民幣對港幣         |
+| CNY_USD | double | 人民幣對美元         |
+| HKD_USD | double | 港幣對美元           |
+| HKD_CNY | double | 港幣對人民幣         |
+| USD_CNY | double | 美元對人民幣         |
+| USD_HKD | double | 美元對港幣           |
+| EUR_USD | double | 歐元對美元           |
+| USD_EUR | double | 美元對歐元           |
+| GBP_USD | double | 英鎊對美元           |
+| USD_GBP | double | 美元對英鎊           |
+| AUD_USD | double | 澳元對美元           |
+| USD_AUD | double | 美元對澳元           |
+| USD_CAD | double | 美元對加元           |
+| CAD_USD | double | 加元對美元           |
+| USD_CHF | double | 美元對瑞士法郎       |
+| CHF_USD | double | 瑞士法郎對美元       |
+| USD_JPY | double | 美元對日元           |
+| JPY_USD | double | 日元對美元           |
+| USD_SGD | double | 美元對新加坡元       |
+| SGD_USD | double | 新加坡元對美元       |
+| USD_ILS | double | 美元對以色列新謝克爾 |
+| ILS_USD | double | 以色列新謝克爾對美元 |
+| USD_PEN | double | 美元對秘魯索爾       |
+| PEN_USD | double | 秘魯索爾對美元       |
+| EUR_HKD | double | 歐元對港幣           |
+| HKD_EUR | double | 港幣對歐元           |
+| GBP_HKD | double | 英鎊對港幣           |
+| HKD_GBP | double | 港幣對英鎊           |
+| AUD_HKD | double | 澳元對港幣           |
+| HKD_AUD | double | 港幣對澳元           |
+| CAD_HKD | double | 加元對港幣           |
+| HKD_CAD | double | 港幣對加元           |
+| CHF_HKD | double | 瑞士法郎對港幣       |
+| HKD_CHF | double | 港幣對瑞士法郎       |
+| JPY_HKD | double | 日元對港幣           |
+| HKD_JPY | double | 港幣對日元           |
+| SGD_HKD | double | 新加坡元對港幣       |
+| HKD_SGD | double | 港幣對新加坡元       |
+| ILS_HKD | double | 以色列新謝克爾對港幣 |
+| HKD_ILS | double | 港幣對以色列新謝克爾 |
+| PEN_HKD | double | 秘魯索爾對港幣       |
+| HKD_PEN | double | 港幣對秘魯索爾       |
 
 ### 使用範例
 
@@ -41,4 +77,3 @@ result = tqx_data.get_currency(
 )
 print(result)
 ```
-

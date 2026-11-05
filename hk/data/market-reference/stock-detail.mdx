@@ -10,69 +10,68 @@ en_link: "/data/market-reference/stock-detail"
 
 ### 入參
 
-| **欄位** | **類型** | **描述** | **是否必填** |
-|:---|:---|:---|:---|
-| symbol | Optional\[Union\[str, List\[str\]\]\] | 股票代號 | 非必填 |
-| fields | Optional\[Union\[str, List\[str\]\]\] | 傳回欄位 | 非必填 |
-| market | Optional\[str\] | 市場，支援 `hk`、`us`，預設為 `hk` | 非必填 |
-| status | Optional\[int\] | 是否在市，1 -在市，0 -退市，-1 -未知 | 非必填 |
+| **欄位** | **類型**                              | **描述**                             | **是否必填** |
+| :------- | :------------------------------------ | :----------------------------------- | :----------- |
+| symbol   | Optional\[Union\[str, List\[str\]\]\] | 股票代號                             | 非必填       |
+| fields   | Optional\[Union\[str, List\[str\]\]\] | 傳回欄位                             | 非必填       |
+| market   | Optional\[str\]                       | 市場，支援 `hk`、`us`，預設為 `hk`   | 非必填       |
+| status   | Optional\[int\]                       | 是否在市，1 -在市，0 -退市，-1 -未知 | 非必填       |
 
 ### 回應參數
 
 #### hk對應參數
 
-| 字段 | 類型 | 描述 |
-|:------------------------|:-----|:-----------------|
-| symbol | str | 檔 |
-| name | str | 股票名稱 |
-| cn_name | str | 中文名稱 |
-| local_name | str | 本地組織名稱 |
-| status | int | 股票狀態 |
-| isin_code | str | 國際證券識別編碼 |
-| abbrev_symbol | str | 股票的名稱縮寫 |
-| min_order_amount | str | 一手對應多少股 |
-| trading_code | str | 交易代號 |
-| asset_state | str | 交易狀態 |
-| rcs_asset_category_name | str | 資產類別名稱 |
-| business_sector | str | 業務領域名稱 |
-| economic_sector | str | 經濟領域名稱 |
-| industry_group | str | 產業組名稱 |
-| incorp_date | str | 公司成立日期 |
-| office_address | str | 公司總部地址 |
-| office_city | str | 總部城市 |
-| office_country | str | 總部所在國家 |
-| office_region | str | 總部所在地區 |
-| postal_code | str | 總部郵遞區號 |
-| website | str | 公司網站 |
-| listed_date | str | 上市日期 |
+| 字段                    | 類型 | 描述             |
+| :---------------------- | :--- | :--------------- |
+| symbol                  | str  | 檔               |
+| name                    | str  | 股票名稱         |
+| cn_name                 | str  | 中文名稱         |
+| local_name              | str  | 本地組織名稱     |
+| status                  | int  | 股票狀態         |
+| isin_code               | str  | 國際證券識別編碼 |
+| abbrev_symbol           | str  | 股票的名稱縮寫   |
+| min_order_amount        | str  | 一手對應多少股   |
+| trading_code            | str  | 交易代號         |
+| rcs_asset_category_name | str  | 資產類別名稱     |
+| business_sector         | str  | 業務領域名稱     |
+| economic_sector         | str  | 經濟領域名稱     |
+| industry_group          | str  | 產業組名稱       |
+| incorp_date             | str  | 公司成立日期     |
+| office_address          | str  | 公司總部地址     |
+| office_city             | str  | 總部城市         |
+| office_country          | str  | 總部所在國家     |
+| office_region           | str  | 總部所在地區     |
+| postal_code             | str  | 總部郵遞區號     |
+| website                 | str  | 公司網站         |
+| listed_date             | str  | 上市日期         |
+| board_type              | str  | 板塊類別         |
+| delisted_date           | str  | 退市日期         |
 
 #### us對應參數
 
-| 字段 | 類型 | 描述 |
-|:------------------------|:-----|:-----------------|
-| symbol | str | 檔 |
-| original_symbol | str | 原始股票代號 |
-| name | str | 股票名稱 |
-| listed_date | str | 上市日期 |
-| local_name | str | 本地組織名稱 |
-| exchange_name | str | 交易所名稱 |
-| status | int | 股票狀態 |
-| isin_code | str | 國際證券識別編碼 |
-| abbrev_symbol | str | 股票的名稱縮寫 |
-| min_order_amount | str | 一手對應多少股 |
-| trading_code | str | 交易代號 |
-| asset_state | str | 交易狀態 |
-| rcs_asset_category_name | str | 資產類別名稱 |
-| business_sector | str | 業務領域名稱 |
-| economic_sector | str | 經濟領域名稱 |
-| industry_group | str | 產業組名稱 |
-| incorp_date | str | 公司成立日期 |
-| office_address | str | 公司總部地址 |
-| office_city | str | 總部城市 |
-| office_country | str | 總部所在國家 |
-| office_region | str | 總部所在地區 |
-| postal_code | str | 總部郵遞區號 |
-| website | str | 公司網站 |
+| 字段                    | 類型 | 描述             |
+| :---------------------- | :--- | :--------------- |
+| symbol                  | str  | 檔               |
+| name                    | str  | 股票名稱         |
+| listed_date             | str  | 上市日期         |
+| local_name              | str  | 本地組織名稱     |
+| exchange_name           | str  | 交易所名稱       |
+| status                  | int  | 股票狀態         |
+| isin_code               | str  | 國際證券識別編碼 |
+| abbrev_symbol           | str  | 股票的名稱縮寫   |
+| min_order_amount        | str  | 一手對應多少股   |
+| trading_code            | str  | 交易代號         |
+| rcs_asset_category_name | str  | 資產類別名稱     |
+| business_sector         | str  | 業務領域名稱     |
+| economic_sector         | str  | 經濟領域名稱     |
+| industry_group          | str  | 產業組名稱       |
+| incorp_date             | str  | 公司成立日期     |
+| office_address          | str  | 公司總部地址     |
+| office_city             | str  | 總部城市         |
+| office_country          | str  | 總部所在國家     |
+| office_region           | str  | 總部所在地區     |
+| postal_code             | str  | 總部郵遞區號     |
+| website                 | str  | 公司網站         |
 
 ### 使用範例
 
@@ -179,4 +178,3 @@ symbol
 7795 ZYRX.NB
 7796 ZYXIQ.NB
 ```
-

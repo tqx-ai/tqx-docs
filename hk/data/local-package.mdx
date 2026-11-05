@@ -1,0 +1,75 @@
+---
+title: "本機 tqx-data 套件"
+description: "安裝在本機的 tqx-data API Key 介面。"
+en_link: "/data/local-package"
+---
+
+<Note>
+  本頁說明本機套件。Data 分類下的其他頁面說明 Qube 內可用的 `tqx_data`
+  環境。欄位完整清單與版本差異請以套件內的 `tqx_data.md` 為準。
+</Note>
+
+## 初始化
+
+```python
+import tqx_data
+
+tqx_data.init(
+    api_key="sk-tqx-...",
+    base_url="https://tqxdata.tqx.ai",
+)
+```
+
+也可以設定 `TQX_API_KEY` 與 `TQX_API_BASE_URL`，再呼叫
+`tqx_data.init()`。請勿把 API Key 寫進原始碼或程式碼倉庫。
+
+## 文件化方法
+
+所有表格方法都回傳 `pandas.DataFrame`。回傳欄位由 `fields` 決定，並會
+保留方法需要的識別欄位。每個方法的完整欄位清單請閱讀已安裝套件內的
+`tqx_data.md`。
+
+| 方法                                     | 入參                                                                                              | 回傳             |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------- | ---------------- |
+| `get_hk_daily`                           | `symbol`、`start_date`、`end_date`、`fields`                                                      | 港股日線資料     |
+| `get_us_daily`                           | `symbol`、`start_date`、`end_date`、`fields`                                                      | 美股日線資料     |
+| `get_stock_detail`                       | `symbol`、`market`、`status`、`fields`                                                            | 股票參考資料     |
+| `get_trading_calendar`                   | `start_date`、`end_date`、`market`、`is_trading_day`、`fields`                                    | 交易日與非交易日 |
+| `get_currency`                           | `start_date`、`end_date`、`fields`                                                                | 匯率資料         |
+| `get_event_devidend`                     | `symbol`、`market`、`fields`、`start_date`、`end_date`                                            | 股息與拆合股事件 |
+| `get_event_capital_market`               | `symbol`、`market`、`fields`、`start_date`、`end_date`                                            | 資本市場事件     |
+| `get_event_corporate_actions`            | `symbol`、`market`、`fields`、`start_date`、`end_date`                                            | 公司會議事件     |
+| `get_event_fina_disclosure`              | `symbol`、`market`、`fields`、`start_date`、`end_date`                                            | 財務揭露事件     |
+| `get_event_investor_relation_activities` | `symbol`、`market`、`fields`、`start_date`、`end_date`                                            | 投資者關係事件   |
+| `get_company_concentration`              | `symbol`、`market`、`fields`                                                                      | 投資人集中度     |
+| `get_company_top_concentration`          | `symbol`、`market`、`fields`                                                                      | 前列投資人集中度 |
+| `get_company_investor`                   | `symbol`、`market`、`fields`、`max_rank`                                                          | 投資人排行       |
+| `get_company_insider_transaction`        | `symbol`、`market`、`fields`、`start_date`、`end_date`                                            | 內部人交易       |
+| `get_company_shareholder_report`         | `symbol`、`market`、`fields`、`start_date`、`end_date`                                            | 股東持股報告     |
+| `get_company_price_vol`                  | `symbol`、`market`、`fields`                                                                      | 公司價量指標     |
+| `get_company_oper_metrics`               | `symbol`、`market`、`fields`、`start_year`、`end_year`                                            | 營運指標         |
+| `get_company_current`                    | `symbol`、`market`、`fields`                                                                      | 公司最新指標     |
+| `get_company_imed`                       | `symbol`、`market`、`fields`                                                                      | 行業中位指標     |
+| `get_consensus_nonperiod`                | `symbol`、`market`、`fields`                                                                      | 非週期一致預期   |
+| `get_consensus_recommend`                | `symbol`、`market`、`fields`                                                                      | 買賣建議一致預期 |
+| `get_financial_statement`                | `start_quarter`、`end_quarter`、`symbol`、`fields`、`market`、`date`、`is_latest`、`interim_type` | 財務報表資料     |
+
+合併方法使用 `market="hk"` 查詢港股，使用 `market="us"` 查詢美股，財務報表
+方法亦然。部分方法也接受 `nb` 以相容舊寫法；新程式碼請使用 `us`。日期使用
+`YYYYMMDD`，財務季度使用 `YYYYqN`。
+
+## TickStreamClient
+
+`TickStreamClient` 透過 WebSocket 傳送即時 Tick 訊息。建構時必須指定
+`market="HK"` 或 `market="US"`；港股使用 `.HK`，美股使用 `AAPL` 等不帶後綴的代號。
+
+```python
+from tqx_data import TickStreamClient
+
+client = TickStreamClient(market="HK")
+client.subscribe_tick(["0700.HK"])
+client.listen(handler=print)
+```
+
+公開控制方法包括 `subscribe_tick`、`unsubscribe_tick`、`listen`、`close`、
+`subscribed_symbols`、`is_running` 和 `get_stats`。

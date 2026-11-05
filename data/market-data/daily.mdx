@@ -8,49 +8,49 @@ zh-Hant_link: "/hk/data/market-data/daily"
 
 ### Method name: get_hk_daily
 
-<Badge icon="calendar" stroke>History: 1980-01-02 ~ present</Badge>
+<Badge icon="calendar" stroke>
+  History: 1980-01-02 ~ present
+</Badge>
 
 ### Enter parameters
 
-| Field | Type | Description | Is it required |
-|:---|:---|:---|:---|
-| start_date | str | Start date, eg: "20250702", not more than 5 years from the end date | Required |
-| end_date | str | End date, eg: "20250702", not more than 5 years from the start date | Required |
-| symbol | Optional\[Union\[str, List\[str\]\]\] | Stock code | Optional |
-| fields | Optional\[Union\[str, List\[str\]\]\] | Return fields | Optional |
+| Field      | Type                                  | Description                                                         | Is it required |
+| :--------- | :------------------------------------ | :------------------------------------------------------------------ | :------------- |
+| start_date | str                                   | Start date, eg: "20250702", not more than 5 years from the end date | Required       |
+| end_date   | str                                   | End date, eg: "20250702", not more than 5 years from the start date | Required       |
+| symbol     | Optional\[Union\[str, List\[str\]\]\] | Stock code                                                          | Optional       |
+| fields     | Optional\[Union\[str, List\[str\]\]\] | Return fields                                                       | Optional       |
 
 ### Response parameters
 
-| Field | Type | Description |
-|:-------------|:-------|:----------------------|
-| date | str | trading day |
-| symbol | str | stock code |
-| open | str | opening price |
-| high | double | highest price |
-| low | double | lowest price |
-| close | double | theoretical closing price |
-| volume | double | trading volume |
-| pre_close | double | previous day's closing price |
-| name | str | stock name |
-| trade_status | int | Transaction status code |
-| alt_close | double | Alternate closing price, equal to close; not adjusted for dividends or splits |
-| acvol_uns | double | Number of shares traded (same as volume) |
-| bid | double | bid price |
-| ask | double | selling price |
-| vwap | double | volume weighted average price |
-| vwap_vol | double | Calculate the trading volume of VWAP |
-| opn_aucvol | double | Trading volume during the opening auction period |
-| opn_auc | double | opening auction period price |
-| lmt_refpr2 | double | limit reference price |
-| lolimit | double | price lower limit |
-| uplimit | double | price upper limit |
-| lolimit_2 | double | Secondary price lower limit |
-| uplimit_2 | double | Secondary price limit |
-| navalue | double | net asset value |
-| num_moves | double | number of transactions |
-| uplimit_3 | double | Three-level price limit |
-| lolimit_3 | double | Level three price lower limit |
-| cls_aucvol | double | Closing auction period trading volume |
+| Field        | Type   | Description                                                                   |
+| :----------- | :----- | :---------------------------------------------------------------------------- |
+| date         | str    | trading day                                                                   |
+| symbol       | str    | stock code                                                                    |
+| open         | str    | opening price                                                                 |
+| high         | double | highest price                                                                 |
+| low          | double | lowest price                                                                  |
+| close        | double | theoretical closing price                                                     |
+| volume       | double | trading volume                                                                |
+| pre_close    | double | previous day's closing price                                                  |
+| name         | str    | stock name                                                                    |
+| trade_status | int    | Transaction status code                                                       |
+| alt_close    | double | Alternate closing price, equal to close; not adjusted for dividends or splits |
+| bid          | double | bid price                                                                     |
+| ask          | double | selling price                                                                 |
+| vwap         | double | volume weighted average price                                                 |
+| vwap_vol     | double | Calculate the trading volume of VWAP                                          |
+| opn_aucvol   | double | Trading volume during the opening auction period                              |
+| opn_auc      | double | opening auction period price                                                  |
+| lmt_refpr2   | double | limit reference price                                                         |
+| lolimit      | double | price lower limit                                                             |
+| uplimit      | double | price upper limit                                                             |
+| lolimit_2    | double | Secondary price lower limit                                                   |
+| uplimit_2    | double | Secondary price limit                                                         |
+| num_moves    | double | number of transactions                                                        |
+| uplimit_3    | double | Three-level price limit                                                       |
+| lolimit_3    | double | Level three price lower limit                                                 |
+| cls_aucvol   | double | Closing auction period trading volume                                         |
 
 ### Usage examples
 
@@ -128,38 +128,39 @@ symbol date ask bid vwap
 
 ### Method name: get_us_daily
 
-<Badge icon="calendar" stroke>History: 2014-03-07 ~ present</Badge>
+<Badge icon="calendar" stroke>
+  History: 2014-03-07 ~ present
+</Badge>
 
 ### Enter parameters
 
-| Field | Type | Description | Is it required |
-|:---|:---|:---|:---|
-| start_date | str | Start date, eg: "20250702", not more than 5 years from the end date | Required |
-| end_date | str | End date, eg: "20250702", not more than 5 years from the start date | Required |
-| symbol | Optional\[Union\[str, List\[str\]\]\] | Stock code | Optional |
-| fields | Optional\[Union\[str, List\[str\]\]\] | Return fields | Optional |
+| Field      | Type                                  | Description                                                         | Is it required |
+| :--------- | :------------------------------------ | :------------------------------------------------------------------ | :------------- |
+| start_date | str                                   | Start date, eg: "20250702", not more than 5 years from the end date | Required       |
+| end_date   | str                                   | End date, eg: "20250702", not more than 5 years from the start date | Required       |
+| symbol     | Optional\[Union\[str, List\[str\]\]\] | Stock code                                                          | Optional       |
+| fields     | Optional\[Union\[str, List\[str\]\]\] | Return fields                                                       | Optional       |
 
 ### Response parameters
 
-| Field | Type | Description |
-|:-------------|:-------|:-----------------|
-| date | str | trading day |
-| symbol | str | stock code |
-| open | str | opening price |
-| high | double | highest price |
-| low | double | lowest price |
-| close | double | theoretical closing price |
-| volume | double | trading volume |
-| pre_close | double | previous day's closing price |
-| name | str | stock name |
-| trade_status | int | Transaction status code |
-| blkcount | double | number of large transactions |
-| blkvolum | double | block volume number |
-| bid | double | bid price |
-| ask | double | selling price |
-| vwap | double | volume weighted average price |
-| num_moves | double | number of transactions |
-| amount | double | transaction amount |
+| Field        | Type   | Description                   |
+| :----------- | :----- | :---------------------------- |
+| date         | str    | trading day                   |
+| symbol       | str    | stock code                    |
+| open         | str    | opening price                 |
+| high         | double | highest price                 |
+| low          | double | lowest price                  |
+| close        | double | theoretical closing price     |
+| volume       | double | trading volume                |
+| pre_close    | double | previous day's closing price  |
+| name         | str    | stock name                    |
+| trade_status | int    | Transaction status code       |
+| blkcount     | double | number of large transactions  |
+| blkvolum     | double | block volume number           |
+| bid          | double | bid price                     |
+| ask          | double | selling price                 |
+| vwap         | double | volume weighted average price |
+| num_moves    | double | number of transactions        |
 
 ### Usage examples
 
@@ -251,4 +252,3 @@ symbol date volume close pre_close
 38 AAPL.NB 20250130 55658279.0 237.59 239.36
 39 AAPL.NB 20250131 101075128.0 236.00 237.59
 ```
-

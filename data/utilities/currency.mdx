@@ -10,23 +10,59 @@ zh-Hant_link: "/hk/data/utilities/currency"
 
 ### Enter parameters
 
-| Field | Type | Description | Is it required |
-|:---|:---|:---|:---|
-| start_date | Optional\[str\] | Start date,eg:"20250702" | Optional |
-| end_date | Optional\[str\] | End date,eg:"20250702" | Optional |
-| fields | Optional\[Union\[str, List\[str\]\]\] | Exchange rate list | Optional |
+| Field      | Type                                  | Description              | Is it required |
+| :--------- | :------------------------------------ | :----------------------- | :------------- |
+| start_date | Optional\[str\]                       | Start date,eg:"20250702" | Optional       |
+| end_date   | Optional\[str\]                       | End date,eg:"20250702"   | Optional       |
+| fields     | Optional\[Union\[str, List\[str\]\]\] | Exchange rate list       | Optional       |
 
 ### Response parameters
 
-| Field | Type | Description |
-|:--------|:-------|:-------------|
-| date | str | date |
-| CNY_HKD | double | RMB to Hong Kong dollar |
-| CNY_USD | double | RMB to US dollar |
-| HKD_USD | double | Hong Kong dollar to US dollar |
-| HKD_CNY | double | Hong Kong dollar to Chinese yuan |
-| USD_CNY | double | US dollar to Chinese yuan |
-| USD_HKD | double | US dollar to Hong Kong dollar |
+| Field   | Type   | Description                            |
+| :------ | :----- | :------------------------------------- |
+| date    | str    | date                                   |
+| CNY_HKD | double | RMB to Hong Kong dollar                |
+| CNY_USD | double | RMB to US dollar                       |
+| HKD_USD | double | Hong Kong dollar to US dollar          |
+| HKD_CNY | double | Hong Kong dollar to Chinese yuan       |
+| USD_CNY | double | US dollar to Chinese yuan              |
+| USD_HKD | double | US dollar to Hong Kong dollar          |
+| EUR_USD | double | Euro to US dollar                      |
+| USD_EUR | double | US dollar to euro                      |
+| GBP_USD | double | Pound sterling to US dollar            |
+| USD_GBP | double | US dollar to pound sterling            |
+| AUD_USD | double | Australian dollar to US dollar         |
+| USD_AUD | double | US dollar to Australian dollar         |
+| USD_CAD | double | US dollar to Canadian dollar           |
+| CAD_USD | double | Canadian dollar to US dollar           |
+| USD_CHF | double | US dollar to Swiss franc               |
+| CHF_USD | double | Swiss franc to US dollar               |
+| USD_JPY | double | US dollar to Japanese yen              |
+| JPY_USD | double | Japanese yen to US dollar              |
+| USD_SGD | double | US dollar to Singapore dollar          |
+| SGD_USD | double | Singapore dollar to US dollar          |
+| USD_ILS | double | US dollar to Israeli new shekel        |
+| ILS_USD | double | Israeli new shekel to US dollar        |
+| USD_PEN | double | US dollar to Peruvian sol              |
+| PEN_USD | double | Peruvian sol to US dollar              |
+| EUR_HKD | double | Euro to Hong Kong dollar               |
+| HKD_EUR | double | Hong Kong dollar to euro               |
+| GBP_HKD | double | Pound sterling to Hong Kong dollar     |
+| HKD_GBP | double | Hong Kong dollar to pound sterling     |
+| AUD_HKD | double | Australian dollar to Hong Kong dollar  |
+| HKD_AUD | double | Hong Kong dollar to Australian dollar  |
+| CAD_HKD | double | Canadian dollar to Hong Kong dollar    |
+| HKD_CAD | double | Hong Kong dollar to Canadian dollar    |
+| CHF_HKD | double | Swiss franc to Hong Kong dollar        |
+| HKD_CHF | double | Hong Kong dollar to Swiss franc        |
+| JPY_HKD | double | Japanese yen to Hong Kong dollar       |
+| HKD_JPY | double | Hong Kong dollar to Japanese yen       |
+| SGD_HKD | double | Singapore dollar to Hong Kong dollar   |
+| HKD_SGD | double | Hong Kong dollar to Singapore dollar   |
+| ILS_HKD | double | Israeli new shekel to Hong Kong dollar |
+| HKD_ILS | double | Hong Kong dollar to Israeli new shekel |
+| PEN_HKD | double | Peruvian sol to Hong Kong dollar       |
+| HKD_PEN | double | Hong Kong dollar to Peruvian sol       |
 
 ### Usage examples
 
@@ -41,4 +77,3 @@ result = tqx_data.get_currency(
 )
 print(result)
 ```
-

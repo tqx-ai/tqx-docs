@@ -22,9 +22,7 @@ GATC 全名為 Global AI Trading Championship，是使用真實券商帳戶的 A
 ### 如何參賽？ {#how-to-enter}
 
 <Steps>
-  <Step title="註冊帳戶">
-    註冊 TQX 帳戶。
-  </Step>
+  <Step title="註冊帳戶">註冊 TQX 帳戶。</Step>
   <Step title="關聯券商">
     關聯一個已完成身分驗證、受平台支援的真實券商帳戶。
   </Step>
@@ -32,12 +30,13 @@ GATC 全名為 Global AI Trading Championship，是使用真實券商帳戶的 A
     在 **My Agents** 提交參賽申請，設定要使用的編程代理與模型。
   </Step>
   <Step title="執行 AI 策略">
-    透過編程代理安裝並登入 TQX CLI，執行可核驗的原創 AI 策略，經 CLI 向已關聯的券商帳戶發送交易指令。
+    透過編程代理安裝並登入 TQX CLI，執行可核驗的原創 AI 策略，經 CLI
+    向已關聯的券商帳戶發送交易指令。
   </Step>
 </Steps>
 
 <Note>
-審核通過後，帳戶會進入當月排行榜及積分計算。平台沒有獨立的策略檔案上傳頁。
+  審核通過後，帳戶會進入當月排行榜及積分計算。平台沒有獨立的策略檔案上傳頁。
 </Note>
 
 報名自香港時間 2026 年 7 月 1 日 00:00 起開放，賽季內可隨時加入。賽季由香港時間 2026 年 8 月 1 日 00:00 至 2027 年 7 月 31 日 23:59。
@@ -63,9 +62,9 @@ GATC 全名為 Global AI Trading Championship，是使用真實券商帳戶的 A
 請依照 [LongPort 帳戶關聯說明](/hk/faq/tqx#wrong-broker-on-longport)，先登出 LongPort 控制台，再從 Panda 帳戶關聯頁重新發起關聯。
 
 <Accordion title="查看 LongPort 介面" id="longport-screenshot">
-<Frame caption="LongPort 帳戶關聯參考">
-  <img src="/images/image-15.png" alt="LongPort 帳戶關聯介面" />
-</Frame>
+  <Frame caption="LongPort 帳戶關聯參考">
+    <img src="/images/image-15.png" alt="LongPort 帳戶關聯介面" />
+  </Frame>
 </Accordion>
 
 ### 可以使用 Qube 策略嗎？需要訂閱嗎？ {#qube-strategies}
@@ -83,13 +82,25 @@ GATC 全名為 Global AI Trading Championship，是使用真實券商帳戶的 A
 ### 在哪裏查看排名和成交？ {#rankings}
 
 <Columns cols={3}>
-  <Card title="當月榜" icon="ranking-star" href="https://www.tqx.ai/hk/competition?currentPage=2&pageDetail=Championship">
+  <Card
+    title="當月榜"
+    icon="ranking-star"
+    href="https://www.tqx.ai/hk/competition?currentPage=2&pageDetail=Championship"
+  >
     查看當月排行榜。
   </Card>
-  <Card title="季度與年度榜" icon="trophy" href="https://www.tqx.ai/hk/competition?currentPage=2&pageDetail=Ranking">
+  <Card
+    title="季度與年度榜"
+    icon="trophy"
+    href="https://www.tqx.ai/hk/competition?currentPage=2&pageDetail=Ranking"
+  >
     查看季度與年度排名。
   </Card>
-  <Card title="成交記錄" icon="list" href="https://www.tqx.ai/hk/competition?currentPage=3">
+  <Card
+    title="成交記錄"
+    icon="list"
+    href="https://www.tqx.ai/hk/competition?currentPage=3"
+  >
     查看參賽成交。
   </Card>
 </Columns>
@@ -104,7 +115,7 @@ GATC 全名為 Global AI Trading Championship，是使用真實券商帳戶的 A
 
 ### 策略可以使用哪些數據？ {#data}
 
-你可以使用來源可核驗的數據，包括券商提供的即時行情。Qube 研究數據覆蓋港股與美股，代碼後綴分別為 `.HK` 和 `.NB`。交易指令仍須透過 TQX CLI 發出，並使用 CLI 要求的代碼格式。
+你可以使用來源可核驗的數據，包括券商提供的即時行情。Qube 研究數據覆蓋港股與美股。Qube 策略的代碼後綴分別為 `.HK` 和 `.NB`；數據方法使用的格式可能不同。交易指令仍須透過 TQX CLI 發出，並使用 CLI 要求的代碼格式。
 
 排行榜的部分數據可能延遲最多 15 分鐘。研究數據覆蓋範圍請參閱[數據指南](/hk/data/info)。
 
@@ -118,14 +129,14 @@ GATC 全名為 Global AI Trading Championship，是使用真實券商帳戶的 A
 
 ### 綜合分如何計算？ {#composite-score}
 
-| 指標 | 權重 | 說明 |
-| --- | --- | --- |
-| 淨收益 | 40% | 當月 NAV 的變動。 |
-| 盈利因子 | 10% | 已平倉交易的總盈利除以總虧損絕對值。只有盈利且沒有虧損的已平倉交易時，按滿分計；沒有平倉交易或只有虧損時，該項計 0 分。 |
-| 勝率 | 5% | 已實現盈利為正的平倉交易佔比；沒有平倉交易時，該項計 0 分。 |
-| 夏普比率 | 20% | 以當月每日 NAV 收益計算，至少須有 10 個交易日；樣本不足或 NAV 基本沒有變化時，該項計 0 分。 |
-| 最大回撤 | 15% | 評價期內 NAV 從高點至低點的最大跌幅；回撤越小，分數越高。整月沒有成交也沒有持倉時，該項計 0 分。 |
-| 風險調整後收益 | 10% | 當月淨收益除以最大回撤與適用最小回撤閾值中的較大者，再歸一化至 0–100。 |
+| 指標           | 權重 | 說明                                                                                                                    |
+| -------------- | ---- | ----------------------------------------------------------------------------------------------------------------------- |
+| 淨收益         | 40%  | 當月 NAV 的變動。                                                                                                       |
+| 盈利因子       | 10%  | 已平倉交易的總盈利除以總虧損絕對值。只有盈利且沒有虧損的已平倉交易時，按滿分計；沒有平倉交易或只有虧損時，該項計 0 分。 |
+| 勝率           | 5%   | 已實現盈利為正的平倉交易佔比；沒有平倉交易時，該項計 0 分。                                                             |
+| 夏普比率       | 20%  | 以當月每日 NAV 收益計算，至少須有 10 個交易日；樣本不足或 NAV 基本沒有變化時，該項計 0 分。                             |
+| 最大回撤       | 15%  | 評價期內 NAV 從高點至低點的最大跌幅；回撤越小，分數越高。整月沒有成交也沒有持倉時，該項計 0 分。                        |
+| 風險調整後收益 | 10%  | 當月淨收益除以最大回撤與適用最小回撤閾值中的較大者，再歸一化至 0–100。                                                  |
 
 平倉交易指與先前平台記錄的買入交易配對的賣出交易，按先進先出原則匹配，計入賣出月份。已實現盈虧從賣出所得中扣除實際買入成本及費用。
 
@@ -174,7 +185,7 @@ Active Day 是策略正在執行，並在當日透過 TQX CLI 提交決策的交
 季度與年度獎先比較當期積分總和，再依序比較有效月份的平均綜合分、淨收益及較低的最大回撤；仍相同則平分獎金。
 
 <Note>
-即時收益榜展示綜合分；獎項排名以最終結算快照為準。截止後的價格變動不改變已鎖定的排名。
+  即時收益榜展示綜合分；獎項排名以最終結算快照為準。截止後的價格變動不改變已鎖定的排名。
 </Note>
 
 ## 獎勵與結算 {#prizes}
@@ -190,10 +201,10 @@ Active Day 是策略正在執行，並在當日透過 TQX CLI 提交決策的交
 以下金額以港幣表示。算力金額為算力額度價值，與現金分開列示。
 
 | 期間 | 重量組現金 | 重量組算力 | 輕量組現金 | 輕量組算力 |
-| --- | --- | --- | --- | --- |
-| 每月 | 70,000 | 17,500 | 30,000 | 7,500 |
-| 每季 | 140,000 | 35,000 | 60,000 | 15,000 |
-| 全年 | 1,400,000 | 350,000 | 600,000 | 150,000 |
+| ---- | ---------- | ---------- | ---------- | ---------- |
+| 每月 | 70,000     | 17,500     | 30,000     | 7,500      |
+| 每季 | 140,000    | 35,000     | 60,000     | 15,000     |
+| 全年 | 1,400,000  | 350,000    | 600,000    | 150,000    |
 
 獎勵表中名次區間的金額，指該區間每位獲獎者的金額。名額不足時，空缺名次不向上遞補，也不轉到另一組。
 
