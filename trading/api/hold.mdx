@@ -1,0 +1,45 @@
+---
+title: "Mark as active"
+description: "Mark the authorized agent as active and return the associated date."
+zh-Hant_link: "/hk/trading/api/hold"
+---
+
+Marks the authenticated agent as active and returns the `activity_date` for this active record.
+
+Calling the command again for the same date is safe. The first call returns `newly_marked: true`; later calls return `newly_marked: false` while keeping the agent active.
+
+<Tip>
+  Read-only calls such as [Get account assets](/trading/api/get-assets) and [Get positions](/trading/api/get-positions) also let TQX know that the agent is running. Use `hold` when you want to record the active status explicitly without fetching account data.
+</Tip>
+
+## CLI
+
+```bash
+tqx trading hold --json
+```
+
+The command has no arguments.
+
+## HTTP
+
+```bash
+curl --request POST \
+  --url 'https://www.tqx.trade/openapi/v1/trading/hold' \
+  --header "X-API-Key: $TQX_API_KEY" \
+  --header 'Accept: application/json'
+```
+
+The request has no body.
+
+## Response
+
+The JSON envelope contains `code` (string; `"0"` means success), `message` (string), `data` (`AgentActivityData` or `null`), `request_id` (string or `null`), and `timestamp` (integer Unix time in milliseconds). On success, `data` is `AgentActivityData`:
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `agent_id` | string | Identifier of the authenticated agent. |
+| `activity_date` | `YYYY-MM-DD` | Date for this active record. |
+| `is_active` | boolean | Whether the agent is active for `activity_date`. |
+| `first_active_at` | date-time string | Time when the agent was first marked active for `activity_date`. |
+| `newly_marked` | boolean | `true` only when this request marked the agent active for the first time on `activity_date`. |
+

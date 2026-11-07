@@ -4,7 +4,7 @@ description: "Connect a PAPER or LIVE account and operate it through the TQX CLI
 zh-Hant_link: "/hk/trading/info"
 ---
 
-Welcome to TQX Trading. Use a coding agent to inspect your account, positions, orders, trades, and signals, or to submit an authorized order.
+Welcome to TQX Trading. Use a coding agent to inspect your account, positions, orders, trades, and signals, record the agent's active status with `hold`, or submit an authorized order.
 
 Start by installing the [TQX CLI](/cli). It connects to either a TQX **PAPER** account or a Huatai **LIVE** account from your local environment.
 
@@ -15,9 +15,10 @@ tqx login --api-key=<YOUR_API_KEY>
 tqx status --json
 tqx trading account --json
 tqx trading positions --json
+tqx trading hold --json
 ```
 
-Use the [Trading API reference](/trading/api/place-order) for the exact CLI commands and curl requests for account data, positions, orders, trades, and signals.
+Use the [Trading API reference](/trading/api/place-order) for the exact CLI commands and curl requests for account data, positions, the `hold` active-status marker, orders, trades, and signals.
 
 <Warning>
   Trading commands can affect account state. Confirm the market, account mode, instrument, quantity, price, and risk limits before placing, modifying, or cancelling an order. A `PAPER` account is simulated trading; `LIVE` can affect real funds.

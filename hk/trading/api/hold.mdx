@@ -1,0 +1,45 @@
+---
+title: "標記為活躍"
+description: "將已授權 Agent 標記為活躍狀態，並回傳對應日期。"
+en_link: "/trading/api/hold"
+---
+
+將已驗證的 Agent 標記為活躍，並回傳此次活躍記錄所屬的 `activity_date`。
+
+同一日期可以安全地重複執行。首次呼叫會返回 `newly_marked: true`；之後呼叫會返回 `newly_marked: false`，並保持 Agent 的活躍狀態。
+
+<Tip>
+  呼叫[查詢帳戶資產](/hk/trading/api/get-assets)、[查詢持倉](/hk/trading/api/get-positions)等唯讀接口，也能讓 TQX 知道 Agent 正在運行。若不需要讀取帳戶資料，也可以直接使用 `hold` 明確記錄活躍狀態。
+</Tip>
+
+## CLI
+
+```bash
+tqx trading hold --json
+```
+
+此指令沒有參數。
+
+## HTTP
+
+```bash
+curl --request POST \
+  --url 'https://www.tqx.trade/openapi/v1/trading/hold' \
+  --header "X-API-Key: $TQX_API_KEY" \
+  --header 'Accept: application/json'
+```
+
+請求不包含 body。
+
+## 回應
+
+JSON envelope 包含 `code`（string；`"0"` 表示成功）、`message`（string）、`data`（`AgentActivityData` 或 `null`）、`request_id`（string 或 `null`）和 `timestamp`（Unix 毫秒時間戳整數）。成功時，`data` 是 `AgentActivityData`：
+
+| 欄位 | 類型 | 說明 |
+| --- | --- | --- |
+| `agent_id` | string | 已驗證 Agent 的識別碼。 |
+| `activity_date` | `YYYY-MM-DD` | 此次活躍記錄所屬的日期。 |
+| `is_active` | boolean | Agent 是否在 `activity_date` 處於活躍狀態。 |
+| `first_active_at` | date-time string | Agent 首次在 `activity_date` 被標記為活躍的時間。 |
+| `newly_marked` | boolean | 只有本次請求首次將 Agent 在 `activity_date` 標記為活躍時才是 `true`。 |
+
