@@ -20,29 +20,28 @@ In the web workspace, open the factor, go to **Versions**, and select the versio
 
 With the CLI or SDK, read the current factor revisions first:
 
-<Tabs>
-  <Tab title="CLI">
-    ```bash
-    tqx research factor info <factor-id> --json
-    ```
+For the CLI, find `source_revision` and `config_revision` in the first command’s output, then fill in the corresponding restore parameters.
 
-    Find `source_revision` and `config_revision` in the output. Pass them as `--expectedSourceRevision` and `--expectedConfigRevision` in the restore command.
+<CodeGroup>
 
-    ```text
-    tqx research factor version-restore <factor-id> <version-id> --expectedSourceRevision=<source_revision> --expectedConfigRevision=<config_revision>
-    ```
-  </Tab>
-  <Tab title="TypeScript SDK">
-    ```typescript
-    const current = await client.research.getFactor(factorId)
-    const restored = await client.research.restoreFactorVersion(factorId, versionId, {
-      requestId: crypto.randomUUID(),
-      expectedSourceRevision: current.source_revision,
-      expectedConfigRevision: current.config_revision,
-    })
-    ```
-  </Tab>
-</Tabs>
+```bash CLI
+tqx research factor info <factor-id> --json
+
+tqx research factor version-restore <factor-id> <version-id> \
+  --expectedSourceRevision=<source_revision> \
+  --expectedConfigRevision=<config_revision>
+```
+
+```typescript TypeScript SDK
+const current = await client.research.getFactor(factorId)
+const restored = await client.research.restoreFactorVersion(factorId, versionId, {
+  requestId: crypto.randomUUID(),
+  expectedSourceRevision: current.source_revision,
+  expectedConfigRevision: current.config_revision,
+})
+```
+
+</CodeGroup>
 
 Restore atomically replaces current source and full configuration, then revalidates them. It neither executes a new run nor automatically creates a backup version.
 

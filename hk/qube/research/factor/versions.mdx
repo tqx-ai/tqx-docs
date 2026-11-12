@@ -20,29 +20,28 @@ related: ["/hk/qube/research/factor","/hk/qube/api/runs"]
 
 使用 CLI 或 SDK 時，先讀取目前因子的修訂號：
 
-<Tabs>
-  <Tab title="CLI">
-    ```bash
-    tqx research factor info <factor-id> --json
-    ```
+使用 CLI 時，在第一個指令的輸出中找到 `source_revision` 及 `config_revision`，再填入還原指令的對應參數。
 
-    在輸出中找到 `source_revision` 及 `config_revision`，分別填入還原指令的 `--expectedSourceRevision` 及 `--expectedConfigRevision`。
+<CodeGroup>
 
-    ```text
-    tqx research factor version-restore <factor-id> <version-id> --expectedSourceRevision=<source_revision> --expectedConfigRevision=<config_revision>
-    ```
-  </Tab>
-  <Tab title="TypeScript SDK">
-    ```typescript
-    const current = await client.research.getFactor(factorId)
-    const restored = await client.research.restoreFactorVersion(factorId, versionId, {
-      requestId: crypto.randomUUID(),
-      expectedSourceRevision: current.source_revision,
-      expectedConfigRevision: current.config_revision,
-    })
-    ```
-  </Tab>
-</Tabs>
+```bash CLI
+tqx research factor info <factor-id> --json
+
+tqx research factor version-restore <factor-id> <version-id> \
+  --expectedSourceRevision=<source_revision> \
+  --expectedConfigRevision=<config_revision>
+```
+
+```typescript TypeScript SDK
+const current = await client.research.getFactor(factorId)
+const restored = await client.research.restoreFactorVersion(factorId, versionId, {
+  requestId: crypto.randomUUID(),
+  expectedSourceRevision: current.source_revision,
+  expectedConfigRevision: current.config_revision,
+})
+```
+
+</CodeGroup>
 
 還原會一次替換目前原始碼及完整設定，然後重新驗證；不會執行新任務，也不會自動建立備份版本。
 
