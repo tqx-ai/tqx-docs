@@ -1,31 +1,31 @@
-﻿---
-title: "Index components"
-description: "Retrieve Hong Kong and US index constituent information."
-zh-Hant_link: "/hk/data/market-reference/index-components"
+---
+title: Index components
+description: Retrieve Hong Kong and US index constituent information.
+zh-Hant_link: /hk/data/market-reference/index-components
 ---
 
 <Note>
-  The methods on this page are available only in Qube. The `tqx-data` package on PyPI doesn't include them.
+  These methods are available in the [Qube sandbox](/data/qube-runtime). They are unavailable in the [local `tqx-data` package](/data/local-package).
 </Note>
 
 ## Obtain information on Hong Kong and US stock index constituents
 
-### Method name: get_index_component
+### Method name: get\_index\_component
 
-<Badge icon="cloud" color="blue">Qube only</Badge>
+<Badge color="blue" icon="cloud">Qube only</Badge>
 
 ### Enter parameters
 
 | Field | Type | Description | Is it required |
-|:---|:---|:---|:---|
-| stock_symbol | Optional\[Union\[str, List\[str\]\]\] | Stock code | Optional |
-| index_symbol | Optional\[Union\[str, List\[str\]\]\] | Index code | Optional |
-| market | str | Market, supports `hk`, `us`, default is `hk` | required |
+| :-- | :-- | :-- | :-- |
+| stock\_symbol | Optional\[Union\[str, List\[str\]\]\] | Stock code | Optional |
+| index\_symbol | Optional\[Union\[str, List\[str\]\]\] | Index code | Optional |
+| market | str | Market: `hk` or `us`; defaults to `hk`. | Optional |
 
 Supported index list:
 
-|            |                                     |
-|:-----------|:------------------------------------|
+|  |  |
+| :-- | :-- |
 | Index Code | Name |
 | HSCC | Hang Seng CC Index |
 | HSCE | Hang Seng China Enterprises Index |
@@ -46,7 +46,7 @@ Supported index list:
 | HSC50 | Hang Seng China 50 Index |
 | HSCAHAI | Hang Seng Southbound China AH Shares (A Shares) Index |
 | HSCAHHI | Hang Seng Southbound China AH Shares (H Shares) Index |
-| HSCAHI | Hang Seng Southbound China AH Shares (A+H Shares) Index |
+| HSCAHI | Hang Seng Southbound China AH Shares (A\+H Shares) Index |
 | HSCAHPI | Hang Seng Southbound China AH Shares Premium Index |
 | HSCIC | Hang Seng Composite Index |
 | HSCIF | Hang Seng Financial Industry Index |
@@ -116,11 +116,11 @@ Supported index list:
 ### Response parameters
 
 | Field | Type | Description |
-|:-------------|:-----|:---------------|
-| index_symbol | str | index code |
-| stock_symbol | str | stock symbol |
-| added_date | str | date of inclusion into constituent stocks |
-| deleted_date | str | date of deletion of constituent stocks |
+| :-- | :-- | :-- |
+| index\_symbol | str | index code |
+| stock\_symbol | str | stock symbol |
+| added\_date | str | date of inclusion into constituent stocks |
+| deleted\_date | str | date of deletion of constituent stocks |
 
 ### Usage examples
 
@@ -152,4 +152,3 @@ index_symbol stock_symbol added_date deleted_date
 6656 SPHKL 9992.HK 20210118 None
 6657 SPHKL 9999.HK 20210118 None
 ```
-

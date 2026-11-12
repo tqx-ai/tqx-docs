@@ -1,0 +1,27 @@
+---
+title: 什麼是策略？
+sidebarTitle: 什麼是策略？
+description: 先用簡單例子了解策略，再認識 Qube 如何驗證、回測、保存版本及調優策略。
+en_link: /qube/research/strategy
+related: ["/hk/qube/research/strategy/create","/hk/qube/research/strategy/code","/hk/qube/research/strategy/backtest"]
+---
+
+想像一份決定投資的方法：要買什麼、持有多少、何時調整，以及如何計算成本。策略就是把這份方法寫成可以重複測試的規則。回測會用歷史數據走過這些規則，讓你檢查當時可能出現的結果。
+
+在 Qube 中，策略把訊號、持倉、下單、成本假設和風險規則組合起來。Qube 會驗證原始碼，再由策略回測引擎使用單一市場的歷史數據執行回測，並記錄權益、交易、成本、日誌及失敗原因。這個環境與用於對話和工作區任務的 [Qube 沙箱](/hk/data/qube-runtime) 分開。回測不會向你的交易帳戶下單。
+
+## Qube 的策略流程
+
+1. [建立](/hk/qube/research/strategy/create) `hk` 或 `us` 策略，填寫 `title` 及 `description`。
+2. [撰寫及驗證原始碼](/hk/qube/research/strategy/code)，並儲存有效的回測設定。
+3. [提交回測](/hk/qube/research/strategy/backtest)。每次執行會固定兩個修訂及任何因子綁定。
+4. 檢查權益、交易、成本、日誌及失敗原因。
+5. 從成功的一般執行 [建立命名版本](/hk/qube/research/strategy/versions)。
+6. [調優](/hk/qube/research/strategy/optimization) 有限的數值參數，並重新驗證。
+
+| 市場 | 策略代碼 | 引擎歷史模組 |
+| --- | --- | --- |
+| 港股 | `0700.HK` | [`stock_hk_api`](https://github.com/tqx-ai/tqx-ts/blob/main/skills/tqx-research/references/stock_hk_api.md) |
+| 美股 | `AAPL.NB` | [`stock_us_api`](https://github.com/tqx-ai/tqx-ts/blob/main/skills/tqx-research/references/stock_us_api.md) |
+
+原始碼與設定修訂各自推進。儲存不等於執行，命名版本也不會自動建立。你可以透過 [策略 API](/hk/qube/api/strategies) 頁面中的 CLI 或 SDK 操作同一資產。

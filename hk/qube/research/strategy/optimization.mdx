@@ -1,0 +1,19 @@
+---
+title: 參數調優
+en_link: /qube/research/strategy/optimization
+related: ["/hk/qube/research/strategy/versions","/hk/qube/api/runs","/hk/qube/research/optimizations"]
+---
+
+策略調優會改變 `STRATEGY_PARAMS` 中已宣告且實際使用的數值鍵，並固定原始碼、回測設定、成本、資金及因子綁定。日期和資金不是策略程式參數搜尋維度。
+
+## 設計範圍受限的比較
+
+使用少量候選，一般共 16 組（含基準）；自動補入基準並去重後最多 32 組。須從市場日曆提供排序且不重複的實際 `tradingDates`，共 2 至 4000 個 ISO 日期，不能自行猜測平日。
+
+預設啟用驗證，按交易日切分為 70% 研究及 30% 驗證。`total_return` 和 `sharpe` 取最大值，`max_drawdown` 取絕對回撤最小值。比較研究及驗證證據，不要只按研究分數挑選。
+
+## 套用及重新檢查
+
+審閱候選失敗原因與假設。套用候選須提供預期原始碼及設定修訂號，並更新目前策略設定；不會建立命名版本，也不會替你做交易決策。
+
+套用後執行一般回測、檢查結果，適合時才建立版本。另行檢查其他期間及合理成本。參閱 [調優指令與 JSON](/hk/qube/api/runs)。

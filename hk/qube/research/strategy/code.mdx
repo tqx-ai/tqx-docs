@@ -1,0 +1,47 @@
+---
+title: 編寫策略
+en_link: /qube/research/strategy/code
+related: ["/hk/qube/research/strategy/backtest","/hk/qube/research/strategy/factor-to-strategy","/hk/data/qube-runtime"]
+---
+
+Qube 透過市場專屬回測引擎執行策略原始碼。執行日期、資金、頻率及成本應放在已儲存的設定中。
+
+## 最小原始碼
+
+下方匯入的 `panda_backtest` 模組由 Qube 的 Python 回測引擎提供。市場專用函式詳見 [港股策略 API 參考](https://github.com/tqx-ai/tqx-ts/blob/main/skills/tqx-research/references/stock_hk_api.md)。
+
+這個港股範例只讀取已完成的 Bar，不會下單。美股策略請參閱 [`stock_us_api` 參考](https://github.com/tqx-ai/tqx-ts/blob/main/skills/tqx-research/references/stock_us_api.md)，並使用例如 `AAPL.NB` 的代碼。
+
+```python
+from panda_backtest.api.api import *
+from panda_backtest.api.stock_hk_api import *
+
+STRATEGY_PARAMS = {"symbol": "0700.HK"}
+
+def initialize(context):
+    context.params = dict(STRATEGY_PARAMS)
+
+def handle_data(context, data):
+    bar = data[context.params["symbol"]]
+    if bar is None or bar.open is None or bar.open <= 0:
+        return
+    context.latest_open = bar.open
+```
+
+使用單一字面值 `STRATEGY_PARAMS` 字典，在初始化複製到 `context.params`；調優只使用已宣告的數值鍵。
+
+## 歷史數據及重播
+
+若策略需要歷史數據，請在 `initialize(context)` 中載入一次。查詢與快取的寫法可參閱 [策略範例](https://github.com/tqx-ai/tqx-ts/blob/main/skills/tqx-research/references/strategy_templates.md)。歷史數據須結束於 `context.run_info.start_date` 之前；檢查涵蓋範圍及必要欄位後，快取在 `context`。
+
+從所選市場模組使用 `stock_api_quotation(symbol_list, start_date, end_date, fields=None, period=None)`，明確指定 `period="1d"` 或 `"1m"`。分鐘回測設定頻率為 `1M`，歷史查詢則用 `1m`。
+
+回呼中結合快取及已完成的 Bars。用 `bar = data[symbol]` 讀取，檢查缺失及正價格。不要用 `symbol in data` 這類字典成員檢查。`before_trading` 與 `after_trading` 不會收到目前 BarMap。
+
+## 訂單及成本
+
+共用 API 提供 `order_shares(account_id, id_or_ins, quantity, style=None, retry_num=0, risk_control_client=None, remark=None, margin_usage="CASH")`。正數買入，負數賣出。使用 `MarketOrderStyle()` 或 `LimitOrderStyle(limit_price)`，並檢查訂單狀態、拒絕訊息及成交回呼。
+
+從 `context.run_info.stock_account` 取得帳戶 ID。遵守股票手數、可用現金及可賣數量。提交訂單仍可能被拒絕。固定撮合規則下，`handle_data` 訂單以下一個合資格 Bar 開盤價為參考，該 Bar 完成後才確認成交。
+
+綁定因子的 `context.df_factor` 含完整期間數據。須篩選決策前已知的觀測值，它不會自動限制到目前重播時間。參閱 [因子綁定](/hk/qube/research/strategy/factor-to-strategy)。

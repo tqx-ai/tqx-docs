@@ -1,0 +1,28 @@
+---
+title: Qube 研究物件
+description: 了解 Qube 的因子、策略、執行記錄、版本、版本修訂和調優任務，掌握完整投研流程。
+en_link: /qube/concepts/research-objects
+related: ["/hk/qube/research/factor","/hk/qube/research/strategy","/hk/qube/research/run-history","/hk/qube/research/optimizations"]
+---
+
+Qube 將研究物件分開保存，讓你修改草稿時，不會改寫之前執行所得到的證據。
+
+| 物件 | 用途 |
+| --- | --- |
+| 因子 | 透過截面分析評估的市場訊號。 |
+| 策略 | 套用持倉、成本和風險規則，產生訊號和訂單的程式。 |
+| 執行記錄 | 一次凍結輸入的因子分析或策略回測。 |
+| 版本 | 從成功的普通執行記錄建立的不可變命名快照。 |
+| 調優 | 比較多組候選參數的有限研究任務。 |
+
+## 版本修訂和 request ID
+
+來源和設定各自有獨立版本修訂。保存、設定、執行、還原或套用調優候選前，先讀取目前資產。寫入操作都帶有 request ID，遇到不確定回應時可以使用同一意圖重試。
+
+## 執行狀態
+
+Qube 會回報 `preparing`、`queued`、`running`、`succeeded`、`failed` 和 `cancelled`。任務已提交或正在執行，不代表已有成功結果；必須到達 `succeeded` 並能讀取結果。
+
+## 分頁和結果
+
+資產列表使用 limit 和不透明 cursor。資產曲線、交易、日誌和標的表現等結果欄位可以分開分頁。整合時請保留回傳的 `next_cursor`、`has_more` 和結果中繼資料。

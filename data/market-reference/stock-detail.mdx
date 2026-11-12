@@ -1,77 +1,79 @@
-﻿---
-title: "Stock details"
-description: "Retrieve reference information for listed stocks."
-zh-Hant_link: "/hk/data/market-reference/stock-detail"
 ---
+title: Stock details
+description: Retrieve reference information for listed stocks.
+zh-Hant_link: /hk/data/market-reference/stock-detail
+---
+
+Qube and the [local `tqx-data` package](/data/local-package) both support the methods on this page. The reference below describes Qube parameters and fields; see the [local package guide](/data/local-package) for initialization, examples, and differences.
 
 ## Get detailed information of stocks
 
-### Method name: get_stock_detail
+### Method name: get\_stock\_detail
 
 ### Enter parameters
 
-| **Field** | **Type**                              | **Description**                                                      | **Is it required** |
-| :-------- | :------------------------------------ | :------------------------------------------------------------------- | :----------------- |
-| symbol    | Optional\[Union\[str, List\[str\]\]\] | Stock code                                                           | Optional           |
-| fields    | Optional\[Union\[str, List\[str\]\]\] | Return fields                                                        | Optional           |
-| market    | Optional\[str\]                       | Market, supports `hk`, `us`, default `hk`                            | Optional           |
-| status    | Optional\[int\]                       | Whether in the market, 1 - in the market, 0 - delisted, -1 - unknown | Optional           |
+| **Field** | **Type** | **Description** | **Is it required** |
+| :-- | :-- | :-- | :-- |
+| symbol | Optional\[Union\[str, List\[str\]\]\] | Stock code | Optional |
+| fields | Optional\[Union\[str, List\[str\]\]\] | Return fields | Optional |
+| market | Optional\[str\] | Market, supports `hk`, `us`, default `hk` | Optional |
+| status | Optional\[int\] | Whether in the market, 1 - in the market, 0 - delisted, -1 - unknown | Optional |
 
 ### Response parameters
 
 #### hk corresponding parameters
 
-| Field                   | Type | Description                                  |
-| :---------------------- | :--- | :------------------------------------------- |
-| symbol                  | str  | stock code                                   |
-| name                    | str  | stock name                                   |
-| cn_name                 | str  | Chinese name                                 |
-| local_name              | str  | local organization name                      |
-| status                  | int  | stock status                                 |
-| isin_code               | str  | International Securities Identification Code |
-| abbrev_symbol           | str  | Stock abbreviation                           |
-| min_order_amount        | str  | How many shares corresponds to one lot       |
-| trading_code            | str  | trading code                                 |
-| rcs_asset_category_name | str  | asset category name                          |
-| business_sector         | str  | Business sector name                         |
-| economic_sector         | str  | Economic sector name                         |
-| industry_group          | str  | Industry group name                          |
-| incorp_date             | str  | company incorporation date                   |
-| office_address          | str  | Company headquarters address                 |
-| office_city             | str  | Headquarters city                            |
-| office_country          | str  | Headquarters country                         |
-| office_region           | str  | Headquarters region                          |
-| postal_code             | str  | Headquarters postal code                     |
-| website                 | str  | company website                              |
-| listed_date             | str  | listing date                                 |
-| board_type              | str  | Board type                                   |
-| delisted_date           | str  | Delisting date                               |
+| Field | Type | Description |
+| :-- | :-- | :-- |
+| symbol | str | stock code |
+| name | str | stock name |
+| cn\_name | str | Chinese name |
+| local\_name | str | local organization name |
+| status | int | stock status |
+| isin\_code | str | International Securities Identification Code |
+| abbrev\_symbol | str | Stock abbreviation |
+| min\_order\_amount | str | How many shares corresponds to one lot |
+| trading\_code | str | trading code |
+| rcs\_asset\_category\_name | str | asset category name |
+| business\_sector | str | Business sector name |
+| economic\_sector | str | Economic sector name |
+| industry\_group | str | Industry group name |
+| incorp\_date | str | company incorporation date |
+| office\_address | str | Company headquarters address |
+| office\_city | str | Headquarters city |
+| office\_country | str | Headquarters country |
+| office\_region | str | Headquarters region |
+| postal\_code | str | Headquarters postal code |
+| website | str | company website |
+| listed\_date | str | listing date |
+| board\_type | str | Board type |
+| delisted\_date | str | Delisting date |
 
 #### us corresponding parameters
 
-| Field                   | Type | Description                                  |
-| :---------------------- | :--- | :------------------------------------------- |
-| symbol                  | str  | stock code                                   |
-| name                    | str  | stock name                                   |
-| listed_date             | str  | listing date                                 |
-| local_name              | str  | local organization name                      |
-| exchange_name           | str  | exchange name                                |
-| status                  | int  | stock status                                 |
-| isin_code               | str  | International Securities Identification Code |
-| abbrev_symbol           | str  | Stock abbreviation                           |
-| min_order_amount        | str  | How many shares corresponds to one lot       |
-| trading_code            | str  | trading code                                 |
-| rcs_asset_category_name | str  | asset category name                          |
-| business_sector         | str  | Business sector name                         |
-| economic_sector         | str  | Economic sector name                         |
-| industry_group          | str  | Industry group name                          |
-| incorp_date             | str  | company incorporation date                   |
-| office_address          | str  | Company headquarters address                 |
-| office_city             | str  | Headquarters city                            |
-| office_country          | str  | Headquarters country                         |
-| office_region           | str  | Headquarters region                          |
-| postal_code             | str  | Headquarters postal code                     |
-| website                 | str  | company website                              |
+| Field | Type | Description |
+| :-- | :-- | :-- |
+| symbol | str | stock code |
+| name | str | stock name |
+| listed\_date | str | listing date |
+| local\_name | str | local organization name |
+| exchange\_name | str | exchange name |
+| status | int | stock status |
+| isin\_code | str | International Securities Identification Code |
+| abbrev\_symbol | str | Stock abbreviation |
+| min\_order\_amount | str | How many shares corresponds to one lot |
+| trading\_code | str | trading code |
+| rcs\_asset\_category\_name | str | asset category name |
+| business\_sector | str | Business sector name |
+| economic\_sector | str | Economic sector name |
+| industry\_group | str | Industry group name |
+| incorp\_date | str | company incorporation date |
+| office\_address | str | Company headquarters address |
+| office\_city | str | Headquarters city |
+| office\_country | str | Headquarters country |
+| office\_region | str | Headquarters region |
+| postal\_code | str | Headquarters postal code |
+| website | str | company website |
 
 ### Usage examples
 
@@ -102,7 +104,7 @@ symbol abbrev_symbol ... status trading_code
 ```python
 import tqx_data
 result = tqx_data.get_stock_detail(
-    symbol=["0013.NB", "005490.NB", "ZYXIQ.NB"],
+    symbol=["0013", "005490", "ZYXIQ"],
     market="us",
     fields=[""],
     status=None
@@ -114,9 +116,9 @@ print(result)
 
 ```text
 symbol abbrev_symbol ... status trading_code
-0 0013.NB None ... 1 None
-1 005490.NB POSCO ... 1 893094
-2 ZYXIQ.NB ZYXIQ ... 0 None
+0 0013 None ... 1 None
+1 005490 POSCO ... 1 893094
+2 ZYXIQ ZYXIQ ... 0 None
 ```
 
 #### Get all Hong Kong stock codes
@@ -166,15 +168,15 @@ print(result)
 
 ```text
 symbol
-0 0013.NB
-1 005490.NB
-2 015760.NB
-3 017670.NB
-4 030200.NB
+0 0013
+1 005490
+2 015760
+3 017670
+4 030200
 ... ...
-7792 ZXZZT.NB
-7793 ZYBT.NB
-7794 ZYME.NB
-7795 ZYRX.NB
-7796 ZYXIQ.NB
+7792 ZXZZT
+7793 ZYBT
+7794 ZYME
+7795 ZYRX
+7796 ZYXIQ
 ```

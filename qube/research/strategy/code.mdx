@@ -1,0 +1,47 @@
+---
+title: Writing strategy code
+zh-Hant_link: /hk/qube/research/strategy/code
+related: ["/qube/research/strategy/backtest","/qube/research/strategy/factor-to-strategy","/data/qube-runtime"]
+---
+
+Qube runs strategy source through a market-specific backtest engine. Keep the run's dates, capital, frequency, and costs in saved configuration.
+
+## Minimal source
+
+Qube's Python backtest engine provides the `panda_backtest` modules imported below. The [Hong Kong strategy API reference](https://github.com/tqx-ai/tqx-ts/blob/main/skills/tqx-research/references/stock_hk_api.md) describes the market-specific functions.
+
+This Hong Kong example reads completed Bars without placing orders. For US strategies, use the [`stock_us_api` reference](https://github.com/tqx-ai/tqx-ts/blob/main/skills/tqx-research/references/stock_us_api.md) and a symbol such as `AAPL.NB`.
+
+```python
+from panda_backtest.api.api import *
+from panda_backtest.api.stock_hk_api import *
+
+STRATEGY_PARAMS = {"symbol": "0700.HK"}
+
+def initialize(context):
+    context.params = dict(STRATEGY_PARAMS)
+
+def handle_data(context, data):
+    bar = data[context.params["symbol"]]
+    if bar is None or bar.open is None or bar.open <= 0:
+        return
+    context.latest_open = bar.open
+```
+
+Use one literal `STRATEGY_PARAMS` dictionary. Copy it to `context.params` in initialization; use declared numeric keys for tuning.
+
+## Historical data and replay
+
+If your strategy needs history, load it once from `initialize(context)`. See the [strategy examples](https://github.com/tqx-ai/tqx-ts/blob/main/skills/tqx-research/references/strategy_templates.md) for historical queries and caching. Load history ending before `context.run_info.start_date`, check coverage and required columns, and cache it on `context`.
+
+Use `stock_api_quotation(symbol_list, start_date, end_date, fields=None, period=None)` from the selected market module with explicit `period="1d"` or `"1m"`. A minute backtest uses configuration frequency `1M`, while its history query uses `1m`.
+
+During callbacks, combine cached history with completed Bars. Read `bar = data[symbol]`; check missing Bars and positive prices. Do not use dictionary membership checks such as `symbol in data`. `before_trading` and `after_trading` do not receive the current BarMap.
+
+## Orders and costs
+
+The common API exposes `order_shares(account_id, id_or_ins, quantity, style=None, retry_num=0, risk_control_client=None, remark=None, margin_usage="CASH")`. Positive quantities buy; negative quantities sell. Use `MarketOrderStyle()` or `LimitOrderStyle(limit_price)`, then check order status, rejection messages, and trade callbacks.
+
+Read the account ID from `context.run_info.stock_account`. Respect instrument lots, available cash, and sellable quantity. A submitted order may be rejected. Orders from `handle_data` use the next eligible Bar open as the reference price under the fixed matching rule, with fills confirmed after that Bar completes.
+
+For bound factors, `context.df_factor` contains full-period data. Filter to observations strictly available before the decision; it is not automatically restricted to the current replay time. See [factor binding](/qube/research/strategy/factor-to-strategy).

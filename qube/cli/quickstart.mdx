@@ -1,0 +1,64 @@
+---
+title: Qube CLI quickstart
+description: "Install the TQX CLI with your coding agent and use its research commands to manage Qube factors, strategies, and runs."
+zh-Hant_link: /hk/qube/cli/quickstart
+related: ["/qube","/qube/api/factors","/qube/api/strategies","/qube/sdk/overview"]
+---
+
+Qube CLI means the research commands in the **TQX CLI**, grouped under `tqx research`. Install TQX CLI once to create factors, run strategy backtests, and read results for the same research assets you use in the Qube web workspace.
+
+## Install with your coding agent
+
+Use the copy button in the top-right corner of the text block below, then paste the full prompt into your coding agent. It will follow the [TQX CLI installation guide](https://github.com/tqx-ai/tqx-ts/blob/main/INSTALL.md), install the research Skill, and verify the connection.
+
+```text wrap
+Read [https://raw.githubusercontent.com/tqx-ai/tqx-ts/refs/heads/main/INSTALL.md](https://raw.githubusercontent.com/tqx-ai/tqx-ts/refs/heads/main/INSTALL.md)
+
+Follow the document to install or update TQX CLI and Skills.
+I want to use Qube research through the tqx research commands.
+Confirm the tqx-research Skill is available and complete authentication as documented.
+Then verify the research connection with tqx research factor list --market=hk --json and report the result.
+```
+
+## Install and authenticate manually
+
+```bash
+npm install --global @tqx-ai/cli
+tqx --version
+tqx login --api-key=<YOUR_API_KEY>
+tqx status --json
+```
+
+Node.js 22.18 or newer is required for the npm distribution. Standalone executables are also available from the [TQX releases](https://github.com/tqx-ai/tqx-ts/releases). Research requests use an [API key](https://www.tqx.ai/user-center?tab=dev-settings). For connection setup and service-address errors, follow the [installation guide's troubleshooting steps](https://github.com/tqx-ai/tqx-ts/blob/main/INSTALL.md#troubleshooting).
+
+## First factor workflow
+
+```bash
+# Create from a formula; keep the returned 24-character factor id.
+tqx research factor create --market=hk \
+  --title="Moving-average spread" \
+  --formula='TS_MEAN(CLOSE,5)-TS_MEAN(CLOSE,20)' --json
+
+# Read current revisions, then save/configure/run with those values.
+tqx research factor info <factor-id> --json
+tqx research factor update <factor-id> --baseConfigRevision=<config-revision> \
+  --title="Moving-average spread" --json
+tqx research factor run <factor-id> \
+  --expectedSourceRevision=<source-revision> \
+  --expectedConfigRevision=<config-revision> \
+  --startDate=2024-01-01 --endDate=2026-06-30 --groupNumber=10 \
+  --adjustmentCycle=5 --factorDirection=Positive
+```
+
+A source save, configuration update, and run are separate operations. Read the returned status and use `factor result <analysis-id>` after it reaches `succeeded`.
+
+## Choose the next page
+
+- [Factor API](/qube/api/factors) cover formulas, Python files, analysis, lists, versions, and tuning.
+- [Strategy API](/qube/api/strategies) cover source, backtests, result downloads, and factor bindings.
+- [Runs, versions, and tuning](/qube/api/runs) cover polling, stop, cursors, restore, and JSON.
+- [TypeScript SDK](/qube/sdk/overview) is for typed integrations.
+
+<Note>
+  `SUBMITTED`, `PENDING`, `RUNNING`, `FAILED`, `CANCELLED`, and `TIMEOUT` are not successful research completion. The CLI maps server `succeeded` to `SUCCESS`; a timeout only stops local waiting.
+</Note>

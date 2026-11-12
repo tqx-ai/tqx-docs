@@ -1,0 +1,28 @@
+---
+title: Qube research objects
+description: "Understand factors, strategies, runs, versions, revisions, and tuning tasks before you use the Qube research workflow."
+related: ["/qube/research/factor","/qube/research/strategy","/qube/research/run-history","/qube/research/optimizations"]
+zh-Hant_link: /hk/qube/concepts/research-objects
+---
+
+Qube keeps research objects separate so you can change a draft without rewriting the evidence from an earlier run.
+
+| Object | Purpose |
+| --- | --- |
+| Factor | A market signal evaluated through cross-sectional analysis. |
+| Strategy | A program that produces signals and orders with position, cost, and risk rules. |
+| Run | One frozen factor analysis or strategy backtest. |
+| Version | An immutable named snapshot created from a successful ordinary run. |
+| Tuning | A bounded study that compares candidate parameter combinations. |
+
+## Revisions and request IDs
+
+Source and configuration have independent revisions. Read the current resource before saving, configuring, running, restoring, or applying a tuning candidate. Mutations carry a request ID so an uncertain response can be retried with the same intent.
+
+## Run states
+
+Qube reports `preparing`, `queued`, `running`, `succeeded`, `failed`, and `cancelled`. A submitted or running task is not a successful result until it reaches `succeeded` and its result is available.
+
+## Pagination and results
+
+Libraries use a limit and opaque cursor. Result fields such as equity, trades, logs, and symbol performance can be paged independently. Keep the returned `next_cursor`, `has_more`, and result metadata when you build an integration.

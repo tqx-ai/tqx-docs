@@ -1,0 +1,22 @@
+---
+title: 在策略使用因子版本
+en_link: /qube/research/strategy/factor-to-strategy
+related: ["/hk/qube/research/factor/versions","/hk/qube/research/strategy/code","/hk/qube/research/strategy/backtest"]
+---
+
+因子分數須加上明確交易規則才能成為策略：股票資格、排序方向、調倉時間、倉位大小、出場、成本及風險上限。
+
+## 綁定不可變輸入
+
+1. 審閱成功的一般因子分析。
+2. 建立與策略相同市場、可執行的程式因子命名版本。
+3. 明確選擇 `factor_id` 及 `factor_version_id`。SDK 使用 `factorBinding: { factorId, factorVersionId }`。
+4. 儲存並驗證策略原始碼與設定，再執行回測。
+
+唯讀 ML 因子不屬於此綁定可使用的程式版本。目前因子的修改不會改變已綁定的不可變版本。只有研究設計需要時才綁定。
+
+## 避免未來資訊洩漏
+
+策略收到的 `context.df_factor` 含完整期間的 `date`、`symbol`、`factor_value`，不會自動限制在重播時間內。每次決策應依訊號時間，篩選嚴格早於目前決策日期的已完成日期。不要在初始化讀取未來數值。
+
+以成本及成交規則回測產生的策略。只有因子分組報酬，無法證明策略可交易。

@@ -1,31 +1,31 @@
-﻿---
-title: "指數成分股"
-description: "取得港股與美股指數成分股資料。"
-en_link: "/data/market-reference/index-components"
+---
+title: 指數成分股
+description: 取得港股與美股指數成分股資料。
+en_link: /data/market-reference/index-components
 ---
 
 <Note>
-  本頁的方法僅能在 Qube 中使用，PyPI 上的 `tqx-data` 套件不提供這些方法。
+  本頁方法適用於 [Qube 沙箱](/hk/data/qube-runtime)。[本機 `tqx-data` 套件](/hk/data/local-package) 不提供這些方法。
 </Note>
 
 ## 取得港美股指數成分股資訊
 
-### 方法名稱：get_index_component
+### 方法名稱：get\_index\_component
 
-<Badge icon="cloud" color="blue">僅限 Qube</Badge>
+<Badge color="blue" icon="cloud">僅限 Qube</Badge>
 
 ### 入參
 
 | 欄位 | 類型 | 說明 | 是否必填 |
-|:---|:---|:---|:---|
-| stock_symbol | Optional\[Union\[str, List\[str\]\]\] | 股票代號 | 非必填 |
-| index_symbol | Optional\[Union\[str, List\[str\]\]\] | 指數碼 | 非必填 |
-| market | str | 市場，支援 `hk`、`us`，預設為 `hk` | 必填 |
+| :-- | :-- | :-- | :-- |
+| stock\_symbol | Optional\[Union\[str, List\[str\]\]\] | 股票代號 | 非必填 |
+| index\_symbol | Optional\[Union\[str, List\[str\]\]\] | 指數碼 | 非必填 |
+| market | str | 市場，使用 `hk` 或 `us`，預設為 `hk`。 | 非必填 |
 
 支持的指數列表:
 
-|            |                                     |
-|:-----------|:------------------------------------|
+|  |  |
+| :-- | :-- |
 | 指數代碼 | 名稱 |
 | HSCC | 恆生CC指數 |
 | HSCE | 恆生國企指數 |
@@ -46,7 +46,7 @@ en_link: "/data/market-reference/index-components"
 | HSC50 | 恆生中國50指數 |
 | HSCAHAI | 恆生港股通中國AH股(A股)指數 |
 | HSCAHHI | 恆生港股通中國AH股(H股)指數 |
-| HSCAHI | 恆生港股通中國AH股(A+H股)指數 |
+| HSCAHI | 恆生港股通中國AH股(A\+H股)指數 |
 | HSCAHPI | 恆生港股通中國AH股溢價指數 |
 | HSCIC | 恆生綜合企業指數 |
 | HSCIF | 恆生金融業指數 |
@@ -116,11 +116,11 @@ en_link: "/data/market-reference/index-components"
 ### 回應參數
 
 | 字段 | 類型 | 描述 |
-|:-------------|:-----|:---------------|
-| index_symbol | str | 指數碼 |
-| stock_symbol | str | 股票代號 |
-| added_date | str | 納入成分股日期 |
-| deleted_date | str | 剔除成分股日期 |
+| :-- | :-- | :-- |
+| index\_symbol | str | 指數碼 |
+| stock\_symbol | str | 股票代號 |
+| added\_date | str | 納入成分股日期 |
+| deleted\_date | str | 剔除成分股日期 |
 
 ### 使用範例
 
@@ -152,4 +152,3 @@ index_symbol stock_symbol added_date deleted_date
 6656 SPHKL 9992.HK 20210118 None
 6657 SPHKL 9999.HK 20210118 None
 ```
-

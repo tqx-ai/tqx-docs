@@ -1,0 +1,38 @@
+---
+title: Access data in Qube
+description: Choose the data contract for the environment where your code runs.
+zh-Hant_link: /hk/data/qube-runtime
+related: ["/data/info","/data/market-data/daily","/data/market-data/minute","/qube/research/strategy/code"]
+---
+
+Use this page when Python code runs inside Qube. The native `tqx_data` Skill provides historical market and reference data from Qube's research snapshots. It does not require `tqx_data.init()` or a local API key.
+
+<Frame caption="Qube Market shows a historical market snapshot">
+  ![Qube Market page showing Hong Kong stock data, chart intervals, instrument details, and a Not realtime label](/images/qube/qube-market.png)
+</Frame>
+
+In Qube, open [Qube Market](https://www.tqx.ai/qube/market), choose Hong Kong or U.S. stocks, and search for a symbol. You can inspect chart intervals, instrument details, and the snapshot timestamp. Check the **Not realtime** label before interpreting a displayed price.
+
+<Info>
+  Qube provides historical data through its native runtime. Start with the [Data overview](/data/info) to find an API, then check the supported environment on its reference page.
+</Info>
+
+<Tabs>
+  <Tab title="Qube sandbox">
+    Use Qube's built-in `tqx_data` module. Find the API you need in the [Data overview](/data/info), then check its reference page for Qube support, parameters, and fields.
+  </Tab>
+  <Tab title="Strategy backtest">
+    Strategy code has its own runtime interface. Follow [Write a strategy](/qube/research/strategy/code) for Bars, historical data, and replay behavior.
+  </Tab>
+</Tabs>
+
+## Sandbox and strategy backtest
+
+These are two Qube execution contexts with different responsibilities:
+
+| Context | What it does | Code interface | Typical result |
+| --- | --- | --- | --- |
+| Qube sandbox | Runs conversations, Skills, workspace tasks, and exploratory Python code in your cloud workspace | Workspace files and native `tqx_data` methods | Files, charts, data queries, and draft code |
+| Strategy backtest | Runs a saved strategy over <Tooltip tip="A Bar summarizes a time interval, like one candlestick on a chart. It typically contains the open, high, low, close, and volume. A daily Bar covers one trading day; a minute Bar covers one minute. A backtest replays these historical records in time order." headline="Historical Bars">historical Bars</Tooltip> using the market-specific backtest engine | `panda_backtest`, `initialize`, `handle_data`, Bars, and replay callbacks | Equity, trades, costs, logs, and a backtest result |
+
+You can think of the sandbox as Qube's general agent and workspace runtime. A submitted strategy backtest then uses the strategy runtime and backtest engine, which have a stricter source contract. Code that works in the sandbox is not automatically valid strategy code; follow [Write a strategy](/qube/research/strategy/code) before submitting a backtest.

@@ -1,7 +1,7 @@
 ---
-title: "查詢訊號"
-description: "讀取交易訊號及可選的訂單狀態快照。"
-en_link: "/trading/api/get-signal"
+title: 查詢訊號
+description: 讀取交易訊號及可選的訂單狀態快照。
+en_link: /trading/api/get-signal
 ---
 
 返回一項交易訊號的生命週期狀態。
@@ -56,4 +56,4 @@ JSON envelope 包含 `code`（string；`"0"` 表示成功）、`message`（strin
 | `effective_trade_date` | string 或 `null`（可選） | 生效交易日期。 |
 | `expire_at` | date-time string 或 `null`（可選） | 訊號到期時間。 |
 
-`state` 只描述訊號生命週期，可為 `PENDING`、`ACCEPTED`、`UNKNOWN` 或 `REJECTED`。`ACCEPTED` 不代表訂單已提交或成交；請使用 `order_id` 查詢[訂單詳情](/hk/trading/api/get-order)和[成交記錄](/hk/trading/api/list-trades)。
+`state` 只描述訊號生命週期，可為 `PENDING`、`ACCEPTED`、`UNKNOWN` 或 `REJECTED`。`ACCEPTED` 不代表訂單已提交或成交；請使用 `order_id` 查詢 [訂單詳情](/hk/trading/api/get-order) 和 [成交記錄](/hk/trading/api/list-trades)。

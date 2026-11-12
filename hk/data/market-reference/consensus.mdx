@@ -1,31 +1,39 @@
-﻿---
-title: "一致預期"
-description: "取得一致預期與分析師買賣建議。"
-en_link: "/data/market-reference/consensus"
 ---
+title: 一致預期
+description: 取得一致預期與分析師買賣建議。
+en_link: /data/market-reference/consensus
+---
+
+Qube 與 [本機 `tqx-data` 套件](/hk/data/local-package) 都支援本頁方法。以下參數與欄位以 Qube 為主；本機初始化、範例和差異請參閱 [本機使用指南](/hk/data/local-package)。
 
 ## 取得非週期性指標一致預期
 
-### 方法名稱：get_consensus_nonperiod
+### 方法名稱：get\_consensus\_nonperiod
 
-<Badge icon="clock" stroke>僅提供最新數據</Badge>
+<Badge stroke icon="clock">僅提供最新數據</Badge>
 
 ### 入參
 
 | 欄位 | 類型 | 說明 | 是否必填 |
-|:---|:---|:---|:---|
+| :-- | :-- | :-- | :-- |
 | symbol | Optional\[Union\[str, List\[str\]\]\] | 股票代號 | 非必填 |
 | fields | Optional\[Union\[str, List\[str\]\]\] | 傳回欄位 | 非必填 |
-| market | str | 市場，支援 `hk`、`us`，預設為 `hk` | 必填 |
+| market | str | 市場，使用 `hk` 或 `us`，預設為 `hk`。 | 非必填 |
 
 ### 回應參數
 
-註：對於除symbol，currency，indicator外的參數預設是最新日期的預測，且有歷史維度衍生字段，衍生後綴有week，1month~12month對每個字段構成共十三個衍生字段，表示對應字段在一周，一個月~十二個月前的預測值
+沒有時間後綴的欄位，表示目前可用的最新預測。歷史預測欄位會加上後綴，表示該預測是在多久以前作出的：
 
-例：mean_week表示一週前的預測平均值，std_6month表示6個月前的預測標準差
+| 後綴 | 含義 |
+| --- | --- |
+| （無） | 目前可用的最新預測 |
+| `_week` | 一週前的預測 |
+| `_1month` 至 `_12month` | 一至十二個月前的預測 |
+
+例如，`mean_week` 是一週前的預測平均值，`std_6month` 是六個月前的預測標準差。`symbol`、`currency` 和 `indicator` 只是識別資料列，不使用這些時間後綴。
 
 | 字段 | 類型 | 描述 |
-|:---|:---|:---|
+| :-- | :-- | :-- |
 | symbol | str | 檔 |
 | currency | str | 貨幣單位 |
 | indicator | str | 指標名稱:LTGROWTH為未來3~5年長期成長，TP為未來1年目標價 |
@@ -34,8 +42,8 @@ en_link: "/data/market-reference/consensus"
 | high | double | 預測最高值 |
 | low | double | 預測最低值 |
 | std | double | 預測標準差 |
-| estimates_num | double | 預測數 |
-| included_estimates_num | double | 納入統計的預測數 |
+| estimates\_num | double | 預測數 |
+| included\_estimates\_num | double | 納入統計的預測數 |
 
 ### 使用範例
 
@@ -70,40 +78,45 @@ symbol indicator mean std_6month high_week
 
 ## 取得買賣建議一致預期
 
-### 方法名稱：get_consensus_recommend
+### 方法名稱：get\_consensus\_recommend
 
-<Badge icon="clock" stroke>僅提供最新數據</Badge>
+<Badge stroke icon="clock">僅提供最新數據</Badge>
 
 ### 入參
 
 | 欄位 | 類型 | 說明 | 是否必填 |
-|:---|:---|:---|:---|
+| :-- | :-- | :-- | :-- |
 | symbol | Optional\[Union\[str, List\[str\]\]\] | 股票代號 | 非必填 |
 | fields | Optional\[Union\[str, List\[str\]\]\] | 傳回欄位 | 非必填 |
-| market | str | 市場，支援 `hk`、`us`，預設為 `hk` | 必填 |
+| market | str | 市場，使用 `hk` 或 `us`，預設為 `hk`。 | 非必填 |
 
 ### 回應參數
 
-註1：對於除symbol，currency外的參數預設是最新日期的預測，且有歷史維度衍生字段，衍生後綴有week，1month~12month對每個字段構成共十三個衍生字段，表示對應字段在一周，一個月~十二個月前的預測值
+沒有時間後綴的欄位，表示目前可用的最新建議。歷史欄位使用相同的後綴：
 
-例：mean_week表示一週前的預期平均值，low_6month表示6個月前的預期最低值
-註2：強賣，賣，持倉，買，強買依序記為5，4，3，2，1分
+| 後綴 | 含義 |
+| --- | --- |
+| （無） | 目前可用的最新建議 |
+| `_week` | 一週前的建議 |
+| `_1month` 至 `_12month` | 一至十二個月前的建議 |
+
+例如，`mean_week` 是一週前的預期平均值，`low_6month` 是六個月前的預期最低值。建議數量使用以下分數：強力賣出 = 5、賣出 = 4、持有 = 3、買入 = 2、強力買入 = 1。
 
 | 字段 | 類型 | 描述 |
-|:--------------------|:-------|:-----------|
+| :-- | :-- | :-- |
 | symbol | str | 檔 |
 | currency | str | 貨幣單位 |
 | mean | double | 預期平均數 |
 | median | double | 預期中位數 |
 | high | double | 預期最高值 |
 | low | double | 預期最低值 |
-| strong_buy_num | double | 強買建議數 |
-| buy_num | double | 買進建議數 |
+| strong\_buy\_num | double | 強買建議數 |
+| buy\_num | double | 買進建議數 |
 | hold | double | 持倉建議數 |
-| sell_num | double | 賣出建議數 |
-| strong_sell_num | double | 強賣建議數 |
-| no_opinion_num | double | 無意見數 |
-| recommendations_num | double | 推薦總數 |
+| sell\_num | double | 賣出建議數 |
+| strong\_sell\_num | double | 強賣建議數 |
+| no\_opinion\_num | double | 無意見數 |
+| recommendations\_num | double | 推薦總數 |
 
 ### 使用範例
 
@@ -139,4 +152,3 @@ symbol strong_buy_num buy_num_week
 **三. 財務與市場因子**
 
 **1.取得港美股回測因子**
-

@@ -1,0 +1,26 @@
+---
+title: "Runs, results, and reproducibility"
+zh-Hant_link: /hk/qube/research/run-history
+related: ["/qube/api/runs","/qube/sdk/streaming","/qube/research/optimizations"]
+---
+
+Each analysis or backtest has its own ObjectId and frozen source, configuration, market, period, and optional factor binding. The asset's current edits do not rewrite historical results.
+
+| State | Meaning |
+| --- | --- |
+| `preparing` | Inputs or execution are being prepared. |
+| `queued` | Waiting to execute. |
+| `running` | Execution in progress. |
+| `succeeded` | Execution completed successfully; inspect the available result. |
+| `failed` | Execution ended unsuccessfully; inspect the error and logs. |
+| `cancelled` | Execution was cancelled. |
+
+## Inspect and compare
+
+Open the run from its parent asset or run history. Verify source/configuration revisions, actual period and settings, terminal status, metrics, and logs. Compare like-for-like runs; changing costs or dates can matter as much as changing code.
+
+Libraries and cross-resource summaries use opaque cursor pagination. Per-asset analysis history returns runs; strategy backtest history has a bounded limit. Backtest result fields use offset pagination. See [CLI runs](/qube/api/runs) and [SDK API](/qube/api/runs) for exact limits.
+
+Cancellation is a request: confirm the terminal state. Polling timeout only ends local waiting. Retain the run ID so you can read it again.
+
+You may create a named version from a successful ordinary run or restore a historical run's inputs to the current asset. Neither operation rewrites the old run or submits a new one.

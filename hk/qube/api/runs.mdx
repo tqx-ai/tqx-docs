@@ -1,0 +1,240 @@
+---
+title: 執行、版本與調優 API
+description: 使用 CLI 或 SDK 等待執行、管理版本及比較調優候選。
+en_link: /qube/api/runs
+related: ["/hk/qube/api/factors","/hk/qube/api/strategies","/hk/qube/sdk/streaming"]
+---
+
+建立因子或策略後，使用以下 CLI 或 SDK 操作管理執行、版本及調優。每次執行會固定當時的原始碼及設定；保留執行 ID，之後仍可查詢同一次結果。
+
+<Tabs>
+  <Tab title="CLI">
+    ## 提交、停止及讀取
+
+    ```text
+    tqx research factor result <analysis-id>
+    tqx research strategy result <run-id> [--download=<path>]
+    tqx research factor stop <analysis-id>
+    tqx research strategy stop <run-id>
+    tqx research factor run <id> ... --noWait
+    tqx research strategy run <id> ... --pollInterval=2 --timeout=600
+    ```
+
+    預設每 2 秒輪詢一次，本機逾時為 600 秒。逾時只會結束本機等待，遠端任務仍會執行。停止是取消請求；再次讀取直到伺服器回報 cancelled 或其他最終狀態。伺服器狀態為 preparing、queued、running、succeeded、failed 及 cancelled。
+
+    | 操作 | 輸入 | 輸出 |
+    | --- | --- | --- |
+    | 提交因子分析 | 因子 ID、兩個預期修訂、分析選項；`--pollInterval`、`--timeout`、`--noWait` 控制等待 | 提交結果；等待時再回傳最終分析 |
+    | 提交策略回測 | 策略 ID、兩個預期修訂、回測選項；同一組等待選項 | 提交結果；等待時再回傳最終回測 |
+    | 停止執行 | 分析 ID 或執行 ID | 取消請求及目前狀態 |
+    | 讀取結果 | 分析/執行 ID；回測另需結果欄位 | 結果列、指標或日誌 |
+
+    ## 結果分頁及游標
+
+    ```text
+    tqx research backtest result <run-id> --field=equity|trades|logs|symbol_performance|account_summary --offset=0 --limit=100
+    
+    tqx research factor list --market=hk --limit=50 --cursor=<next_cursor>
+    tqx research strategy list --keyword=momentum --includeContent
+    ```
+
+    資產庫列表限制 1–100，摘要列表限制 1–10，回測結果分頁限制 1–500。保留 next\_cursor 和 has\_more，不要自行建立頁碼。代碼篩選只適用於交易。
+
+    ## 命名版本及還原
+
+    ```text
+    tqx research factor versions <factor-id>
+    tqx research factor version-create <factor-id> <successful-analysis-id> --name="ma-spread-2026"
+    tqx research factor version-restore <factor-id> <version-id> --expectedSourceRevision=<n> --expectedConfigRevision=<n>
+    tqx research strategy versions <strategy-id>
+    tqx research strategy version-create <strategy-id> <successful-run-id> --name="daily-2026"
+    tqx research strategy version-restore <strategy-id> <version-id> --expectedSourceRevision=<n> --expectedConfigRevision=<n>
+    tqx research factor analysis-restore <factor-id> <analysis-id> --expectedSourceRevision=<n> --expectedConfigRevision=<n>
+    tqx research strategy backtest-restore <strategy-id> <run-id> --expectedSourceRevision=<n> --expectedConfigRevision=<n>
+    ```
+
+    只有資產所屬的成功一般執行，才可建立命名版本。版本不可變更。還原會替換目前原始碼及完整設定並重新驗證，不會執行或建立備份。
+
+    ## 調優
+
+    ```text
+    tqx research factor tuning list <factor-id>
+    tqx research factor tuning get <tuning-id>
+    tqx research factor tuning create <factor-id> --file=factor-tuning.json
+    tqx research factor tuning cancel <tuning-id>
+    tqx research factor tuning rerun <tuning-id>
+    tqx research factor tuning apply <tuning-id> --trialId=<trial-id> --expectedSourceRevision=<n> --expectedConfigRevision=<n>
+    tqx research strategy tuning apply <tuning-id> <candidate-id> --expectedSourceRevision=<n> --expectedConfigRevision=<n>
+    ```
+
+    JSON 檔使用 SDK 的 camelCase 欄位。因子調優必須有一個明確基準，候選總數最多 32；策略調優會去重基準，同樣最多 32。套用候選只更新目前設定，不會建立命名版本或一般執行，請自行執行及審閱套用後輸入。
+
+    ## 輸出及退出碼
+
+    使用 --json 輸出機器格式及將 JSON 錯誤寫入 stderr，或使用 --plain 輸出易讀文字。退出碼 2 代表輸入無效；退出碼 1 包括 API、網路、協定、執行失敗、取消及本機逾時。請勿把請求受理或 SUBMITTED 狀態解讀為成功結果。
+
+    ## 完整版本及調優指令參考
+
+    把 `<kind>` 換成 `factor` 或 `strategy`。`version` 依版本 ID 讀取單一版本，`versions` 列出資產版本。
+
+    ```text
+    tqx research <kind> version <version-id>
+    tqx research <kind> version-create <resource-id> <successful-run-id> --name=<name> [--description=<text>]
+    tqx research <kind> tuning list <resource-id>
+    tqx research <kind> tuning get <tuning-id>
+    tqx research <kind> tuning create <resource-id> --file=<request.json>
+    tqx research <kind> tuning cancel <tuning-id>
+    tqx research <kind> tuning rerun <tuning-id>
+    tqx research backtest list [--market=all|hk|us] [--cursor=<cursor>] [--limit=1..10] [--keyword=<text>] [--includeContent]
+    ```
+
+    ID 都是 24 位小寫 ObjectId，只有因子調優 trial 識別碼使用回傳的試驗字串。即使使用 `--noWait`，`run` 仍須兩個預期修訂號。CLI 會為個別變更產生 request ID；調優 JSON 則明確提供 `requestId`。遇到修訂衝突時，重新讀取 `info` 並協調變更，不要直接替換修訂數字。
+
+    因子研究使用 [因子 JSON 範例](/hk/qube/api/factors)，以 `info` 回傳值替換修訂，並使用已宣告參數鍵。策略則建立含 `strategyParameters`、預期修訂、request ID、目標及實際市場 `tradingDates` 的 JSON 請求。[策略調優指南](/hk/qube/research/strategy/optimization) 說明驗證及評分。
+  </Tab>
+  <Tab title="TypeScript SDK">
+    ## 等待或取消執行
+
+    使用 [TypeScript SDK 總覽](/hk/qube/sdk/overview) 中初始化的 `client`。保留提交後的執行 ID，逾時或連線中斷後仍可查詢。
+
+    ```typescript
+    const result = await client.research.pollBacktest(runId, {
+      interval: 2,
+      timeout: 600,
+      progressCallback: value => console.log(value.status),
+    })
+    if (result.cli_status === "TIMEOUT") {
+      console.log("Still waiting remotely", runId)
+    } else if (result.status !== "succeeded") {
+      throw new Error(`Inspect run ${runId}: ${result.status}`)
+    }
+    ```
+
+    | 任務 | 因子分析 | 策略回測 |
+    | --- | --- | --- |
+    | 讀取目前狀態及結果 | `getFactorAnalysis(runId)` | `getBacktest(runId)` |
+    | 等待最終狀態 | `pollFactorAnalysis(runId, options)` | `pollBacktest(runId, options)` |
+    | 請求取消 | `cancelFactorAnalysis(runId)` | `cancelBacktest(runId)` |
+
+    輪詢會在 `succeeded`、`failed` 或 `cancelled` 結束。預設每 2 秒查詢一次，本機逾時為 600 秒。逾時會回傳最新資產，加上 `cli_status: "TIMEOUT"` 和 `timeout_seconds`，不會取消遠端任務。取消請求可能需要時間才進入最終狀態。
+
+    | 欄位 | 類型／限制 | 用途 |
+    | --- | --- | --- |
+    | `interval` | `number`，大於 0，預設 2 秒 | 查詢間隔 |
+    | `timeout` | `number`，不小於 0，預設 600 秒 | 本機等待上限 |
+    | `progressCallback` | `(value) => void`，選填 | 每次取得狀態後接收完整執行物件 |
+    | `id` / `status` / `progress` / `metrics` | 回傳的執行欄位 | 最新狀態；`progress`、`metrics` 可能尚未提供 |
+    | `cli_status` / `timeout_seconds` | 僅在本機逾時時回傳 | 值為 `"TIMEOUT"` 及等待秒數；遠端繼續執行 |
+
+    ## 建立與還原命名版本
+
+    審閱資產所屬的成功一般執行後，再建立版本。以下範例使用既有 `factorId` 和成功的 `analysisId`。
+
+    ```typescript
+    const version = await client.research.createFactorVersion(factorId, {
+      requestId: crypto.randomUUID(),
+      runId: analysisId,
+      name: "ma-spread-2026",
+    })
+    const current = await client.research.getFactor(factorId)
+    const restored = await client.research.restoreFactorVersion(factorId, version.id, {
+      requestId: crypto.randomUUID(),
+      expectedSourceRevision: current.source_revision,
+      expectedConfigRevision: current.config_revision,
+    })
+    ```
+
+    還原會替換目前原始碼及完整設定，然後重新驗證，不會啟動一般執行或建立備份。原始碼與設定修訂各自推進。
+
+    | 任務 | 因子 | 策略 |
+    | --- | --- | --- |
+    | 列出版本 | `listFactorVersions(id)` | `listStrategyVersions(id)` |
+    | 讀取版本 | `getFactorVersion(versionId)` | `getStrategyVersion(versionId)` |
+    | 從成功執行建立版本 | `createFactorVersion(id, { requestId, runId, name, description? })` | `createStrategyVersion(id, { requestId, runId, name, description? })` |
+    | 還原版本 | `restoreFactorVersion(id, versionId, restoreInput)` | `restoreStrategyVersion(id, versionId, restoreInput)` |
+    | 還原歷史一般執行 | `restoreFactorAnalysis(id, runId, restoreInput)` | `restoreBacktest(id, runId, restoreInput)` |
+
+    `restoreInput` 包含 `{ requestId, expectedSourceRevision, expectedConfigRevision }`。`?` 表示選填欄位。命名版本不可變更。因子分析快照使用 `listFactorSnapshots(id)` 及 `createFactorSnapshot(id, { runId, name })`，與策略綁定所用的可執行命名版本不同。
+
+    ### 版本的輸入與輸出
+
+    | 欄位 | 類型／限制 | 用途 |
+    | --- | --- | --- |
+    | `requestId` | `string`，建立／還原必填 | 一次變更的識別碼 |
+    | `runId` | `string`，建立必填 | 該資產成功的一般執行 ID |
+    | `name` / `description` | `string`，名稱 1–120 字元；描述選填 | 命名版本的名稱及說明 |
+    | `expectedSourceRevision` / `expectedConfigRevision` | 正整數，還原必填 | 先讀取目前資產，防止覆寫他人變更 |
+    | 建立／讀取版本 | 版本物件 | `id`、`factor_id` / `strategy_id`、`version`、`name`、`run_id` |
+    | 列出版本 | 版本陣列 | 每筆包含版本 ID、名稱及來源執行 |
+    | 還原結果 | 因子或策略物件 | 更新後的原始碼、完整設定及修訂 |
+
+    ### 因子分析快照
+
+    | 方法 | 輸入 | 輸出 |
+    | --- | --- | --- |
+    | `listFactorSnapshots(id)` | 因子 ID | 快照陣列：`id`、`run_id`、`name` |
+    | `createFactorSnapshot(id, input)` | `runId`、`name`（1–120 字元） | 含 `id`、`run_id`、`name` 的快照 |
+
+    ## 比較參數候選
+
+    依照因子或策略建立請求，再以 `createFactorTuning(id, input)` 或 `createStrategyTuning(id, input)` 提交。CLI 所用 JSON 與 SDK 輸入使用相同的 camelCase 欄位。
+
+    | 輸入 | 因子調優 | 策略調優 |
+    | --- | --- | --- |
+    | 共通必填欄位 | `requestId`、`expectedSourceRevision`、`expectedConfigRevision`、`candidates` | 相同 |
+    | 候選覆寫 | `parameters` 修改分析設定；`factorParameters` 修改已宣告的數值型 `FACTOR_PARAMS` | `strategyParameters` 修改已宣告且實際引用的數值型 `STRATEGY_PARAMS` |
+    | 基準與上限 | 必須有且只有一個不帶覆寫的 `{ baseline: true }`；總共最多 32 組 | 明確候選最多 31 個不重複組合，自動補入基準後最多 32 組；總共最多 256 個參數鍵 |
+    | 研究日期 | `researchPeriod: { periodStart, periodEnd }` 及 `warmupTradingDays`（0–5000） | `tradingDates`：2–4000 個真實、排序且不重複的 ISO 交易日 |
+    | 目標 | `rank_ic_mean` | `total_return`（預設）、`sharpe` 或 `max_drawdown` |
+    | 驗證 | `holdoutEnabled: false` | `validationEnabled` 預設為 `true` |
+
+    [因子請求範例](/hk/qube/api/factors) 提供完整 JSON 格式。策略候選的設計請參閱 [策略調優](/hk/qube/research/strategy/optimization)。
+
+    | 任務 | 因子 | 策略 |
+    | --- | --- | --- |
+    | 列出資產的調優研究 | `listFactorTunings(id)` | `listStrategyTunings(id)` |
+    | 讀取研究 | `getFactorTuning(tuningId)` | `getStrategyTuning(tuningId)` |
+    | 提交候選 | `createFactorTuning(id, input)` | `createStrategyTuning(id, input)` |
+    | 請求取消 | `cancelFactorTuning(tuningId)` | `cancelStrategyTuning(tuningId)` |
+    | 重新執行研究 | `rerunFactorTuning(tuningId, { requestId })` | `rerunStrategyTuning(tuningId, { requestId })` |
+    | 套用選定候選 | `applyFactorTuning(tuningId, { requestId, trialId, expectedSourceRevision, expectedConfigRevision })` | `applyStrategyTuning(tuningId, { requestId, candidateId, expectedSourceRevision, expectedConfigRevision })` |
+
+    因子套用回傳 `{ tuning, factor }`，策略套用回傳 `{ tuning, strategy }`。套用只更新草稿設定，不會建立一般執行或命名版本。請另外執行並審閱選定候選。調優結果是待審閱方案，不是自動投入生產的決策。
+
+    ### 調優方法的輸入與輸出
+
+    上表列出因子與策略的方法名稱，兩者使用下列回應結構。
+
+    | 操作 | 輸入 | 輸出 |
+    | --- | --- | --- |
+    | list | 資產 ID | 調優物件陣列 |
+    | create | 資產 ID 及上表的調優請求 | 調優物件，含 `id`、所屬資產 ID 及 `status` |
+    | get / cancel | `tuningId` | 目前／取消請求後的調優物件 |
+    | rerun | `tuningId`、`{ requestId }` | 重新提交的調優物件 |
+    | apply | `tuningId`、`requestId`、兩個預期修訂；因子加 `trialId`，策略加 `candidateId` | `{ tuning, factor }` / `{ tuning, strategy }` |
+
+    ## 跨資產摘要與分頁
+
+    使用 `listAnalyses(input)`、`listBacktests(input)`、`listFactorTuningSummaries(input)`、`listStrategyTuningSummaries(input)` 或 `listStrategyVersionSummaries(input)`，查詢不同資產的記錄。摘要每頁可取 1–10 筆，回傳 `{ items, hasMore, nextCursor, counts? }`；續讀時傳入原樣的回傳游標。
+
+    篩選包含標題、描述、市場、關鍵字、所屬資產 ID、`timeField`、`from`/`to` 及適用狀態。只有日期的邊界使用上海曆日，包含 `to` 的整天；日期時間須帶時區。策略版本摘要只接受 `created_at` 排序，不接受狀態篩選。
+
+    資產庫分頁可取 1–100 筆。策略回測歷史回傳 `{ runs }`，可取 1–200 筆。回測結果使用位移分頁，每頁 1–500 筆，詳見 [策略 API](/hk/qube/api/strategies)。
+
+    | 欄位 | 類型／限制 | 用途 |
+    | --- | --- | --- |
+    | `limit` / `cursor` | 選填，1–10 筆 | 每頁筆數及上一頁的 `nextCursor` |
+    | `market` / `keyword` / `title` / `description` | 選填字串 | 按市場及文字篩選 |
+    | `factorId` / `strategyId` | 選填 ObjectId | 只傳與該方法相符的所屬資產 ID |
+    | `status` | 選填，依記錄類型而定 | 執行用六種執行狀態；調優另可用 `cancelling`、`no_valid_candidates`；版本不接受此欄位 |
+    | `timeField` / `from` / `to` | 選填 | 按 `created_at` / `updated_at` 與日期篩選；版本只接受 `created_at` |
+    | `items` | 回傳陣列 | 本頁摘要，每筆至少含 `id` |
+    | `hasMore` / `nextCursor` / `counts` | `boolean` / `string or null` / 選填計數物件 | 是否有下一頁、續讀游標及可用計數 |
+
+    ## 衝突、重試與進度
+
+    遇到 `SOURCE_CONFLICT` 或 `CONFIG_CONFLICT`，先重新讀取資產並協調變更，再重試。變更請求的回應不確定時，以相同 request ID 和完全相同的 body 重試。SDK 輸入使用 camelCase，回傳的原始資產欄位仍可能是 snake\_case。
+
+    SSE protocol 1 及 `TqxNetworkError`、`TqxApiError`、`TqxProtocolError`、`TqxValidationError` 請參閱 [串流、輪詢與錯誤](/hk/qube/sdk/streaming)。
+  </Tab>
+</Tabs>

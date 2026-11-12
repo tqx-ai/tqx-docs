@@ -1,0 +1,31 @@
+---
+title: Read factor results
+zh-Hant_link: /hk/qube/research/factor/results
+related: ["/qube/research/factor/versions","/qube/research/factor/optimization","/qube/research/strategy/factor-to-strategy"]
+---
+
+Open a run that reached `succeeded` and check its frozen inputs before interpreting the charts. Results describe that execution, not the factor's current edited source.
+
+## Direction and group returns
+
+Groups increase in factor value. Positive direction targets the highest group; negative direction targets the lowest. `long_short` is highest minus lowest for positive direction and reverses for negative direction. `long_short_2` uses the second-highest and second-lowest groups.
+
+| Metric | Interpretation |
+| --- | --- |
+| Factor return and annualized return | Performance of the directionally selected group or return series. |
+| Sharpe | Return relative to volatility. |
+| Maximum drawdown | Largest peak-to-trough loss in the selected series. |
+| `IC_mean`, `IC_std`, `IC_IR` | Mean, dispersion, and mean-to-variability ratio of Pearson information coefficients. |
+| `Rank_IC` | Rank relationship between factor values and forward returns. |
+| `IR` | Information ratio of the selected return series. |
+| `t-stat`, IC probability statistics | Statistical diagnostics; review sample size and dependence before interpreting. |
+
+## Read the evidence together
+
+- Group curves and tables show separation, monotonicity, volatility, turnover, and drawdown.
+- IC and Rank IC sequences, distributions, decay, and autocorrelation show stability and horizon dependence.
+- Latest values identify the selected cross section; they can be standardized values rather than raw prices.
+- Preview curves can be sampled. Count trading observations from the actual result, not preview points.
+- `metrics.rows` counts input rows, not unique instruments.
+
+Check coverage, missing values, economic explanation, and a separate validation period. An attractive factor analysis is not a backtest with orders and costs. Preserve a [named version](/qube/research/factor/versions), or define explicit [strategy rules](/qube/research/strategy/factor-to-strategy).

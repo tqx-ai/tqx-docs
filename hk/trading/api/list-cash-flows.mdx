@@ -1,7 +1,7 @@
 ---
-title: "查詢現金流水"
-description: "以每筆流水的原幣種查詢券商現金帳本，金額帶正負號。"
-en_link: "/trading/api/list-cash-flows"
+title: 查詢現金流水
+description: 以每筆流水的原幣種查詢券商現金帳本，金額帶正負號。
+en_link: /trading/api/list-cash-flows
 ---
 
 返回已驗證帳戶的券商現金帳本，包括買賣交收、費用、換匯、入金和出金。可用來追蹤每個幣種的現金餘額是怎樣變動的。
@@ -18,7 +18,7 @@ en_link: "/trading/api/list-cash-flows"
 | 華泰、富途、TQX 模擬交易 | 不支援 | 無法取得完整的現金帳本。 |
 
 <Warning>
-不支援的渠道會返回 `cash_flows_unsupported`（HTTP 501），不會以空列表代替。`items` 為空列表只表示：該渠道支援此接口，而所選範圍內沒有現金變動。
+  不支援的渠道會返回 `cash_flows_unsupported`（HTTP 501），不會以空列表代替。`items` 為空列表只表示：該渠道支援此接口，而所選範圍內沒有現金變動。
 </Warning>
 
 ## CLI
@@ -81,7 +81,7 @@ JSON envelope 包含 `code`（string；`"0"` 表示成功）、`message`（strin
 | `business_name` | string 或 `null` | 券商的流水名稱，可能隨帳戶語言改變，請勿據此編寫判斷邏輯。 |
 | `description` | string 或 `null` | 券商的說明。 |
 
-`null` 表示券商沒有提供該值，切勿把 `null` 當作零或「已交收」。此接口只回報現金變動，不回報餘額；查詢帳戶現金餘額請使用[查詢帳戶資產](/hk/trading/api/get-assets)。
+`null` 表示券商沒有提供該值，切勿把 `null` 當作零或「已交收」。此接口只回報現金變動，不回報餘額；查詢帳戶現金餘額請使用 [查詢帳戶資產](/hk/trading/api/get-assets)。
 
 ## 錯誤
 

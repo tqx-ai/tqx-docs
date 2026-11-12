@@ -1,7 +1,7 @@
 ---
-title: "撤單"
-description: "請求撤銷現有訂單。"
-en_link: "/trading/api/cancel-order"
+title: 撤單
+description: 請求撤銷現有訂單。
+en_link: /trading/api/cancel-order
 ---
 
 請求撤銷現有訂單。
@@ -25,6 +25,6 @@ curl --request DELETE \
 
 ## 回應
 
-成功時返回 HTTP `202`。`data` 包含 `order_id` 和 `accepted`。`accepted: true` 只確認撤單請求已接受，不代表最終狀態一定是 `CANCELLED`；請之後查詢[訂單詳情](/hk/trading/api/get-order)。
+成功時返回 HTTP `202`。`data` 包含 `order_id` 和 `accepted`。`accepted: true` 只確認撤單請求已接受，不代表最終狀態一定是 `CANCELLED`；請之後查詢 [訂單詳情](/hk/trading/api/get-order)。
 
 可能的錯誤包括 `order_not_found`、`order_not_cancellable`、`invalid_trade_date` 和券商拒絕。

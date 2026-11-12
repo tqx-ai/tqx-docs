@@ -1,77 +1,72 @@
 ---
-title: "CLI"
-description: "Install the TQX CLI, connect an account, and give your coding agent the access it needs."
-zh-Hant_link: "/hk/cli"
+title: TQX CLI
+description: "Install the TQX CLI, authenticate securely, and choose Qube research or Trading commands for your workflow."
+sidebarTitle: CLI
+related: ["/qube/cli/quickstart","/trading/info","/qube/sdk/overview"]
+zh-Hant_link: /hk/cli
 ---
 
-Use the TQX CLI to let a coding agent check your connected account and positions.
+The TQX CLI gives an AI coding agent or shell workflow access to TQX research and trading capabilities. Use `tqx research` for Qube factors and strategies, and `tqx trading` for connected accounts and authorized orders.
 
-## 1. Install the CLI
+## Install the CLI
 
-The npm package requires Node.js 22.18 or newer. Choose your package manager to install the CLI globally, then verify that the `tqx` command is available:
+<Tabs>
+  <Tab title="Standalone binary">
+    Download the current platform asset from the [TQX releases](https://github.com/tqx-ai/tqx-ts/releases), place `tqx` on your `PATH`, and verify it:
 
-<CodeGroup>
-```bash npm
-npm install --global @tqx-ai/cli
-tqx --version
-```
+    ```bash
+    tqx --version
+    ```
+  </Tab>
+  <Tab title="npm">
+    Node.js 22.18 or newer is required.
 
-```bash pnpm
-pnpm add --global @tqx-ai/cli
-tqx --version
-```
+    ```bash
+    npm install --global @tqx-ai/cli
+    tqx --version
+    ```
+  </Tab>
+  <Tab title="pnpm">
+    ```bash
+    pnpm add --global @tqx-ai/cli
+    tqx --version
+    ```
+  </Tab>
+  <Tab title="bun">
+    ```bash
+    bun add --global @tqx-ai/cli
+    tqx --version
+    ```
+  </Tab>
+</Tabs>
 
-```bash Bun
-bun add --global @tqx-ai/cli
-tqx --version
-```
-</CodeGroup>
+## Authenticate
 
-You can also download a standalone binary from the [latest GitHub Release](https://github.com/tqx-ai/tqx-ts/releases/latest). Put the downloaded binary on your `PATH` as `tqx` (`tqx.exe` on Windows), then run `tqx --version`.
-
-## 2. Get your API key
-
-Your API key is created when you enter a competition. Complete the following steps in the [TQX account center](https://www.tqx.ai/user-center?tab=accounts):
-
-<Steps>
-  <Step title="Create an account">
-    Open **Account Management** and click **+ Create**. Choose either a Huatai live account or a TQX simulation account, then complete the account setup.
-
-    ![Account Management with the Create button](/images/cli/create-account.png)
-  </Step>
-  <Step title="Submit to a competition">
-    Open **Agents** in the sidebar, choose a competition, and click **+ Submit Entry**. Complete the submission flow and confirm the account you want the agent to use.
-
-    ![Competition submission page](/images/cli/submit-entry.png)
-  </Step>
-  <Step title="Copy the API key">
-    Find your entry under **My Entries** and click **Copy Command**. Copy the API key from the dialog that appears. Treat it as a secret and do not commit it to source code or share it in public logs.
-  </Step>
-</Steps>
-
-## 3. Log in from the CLI
-
-Store the key in the CLI credential store:
+Create an API key in the [TQX account center](https://www.tqx.ai/user-center?tab=ai-accounts), then store it in the CLI credential store:
 
 ```bash
 tqx login --api-key=<YOUR_API_KEY>
-tqx status
-tqx trading account
-tqx trading positions
+tqx status --json
 ```
 
-For a one-time check without storing the key, use an environment variable instead:
+For a single command, set `TQX_API_KEY` in the command environment instead of storing the key. Never put the key in source files or public logs.
 
-```bash
-TQX_API_KEY=<YOUR_API_KEY> tqx status
-```
+## Choose a workflow
 
-## 4. Copy the prompt to your coding agent
+<Columns cols={2}>
+  <Card title="Qube research" icon="flask" href="/qube/cli/quickstart">
+    Create and operate factors, strategies, runs, versions, and tuning studies.
+  </Card>
 
-Copy the following prompt into your coding agent after you have created the API key:
+  <Card title="Trading" icon="arrow-up-right" href="/trading/info">
+    Query accounts, positions, orders, trades, and signals, then submit authorized requests.
+  </Card>
+</Columns>
 
-```text
-Read https://raw.githubusercontent.com/tqx-ai/tqx-ts/refs/heads/main/skills/what-is-tqx/SKILL.md and then install the latest tqx CLI and use it to check my account information and positions.
-```
+## Give an agent the right context
 
-When the agent asks for the API key, provide the key through the agent's secure credential flow. Do not paste it into a source file or commit it to a repository.
+TQX Skills are instructions that help your coding agent use TQX tools. Follow the [Skills installation guide](https://github.com/tqx-ai/tqx-ts/blob/main/INSTALL.md#step-5-install-the-tqx-skills) to install them. The [Qube CLI quickstart](/qube/cli/quickstart) covers research. The [Trading guide](/trading/info) covers account workflows.
+
+<Info>
+  The CLI and web workspace use the same Qube research objects. The CLI does not make a backtest successful merely because the request was accepted. Read the run status and result before interpreting it.
+</Info>

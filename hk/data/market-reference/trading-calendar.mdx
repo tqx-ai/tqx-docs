@@ -1,34 +1,36 @@
-﻿---
-title: "交易日曆"
-description: "查詢各市場的交易日與非交易日。"
-en_link: "/data/market-reference/trading-calendar"
 ---
+title: 交易日曆
+description: 查詢各市場的交易日與非交易日。
+en_link: /data/market-reference/trading-calendar
+---
+
+Qube 與 [本機 `tqx-data` 套件](/hk/data/local-package) 都支援本頁方法。以下參數與欄位以 Qube 為主；本機初始化、範例和差異請參閱 [本機使用指南](/hk/data/local-package)。
 
 ## 取得交易行事曆
 
-### 方法名稱：get_trading_calendar
+### 方法名稱：get\_trading\_calendar
 
-<Badge icon="calendar" stroke>港股歷史區間：1980-01-01 ~ 至今</Badge> <Badge icon="calendar" stroke>美股歷史區間：1990-01-01 ~ 至今</Badge>
+<Badge stroke icon="calendar">港股歷史區間：1980-01-01 ~ 至今</Badge> <Badge stroke icon="calendar">美股歷史區間：1990-01-01 ~ 至今</Badge>
 
 ### 入參
 
 | 欄位 | 類型 | 說明 | 是否必填 |
-|:---|:---|:---|:---|
-| start_date | Optional\[str\] | 開始日期，格式為 YYYYMMDD | 非必填 |
-| end_date | Optional\[str\] | 結束日期，格式為 YYYYMMDD | 非必填 |
+| :-- | :-- | :-- | :-- |
+| start\_date | Optional\[str\] | 開始日期，格式為 YYYYMMDD | 非必填 |
+| end\_date | Optional\[str\] | 結束日期，格式為 YYYYMMDD | 非必填 |
 | market | Optional\[str\] | 交易所代號，預設為 `hk`，目前支援 `hk` 和 `us` | 非必填 |
-| is_trading_day | Optional\[int\] | 是否為交易日，1=交易日，0=非交易日，None=全部 | 非必填 |
+| is\_trading\_day | Optional\[int\] | 是否為交易日，1=交易日，0=非交易日，None=全部 | 非必填 |
 | fields | Optional\[Union\[str, List\[str\]\]\] | 需要傳回的欄位清單 | 非必填 |
 
 ### 回應參數
 
 | 字段 | 類型 | 描述 |
-|:----------------|:-----|:-----------------------------------------|
-| nature_date | int | 日期，格式為YYYYMMDD |
+| :-- | :-- | :-- |
+| nature\_date | int | 日期，格式為YYYYMMDD |
 | exchange | str | 交易所代號 |
-| is_trade | int | 是否為交易日，1表示交易日，0表示非交易日 |
-| pretrade_date | str | 目前日期前一個交易日 |
-| next_trade_date | str | 目前日期後一個交易日 |
+| is\_trade | int | 是否為交易日，1表示交易日，0表示非交易日 |
+| pretrade\_date | str | 目前日期前一個交易日 |
+| next\_trade\_date | str | 目前日期後一個交易日 |
 
 ### 使用範例
 
@@ -129,4 +131,3 @@ nature_date exchange is_trade next_trade_date pretrade_date
 11 20250117 HK 1 20250120 20250116
 12 20250120 HK 1 20250121 20250117
 ```
-

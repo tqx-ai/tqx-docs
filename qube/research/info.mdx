@@ -1,0 +1,36 @@
+---
+title: From a question to reproducible evidence
+zh-Hant_link: /hk/qube/research/info
+related: ["/qube/research/factor","/qube/research/strategy","/qube/research/run-history"]
+---
+
+Start with a question you can falsify. Specify the market, available information, signal, comparison, period, and costs before choosing parameters.
+
+## Start your first research task
+
+Open a new Qube conversation and describe the market, universe, hypothesis, period, and costs. Review the generated code, then ask Qube to save the asset and run it. You can also use the [Qube CLI](/qube/cli/quickstart) or [TypeScript SDK](/qube/sdk/overview); all three entry points operate on the same research assets.
+
+## Follow the research loop
+
+1. **Define the hypothesis.** For example: does a 5-day versus 20-day moving-average spread separate future returns in Hong Kong equities?
+2. **Check data.** Confirm coverage, symbols, timestamps, adjustments, and when financial information became available. Choose the [correct data environment](/data/qube-runtime).
+3. **Create an asset.** Use a factor to measure a signal, or a strategy to test holdings, orders, costs, and risk rules.
+4. **Save and validate.** Review the source and configuration separately. A successful save does not establish that the code is valid or profitable.
+5. **Execute.** Submit an analysis or backtest with the current source and configuration revisions.
+6. **Inspect evidence.** Check the terminal state, period, metrics, curves, transactions, and logs. Investigate missing data and failed runs.
+7. **Preserve or tune.** Create a named version from a successful ordinary run, or compare a bounded set of tuning candidates.
+8. **Revalidate.** Run the selected candidate over another period and investigate sensitivity to costs and parameters.
+9. **Review any trading handoff.** Move to [Trading](/trading/info) only after human review and authorization.
+
+<Tabs>
+  <Tab title="Factor">
+    A factor analysis measures the relationship between a signal and forward returns. Follow [create](/qube/research/factor/create), [author](/qube/research/factor/code), [analyze](/qube/research/factor/analyze), and [read results](/qube/research/factor/results).
+  </Tab>
+  <Tab title="Strategy">
+    A backtest simulates trading rules, positions, costs, and execution. Follow [create](/qube/research/strategy/create), [code](/qube/research/strategy/code), and [backtest and results](/qube/research/strategy/backtest).
+  </Tab>
+</Tabs>
+
+## Keep an evidence record
+
+Record the hypothesis, resource ID, run ID, source and configuration revisions, data and period, costs, terminal state, and limitations. Web, CLI, and SDK can inspect the same asset. A later code edit never changes an earlier run's frozen inputs.

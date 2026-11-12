@@ -1,0 +1,21 @@
+---
+title: Tune factor parameters
+zh-Hant_link: /hk/qube/research/factor/optimization
+related: ["/qube/api/runs","/qube/research/factor/versions","/qube/research/optimizations"]
+---
+
+Factor tuning compares a bounded candidate set against the saved signal. It freezes the source and study inputs; it does not edit code while candidates run.
+
+## Define the study
+
+- Include exactly one baseline candidate with no overrides. A typical study has 16 total candidates; the hard limit is 32 including the baseline.
+- Use `factorParameters` for finite numeric keys declared in the literal `FACTOR_PARAMS` dictionary. Formula factors can vary supported analysis dimensions.
+- Use `parameters` for group count, adjustment cycle, and direction. Candidate dates are not search dimensions.
+- Set one `researchPeriod` and `warmupTradingDays` from 0 to 5000, derived from the largest required lookback.
+- The objective is `rank_ic_mean`. Factor tuning evaluates the full research period without a holdout split.
+
+## Review and apply
+
+Inspect candidate states, failures, metric differences, and stability. Applying a selected trial requires the current source and configuration revisions and updates the current factor configuration. It does not create a named version.
+
+After applying, run an ordinary analysis, review the result, and create a named version if appropriate. Test a separate period yourself. See [tuning CLI and request JSON](/qube/api/runs).

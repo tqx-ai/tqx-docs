@@ -1,0 +1,36 @@
+---
+title: 從研究問題到可重現的結果
+en_link: /qube/research/info
+related: ["/hk/qube/research/factor","/hk/qube/research/strategy","/hk/qube/research/run-history"]
+---
+
+先提出可以驗證或推翻的問題。在選擇參數前，寫清楚市場、當時可取得的資訊、訊號、比較基準、期間及成本。
+
+## 開始第一個研究任務
+
+在 Qube 開啟新對話，說明市場、標的範圍、研究假設、期間及成本。Qube 產生程式碼後，先檢查邏輯，再要求儲存資產及執行。你也可以使用 [Qube CLI](/hk/qube/cli/quickstart) 或 [TypeScript SDK](/hk/qube/sdk/overview)；三個入口操作同一套研究資產。
+
+## 遵循研究流程
+
+1. **定義假說。** 例如：港股的 5 日與 20 日移動平均價差，能否區分後續報酬？
+2. **檢查數據。** 確認涵蓋範圍、代碼、時間、復權方式及財務資訊的實際公開日期，並選擇 [合適的數據環境](/hk/data/qube-runtime)。
+3. **建立資產。** 用因子評估訊號；用策略檢驗持倉、下單、成本及風險規則。
+4. **儲存並驗證。** 分別審閱原始碼與設定。儲存成功不代表程式有效，更不代表有獲利能力。
+5. **執行。** 以目前的原始碼與設定修訂號提交分析或回測。
+6. **檢視證據。** 檢查最終狀態、期間、指標、曲線、交易及日誌，釐清缺失數據和失敗原因。
+7. **保留或調優。** 從成功的一般執行建立命名版本，或比較範圍受限的調優候選。
+8. **重新驗證。** 在其他期間執行候選方案，並檢查成本與參數敏感度。
+9. **審閱交易銜接。** 經人工審閱及授權後，才進入 [交易系統](/hk/trading/info)。
+
+<Tabs>
+  <Tab title="因子">
+    因子分析衡量訊號與未來報酬的關係。依序閱讀 [建立](/hk/qube/research/factor/create)、[撰寫](/hk/qube/research/factor/code)、[分析](/hk/qube/research/factor/analyze) 及 [結果](/hk/qube/research/factor/results)。
+  </Tab>
+  <Tab title="策略">
+    回測模擬交易規則、持倉、成本及成交。依序閱讀 [建立](/hk/qube/research/strategy/create)、[程式碼](/hk/qube/research/strategy/code) 及 [回測與結果](/hk/qube/research/strategy/backtest)。
+  </Tab>
+</Tabs>
+
+## 保留研究證據
+
+記錄假說、資產 ID、執行 ID、原始碼與設定修訂號、數據及期間、成本、最終狀態與限制。網頁、CLI 和 SDK 都能檢視同一資產。後續修改程式碼，不會改寫先前執行已固定的輸入。

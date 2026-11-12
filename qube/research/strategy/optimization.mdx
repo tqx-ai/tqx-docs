@@ -1,0 +1,19 @@
+---
+title: Tune strategy parameters
+zh-Hant_link: /hk/qube/research/strategy/optimization
+related: ["/qube/research/strategy/versions","/qube/api/runs","/qube/research/optimizations"]
+---
+
+Strategy tuning varies numeric keys already declared and referenced in `STRATEGY_PARAMS`. It freezes the source, backtest configuration, costs, capital, and factor binding. Dates and capital are not strategy-code search dimensions.
+
+## Design a bounded comparison
+
+Use a small candidate set, typically 16 total including the baseline, with at most 32 after baseline insertion and deduplication. Supply sorted unique actual `tradingDates` (2–4000 ISO dates) from the market calendar; do not guess weekdays.
+
+Validation is enabled by default, splitting trading dates into 70% research and 30% validation. Choose `total_return` or `sharpe` to maximize, or `max_drawdown` to minimize absolute drawdown. Compare both research and validation evidence rather than selecting on the research score alone.
+
+## Apply and recheck
+
+Review candidate failures and assumptions. Applying a selected candidate requires expected source and configuration revisions and updates the current strategy configuration. It does not create a named version or make a trading decision.
+
+Run an ordinary backtest with the applied candidate, inspect results, then create a version if appropriate. Recheck another period and realistic cost assumptions. See [tuning commands and JSON](/qube/api/runs).

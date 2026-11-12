@@ -1,0 +1,21 @@
+---
+title: 因子參數調優
+en_link: /qube/research/factor/optimization
+related: ["/hk/qube/api/runs","/hk/qube/research/factor/versions","/hk/qube/research/optimizations"]
+---
+
+因子調優會以已儲存的訊號比較有限候選，並固定原始碼及研究輸入；候選執行期間不會修改程式碼。
+
+## 定義研究
+
+- 必須有且只有一個不帶覆寫的基準候選。一般研究使用共 16 組；包含基準的上限為 32 組。
+- `factorParameters` 對應字面值 `FACTOR_PARAMS` 字典中有限的數值參數。公式因子可調整支援的分析維度。
+- `parameters` 可調整分組數、調倉週期及方向。候選日期不是搜尋維度。
+- 設定共同的 `researchPeriod`，並依最大回看視窗推導 `warmupTradingDays`，範圍為 0 至 5000。
+- 目標為 `rank_ic_mean`。因子調優使用完整研究期間，不會切分保留樣本。
+
+## 審閱及套用
+
+檢查候選狀態、失敗原因、指標差異及穩定性。套用選定試驗須提供目前原始碼及設定修訂號，並更新目前因子設定，不會建立命名版本。
+
+套用後再執行一般分析、審閱結果，適合時才建立命名版本。另行選擇不同期間驗證。參閱 [調優 CLI 及 JSON](/hk/qube/api/runs)。

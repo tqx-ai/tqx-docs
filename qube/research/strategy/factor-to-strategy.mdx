@@ -1,0 +1,22 @@
+---
+title: Use a factor version in a strategy
+zh-Hant_link: /hk/qube/research/strategy/factor-to-strategy
+related: ["/qube/research/factor/versions","/qube/research/strategy/code","/qube/research/strategy/backtest"]
+---
+
+A factor score needs explicit trading rules before it becomes a strategy: eligibility, ranking direction, rebalance time, position sizing, exits, costs, and risk limits.
+
+## Bind an immutable input
+
+1. Review a successful ordinary factor analysis.
+2. Create an executable named code-factor version for the same market as the strategy.
+3. Select its `factor_id` and `factor_version_id` explicitly. In the SDK use `factorBinding: { factorId, factorVersionId }`.
+4. Save and validate strategy source and configuration before backtesting.
+
+Read-only ML factors are not executable code versions for this binding. Current factor edits never change a bound immutable version. Bind only when the research design asks for it.
+
+## Prevent future leakage
+
+The strategy receives `context.df_factor` with `date`, `symbol`, and `factor_value` across the full period. This DataFrame is not automatically restricted to replay time. At each decision, filter to completed dates strictly before the current decision date as required by the signal timing. Do not inspect future values during initialization.
+
+Backtest the resulting strategy with costs and execution rules. Factor group returns alone do not establish its tradability.

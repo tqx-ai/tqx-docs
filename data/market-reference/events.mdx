@@ -1,41 +1,38 @@
-﻿---
-title: "Market events"
-description: "Retrieve dividend, capital market, corporate, disclosure, and investor-relations events."
-zh-Hant_link: "/hk/data/market-reference/events"
 ---
+title: Market events
+description: "Retrieve dividend, capital market, corporate, disclosure, and investor-relations events."
+zh-Hant_link: /hk/data/market-reference/events
+---
+
+Qube and the [local `tqx-data` package](/data/local-package) both support the methods on this page. The reference below describes Qube parameters and fields; see the [local package guide](/data/local-package) for initialization, examples, and differences.
 
 ## Get events related to stock dividends
 
-### Method name: get_event_devidend
+### Method name: get\_event\_devidend
 
-<Badge icon="calendar" stroke>
-  HK history: 1981-12-05 ~ present
-</Badge>
-<Badge icon="calendar" stroke>
-  US history: 2000-01-06 ~ present
-</Badge>
+<Badge stroke icon="calendar">HK history: 1981-12-05 ~ present</Badge><Badge stroke icon="calendar">US history: 2000-01-06 ~ present</Badge>
 
 ### Enter parameters
 
-| Field      | Type                                  | Description                                  | Is it required |
-| :--------- | :------------------------------------ | :------------------------------------------- | :------------- |
-| start_date | str                                   | Start date,eg: "20250702"                    | Required       |
-| end_date   | str                                   | End date,eg: "20250702"                      | Required       |
-| symbol     | Optional\[Union\[str, List\[str\]\]\] | Stock code                                   | Optional       |
-| fields     | Optional\[Union\[str, List\[str\]\]\] | Return fields                                | Optional       |
-| market     | str                                   | Market, supports `hk`, `us`, default is `hk` | required       |
+| Field | Type | Description | Is it required |
+| :-- | :-- | :-- | :-- |
+| start\_date | str | Start date,eg: "20250702" | Required |
+| end\_date | str | End date,eg: "20250702" | Required |
+| symbol | Optional\[Union\[str, List\[str\]\]\] | Stock code | Optional |
+| fields | Optional\[Union\[str, List\[str\]\]\] | Return fields | Optional |
+| market | str | Market: `hk` or `us`; defaults to `hk`. | Optional |
 
 ### Response parameters
 
-| Field        | Type | Description                                            |
-| :----------- | :--- | :----------------------------------------------------- |
-| publish_date | str  | Event announcement release date (date filtering basis) |
-| symbol       | str  | stock code                                             |
-| excute_date  | str  | event execution date                                   |
-| event_type   | str  | event type                                             |
-| number       | str  | Amount per share                                       |
-| currency     | str  | Transaction currency                                   |
-| event        | str  | event                                                  |
+| Field | Type | Description |
+| :-- | :-- | :-- |
+| publish\_date | str | Event announcement release date (date filtering basis) |
+| symbol | str | stock code |
+| excute\_date | str | event execution date |
+| event\_type | str | event type |
+| number | str | Amount per share |
+| currency | str | Transaction currency |
+| event | str | event |
 
 ### Usage examples
 
@@ -82,52 +79,47 @@ print(result)
 
 ```text
 symbol publish_date ... currency event
-0 A.NB 20250401 ... USD A.NB Interim Cash Dividend of gross USD 0.248 ...
-1 A.NB 20250701 ... USD A.NB Interim Cash Dividend of gross USD 0.248 ...
-2 A.NB 20250930 ... USD A.NB Final Cash Dividend of gross USD 0.248 pa...
-3 A.NB 20260106 ... USD A.NB Interim Cash Dividend of gross USD 0.255 ...
-4 A.NB 20260331 ... USD A.NB Interim Cash Dividend of gross USD 0.255 ...
+0 A 20250401 ... USD ...
+1 A 20250701 ... USD ...
+2 A 20250930 ... USD ...
+3 A 20260106 ... USD ...
+4 A 20260331 ... USD ...
 ... ... ... ... ... ...
-14433 ZWS.NB 20250220 ... USD ZWS.NB Interim Cash Dividend of gross USD 0.09...
-14434 ZWS.NB 20250520 ... USD ZWS.NB Interim Cash Dividend of gross USD 0.09...
-14435 ZWS.NB 20250820 ... USD ZWS.NB Interim Cash Dividend of gross USD 0.09...
-14436 ZWS.NB 20251120 ... USD ZWS.NB Final Cash Dividend of gross USD 0.11 p...
-14437 ZWS.NB 20260220 ... USD ZWS.NB Interim Cash Dividend of gross USD 0.11...
+14433 ZWS 20250220 ... USD ...
+14434 ZWS 20250520 ... USD ...
+14435 ZWS 20250820 ... USD ...
+14436 ZWS 20251120 ... USD ...
+14437 ZWS 20260220 ... USD ...
 ```
 
 ## Get events related to marketing activities
 
-### Method name: get_event_capital_market
+### Method name: get\_event\_capital\_market
 
-<Badge icon="calendar" stroke>
-  HK history: 2021-03-29 ~ present
-</Badge>
-<Badge icon="calendar" stroke>
-  US history: 2025-02-23 ~ present
-</Badge>
+<Badge stroke icon="calendar">HK history: 2021-03-29 ~ present</Badge><Badge stroke icon="calendar">US history: 2025-02-23 ~ present</Badge>
 
 ### Enter parameters
 
-| Field      | Type                                  | Description                                  | Is it required |
-| :--------- | :------------------------------------ | :------------------------------------------- | :------------- |
-| start_date | str                                   | Start date,eg: "20250702"                    | Required       |
-| end_date   | str                                   | End date,eg: "20250702"                      | Required       |
-| symbol     | Optional\[Union\[str, List\[str\]\]\] | Stock code                                   | Optional       |
-| fields     | Optional\[Union\[str, List\[str\]\]\] | Return fields                                | Optional       |
-| market     | str                                   | Market, supports `hk`, `us`, default is `hk` | required       |
+| Field | Type | Description | Is it required |
+| :-- | :-- | :-- | :-- |
+| start\_date | str | Start date,eg: "20250702" | Required |
+| end\_date | str | End date,eg: "20250702" | Required |
+| symbol | Optional\[Union\[str, List\[str\]\]\] | Stock code | Optional |
+| fields | Optional\[Union\[str, List\[str\]\]\] | Return fields | Optional |
+| market | str | Market: `hk` or `us`; defaults to `hk`. | Optional |
 
 ### Response parameters
 
-| Field          | Type | Description                                                                                          |
-| :------------- | :--- | :--------------------------------------------------------------------------------------------------- |
-| info_date      | str  | Announcement date (date filtering basis)                                                             |
-| symbol         | str  | stock code                                                                                           |
-| start_date     | str  | event execution date                                                                                 |
-| end_date       | str  | event completion date                                                                                |
-| is_estimated   | int  | Whether the event is expected (0 means no, 1 means yes)                                              |
-| event_type     | str  | Event type                                                                                           |
-| fiscal_quarter | str  | Fiscal year quarter (if the event does not involve a fiscal year quarter, this column will be empty) |
-| event          | str  | event                                                                                                |
+| Field | Type | Description |
+| :-- | :-- | :-- |
+| info\_date | str | Announcement date (date filtering basis) |
+| symbol | str | stock code |
+| start\_date | str | event execution date |
+| end\_date | str | event completion date |
+| is\_estimated | int | Whether the event is expected (0 means no, 1 means yes) |
+| event\_type | str | Event type |
+| fiscal\_quarter | str | Fiscal year quarter (if the event does not involve a fiscal year quarter, this column will be empty) |
+| event | str | event |
 
 ### Usage examples
 
@@ -164,37 +156,32 @@ symbol start_date ... event_type fiscal_quarter
 
 ## Get events related to company meetings
 
-### Method name: get_event_corporate_actions
+### Method name: get\_event\_corporate\_actions
 
-<Badge icon="calendar" stroke>
-  HK history: 2001-04-05 ~ present
-</Badge>
-<Badge icon="calendar" stroke>
-  US history: 2000-01-04 ~ present
-</Badge>
+<Badge stroke icon="calendar">HK history: 2001-04-05 ~ present</Badge><Badge stroke icon="calendar">US history: 2000-01-04 ~ present</Badge>
 
 ### Enter parameters
 
-| Field      | Type                                  | Description                                  | Is it required |
-| :--------- | :------------------------------------ | :------------------------------------------- | :------------- |
-| start_date | str                                   | Start date,eg: "20250702"                    | Required       |
-| end_date   | str                                   | End date,eg: "20250702"                      | Required       |
-| symbol     | Optional\[Union\[str, List\[str\]\]\] | Stock code                                   | Optional       |
-| fields     | Optional\[Union\[str, List\[str\]\]\] | Return fields                                | Optional       |
-| market     | str                                   | Market, supports `hk`, `us`, default is `hk` | required       |
+| Field | Type | Description | Is it required |
+| :-- | :-- | :-- | :-- |
+| start\_date | str | Start date,eg: "20250702" | Required |
+| end\_date | str | End date,eg: "20250702" | Required |
+| symbol | Optional\[Union\[str, List\[str\]\]\] | Stock code | Optional |
+| fields | Optional\[Union\[str, List\[str\]\]\] | Return fields | Optional |
+| market | str | Market: `hk` or `us`; defaults to `hk`. | Optional |
 
 ### Response parameters
 
-| Field          | Type | Description                                                                                          |
-| :------------- | :--- | :--------------------------------------------------------------------------------------------------- |
-| info_date      | str  | Announcement date (date filtering basis)                                                             |
-| symbol         | str  | stock code                                                                                           |
-| start_date     | str  | event execution date                                                                                 |
-| end_date       | str  | event completion date                                                                                |
-| is_estimated   | int  | Whether the event is expected (0 means no, 1 means yes)                                              |
-| event_type     | str  | Event type                                                                                           |
-| fiscal_quarter | str  | Fiscal year quarter (if the event does not involve a fiscal year quarter, this column will be empty) |
-| event          | str  | event                                                                                                |
+| Field | Type | Description |
+| :-- | :-- | :-- |
+| info\_date | str | Announcement date (date filtering basis) |
+| symbol | str | stock code |
+| start\_date | str | event execution date |
+| end\_date | str | event completion date |
+| is\_estimated | int | Whether the event is expected (0 means no, 1 means yes) |
+| event\_type | str | Event type |
+| fiscal\_quarter | str | Fiscal year quarter (if the event does not involve a fiscal year quarter, this column will be empty) |
+| event | str | event |
 
 ### Usage examples
 
@@ -231,37 +218,32 @@ symbol start_date ... event_type fiscal_quarter
 
 ## Get financial disclosure related events
 
-### Method name: get_event_fina_disclosure
+### Method name: get\_event\_fina\_disclosure
 
-<Badge icon="calendar" stroke>
-  HK history: 2000-01-13 ~ present
-</Badge>
-<Badge icon="calendar" stroke>
-  US history: 2000-01-03 ~ present
-</Badge>
+<Badge stroke icon="calendar">HK history: 2000-01-13 ~ present</Badge><Badge stroke icon="calendar">US history: 2000-01-03 ~ present</Badge>
 
 ### Enter parameters
 
-| Field      | Type                                  | Description                                  | Is it required |
-| :--------- | :------------------------------------ | :------------------------------------------- | :------------- |
-| start_date | str                                   | Start date,eg: "20250702"                    | Required       |
-| end_date   | str                                   | End date,eg: "20250702"                      | Required       |
-| symbol     | Optional\[Union\[str, List\[str\]\]\] | Stock code                                   | Optional       |
-| fields     | Optional\[Union\[str, List\[str\]\]\] | Return fields                                | Optional       |
-| market     | str                                   | Market, supports `hk`, `us`, default is `hk` | required       |
+| Field | Type | Description | Is it required |
+| :-- | :-- | :-- | :-- |
+| start\_date | str | Start date,eg: "20250702" | Required |
+| end\_date | str | End date,eg: "20250702" | Required |
+| symbol | Optional\[Union\[str, List\[str\]\]\] | Stock code | Optional |
+| fields | Optional\[Union\[str, List\[str\]\]\] | Return fields | Optional |
+| market | str | Market: `hk` or `us`; defaults to `hk`. | Optional |
 
 ### Response parameters
 
-| Field          | Type | Description                                                                                          |
-| :------------- | :--- | :--------------------------------------------------------------------------------------------------- |
-| info_date      | str  | Announcement date (date filtering basis)                                                             |
-| symbol         | str  | stock code                                                                                           |
-| start_date     | str  | event execution date                                                                                 |
-| end_date       | str  | event completion date                                                                                |
-| is_estimated   | int  | Whether the event is expected (0 means no, 1 means yes)                                              |
-| event_type     | str  | Event type                                                                                           |
-| fiscal_quarter | str  | Fiscal year quarter (if the event does not involve a fiscal year quarter, this column will be empty) |
-| event          | str  | event                                                                                                |
+| Field | Type | Description |
+| :-- | :-- | :-- |
+| info\_date | str | Announcement date (date filtering basis) |
+| symbol | str | stock code |
+| start\_date | str | event execution date |
+| end\_date | str | event completion date |
+| is\_estimated | int | Whether the event is expected (0 means no, 1 means yes) |
+| event\_type | str | Event type |
+| fiscal\_quarter | str | Fiscal year quarter (if the event does not involve a fiscal year quarter, this column will be empty) |
+| event | str | event |
 
 ### Usage examples
 
@@ -298,37 +280,32 @@ symbol start_date ... event_type fiscal_quarter
 
 ## Get events related to investor relations activities
 
-### Method name: get_event_investor_relation_activities
+### Method name: get\_event\_investor\_relation\_activities
 
-<Badge icon="calendar" stroke>
-  HK history: 2000-01-13 ~ present
-</Badge>
-<Badge icon="calendar" stroke>
-  US history: 2000-01-04 ~ present
-</Badge>
+<Badge stroke icon="calendar">HK history: 2000-01-13 ~ present</Badge><Badge stroke icon="calendar">US history: 2000-01-04 ~ present</Badge>
 
 ### Enter parameters
 
-| Field      | Type                                  | Description                                  | Is it required |
-| :--------- | :------------------------------------ | :------------------------------------------- | :------------- |
-| start_date | str                                   | Start date,eg: "20250702"                    | Required       |
-| end_date   | str                                   | End date,eg: "20250702"                      | Required       |
-| symbol     | Optional\[Union\[str, List\[str\]\]\] | Stock code                                   | Optional       |
-| fields     | Optional\[Union\[str, List\[str\]\]\] | Return fields                                | Optional       |
-| market     | str                                   | Market, supports `hk`, `us`, default is `hk` | required       |
+| Field | Type | Description | Is it required |
+| :-- | :-- | :-- | :-- |
+| start\_date | str | Start date,eg: "20250702" | Required |
+| end\_date | str | End date,eg: "20250702" | Required |
+| symbol | Optional\[Union\[str, List\[str\]\]\] | Stock code | Optional |
+| fields | Optional\[Union\[str, List\[str\]\]\] | Return fields | Optional |
+| market | str | Market: `hk` or `us`; defaults to `hk`. | Optional |
 
 ### Response parameters
 
-| Field          | Type | Description                                                                                          |
-| :------------- | :--- | :--------------------------------------------------------------------------------------------------- |
-| info_date      | str  | Announcement date (date filtering basis)                                                             |
-| symbol         | str  | stock code                                                                                           |
-| start_date     | str  | event execution date                                                                                 |
-| end_date       | str  | event completion date                                                                                |
-| is_estimated   | int  | Whether the event is expected (0 means no, 1 means yes)                                              |
-| event_type     | str  | Event type                                                                                           |
-| fiscal_quarter | str  | Fiscal year quarter (if the event does not involve a fiscal year quarter, this column will be empty) |
-| event          | str  | event                                                                                                |
+| Field | Type | Description |
+| :-- | :-- | :-- |
+| info\_date | str | Announcement date (date filtering basis) |
+| symbol | str | stock code |
+| start\_date | str | event execution date |
+| end\_date | str | event completion date |
+| is\_estimated | int | Whether the event is expected (0 means no, 1 means yes) |
+| event\_type | str | Event type |
+| fiscal\_quarter | str | Fiscal year quarter (if the event does not involve a fiscal year quarter, this column will be empty) |
+| event | str | event |
 
 ### Usage examples
 

@@ -1,0 +1,221 @@
+---
+title: Factor API
+description: "Create, update, analyze, and find factors with the TQX CLI or TypeScript SDK."
+zh-Hant_link: /hk/qube/api/factors
+related: ["/qube/cli/quickstart","/qube/api/runs","/qube/research/factor"]
+---
+
+Use `tqx research factor` or `client.research` to manage the same Qube factors. IDs are lowercase 24-character ObjectIds. Read current source and configuration revisions before making changes.
+
+<Tabs>
+  <Tab title="CLI">
+    ## Commands
+
+    ```text
+    tqx research factor create --market=hk|us (--formula=<formula>|--code=<python>|--file=<path>) [--title] [--description]
+    tqx research factor info <id>
+    tqx research factor source <id>
+    tqx research factor save <id> --baseSourceRevision=<n> (--formula|--code|--file)
+    tqx research factor update <id> --baseConfigRevision=<n> [--title] [--description] [--startDate] [--endDate] [--adjustmentCycle=1|3|5|10|20|30] [--groupNumber=3|5|10|20] [--factorDirection=Positive|Negative|1|-1]
+    tqx research factor run <id> --expectedSourceRevision=<n> --expectedConfigRevision=<n> [analysis-options] [--pollInterval=<s>] [--timeout=<s>] [--noWait]
+    tqx research factor stop <analysis-id>
+    tqx research factor result <analysis-id>
+    tqx research factor analyses <id> [--includeDeleted] [--status=<status>]
+    tqx research factor list [list-options]
+    tqx research factor delete <id>... --yes
+    ```
+
+    ## Command inputs and outputs
+
+    | Command | Main inputs | Output |
+    | --- | --- | --- |
+    | `factor create` | `--market`, exactly one of `--formula`, `--code`, `--file`; optional `--title`, `--description` | Created factor with ObjectId, source and configuration revisions |
+    | `factor info` | `<factor-id>` | Current title, source/config revisions, settings, validation and status |
+    | `factor source` | `<factor-id>` | Current source code and code type |
+    | `factor save` | `<factor-id>`, `--baseSourceRevision`, new formula or Python source | Updated source revision; does not run analysis |
+    | `factor update` | `<factor-id>`, `--baseConfigRevision`, title/description/analysis options | Updated configuration revision; does not run analysis |
+    | `factor run` | `<factor-id>`, both expected revisions, analysis options and wait options | Analysis submission and, unless `--noWait`, the polled run |
+    | `factor result` | `<analysis-id>` | Current status and successful analysis result |
+    | `factor list` | Market, cursor, limit, keyword, `--includeContent` | JSON or plain list with `has_more` and `next_cursor` |
+    | `factor delete` | One or more IDs and `--yes` | Deleted resource confirmation |
+
+    `--json` writes machine-readable output to stdout and JSON errors to stderr. `--plain` produces readable text. A run is successful only when its server status is `succeeded`.
+
+    Create accepts exactly one source input. A formula uses uppercase field names and supported operators. `save` retains the existing code type. `update` changes title, description, or saved analysis configuration; it does not execute a run.
+
+    ## Listings and output
+
+    | Option or field | Meaning | Limit or output |
+    | --- | --- | --- |
+    | `--market=all\|hk\|us` | Filter by market | Defaults to all available markets |
+    | `--cursor=<next_cursor>` | Continue a previous page | Use the exact returned cursor |
+    | `--limit=1..100` | Number of factors | Library page limit is 1–100 |
+    | `--keyword=<text>` | Search title or description | Text filter |
+    | `--includeContent` | Include source or run detail | Larger response; omit when listing only metadata |
+    | `--json` / `--plain` | Choose output format | JSON errors go to stderr |
+    | `has_more` / `next_cursor` | Pagination fields in the response | Continue only when `has_more` is true |
+
+    | Analysis status | Meaning |
+    | --- | --- |
+    | `preparing`, `queued`, `running` | The server is preparing or executing the analysis |
+    | `succeeded` | Results and charts can be read |
+    | `failed`, `cancelled` | No successful analysis result is available |
+
+    The analysis period is at most five calendar years, including the exact five-year boundary.
+
+    ## Factor tuning file
+
+    ```json
+    {
+      "requestId": "factor-tuning-2026-01",
+      "expectedSourceRevision": 2,
+      "expectedConfigRevision": 3,
+      "candidates": [
+        { "baseline": true },
+        { "factorParameters": { "short_window": 5, "long_window": 20 } }
+      ],
+      "researchPeriod": { "periodStart": "2025-01-01", "periodEnd": "2026-06-30" },
+      "warmupTradingDays": 20
+    }
+    ```
+
+    Use one baseline with no overrides, finite numeric `FACTOR_PARAMS`, at most 32 candidates including the baseline, and `warmupTradingDays` from 0 to 5000. The objective is `rank_ic_mean`; there is no holdout split. Apply with the current expected revisions, then run and review an ordinary analysis before creating a named version.
+  </Tab>
+  <Tab title="TypeScript SDK">
+    ## Create and analyze a factor
+
+    Install and initialize the [TypeScript SDK](/qube/sdk/overview) first. This Node.js example creates a formula factor, saves analysis settings, validates the source, and waits for an analysis. Review the market and period before running it.
+
+    ```typescript
+    import { randomUUID } from "node:crypto"
+    import { TqxClient } from "@tqx-ai/sdk"
+    
+    const client = new TqxClient({
+      apiKey: process.env.TQX_API_KEY!,
+      baseUrl: process.env.TQX_BASE_URL!,
+    })
+    const created = await client.research.createFactor({
+      requestId: randomUUID(),
+      title: "Moving-average spread",
+      description: "5-day minus 20-day mean close",
+      market: "hk",
+      codeType: "formula",
+      code: "TS_MEAN(CLOSE,5)-TS_MEAN(CLOSE,20)",
+    })
+    const configured = await client.research.updateFactor(created.id, {
+      baseConfigRevision: created.config_revision,
+      parameters: {
+        periodStart: "2025-01-01",
+        periodEnd: "2026-06-30",
+        adjustmentCycle: 5,
+        groupNumber: 10,
+        factorDirection: 1,
+      },
+    })
+    const validation = await client.research.validateFactor({
+      factorId: created.id,
+      expectedSourceRevision: configured.source_revision,
+    })
+    if (validation.valid !== true) throw new Error("Review source diagnostics")
+    
+    const submission = await client.research.createFactorAnalysis(created.id, {
+      requestId: randomUUID(),
+      expectedSourceRevision: configured.source_revision,
+      expectedConfigRevision: configured.config_revision,
+    })
+    const result = await client.research.pollFactorAnalysis(submission.run_id, {
+      interval: 2,
+      timeout: 600,
+    })
+    if (result.status !== "succeeded") {
+      throw new Error(`Inspect run ${result.id}: ${result.status}`)
+    }
+    console.log(result.metrics)
+    ```
+
+    `codeType` is `formula` or `python`. Analysis settings use `periodStart`, `periodEnd`, `adjustmentCycle`, `groupNumber`, and `factorDirection`. The period must increase and span at most five calendar years. Submission returns `run_id`; use it when reading or polling the analysis.
+
+    ## Read and update a factor
+
+    All methods below belong to `client.research`. Replace `id` and `runId` with returned resource IDs.
+
+    | Method | Input | Output |
+    | --- | --- | --- |
+    | `createFactor(input)` | `requestId`, `title`, `code`, `codeType`, `market`, optional `description` | Factor with `id`, `source_revision`, `config_revision` |
+    | `getFactor(id)` | Factor ObjectId | Current factor and configuration |
+    | `getFactorSource(id)` | Factor ObjectId | Source object with `code` and revision |
+    | `updateFactorSource(id, input)` | `requestId`, `baseSourceRevision`, `code` | Updated source and new source revision |
+    | `updateFactor(id, input)` | `baseConfigRevision`, optional title/description/parameters | Updated factor and new config revision |
+    | `validateFactor(input)` | Saved factor ID plus expected source revision, or inline `code`, `codeType`, `market` | `{ valid, diagnostics, code_sha256 }` |
+    | `createFactorAnalysis(id, input)` | Request ID, both expected revisions, optional parameters | Submission with `run_id`, status and frozen params |
+    | `getFactorAnalysis(runId)` | Analysis `run_id` | Status, progress and metrics |
+    | `pollFactorAnalysis(runId, options)` | Optional `interval`, `timeout`, callback | Latest analysis; timeout adds `cli_status: "TIMEOUT"` |
+    | `listFactorAnalyses(id, input)` | Optional `includeDeleted`, status | `{ runs }` |
+    | `cancelFactorAnalysis(runId)` | Analysis `run_id` | Updated cancellation state |
+    | `deleteFactor(id)` | Factor ObjectId | Deleted factor metadata |
+
+    `?` marks an optional field. Source saves retain the code type. Source and configuration have separate revisions; read the current resource before an update. Saving or static validation does not execute an analysis.
+
+    ## Input fields
+
+    Create, update, and analysis methods use these fields. Every setting inside `parameters` is optional; omitted values use saved settings or market defaults.
+
+    | Field | Type / limit | Purpose |
+    | --- | --- | --- |
+    | `requestId` | `string`, 1–128 characters | Identifies a mutation; reuse for an identical retry |
+    | `title` | `string`, 1–200 characters | Business name without paths or `.py` / `.formula` extensions |
+    | `description` | `string`, optional, up to 2000 characters | Research purpose and assumptions |
+    | `market` | `"hk"`, `"us"` | Hong Kong or US research covered here |
+    | `code` | `string`, up to 1 MiB | Complete source |
+    | `baseSourceRevision` / `baseConfigRevision` | Positive integer | Read with `getFactor` before source / config updates |
+    | `expectedSourceRevision` / `expectedConfigRevision` | Positive integer, required for submission | Checks source and configuration revisions used by the run |
+    | `codeType` | `"formula"` / `"python"` | Required on create; source updates retain the type |
+
+    ### Analysis settings: `parameters`
+
+    | Field | Type / limit | Purpose |
+    | --- | --- | --- |
+    | `periodStart` / `periodEnd` | `YYYY-MM-DD` | End after start; at most five calendar years |
+    | `adjustmentCycle` | 1, 3, 5, 10, 20, 30 | Rebalancing cycle in trading days |
+    | `groupNumber` | 3, 5, 10, 20 | Number of groups |
+    | `factorDirection` | `1` / `-1` | Positive / negative direction |
+
+    ### Main response fields
+
+    Resource and analysis responses expose different fields; use the response type in the method table.
+
+    | Field | Type / limit | Purpose |
+    | --- | --- | --- |
+    | `id` | `string` | Factor or run ObjectId |
+    | `source_revision` / `config_revision` | `number` | Current resource revisions for the next update or run |
+    | `parameters` | `object` | Saved analysis settings |
+    | `validation` / `parameter_validation` | `object`, nullable or omitted | Source / configuration validation |
+    | `run_id` | `string` | Submission run ID for `getFactorAnalysis` or `pollFactorAnalysis` |
+    | `status` | `string` | Preparation, execution, or terminal state |
+    | `idempotent` / `code_sha256` / `params` | `boolean` / `string` / `object` | Submission retry marker, source hash, and frozen parameters |
+    | `progress` / `metrics` | `object`, nullable or omitted | Progress / analysis metrics, when available |
+
+    ## Search and paginate
+
+    ```typescript
+    const first = await client.research.listFactors({
+      market: "hk",
+      keyword: "moving-average",
+      limit: 20,
+    })
+    if (first.hasMore && first.nextCursor) {
+      const next = await client.research.listFactors({
+        market: "hk",
+        keyword: "moving-average",
+        limit: 20,
+        cursor: first.nextCursor,
+      })
+      console.log(next.items)
+    }
+    ```
+
+    Library pages return `{ items, hasMore, nextCursor, counts? }`, with limits of 1–100. `bindableOnly: true` filters for bindable factors. Use `listAnalyses(input)` for cross-factor run summaries, with limits of 1–10.
+
+    Continue with [runs, versions, and tuning](/qube/api/runs) for named versions, analysis snapshots, restore, and tuning. For SSE progress and error classes, see [streaming, polling, and errors](/qube/sdk/streaming).
+  </Tab>
+</Tabs>

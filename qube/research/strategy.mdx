@@ -1,0 +1,27 @@
+---
+title: "What is a strategy?"
+sidebarTitle: "What is a strategy?"
+description: "Learn how a strategy turns signals into portfolio decisions, then see how Qube validates, backtests, versions, and tunes it."
+zh-Hant_link: /hk/qube/research/strategy
+related: ["/qube/research/strategy/create","/qube/research/strategy/code","/qube/research/strategy/backtest"]
+---
+
+Imagine a recipe for deciding what to buy, how much to hold, when to change it, and how to account for costs. A strategy is that recipe written as rules that can be tested again. A backtest follows the rules over historical data so you can inspect what would have happened.
+
+In Qube, a strategy combines signals with holdings, orders, cost assumptions, and risk rules. Qube validates the source, then runs it in the strategy backtest engine against historical data in one market. It records the equity, transactions, costs, logs, and failures. This is separate from the general [Qube sandbox](/data/qube-runtime) used for conversations and workspace tasks. A backtest does not place orders in your trading account.
+
+## The Qube strategy lifecycle
+
+1. [Create](/qube/research/strategy/create) an `hk` or `us` strategy with a `title` and `description`.
+2. [Write and validate source](/qube/research/strategy/code), then save valid backtest configuration.
+3. [Submit a backtest](/qube/research/strategy/backtest). Each run freezes both revisions and any factor binding.
+4. Review equity, transactions, costs, logs, and failures.
+5. [Create a named version](/qube/research/strategy/versions) from a successful ordinary run.
+6. [Tune](/qube/research/strategy/optimization) a bounded set of numeric parameters and revalidate.
+
+| Market | Strategy symbol | Engine history module |
+| --- | --- | --- |
+| Hong Kong | `0700.HK` | [`stock_hk_api`](https://github.com/tqx-ai/tqx-ts/blob/main/skills/tqx-research/references/stock_hk_api.md) |
+| US | `AAPL.NB` | [`stock_us_api`](https://github.com/tqx-ai/tqx-ts/blob/main/skills/tqx-research/references/stock_us_api.md) |
+
+Source and configuration revisions advance independently. Saving is not execution, and named versions are not created automatically. Use the CLI or SDK in the [Strategy API](/qube/api/strategies) for the same assets.

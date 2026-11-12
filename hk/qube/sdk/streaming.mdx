@@ -1,0 +1,45 @@
+---
+title: 串流、輪詢與錯誤
+description: 使用輪詢或 SSE 追蹤研究進度，並處理逾時與 SDK 錯誤。
+en_link: /qube/sdk/streaming
+related: ["/hk/qube/sdk/overview","/hk/qube/api/runs"]
+---
+
+使用輪詢可定期檢查進度；使用 SSE（伺服器發送事件）則可透過持續連線接收更新。執行以下範例前，先初始化 [TypeScript SDK](/hk/qube/sdk/overview)。
+
+## 輪詢
+
+```typescript
+const result = await client.research.pollFactorAnalysis(analysisId, {
+  interval: 2,
+  timeout: 600,
+  progressCallback: value => console.log(value.status),
+})
+```
+
+輪詢在 succeeded、failed 或 cancelled 時停止。逾時會回傳最新資產並附帶逾時標記，不會取消伺服器任務。
+
+## SSE protocol 1
+
+```typescript
+const controller = new AbortController()
+for await (const event of client.research.streamBacktest(runId, {
+  signal: controller.signal,
+})) {
+  console.log(event.event, event.seq, event.value.status)
+}
+```
+
+SDK 使用 protocol 1：每個事件的 `value` 都包含完整狀態快照。事件包括 `snapshot`、`done`、`error` 及 `cancelled`。重新開啟時可把最後序號傳入 `after`。SDK 不會自動重連；使用者離開頁面或取消本機工作時，請中止 `signal`。
+
+## 錯誤處理
+
+傳輸失敗捕捉 TqxNetworkError，伺服器回應捕捉 TqxApiError，錯誤回應或 SSE 資料捕捉 TqxProtocolError，輸入或 schema 錯誤捕捉 TqxValidationError。遠端失敗與本機逾時不同，請保留執行 ID 供後續檢查。
+
+## 其他串流及最終狀態
+
+`streamFactorAnalysis`、`streamBacktest`、`streamFactorTuning` 及 `streamStrategyTuning` 都回傳 `{ event, id, seq, value }` 的非同步迭代器。串流收到最終事件後結束。`done` 是 SSE 事件，不是執行狀態；一般執行成功仍為 `succeeded`。
+
+輪詢選項以秒為單位，`interval` 預設 2，`timeout` 預設 600。逾時會在最新結果加上 `cli_status: "TIMEOUT"` 及 `timeout_seconds`，須同時檢查最終狀態及逾時標記。中止串流只會停止本機讀取；要請求伺服器取消，請明確呼叫對應取消方法。
+
+網路中斷時，保留最後 `seq`，再以 `{ after: lastSeq, signal }` 續接。先處理失敗及最終快照，再決定是否重連。只有變更 body 完全相同時，才能安全重用 request ID。

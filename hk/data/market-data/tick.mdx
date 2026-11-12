@@ -1,109 +1,105 @@
-﻿---
-title: "Tick 數據"
-description: "取得港股與美股的最新 Tick 資料。"
-en_link: "/data/market-data/tick"
+---
+title: Tick 數據
+description: 使用 TickStreamClient 訂閱港股與美股即時 Tick，處理訊息並管理連線。
+en_link: /data/market-data/tick
+related: ["/hk/data/market-data/live-minute","/hk/data/local-package"]
 ---
 
-<Note>
-  本頁的方法僅能在 Qube 中使用，PyPI 上的 `tqx-data` 套件不提供這些方法。
-</Note>
+<Check>
+  本頁僅適用於 [本機 `tqx-data` 套件](/hk/data/local-package)。
+</Check>
 
-## 取得 Tick 資料
+## 什麼是 Tick？
 
-### 方法名稱：get_tick_data
+Tick 可以理解為市場的一次即時更新。它可能記錄一筆成交、一次報價變化，或其他即時行情資訊。你觀察一隻股票時，同一個標的可能會持續收到很多 Tick。
 
-<Badge icon="cloud" color="blue">僅限 Qube</Badge> <Badge icon="bolt" stroke>即時數據</Badge>
+一分鐘 Bar 會把一分鐘內的多次更新整理成一個摘要；Tick 則保留每次更新，所以適合需要隨市場變化即時處理的情況。Tick 不一定按照固定時間間隔送達，市場越活躍，收到的訊息通常越多。
 
-### 入參
+使用 `TickStreamClient` 訂閱即時行情。你提供股票代號與接收訊息的函式，客戶端會透過 <Tooltip tip="WebSocket 是一條持續開啟的連線，讓數據服務在有新訊息時主動推送給你的程式。你不需要為每次更新重新發送請求。" headline="WebSocket">WebSocket</Tooltip> 持續把訊息交給該函式。
 
-| 字段 | 類型 | 描述 |
-|:---|:---|:---|
-| symbol | Optional\[Union\[str, List\[str\]\]\] | 股票代號 |
-| market | Optional\[str\] | 市場，預設為 `hk`，可選 `hk`、`nb` |
+## 開始訂閱
 
-### 回應參數
+先安裝套件：
 
-| 字段 | 類型 | 描述 |
-|:-------------|:-------|:---------------|
-| date | str | 日期與時間 |
-| symbol | str | 檔 |
-| last_price | double | 最新價 |
-| price_change | double | 價格變動 |
-| percentage | double | 價格百分比變化 |
+```bash
+python -m pip install --upgrade tqx-data
+```
 
-### 使用範例
-
-#### 取得1檔股票的最新tick數據
+在 [開發者設定](https://www.tqx.ai/user-center?tab=dev-settings) 建立數據 API Key，替換下方的 `sk-tqx-...`。範例接收港股訊息 30 秒，結束時關閉連線。
 
 ```python
+import time
 import tqx_data
-result = tqx_data.get_tick_data(
-    symbol=["0700.HK"],
-    market="hk",
+from tqx_data import TickStreamClient
+
+tqx_data.init(
+    api_key="sk-tqx-...",
+    base_url="https://tqxdata.tqx.ai",
 )
-print(result)
+
+def on_message(message):
+    print(message)
+
+client = TickStreamClient(market="HK")
+client.subscribe_tick(["0700.HK", "0005.HK"])
+
+try:
+    client.listen(handler=on_message)
+    time.sleep(30)
+finally:
+    client.close()
 ```
 
-**回應範例**
+美股請改用 `market="US"`，並傳入 `AAPL`、`TSLA` 等不帶後綴的代號。一個客戶端只能訂閱一個市場。
 
-```text
-symbol last_price date
-0 0700.HK 516.0 2026-03-24 15:59:59.000
-```
+## 建構參數
 
-#### 取得全港股的最新tick數據
+完成 `tqx_data.init(...)` 後，只需提供 `market` 即可建立客戶端。以下參數可調整接收方式：
+
+| 參數 | 類型 | 預設值 | 說明 |
+| --- | --- | --- | --- |
+| `market` | `str` | 必填 | `"HK"` 或 `"US"` |
+| `heartbeat_interval` | `int` | `30` | 心跳間隔，單位為秒 |
+| `reconnect_interval` | `float` | `3.0` | 斷線後重連前的等待秒數 |
+| `max_reconnect_attempts` | `int` | `0` | 最大重連次數；`0` 表示不限次數 |
+| `parse_json` | `bool` | `True` | 解析 JSON 訊息；設為 `False` 時回傳原始字串 |
+| `batch_callback` | `bool` | `False` | 設為 `True` 時，回呼每次接收一批訊息列表 |
+| `handler_batch_size` | `int` | `1000` | 每批訊息的最大數量 |
+| `handler_batch_timeout` | `float` | `0.01` | 每批最多等待的秒數 |
+
+## 方法與回傳值
+
+| 方法或屬性 | 輸入 | 回傳 | 用途 |
+| --- | --- | --- | --- |
+| `subscribe_tick(symbols)` | 單一代號字串或字串列表 | `None` | 新增訂閱 |
+| `unsubscribe_tick(symbols)` | 單一代號字串或字串列表 | `None` | 取消指定訂閱，其他訂閱繼續接收 |
+| `listen(handler=None, block=False)` | 訊息回呼及是否阻塞目前執行緒 | `None` | 開始接收；未提供回呼時列印訊息 |
+| `close()` | 無 | `None` | 關閉連線並停止接收 |
+| `subscribed_symbols` | 屬性，無須括號 | `set[str]` | 目前已訂閱的標的集合 |
+| `is_running` | 屬性，無須括號 | `bool` | 客戶端是否正在執行 |
+| `get_stats()` | 無 | `dict` | 接收、處理及丟棄數量，以及每秒處理量 |
+
+`listen` 預設在背景執行，上方範例以 `time.sleep(30)` 保持程式執行。若希望持續接收並佔用目前執行緒，請使用 `listen(handler=on_message, block=True)`。
+
+## 處理收到的訊息
+
+預設回呼每次收到一則訊息。JSON 訊息會先解析，無法解析的內容則保留為原始字串。訊息可能是訂閱確認或行情資料；先列印訊息確認欄位，再加入自己的處理邏輯。
+
+如需批次處理，設定 `batch_callback=True`。此時回呼收到的是列表：
 
 ```python
-import tqx_data
-result = tqx_data.get_tick_data(
-    market="hk",
-)
-print(result)
+def on_batch(messages):
+    for message in messages:
+        print(message)
+
+client = TickStreamClient(market="HK", batch_callback=True)
+client.subscribe_tick("0700.HK")
+
+try:
+    client.listen(handler=on_batch)
+    time.sleep(30)
+finally:
+    client.close()
 ```
 
-**回應範例**
-
-```text
-symbol date last_price
-0 0001.HK 2026-03-24 15:59:56.000 58.850
-1 0002.HK 2026-03-24 15:59:55.000 72.350
-2 0003.HK 2026-03-24 15:59:54.000 7.130
-3 0004.HK 2026-03-24 15:59:51.000 23.040
-4 0005.HK 2026-03-24 15:59:57.000 123.500
-... ... ... ...
-2731 9993.HK 2026-03-24 15:59:48.000 1.370
-2732 9995.HK 2026-03-24 15:59:55.000 91.400
-2733 9996.HK 2026-03-24 15:59:18.000 5.600
-2734 9998.HK 2026-03-24 15:58:54.000 0.475
-2735 9999.HK 2026-03-24 15:59:53.000 177.300
-```
-
-#### 取得全美股的最新tick數據
-
-```python
-import tqx_data
-result = tqx_data.get_tick_data(
-    market="nb",
-)
-print(result)
-```
-
-**回應範例**
-
-```text
-symbol date last_price
-0 A.NB 2026-03-25 03:59:49.344 114.1400
-1 AA.NB 2026-03-25 03:59:51.123 56.6900
-2 AACBR.NB 2026-03-25 02:24:16.798 0.3250
-3 AACBU.NB 2026-03-24 03:59:00 10.5300
-4 AACG.NB 2026-03-25 03:59:29.319 1.0100
-... ... ... ...
-6470 ZWZZT.NB 2026-03-25 03:59:00 10.0100
-6471 ZXIET.NB 2026-03-25 03:59:00 100.0000
-6472 ZXZZT.NB 2026-03-25 03:59:00 12.1000
-6473 ZYBT.NB 2026-03-25 03:59:48.032 0.8404
-6474 ZYME.NB 2026-03-25 03:59:50.931 23.6150
-```
-
-**7.指標計算介面**
-
+這段沿用前面的匯入和初始化。需要調整訂閱時，使用 `client.subscribe_tick("0005.HK")` 新增標的，或 `client.unsubscribe_tick("0700.HK")` 取消標的。

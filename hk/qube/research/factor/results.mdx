@@ -1,0 +1,31 @@
+---
+title: 閱讀因子結果
+en_link: /qube/research/factor/results
+related: ["/hk/qube/research/factor/versions","/hk/qube/research/factor/optimization","/hk/qube/research/strategy/factor-to-strategy"]
+---
+
+開啟狀態為 `succeeded` 的分析，先檢查該次固定的輸入，再解讀圖表。結果描述的是該次執行，不是目前已修改的因子原始碼。
+
+## 方向與分組報酬
+
+分組按因子值由低至高排列。正向以最高組為目標，負向以最低組為目標。正向的 `long_short` 是最高組減最低組，負向則相反。`long_short_2` 使用次高與次低組。
+
+| 指標 | 解讀 |
+| --- | --- |
+| 因子報酬及年化報酬 | 依方向選取的分組或報酬序列表現。 |
+| Sharpe | 相對波動的報酬。 |
+| 最大回撤 | 所選序列最大的高點至低點損失。 |
+| `IC_mean`、`IC_std`、`IC_IR` | Pearson 資訊係數的平均、離散程度及平均與變異比。 |
+| `Rank_IC` | 因子排序與未來報酬的等級關係。 |
+| `IR` | 所選報酬序列的資訊比率。 |
+| `t-stat`、IC 機率統計 | 統計診斷；解讀前先檢查樣本量及相依性。 |
+
+## 綜合閱讀證據
+
+- 分組曲線及表格顯示區分度、單調性、波動、換手及回撤。
+- IC 及 Rank IC 的序列、分佈、衰減及自相關顯示穩定性和預測期間差異。
+- 最新數值顯示所選橫截面，可能是標準化數值而不是原始價格。
+- 預覽曲線可能經過抽樣。交易觀測數應以實際結果計算，不要用預覽點數代替。
+- `metrics.rows` 是輸入資料列數，不是不同股票的數量。
+
+檢查涵蓋範圍、缺失值、經濟解釋及獨立驗證期間。漂亮的因子分析不等於包含下單和成本的回測。你可以保留 [命名版本](/hk/qube/research/factor/versions)，或定義明確的 [策略規則](/hk/qube/research/strategy/factor-to-strategy)。

@@ -1,0 +1,20 @@
+---
+title: Qube Skill 和數據
+description: 了解 Skill 如何協助 Qube 查詢數據、編寫因子與策略，並選擇適合的數據環境。
+en_link: /qube/concepts/data-and-skills
+related: ["/hk/data/info","/hk/data/local-package","/hk/qube/workspace"]
+---
+
+Qube Skill 是可重用的操作指引，協助 AI 查詢數據、編寫因子與策略、設定排程及使用工作區知識。詳見 [Skill](/hk/qube/workspace/skills) 如何支援研究任務。
+
+## 使用 Qube 數據執行環境
+
+程式碼在 Qube 內執行時，使用內建的 `tqx_data` 模組，不需要本機 API Key 初始化。先閱讀 [在 Qube 中存取數據](/hk/data/qube-runtime)，再從 [數據參考](/hk/data/info) 選擇所需方法。
+
+## 配合市場選擇資料
+
+建立因子或策略時，港股選擇 `hk`，美股選擇 `us`。個別數據方法的市場代碼與股票格式可能不同，請查閱該方法的參數表。研究程式碼請依照 [編寫因子](/hk/qube/research/factor/code) 或 [編寫策略](/hk/qube/research/strategy/code) 的說明，執行前先檢查 Qube 的驗證訊息。
+
+## 將研究資產與檔案分開
+
+工作區檔案可以放草稿、數據與報告。若要修改已建立的因子或策略，請開啟其詳情頁，或使用 [因子 API](/hk/qube/api/factors) 或 [策略 API](/hk/qube/api/strategies)。只修改工作區檔案，不會更新資產的程式碼或設定。

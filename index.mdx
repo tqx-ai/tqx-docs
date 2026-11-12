@@ -1,34 +1,50 @@
 ---
-title: "Introduction"
-description: "TQX is all you need for AI trading!"
-zh-Hant_link: "/hk"
+title: TQX documentation
+sidebarTitle: Overview
+description: "Choose the right TQX entry point for product guides, AI-assisted research in Qube, market data APIs, and trading workflows."
+keywords: ["TQX","Qube","quantitative research","market data","trading"]
+related: ["/qube","/data/info","/cli"]
+zh-Hant_link: /hk/index
 ---
 
-# Use TQX QUBE
+TQX brings together AI-assisted quantitative research, market data, and trading workflows. Use these docs to choose the right product area and move from a question to a reviewable result.
 
-Explore strategies, build quantitative workflows, and turn research into reviewable trading decisions without coding. Go from trading idea to working strategy
+<Columns cols={3}>
+  <Card title="Guides" icon="book-open" href="/cli">
+    Learn the common TQX workflows, install the CLI, connect an account, and find support.
+  </Card>
 
-TQX QUBE is an AI-powered workspace for quantitative research and trading workflow design.
+  <Card title="Qube" icon="sparkles" href="/qube">
+    Research factors and strategies with an AI workspace, data Skills, backtests, versions, and tuning.
+  </Card>
 
-Start with a market hypothesis, factor idea, research document, dataset, existing strategy, or workflow you want to improve.
+  <Card title="Data" icon="database" href="/data/info">
+    Access data in Qube or use the local Python `tqx-data` package. Choose the API reference for your environment.
+  </Card>
+</Columns>
 
-Add the context and tools it needs, such as market data, research files, Python code, risk limits, portfolio rules, and execution requirements.
+## Choose your starting point
 
-## From Quantitative Research to Evidence-Based Decisions
+<Tabs>
+  <Tab title="I want to research">
+    Start with [Qube](/qube). You can describe a research question, inspect data, create a factor or strategy, run an analysis or backtest, and review the result.
+  </Tab>
+  <Tab title="I want data">
+    Start with [TQX data](/data/info). Choose the [Qube runtime](/data/qube-runtime) or the [local package](/data/local-package) before copying an example.
+  </Tab>
+  <Tab title="I want to trade">
+    Start with [Trading](/trading/info). Use the [CLI guide](/cli) to install `tqx`, authenticate, and choose research or account commands.
+  </Tab>
+</Tabs>
 
-The next generation of quantitative systems will not be built around a single model, factor, or trading signal. They will be built around a complete research and execution harness that connects:
+## What Qube is for
 
-- Market and alternative data.
-- Factor discovery and validation.
-- Strategy design and implementation.
-- Rapid historical backtesting.
-- Portfolio construction and position sizing.
-- Parameter optimization and robustness testing.
-- Performance and risk evaluation.
-- Liquidity and transaction-cost controls.
-- Human review and authorization.
-- Broker connectivity and execution infrastructure.
+Qube helps you connect a market hypothesis to evidence. It keeps research source, parameters, runs, results, and versions tied together so you can compare experiments and review assumptions before acting.
 
-QUBE helps researchers move quickly from an initial idea to a testable strategy and measurable results. Instead of spending time repeatedly collecting data, writing boilerplate code, configuring backtests, and calculating performance metrics, users can ask QUBE to organize and run these tasks in a connected workflow.
+Qube supports research in Hong Kong and US markets. Historical research is evidence about the selected code, data, parameters, and period. Review results and authorize any trading action separately.
 
-By shortening the research-and-testing cycle, QUBE saves time and effort while allowing users to compare alternatives, challenge assumptions, identify risks, and make more informed, evidence-based decisions.
+## What the other modules cover
+
+- **Guides** explain product-wide setup, CLI access, trading, FAQs, and support.
+- **Qube** explains the research workspace and its web, CLI, and SDK interfaces.
+- **Data** documents the `tqx_data` methods and fields available in each environment.

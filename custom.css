@@ -24,3 +24,18 @@ html:not(.dark) .sidebar-group .text-primary:hover {
 .bg-primary-light {
   color: var(--tqx-ink) !important;
 }
+
+/* Give the desktop sidebar enough room for longer localized page titles. */
+@media (min-width: 64rem) {
+  #sidebar-content {
+    width: 17.5rem !important;
+  }
+
+  #body-content {
+    padding-left: 17.5rem !important;
+  }
+
+  #content-area {
+    margin-left: max(0px, calc(50vw - 348px - 17.5rem)) !important;
+  }
+}

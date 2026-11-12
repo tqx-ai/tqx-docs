@@ -1,0 +1,51 @@
+---
+title: Factor versions and restore
+zh-Hant_link: /hk/qube/research/factor/versions
+related: ["/qube/research/factor","/qube/api/runs"]
+---
+
+A named version preserves the exact source and full configuration from a **successful ordinary analysis** belonging to this factor. Create it explicitly with a name and optional description. Source saving and tuning application do not create named versions.
+
+## Create a reproducible reference
+
+1. Review a successful ordinary run and its frozen inputs.
+2. Create a named version from that run ID.
+3. Keep its ObjectId and name with your research record.
+
+Named versions are immutable. They cannot be renamed, edited, or deleted. A tuning child run is not eligible. Creating a version from a historical run does not replace your current draft.
+
+## Restore deliberately
+
+In the web workspace, open the factor, go to **Versions**, and select the version to restore. Qube handles revision checks.
+
+With the CLI or SDK, read the current factor revisions first:
+
+<Tabs>
+  <Tab title="CLI">
+    ```bash
+    tqx research factor info <factor-id> --json
+    ```
+
+    Find `source_revision` and `config_revision` in the output. Pass them as `--expectedSourceRevision` and `--expectedConfigRevision` in the restore command.
+
+    ```text
+    tqx research factor version-restore <factor-id> <version-id> --expectedSourceRevision=<source_revision> --expectedConfigRevision=<config_revision>
+    ```
+  </Tab>
+  <Tab title="TypeScript SDK">
+    ```typescript
+    const current = await client.research.getFactor(factorId)
+    const restored = await client.research.restoreFactorVersion(factorId, versionId, {
+      requestId: crypto.randomUUID(),
+      expectedSourceRevision: current.source_revision,
+      expectedConfigRevision: current.config_revision,
+    })
+    ```
+  </Tab>
+</Tabs>
+
+Restore atomically replaces current source and full configuration, then revalidates them. It neither executes a new run nor automatically creates a backup version.
+
+If you need to preserve the current work, run and version it first when eligible. After restore, inspect validation and run the restored inputs explicitly. A conflict requires rereading and reconciling the current state.
+
+You can also restore from a historical ordinary run. See the commands, methods, and input/output tables in [Runs, versions, and tuning API](/qube/api/runs).

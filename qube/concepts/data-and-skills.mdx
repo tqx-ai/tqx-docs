@@ -1,0 +1,20 @@
+---
+title: Qube Skills and data
+description: "Understand how Skills help Qube query data, write factors and strategies, and choose the correct data environment."
+related: ["/data/info","/data/local-package","/qube/workspace"]
+zh-Hant_link: /hk/qube/concepts/data-and-skills
+---
+
+Qube Skills are reusable instructions that help the AI query data, write factors and strategies, set schedules, and use workspace knowledge. See [Skills](/qube/workspace/skills) for how they support your research.
+
+## Use the Qube data runtime
+
+When code runs inside Qube, use its built-in `tqx_data` module without local API-key initialization. Start with [Access data in Qube](/data/qube-runtime) and use the [Data reference](/data/info) to find a method.
+
+## Match the market
+
+When creating a factor or strategy, select `hk` for Hong Kong or `us` for the US. Individual data methods can use different market codes and symbol formats; check the parameter table for the method you call. For research code, follow [Write a factor](/qube/research/factor/code) or [Write a strategy](/qube/research/strategy/code), then check Qube's validation messages before running it.
+
+## Keep research assets separate from files
+
+Workspace files can hold drafts, data, and reports. To edit a saved factor or strategy, open its detail page or use the [factor API](/qube/api/factors) or [strategy API](/qube/api/strategies). Editing a workspace file alone does not update the asset's code or configuration.

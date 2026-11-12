@@ -1,34 +1,36 @@
-﻿---
-title: "Trading calendar"
-description: "Query trading days and non-trading days for each market."
-zh-Hant_link: "/hk/data/market-reference/trading-calendar"
 ---
+title: Trading calendar
+description: Query trading days and non-trading days for each market.
+zh-Hant_link: /hk/data/market-reference/trading-calendar
+---
+
+Qube and the [local `tqx-data` package](/data/local-package) both support the methods on this page. The reference below describes Qube parameters and fields; see the [local package guide](/data/local-package) for initialization, examples, and differences.
 
 ## Get trading calendar
 
-### Method name: get_trading_calendar
+### Method name: get\_trading\_calendar
 
-<Badge icon="calendar" stroke>HK history: 1980-01-01 ~ present</Badge> <Badge icon="calendar" stroke>US history: 1990-01-01 ~ present</Badge>
+<Badge stroke icon="calendar">HK history: 1980-01-01 ~ present</Badge> <Badge stroke icon="calendar">US history: 1990-01-01 ~ present</Badge>
 
 ### Enter parameters
 
 | Field | Type | Description | Is it required |
-|:---|:---|:---|:---|
-| start_date | Optional\[str\] | Start date in YYYYMMDD format | Optional |
-| end_date | Optional\[str\] | End date in YYYYMMDD format | Optional |
+| :-- | :-- | :-- | :-- |
+| start\_date | Optional\[str\] | Start date in YYYYMMDD format | Optional |
+| end\_date | Optional\[str\] | End date in YYYYMMDD format | Optional |
 | market | Optional\[str\] | Exchange code, default is `hk`, currently supports `hk` and `us` | Optional |
-| is_trading_day | Optional\[int\] | Whether it is a trading day, 1=trading day, 0=non-trading day, None=all | Optional |
+| is\_trading\_day | Optional\[int\] | Whether it is a trading day, 1=trading day, 0=non-trading day, None=all | Optional |
 | fields | Optional\[Union\[str, List\[str\]\]\] | List of fields to be returned | Optional |
 
 ### Response parameters
 
 | Field | Type | Description |
-|:----------------|:-----|:-----------------------------------------|
-| nature_date | int | Date in the format YYYYMMDD |
+| :-- | :-- | :-- |
+| nature\_date | int | Date in the format YYYYMMDD |
 | exchange | str | exchange code |
-| is_trade | int | Whether it is a trading day, 1 means a trading day, 0 means a non-trading day |
-| pretrade_date | str | The trading day before the current date |
-| next_trade_date | str | One trading day after the current date |
+| is\_trade | int | Whether it is a trading day, 1 means a trading day, 0 means a non-trading day |
+| pretrade\_date | str | The trading day before the current date |
+| next\_trade\_date | str | One trading day after the current date |
 
 ### Usage examples
 
@@ -129,4 +131,3 @@ nature_date exchange is_trade next_trade_date pretrade_date
 11 20250117 HK 1 20250120 20250116
 12 20250120 HK 1 20250121 20250117
 ```
-

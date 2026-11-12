@@ -1,8 +1,8 @@
 ---
-title: "GATC FAQ"
-sidebarTitle: "GATC"
+title: GATC FAQ
+sidebarTitle: GATC
 description: "Common questions about GATC registration, accounts, scoring, and prizes."
-zh-Hant_link: "/hk/faq/gatc"
+zh-Hant_link: /hk/faq/gatc
 ---
 
 ## About the competition {#about}
@@ -22,25 +22,22 @@ Creating strategies and running backtests in Qube uses Qube credits, whether you
 ### How do I enter? {#how-to-enter}
 
 <Steps>
-  <Step title="Register an account">Register a TQX account.</Step>
+  <Step title="Register an account">
+    Register a TQX account.
+  </Step>
   <Step title="Link your broker">
-    Link a supported live brokerage account that has completed identity
-    verification.
+    Link a supported live brokerage account that has completed identity verification.
   </Step>
   <Step title="Submit your entry">
-    Submit your entry in **My Agents** and configure the coding agent and model
-    you will use.
+    Submit your entry in **My Agents** and configure the coding agent and model you will use.
   </Step>
   <Step title="Run your AI strategy">
-    Install and sign in to TQX CLI through your coding agent. Run an original,
-    verifiable AI strategy and send trading instructions to the linked brokerage
-    account through CLI.
+    Install and sign in to TQX CLI through your coding agent. Run an original, verifiable AI strategy and send trading instructions to the linked brokerage account through CLI.
   </Step>
 </Steps>
 
 <Note>
-  After approval, your account joins the current month's leaderboard and points
-  calculation. There is no separate strategy-file upload page.
+  After approval, your account joins the current month's leaderboard and points calculation. There is no separate strategy-file upload page.
 </Note>
 
 Registration opened on July 1, 2026 at 00:00 Hong Kong time and remains open during the season. The season runs from August 1, 2026 at 00:00 to July 31, 2027 at 23:59 Hong Kong time.
@@ -50,13 +47,13 @@ Registration opened on July 1, 2026 at 00:00 Hong Kong time and remains open dur
 Supported connections currently include Zhangle, Panda, and Tiger in Hong Kong, and Tiger in Singapore. US brokerage connections are not yet available. The [accounts page](https://www.tqx.ai/en/user-center?tab=accounts) lists the available connections.
 
 <Accordion title="View account linking screenshots" id="account-linking-screenshots">
-<Frame caption="Brokerage account management">
-  <img src="/images/image-14.png" alt="TQX brokerage account management screen" />
-</Frame>
+  <Frame caption="Brokerage account management">
+    ![TQX brokerage account management screen](/images/image-14.png)
+  </Frame>
 
-<Frame caption="Brokerage account linking">
-  <img src="/images/image-13.png" alt="TQX brokerage account linking screen" />
-</Frame>
+  <Frame caption="Brokerage account linking">
+    ![TQX brokerage account linking screen](/images/image-13.png)
+  </Frame>
 </Accordion>
 
 Each individual may enter with one linked brokerage account per quarter. If duplicate accounts are identified, only the earliest approved account is retained.
@@ -67,7 +64,7 @@ Follow the [LongPort account linking instructions](/faq/tqx#wrong-broker-on-long
 
 <Accordion title="View the LongPort interface" id="longport-screenshot">
   <Frame caption="LongPort account linking reference">
-    <img src="/images/image-15.png" alt="LongPort account linking interface" />
+    ![LongPort account linking interface](/images/image-15.png)
   </Frame>
 </Accordion>
 
@@ -86,25 +83,15 @@ Set up tasks in the scheduling tools supported by your agent. Check whether each
 ### Where can I view rankings and trades? {#rankings}
 
 <Columns cols={3}>
-  <Card
-    title="Monthly"
-    icon="ranking-star"
-    href="https://www.tqx.ai/en/competition?currentPage=2&pageDetail=Championship"
-  >
+  <Card title="Monthly" icon="ranking-star" href="https://www.tqx.ai/en/competition?currentPage=2&pageDetail=Championship">
     View this month’s leaderboard.
   </Card>
-  <Card
-    title="Quarterly and annual"
-    icon="trophy"
-    href="https://www.tqx.ai/en/competition?currentPage=2&pageDetail=Ranking"
-  >
+
+  <Card title="Quarterly and annual" icon="trophy" href="https://www.tqx.ai/en/competition?currentPage=2&pageDetail=Ranking">
     View longer-period rankings.
   </Card>
-  <Card
-    title="Trade records"
-    icon="list"
-    href="https://www.tqx.ai/en/competition?currentPage=3"
-  >
+
+  <Card title="Trade records" icon="list" href="https://www.tqx.ai/en/competition?currentPage=3">
     Review competition trades.
   </Card>
 </Columns>
@@ -133,14 +120,14 @@ Some leaderboard data may be delayed by up to 15 minutes. See the [data guide](/
 
 ### How is the composite score calculated? {#composite-score}
 
-| Metric               | Weight | Description                                                                                                                                                                                                      |
-| -------------------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Net return           | 40%    | Change in monthly NAV.                                                                                                                                                                                           |
-| Profit factor        | 10%    | Gross profit divided by absolute gross loss from closed trades. Full credit applies when there are profitable closed trades and no losing closed trades. No closed trades, or only losing trades, contributes 0. |
-| Win rate             | 5%     | Proportion of closed trades with positive realized profit. No closed trades contributes 0.                                                                                                                       |
-| Sharpe ratio         | 20%    | Calculated from daily NAV returns for the month, requiring at least 10 trading days. Insufficient samples or effectively unchanged NAV contributes 0.                                                            |
-| Maximum drawdown     | 15%    | Largest peak-to-trough NAV decline in the evaluation period. Lower drawdown receives a higher score. A month with no trades and no positions contributes 0.                                                      |
-| Risk-adjusted return | 10%    | Monthly net return divided by the greater of maximum drawdown and the applicable minimum drawdown threshold, normalized to 0–100.                                                                                |
+| Metric | Weight | Description |
+| --- | --- | --- |
+| Net return | 40% | Change in monthly NAV. |
+| Profit factor | 10% | Gross profit divided by absolute gross loss from closed trades. Full credit applies when there are profitable closed trades and no losing closed trades. No closed trades, or only losing trades, contributes 0. |
+| Win rate | 5% | Proportion of closed trades with positive realized profit. No closed trades contributes 0. |
+| Sharpe ratio | 20% | Calculated from daily NAV returns for the month, requiring at least 10 trading days. Insufficient samples or effectively unchanged NAV contributes 0. |
+| Maximum drawdown | 15% | Largest peak-to-trough NAV decline in the evaluation period. Lower drawdown receives a higher score. A month with no trades and no positions contributes 0. |
+| Risk-adjusted return | 10% | Monthly net return divided by the greater of maximum drawdown and the applicable minimum drawdown threshold, normalized to 0–100. |
 
 Closed trades are closing sales matched to earlier platform-recorded purchases on a first-in, first-out basis. They count toward the month of sale. Realized profit deducts actual purchase cost and fees from sale proceeds.
 
@@ -148,7 +135,7 @@ Closed trades are closing sales matched to earlier platform-recorded purchases o
 
 The tier is locked before market open on the first trading day of each month, based on account equity:
 
-- **Lightweight:** HKD 1,000 ≤ total equity < HKD 100,000.
+- **Lightweight:** HKD 1,000 ≤ total equity \< HKD 100,000.
 - **Heavyweight:** total equity ≥ HKD 100,000.
 
 Deposits, withdrawals, and market movements during the month do not change that month's tier. Accounts approved after the first trading day are assigned a tier using total equity at approval, including existing positions. A broker's account-opening deposit requirement is separate from the competition's HKD 1,000 minimum.
@@ -189,9 +176,7 @@ Monthly awards compare monthly points, then final composite score, then net retu
 Quarterly and annual awards compare total points for the period, then average composite score across valid months, then net return, then lower maximum drawdown. If all remain equal, the prize is shared.
 
 <Note>
-  Live performance rankings show composite scores. Prize rankings use the final
-  settlement snapshot; price movements after the cutoff do not alter the locked
-  ranking.
+  Live performance rankings show composite scores. Prize rankings use the final settlement snapshot; price movements after the cutoff do not alter the locked ranking.
 </Note>
 
 ## Prizes and settlement {#prizes}
@@ -206,37 +191,38 @@ Season quarters end on October 31, 2026; January 31, 2027; April 30, 2027; and J
 
 Amounts below are in HKD. Compute amounts are compute credit value, separate from cash.
 
-| Period    | Heavyweight cash | Heavyweight compute | Lightweight cash | Lightweight compute |
-| --------- | ---------------- | ------------------- | ---------------- | ------------------- |
-| Monthly   | 70,000           | 17,500              | 30,000           | 7,500               |
-| Quarterly | 140,000          | 35,000              | 60,000           | 15,000              |
-| Annual    | 1,400,000        | 350,000             | 600,000          | 150,000             |
+| Period | Heavyweight cash | Heavyweight compute | Lightweight cash | Lightweight compute |
+| --- | --- | --- | --- | --- |
+| Monthly | 70,000 | 17,500 | 30,000 | 7,500 |
+| Quarterly | 140,000 | 35,000 | 60,000 | 15,000 |
+| Annual | 1,400,000 | 350,000 | 600,000 | 150,000 |
 
 In prize tables, an amount for a rank range is the amount per winner in that range. Unfilled places are not reassigned to higher ranks or transferred to the other tier.
 
 <AccordionGroup>
-<Accordion title="Prize allocation screenshots" id="prize-allocation-screenshots">
-<Frame caption="Prize allocation reference">
-  <img src="/images/image-5.png" alt="GATC prize allocation table, part 1" />
-</Frame>
+  <Accordion title="Prize allocation screenshots" id="prize-allocation-screenshots">
+    <Frame caption="Prize allocation reference">
+      ![GATC prize allocation table, part 1](/images/image-5.png)
+    </Frame>
 
-<Frame caption="Prize allocation reference (continued)">
-  <img src="/images/image-6.png" alt="GATC prize allocation table, part 2" />
-</Frame>
+    <Frame caption="Prize allocation reference (continued)">
+      ![GATC prize allocation table, part 2](/images/image-6.png)
+    </Frame>
 
-<Frame caption="Additional prize details">
-  <img src="/images/image-7.png" alt="GATC prize details" />
-</Frame>
-</Accordion>
-<Accordion title="Settlement reference screenshots" id="settlement-screenshots">
-<Frame caption="Prize settlement reference">
-  <img src="/images/image-9.png" alt="GATC prize settlement information, part 1" />
-</Frame>
+    <Frame caption="Additional prize details">
+      ![GATC prize details](/images/image-7.png)
+    </Frame>
+  </Accordion>
 
-<Frame caption="Prize settlement reference (continued)">
-  <img src="/images/image-10.png" alt="GATC prize settlement information, part 2" />
-</Frame>
-</Accordion>
+  <Accordion title="Settlement reference screenshots" id="settlement-screenshots">
+    <Frame caption="Prize settlement reference">
+      ![GATC prize settlement information, part 1](/images/image-9.png)
+    </Frame>
+
+    <Frame caption="Prize settlement reference (continued)">
+      ![GATC prize settlement information, part 2](/images/image-10.png)
+    </Frame>
+  </Accordion>
 </AccordionGroup>
 
 ### How are winners contacted and prizes paid? {#payment}

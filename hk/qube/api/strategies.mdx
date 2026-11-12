@@ -1,0 +1,197 @@
+---
+title: 策略 API
+description: 使用 TQX CLI 或 TypeScript SDK 建立策略、執行回測及讀取結果。
+en_link: /qube/api/strategies
+related: ["/hk/qube/cli/quickstart","/hk/qube/api/runs","/hk/qube/research/strategy"]
+---
+
+使用 `tqx research strategy` 或 `client.research` 管理 Qube 策略及歷史回測。回測記錄模擬結果，不會向你的交易帳戶下單。
+
+<Tabs>
+  <Tab title="CLI">
+    ## 指令
+
+    ```text
+    tqx research strategy create --market=hk|us (--code=<python>|--file=<path>) [--title] [--description] [backtest-options]
+    tqx research strategy info <id>
+    tqx research strategy source <id>
+    tqx research strategy save <id> --baseSourceRevision=<n> (--code|--file)
+    tqx research strategy update <id> --baseConfigRevision=<n> [--title] [--description] [backtest-options]
+    tqx research strategy run <id> --expectedSourceRevision=<n> --expectedConfigRevision=<n> [backtest-options] [--pollInterval=<s>] [--timeout=<s>] [--noWait] [--download=<path>]
+    tqx research strategy stop <run-id>
+    tqx research strategy result <run-id> [--download=<path>]
+    tqx research strategy backtests <id> [--limit=1..200]
+    tqx research strategy list [list-options]
+    tqx research strategy delete <id>... --yes
+    ```
+
+    ## 指令輸入與輸出
+
+    | 指令 | 主要輸入 | 輸出 |
+    | --- | --- | --- |
+    | `strategy create` | `--market`、`--code` 或 `--file`，可選標題/描述/回測設定 | 含 ObjectId 及原始碼/設定修訂的策略 |
+    | `strategy info` / `source` | `<strategy-id>` | 目前資料或原始碼 |
+    | `strategy save` | ID、`--baseSourceRevision`、新 Python 原始碼 | 更新後的原始碼修訂 |
+    | `strategy update` | ID、`--baseConfigRevision`、標題/描述或回測設定 | 更新後的設定修訂 |
+    | `strategy run` | ID、兩個預期修訂、回測及等待選項 | 回測 ID；沒有 `--noWait` 時回傳最終結果 |
+    | `backtest result` | 執行 ID、`--field`、位移/筆數，可選關鍵字/代碼 | 含 rows 及分頁欄位的結果頁 |
+    | `strategy list` | 市場、游標、筆數、關鍵字、`--includeContent` | 含 `has_more` 和 `next_cursor` 的策略分頁 |
+    | `strategy backtests` | 策略 ID，可選 `--limit=1..200` | 該策略的 `{ runs }` 執行歷史 |
+    | `strategy stop` / `delete` | 執行或策略 ID；刪除另需 `--yes` | 取消狀態或已刪除確認 |
+
+    | 選項 | 用途 | 輸出或限制 |
+    | --- | --- | --- |
+    | `--startDate`、`--endDate` | 回測期間 | 日線最多十年；分鐘線最多一年 |
+    | `--startCapital` | 初始資金 | 必須是正數 |
+    | `--commissionRate` | 佣金率 | 不可為負數 |
+    | `--slippage` | 比例滑點 | 不可為負數 |
+    | `--frequency=1d\|1M` | 日線或分鐘線 | 決定可用的最長期間 |
+    | `--field=equity\|trades\|logs\|symbol_performance\|account_summary` | 結果區段 | `symbol` 只適用於 `trades` |
+    | `--offset`、`--limit=1..500` | 結果分頁 | 回傳 `rows`、`total`、`offset`、`has_more` |
+
+    `backtest-options` 包括 `--startDate`、`--endDate`、`--startCapital`、`--commissionRate`、`--slippage` 及 `--frequency=1d|1M`。日線最多十年，分鐘線最多一年；可執行同日回測。港股及美股不使用 `standard_symbol` 或 `margin_rate`。
+
+    ## 讀取結果欄位
+
+    ```text
+    tqx research backtest result <run-id> --field=equity|trades|logs|symbol_performance|account_summary [--offset=<n>] [--limit=1..500] [--keyword=<text>] [--symbol=<symbol>]
+    ```
+
+    代碼篩選只適用於交易欄位。使用 `--download` 將結果或報告寫入本機。失敗或取消的執行沒有成功結果。
+
+    ## 因子綁定
+
+    使用同市場、可執行的因子命名版本。策略設定明確傳入因子 ID 及版本 ID；目前因子草稿不會默默成為輸入。回測會連同策略原始碼及設定一併固定綁定。
+
+    策略調優使用 `STRATEGY_PARAMS` 中已宣告且實際引用的鍵。候選數量應保持精簡，並使用市場實際 `tradingDates`；參閱 [執行與調優](/hk/qube/api/runs)。
+  </Tab>
+  <Tab title="TypeScript SDK">
+    ## 建立策略並執行回測
+
+    先初始化 [TypeScript SDK](/hk/qube/sdk/overview)，並依照 [策略程式碼指南](/hk/qube/research/strategy/code) 準備有效的 `strategy.py`。以下 Node.js 範例會上傳程式碼，再提交港股日線回測。
+
+    ```typescript
+    import { readFile } from "node:fs/promises"
+    import { randomUUID } from "node:crypto"
+    import { TqxClient } from "@tqx-ai/sdk"
+    
+    const client = new TqxClient({
+      apiKey: process.env.TQX_API_KEY!,
+      baseUrl: process.env.TQX_BASE_URL!,
+    })
+    const strategy = await client.research.createStrategy({
+      requestId: randomUUID(),
+      title: "Daily research strategy",
+      description: "Historical test of strategy.py",
+      market: "hk",
+      code: await readFile("./strategy.py", "utf8"),
+      backtest: {
+        periodStart: "2025-01-01",
+        periodEnd: "2026-06-30",
+        initBalance: 1000000,
+        frequency: "1d",
+      },
+    })
+    const validation = await client.research.validateStrategy({
+      strategyId: strategy.id,
+      expectedSourceRevision: strategy.source_revision,
+    })
+    if (validation.valid !== true) throw new Error("Review source diagnostics")
+    
+    const submission = await client.research.runStrategyBacktest(strategy.id, {
+      requestId: randomUUID(),
+      expectedSourceRevision: strategy.source_revision,
+      expectedConfigRevision: strategy.config_revision,
+    })
+    const result = await client.research.pollBacktest(submission.id, {
+      interval: 2,
+      timeout: 600,
+    })
+    if (result.status !== "succeeded") {
+      throw new Error(`Inspect run ${result.id}: ${result.status}`)
+    }
+    const trades = await client.research.getBacktestResultPage(result.id, {
+      field: "trades",
+      offset: 0,
+      limit: 100,
+    })
+    console.log(trades.rows)
+    ```
+
+    回測提交會回傳 `id`，與因子分析的 `run_id` 不同。`backtest` 可設定 `periodStart`、`periodEnd`、`initBalance`、`commissionRate`、`slippage` 和 `frequency`（`1d` 或 `1M`）。省略時沿用已儲存設定或市場預設值。日線期間最多十年，分鐘線最多一年，也可執行同日回測。
+
+    ## 讀取、儲存與驗證
+
+    以下方法都由 `client.research` 提供。`?` 表示選填欄位。
+
+    | 方法 | 輸入 | 輸出 |
+    | --- | --- | --- |
+    | `createStrategy(input)` | `requestId`、`title`、`market`、Python `code`；可選 `description`、`backtest`、`factorBinding` | 含 `id`、`source_revision`、`config_revision` 的策略 |
+    | `getStrategy(id)` | 策略 ObjectId | 目前策略、設定、修訂及綁定 |
+    | `getStrategySource(id)` | 策略 ObjectId | Python 原始碼及原始碼修訂 |
+    | `updateStrategySource(id, input)` | `requestId`、`baseSourceRevision`、`code` | 更新後原始碼及新修訂 |
+    | `updateStrategy(id, input)` | `baseConfigRevision`；可選標題/描述、`backtest`、`factorBinding` | 更新後策略及新設定修訂 |
+    | `validateStrategy(input)` | 已儲存 ID 加預期原始碼修訂，或直接傳 `code`、`market` | `{ valid, diagnostics, code_sha256 }` |
+    | `runStrategyBacktest(id, input)` | `requestId`、兩個預期修訂；可選 `backtest` | 含 `id` 及狀態的回測提交結果 |
+    | `getBacktest(runId)` | 回測 ID | 狀態、進度及指標 |
+    | `pollBacktest(runId, options)` | 可選 `interval`、`timeout`、回呼 | 最新回測；逾時會加上 `cli_status: "TIMEOUT"` |
+    | `listStrategyBacktests(id, input)` | 策略 ID；可選 `limit` 1–200 | `{ runs }` |
+    | `cancelBacktest(runId)` | 回測 ID | 更新後取消狀態 |
+    | `deleteStrategy(id)` | 策略 ObjectId | `{ id, deleted: true }` |
+
+    修改前先讀取目前原始碼及設定修訂。儲存程式碼或設定都不會開始回測。靜態驗證檢查原始碼，不代表策略會獲利或之後一定執行成功。
+
+    ## 輸入欄位
+
+    建立策略須提供 `requestId`、`title`、`market` 及 Python `code`；`description`、`backtest` 和 `factorBinding` 為選填。原始碼更新須提供 `requestId`、`baseSourceRevision` 及 `code`。設定更新須提供 `baseConfigRevision`，以及至少一個要變更的欄位。
+
+    | 欄位 | 類型／限制 | 用途 |
+    | --- | --- | --- |
+    | `requestId` | `string`，1–128 字元 | 識別一次變更；重試同一請求時沿用 |
+    | `title` | `string`，1–200 字元 | 業務名稱，不含路徑或 `.py` / `.formula` 副檔名 |
+    | `description` | `string`，選填，最多 2000 字元 | 研究目的及假設 |
+    | `market` | `"hk"`、`"us"` | 本節的港股或美股研究市場 |
+    | `code` | `string`，最多 1 MiB | 完整原始碼 |
+    | `baseSourceRevision` / `baseConfigRevision` | 正整數 | 更新前以 `getStrategy` 讀取，用於原始碼／設定更新 |
+    | `expectedSourceRevision` / `expectedConfigRevision` | 正整數，執行時必填 | 固定本次執行使用的原始碼及設定修訂 |
+
+    ### 回測設定 `backtest`
+
+    各欄位均為選填，省略時沿用已儲存設定或市場預設值。
+
+    | 欄位 | 類型／限制 | 用途 |
+    | --- | --- | --- |
+    | `periodStart` / `periodEnd` | `YYYY-MM-DD` | 可同日；日線最多十年，分鐘線最多一年 |
+    | `initBalance` | 正數 | 初始資金 |
+    | `commissionRate` / `slippage` | 非負數 | 佣金率／比例滑點 |
+    | `frequency` | `"1d"` / `"1M"` | 日線／分鐘線 |
+
+    ### 主要回傳欄位
+
+    | 欄位 | 類型／限制 | 用途 |
+    | --- | --- | --- |
+    | `id` | `string` | 策略或回測 ObjectId；回測提交後用它查詢或輪詢 |
+    | `source_revision` / `config_revision` | `number` | 策略目前的原始碼／設定修訂 |
+    | `parameters` / `factor_binding` | `object` | 策略設定及因子綁定；綁定可為 `null` |
+    | `status` / `strategy_id` | `string` | 回測狀態及所屬策略 ID |
+    | `progress` / `metrics` | `object`，可空或省略 | 執行進度及績效摘要，依狀態提供 |
+
+    ## 結果、圖表與個股 K 線
+
+    | 方法 | 輸入 | 輸出 |
+    | --- | --- | --- |
+    | `getBacktestResultPage(runId, input)` | `field` 必填；`offset`、`limit`、`keyword`、`symbol` 選填 | `rows`、`total`、`offset`、`limit`、`has_more` |
+    | `getBacktestChart(runId, input)` | 可選 `from`、`to`、`maxPoints` | `run_id`、`range`、`extent`、`points`、`trade_days`、`source_count`、`total_count`、`sampled` |
+    | `getBacktestSymbolKlines(runId, symbol)` | 執行 ID 及非空代碼 | `market`、`symbol`、`period: "1d"`、`period_start`、`period_end`、`bars` |
+
+    結果 `field` 可用 `equity`、`trades`、`logs`、`symbol_performance` 或 `account_summary`。分頁回傳 `rows`、`total`、`offset`、`limit` 和 `has_more`。從位移 0 開始，每次讀取 1–500 筆；若 `has_more` 為 true，以回傳筆數推進位移。`symbol` 只適用於交易。圖表 `maxPoints` 可用 2–5000。
+
+    ## 搜尋與因子綁定
+
+    `listStrategies({ limit?, cursor?, market?, keyword? })` 回傳 `{ items, hasMore, nextCursor, counts? }`，每頁可取 1–100 筆。跨策略回測摘要使用 `listBacktests(input)`，每頁可取 1–10 筆。
+
+    若要綁定因子，先用 `listFactorVersionsForStrategy({ market, query?, factorId?, limit?, cursor? })` 找到同市場的命名版本。建立或更新策略時傳入 `factorBinding: { factorId, factorVersionId }`；設為 `null` 可清除綁定。目前因子草稿或分析快照不能取代可執行的命名版本。每次回測都會固定綁定、原始碼及設定。
+
+    建立版本、還原及參數候選請參閱 [執行、版本與調優 API](/hk/qube/api/runs)。進度與失敗處理請參閱 [串流、輪詢與錯誤](/hk/qube/sdk/streaming)。
+  </Tab>
+</Tabs>

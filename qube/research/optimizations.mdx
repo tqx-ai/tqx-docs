@@ -1,0 +1,20 @@
+---
+title: Parameter tuning
+zh-Hant_link: /hk/qube/research/optimizations
+related: ["/qube/research/factor/optimization","/qube/research/strategy/optimization","/qube/api/runs"]
+---
+
+Tuning compares a bounded set of candidates against frozen research inputs. Its output is a set of research candidates, not an automatic production decision.
+
+|  | Factor | Strategy |
+| --- | --- | --- |
+| Vary | Analysis dimensions and numeric `FACTOR_PARAMS`. | Referenced numeric `STRATEGY_PARAMS`. |
+| Dates | One full research period, no holdout. | Actual trading dates, default 70/30 research/validation. |
+| Objective | `rank_ic_mean`. | `total_return`, `sharpe`, or absolute `max_drawdown`. |
+| Candidates | Exactly one explicit baseline; at most 32 total. | Baseline added and deduplicated; at most 32 total. |
+
+Start small, typically 16 including the baseline. Review invalid candidates and outliers, not just the best score. A tuning task can also report `cancelling` or `no_valid_candidates`; these are tuning states, not ordinary run success.
+
+Applying a candidate checks expected revisions and updates current configuration. It does not create a version, execute an ordinary run, or authorize trading. Run and review the applied inputs separately before creating a named version.
+
+Choose [factor tuning](/qube/research/factor/optimization), [strategy tuning](/qube/research/strategy/optimization), or [CLI and JSON reference](/qube/api/runs).

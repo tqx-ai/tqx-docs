@@ -1,0 +1,20 @@
+---
+title: 參數調優
+en_link: /qube/research/optimizations
+related: ["/hk/qube/research/factor/optimization","/hk/qube/research/strategy/optimization","/hk/qube/api/runs"]
+---
+
+調優使用固定的研究輸入比較有限候選。輸出是研究候選方案，不是自動投入生產的決策。
+
+|  | 因子 | 策略 |
+| --- | --- | --- |
+| 可變動項目 | 分析維度及數值型 `FACTOR_PARAMS`。 | 實際使用的數值型 `STRATEGY_PARAMS`。 |
+| 日期 | 完整共同研究期間，不切分保留樣本。 | 實際交易日，預設 70/30 研究／驗證。 |
+| 目標 | `rank_ic_mean`。 | `total_return`、`sharpe` 或絕對 `max_drawdown`。 |
+| 候選 | 明確指定且只有一個基準，共最多 32 組。 | 自動補入基準並去重，共最多 32 組。 |
+
+從少量候選開始，一般含基準共 16 組。檢查無效候選及離群值，不要只看最高分。調優也可能回報 `cancelling` 或 `no_valid_candidates`；這些是調優狀態，不是一般執行成功。
+
+套用候選會檢查預期修訂並更新目前設定，不會建立版本、執行一般任務或授權交易。建立命名版本前，另外執行及審閱套用後的輸入。
+
+選擇 [因子調優](/hk/qube/research/factor/optimization)、[策略調優](/hk/qube/research/strategy/optimization)，或 [CLI 及 JSON 參考](/hk/qube/api/runs)。

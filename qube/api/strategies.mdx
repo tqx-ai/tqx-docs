@@ -1,0 +1,197 @@
+---
+title: Strategy API
+description: "Create strategies, run backtests, and read results with the TQX CLI or TypeScript SDK."
+zh-Hant_link: /hk/qube/api/strategies
+related: ["/qube/cli/quickstart","/qube/api/runs","/qube/research/strategy"]
+---
+
+Use `tqx research strategy` or `client.research` to manage Qube strategies and historical backtests. A backtest records simulated results; it does not place orders in your trading account.
+
+<Tabs>
+  <Tab title="CLI">
+    ## Commands
+
+    ```text
+    tqx research strategy create --market=hk|us (--code=<python>|--file=<path>) [--title] [--description] [backtest-options]
+    tqx research strategy info <id>
+    tqx research strategy source <id>
+    tqx research strategy save <id> --baseSourceRevision=<n> (--code|--file)
+    tqx research strategy update <id> --baseConfigRevision=<n> [--title] [--description] [backtest-options]
+    tqx research strategy run <id> --expectedSourceRevision=<n> --expectedConfigRevision=<n> [backtest-options] [--pollInterval=<s>] [--timeout=<s>] [--noWait] [--download=<path>]
+    tqx research strategy stop <run-id>
+    tqx research strategy result <run-id> [--download=<path>]
+    tqx research strategy backtests <id> [--limit=1..200]
+    tqx research strategy list [list-options]
+    tqx research strategy delete <id>... --yes
+    ```
+
+    ## Command inputs and outputs
+
+    | Command | Main inputs | Output |
+    | --- | --- | --- |
+    | `strategy create` | `--market`, `--code` or `--file`, optional title/description/backtest options | Strategy with ObjectId and source/config revisions |
+    | `strategy info` / `source` | `<strategy-id>` | Current metadata or source code |
+    | `strategy save` | ID, `--baseSourceRevision`, new Python source | Updated source revision |
+    | `strategy update` | ID, `--baseConfigRevision`, title/description or backtest options | Updated configuration revision |
+    | `strategy run` | ID, both expected revisions, backtest and wait options | Backtest ID and, unless `--noWait`, terminal result |
+    | `backtest result` | Run ID, `--field`, offset/limit, optional keyword/symbol | Result page with rows and pagination fields |
+    | `strategy list` | Market, cursor, limit, keyword, `--includeContent` | Strategy page with `has_more` and `next_cursor` |
+    | `strategy backtests` | Strategy ID and optional `--limit=1..200` | That strategy's run history as `{ runs }` |
+    | `strategy stop` / `delete` | Run or strategy ID; delete also needs `--yes` | Cancellation state or deleted confirmation |
+
+    | Option | Meaning | Output or limit |
+    | --- | --- | --- |
+    | `--startDate`, `--endDate` | Backtest interval | Daily up to 10 years; minute up to 1 year |
+    | `--startCapital` | Initial capital | Positive number |
+    | `--commissionRate` | Commission rate | Non-negative number |
+    | `--slippage` | Proportional slippage | Non-negative number |
+    | `--frequency=1d\|1M` | Daily or minute bars | Determines the maximum interval |
+    | `--field=equity\|trades\|logs\|symbol_performance\|account_summary` | Result section | `symbol` filter is supported only for `trades` |
+    | `--offset`, `--limit=1..500` | Result page | Response includes `rows`, `total`, `offset`, `has_more` |
+
+    `backtest-options` are `--startDate`, `--endDate`, `--startCapital`, `--commissionRate`, `--slippage`, and `--frequency=1d|1M`. Daily backtests allow up to ten years; minute backtests allow up to one year. Same-day runs are valid. Hong Kong and US runs do not use `standard_symbol` or `margin_rate`.
+
+    ## Read result fields
+
+    ```text
+    tqx research backtest result <run-id> --field=equity|trades|logs|symbol_performance|account_summary [--offset=<n>] [--limit=1..500] [--keyword=<text>] [--symbol=<symbol>]
+    ```
+
+    The symbol filter applies only to trades. Use `--download` to write a result or report to a local path. A failed or cancelled run does not have a successful result.
+
+    ## Factor binding
+
+    Use a same-market executable factor named version. Pass the factor ID and version ID in the strategy configuration; the current factor draft is not an implicit input. The backtest freezes the binding together with the strategy source and configuration.
+
+    Tuning strategy parameters uses `strategyParameters` keys declared and referenced in `STRATEGY_PARAMS`. Keep candidates small and use actual market `tradingDates`; see [Runs and tuning](/qube/api/runs).
+  </Tab>
+  <Tab title="TypeScript SDK">
+    ## Create a strategy and run a backtest
+
+    Initialize the [TypeScript SDK](/qube/sdk/overview) and prepare a valid `strategy.py` using the [strategy code guide](/qube/research/strategy/code). This Node.js example uploads that code and submits a daily Hong Kong backtest.
+
+    ```typescript
+    import { readFile } from "node:fs/promises"
+    import { randomUUID } from "node:crypto"
+    import { TqxClient } from "@tqx-ai/sdk"
+    
+    const client = new TqxClient({
+      apiKey: process.env.TQX_API_KEY!,
+      baseUrl: process.env.TQX_BASE_URL!,
+    })
+    const strategy = await client.research.createStrategy({
+      requestId: randomUUID(),
+      title: "Daily research strategy",
+      description: "Historical test of strategy.py",
+      market: "hk",
+      code: await readFile("./strategy.py", "utf8"),
+      backtest: {
+        periodStart: "2025-01-01",
+        periodEnd: "2026-06-30",
+        initBalance: 1000000,
+        frequency: "1d",
+      },
+    })
+    const validation = await client.research.validateStrategy({
+      strategyId: strategy.id,
+      expectedSourceRevision: strategy.source_revision,
+    })
+    if (validation.valid !== true) throw new Error("Review source diagnostics")
+    
+    const submission = await client.research.runStrategyBacktest(strategy.id, {
+      requestId: randomUUID(),
+      expectedSourceRevision: strategy.source_revision,
+      expectedConfigRevision: strategy.config_revision,
+    })
+    const result = await client.research.pollBacktest(submission.id, {
+      interval: 2,
+      timeout: 600,
+    })
+    if (result.status !== "succeeded") {
+      throw new Error(`Inspect run ${result.id}: ${result.status}`)
+    }
+    const trades = await client.research.getBacktestResultPage(result.id, {
+      field: "trades",
+      offset: 0,
+      limit: 100,
+    })
+    console.log(trades.rows)
+    ```
+
+    Backtest submission returns `id`, unlike the factor analysis submission's `run_id`. `backtest` accepts `periodStart`, `periodEnd`, `initBalance`, `commissionRate`, `slippage`, and `frequency` (`1d` or `1M`). Omitted values use saved or market defaults. Daily periods allow up to ten years; minute periods allow up to one year. A single-day backtest is valid.
+
+    ## Read, save, and validate
+
+    All methods below belong to `client.research`. `?` marks an optional field.
+
+    | Method | Input | Output |
+    | --- | --- | --- |
+    | `createStrategy(input)` | `requestId`, `title`, `market`, Python `code`; optional `description`, `backtest`, `factorBinding` | Strategy with `id`, `source_revision`, `config_revision` |
+    | `getStrategy(id)` | Strategy ObjectId | Current strategy, settings, revisions and binding |
+    | `getStrategySource(id)` | Strategy ObjectId | Python source and source revision |
+    | `updateStrategySource(id, input)` | `requestId`, `baseSourceRevision`, `code` | Updated source and new source revision |
+    | `updateStrategy(id, input)` | `baseConfigRevision`; optional title/description, `backtest`, `factorBinding` | Updated strategy and new config revision |
+    | `validateStrategy(input)` | Saved ID plus expected source revision, or inline `code` and `market` | `{ valid, diagnostics, code_sha256 }` |
+    | `runStrategyBacktest(id, input)` | `requestId`, both expected revisions; optional `backtest` | Submitted backtest with `id` and status |
+    | `getBacktest(runId)` | Backtest ID | Status, progress and metrics |
+    | `pollBacktest(runId, options)` | Optional `interval`, `timeout`, callback | Latest backtest; timeout adds `cli_status: "TIMEOUT"` |
+    | `listStrategyBacktests(id, input)` | Strategy ID; optional `limit` 1–200 | `{ runs }` |
+    | `cancelBacktest(runId)` | Backtest ID | Updated cancellation state |
+    | `deleteStrategy(id)` | Strategy ObjectId | `{ id, deleted: true }` |
+
+    Read current source and configuration revisions before changing them. Saving code or settings does not start a backtest. Static validation checks source, not profitability or future execution success.
+
+    ## Input fields
+
+    Create requires `requestId`, `title`, `market`, and Python `code`; `description`, `backtest`, and `factorBinding` are optional. Source updates require `requestId`, `baseSourceRevision`, and `code`. Configuration updates require `baseConfigRevision` and at least one changed field.
+
+    | Field | Type / limit | Purpose |
+    | --- | --- | --- |
+    | `requestId` | `string`, 1–128 characters | Identifies a mutation; reuse for an identical retry |
+    | `title` | `string`, 1–200 characters | Business name without paths or `.py` / `.formula` extensions |
+    | `description` | `string`, optional, up to 2000 characters | Research purpose and assumptions |
+    | `market` | `"hk"`, `"us"` | Hong Kong or US research covered here |
+    | `code` | `string`, up to 1 MiB | Complete source |
+    | `baseSourceRevision` / `baseConfigRevision` | Positive integer | Read with `getStrategy` before source / config updates |
+    | `expectedSourceRevision` / `expectedConfigRevision` | Positive integer, required for submission | Checks source and configuration revisions used by the run |
+
+    ### Backtest settings: `backtest`
+
+    All fields are optional; omitted values use saved settings or market defaults.
+
+    | Field | Type / limit | Purpose |
+    | --- | --- | --- |
+    | `periodStart` / `periodEnd` | `YYYY-MM-DD` | Same day allowed; daily up to ten years, minute up to one year |
+    | `initBalance` | Positive number | Initial capital |
+    | `commissionRate` / `slippage` | Non-negative number | Commission rate / proportional slippage |
+    | `frequency` | `"1d"` / `"1M"` | Daily / minute bars |
+
+    ### Main response fields
+
+    | Field | Type / limit | Purpose |
+    | --- | --- | --- |
+    | `id` | `string` | Strategy or backtest ObjectId; use submission ID to read or poll |
+    | `source_revision` / `config_revision` | `number` | Current strategy source / config revisions |
+    | `parameters` / `factor_binding` | `object` | Strategy settings and factor binding; binding may be `null` |
+    | `status` / `strategy_id` | `string` | Backtest status and parent strategy ID |
+    | `progress` / `metrics` | `object`, nullable or omitted | Progress and performance summary, when available |
+
+    ## Results, charts, and symbol K-lines
+
+    | Method | Input | Output |
+    | --- | --- | --- |
+    | `getBacktestResultPage(runId, input)` | Required `field`; optional `offset`, `limit`, `keyword`, `symbol` | `rows`, `total`, `offset`, `limit`, `has_more` |
+    | `getBacktestChart(runId, input)` | Optional `from`, `to`, `maxPoints` | `run_id`, `range`, `extent`, `points`, `trade_days`, `source_count`, `total_count`, `sampled` |
+    | `getBacktestSymbolKlines(runId, symbol)` | Run ID and non-empty symbol | `market`, `symbol`, `period: "1d"`, `period_start`, `period_end`, `bars` |
+
+    Result `field` is `equity`, `trades`, `logs`, `symbol_performance`, or `account_summary`. Pages return `rows`, `total`, `offset`, `limit`, and `has_more`. Start at offset 0 and request 1–500 rows. Advance by the returned row count while `has_more` is true. `symbol` applies only to trades. Chart `maxPoints` accepts 2–5000.
+
+    ## Search and factor binding
+
+    `listStrategies({ limit?, cursor?, market?, keyword? })` returns `{ items, hasMore, nextCursor, counts? }`, with limits of 1–100. Use `listBacktests(input)` for cross-strategy backtest summaries, with limits of 1–10.
+
+    To bind a factor, find a same-market named version with `listFactorVersionsForStrategy({ market, query?, factorId?, limit?, cursor? })`. Pass `factorBinding: { factorId, factorVersionId }` when creating or updating the strategy. Pass `null` to clear it. A current factor draft or analysis snapshot cannot replace an executable named version. Each backtest freezes the binding with source and settings.
+
+    See [runs, versions, and tuning](/qube/api/runs) for version creation, restore, and parameter candidates, and [streaming, polling, and errors](/qube/sdk/streaming) for progress and failure handling.
+  </Tab>
+</Tabs>

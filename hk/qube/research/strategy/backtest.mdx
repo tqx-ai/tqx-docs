@@ -1,0 +1,36 @@
+---
+title: 回測與結果
+en_link: /qube/research/strategy/backtest
+related: ["/hk/qube/research/strategy/versions","/hk/qube/api/strategies"]
+---
+
+回測會執行有效原始碼及已儲存設定的固定快照。啟動一般執行前不需要先建立命名版本。
+
+## 設定模擬
+
+| 欄位 | 意義 |
+| --- | --- |
+| `period_start`、`period_end` | 日期順序須正確，可同日回測。日線最多 10 年，分鐘線最多 1 年。 |
+| `frequency` | 日線重播用 `1d`，分鐘線用 `1M`。 |
+| `init_balance` | 大於零的初始資金。 |
+| `commission_rate` | 非負的引擎佣金倍數；CLI 和 SDK 原值傳遞。 |
+| `slippage` | 比例滑價，不是現金金額或 Tick 數。 |
+
+港股及美股設定不支援 `standard_symbol` 或 `margin_rate`。檢查原始碼驗證、設定驗證及任何同市場因子版本綁定。執行前先處理尚未套用的參數草稿。
+
+## 執行及解讀
+
+提交目前原始碼及設定修訂號。追蹤 `preparing`、`queued`、`running`，直到最終狀態。到達 `succeeded` 後檢查：
+
+- **權益及指標：** 報酬、回撤、波動、期間及假設。
+- **交易：** 進出場、數量、成交價、成本，以及未成交或遭拒的活動。
+- **個股表現及帳戶摘要：** 集中度及貢獻。
+- **日誌：** 執行行為、缺失數據及錯誤。
+
+使用 [CLI](/hk/qube/api/strategies) 下載報告或分頁讀取結果；使用 [SDK](/hk/qube/api/strategies) 取得結果分頁、圖表及個股 K 線。輪詢逾時不會取消遠端執行。
+
+審閱成功的一般回測後，才建立 [命名版本](/hk/qube/research/strategy/versions)。歷史表現不能保證未來結果。
+
+<Frame caption="策略詳情頁中的參數、程式碼和回測結果">
+  ![Qube 策略詳情頁顯示回測參數、策略程式碼、完成指標、淨值曲線和成交明細](/images/strategy/strategy-detail-params-code.png)
+</Frame>
