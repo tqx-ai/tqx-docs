@@ -2,7 +2,7 @@
 title: 策略 API
 description: 使用 TQX CLI 或 TypeScript SDK 建立策略、執行回測及讀取結果。
 en_link: /qube/api/strategies
-related: ["/hk/qube/cli/quickstart","/hk/qube/api/runs","/hk/qube/research/strategy"]
+related: ["/hk/qube/cli/quickstart", "/hk/qube/api/runs", "/hk/qube/research/strategy"]
 ---
 
 使用 `tqx research strategy` 或 `client.research` 管理 Qube 策略及歷史回測。回測記錄模擬結果，不會向你的交易帳戶下單。
@@ -46,10 +46,13 @@ related: ["/hk/qube/cli/quickstart","/hk/qube/api/runs","/hk/qube/research/strat
     | `--commissionRate` | 佣金率 | 不可為負數 |
     | `--slippage` | 比例滑點 | 不可為負數 |
     | `--frequency=1d\|1M` | 日線或分鐘線 | 決定可用的最長期間 |
+    | `--standardSymbol=<index>` | 回測基準 | 使用同市場指數，不接受 `all` |
     | `--field=equity\|trades\|logs\|symbol_performance\|account_summary` | 結果區段 | `symbol` 只適用於 `trades` |
     | `--offset`、`--limit=1..500` | 結果分頁 | 回傳 `rows`、`total`、`offset`、`has_more` |
 
-    `backtest-options` 包括 `--startDate`、`--endDate`、`--startCapital`、`--commissionRate`、`--slippage` 及 `--frequency=1d|1M`。日線最多十年，分鐘線最多一年；可執行同日回測。港股及美股不使用 `standard_symbol` 或 `margin_rate`。
+    `backtest-options` 包括 `--startDate`、`--endDate`、`--startCapital`、`--commissionRate`、`--slippage`、`--frequency=1d|1M` 及 `--standardSymbol=<index>`。日線最多十年，分鐘線最多一年；可執行同日回測。港股基準可用 `HSI.HK`（預設）、`HSCE.HK`、`HSTECH.HK`；美股可用 `SPX`（預設）、`IXIC`、`NDX`、`DJI`。基準不接受 `all`，須符合策略市場。港股及美股不使用 `margin_rate`。
+
+    一般回測先用 `strategy update` 儲存所需回測設定，再讀取 `strategy info --json` 核對 `parameters.backtest`。確認 `parameter_validation.status="valid"`、內層 `config_revision` 與目前修訂一致，且沒有尚未套用的 `parameters_draft`。確認原始碼驗證符合目前修訂及雜湊後，使用回傳的修訂執行，不帶回測覆寫。只有明確要求的單次實驗才在 `run` 傳入設定；這些覆寫不會儲存。
 
     ## 讀取結果欄位
 
@@ -59,11 +62,14 @@ related: ["/hk/qube/cli/quickstart","/hk/qube/api/runs","/hk/qube/research/strat
 
     代碼篩選只適用於交易欄位。使用 `--download` 將結果或報告寫入本機。失敗或取消的執行沒有成功結果。
 
+    執行中可能回傳空白或部分結果。JSON／SDK 保留 `partial`、`available_from`、`available_total`；圖表另有 `complete` 及可選的 `benchmark`。這些欄位若存在，應連同狀態及查詢範圍一起解讀。缺少基準不代表基準報酬為零；空白分頁也不是最終零結果。遇到 `LIVE_RESULT_UNAVAILABLE` 時延後讀取同一個執行，不要重新提交。
+
     ## 因子綁定
 
     使用同市場、可執行的因子命名版本。策略設定明確傳入因子 ID 及版本 ID；目前因子草稿不會默默成為輸入。回測會連同策略原始碼及設定一併固定綁定。
 
     策略調優使用 `STRATEGY_PARAMS` 中已宣告且實際引用的鍵。候選數量應保持精簡，並使用市場實際 `tradingDates`；參閱 [執行與調優](/hk/qube/api/runs)。
+
   </Tab>
   <Tab title="TypeScript SDK">
     ## 建立策略並執行回測
@@ -74,7 +80,7 @@ related: ["/hk/qube/cli/quickstart","/hk/qube/api/runs","/hk/qube/research/strat
     import { readFile } from "node:fs/promises"
     import { randomUUID } from "node:crypto"
     import { TqxClient } from "@tqx-ai/sdk"
-    
+
     const client = new TqxClient({
       apiKey: process.env.TQX_API_KEY!,
       baseUrl: process.env.TQX_BASE_URL!,
@@ -90,18 +96,27 @@ related: ["/hk/qube/cli/quickstart","/hk/qube/api/runs","/hk/qube/research/strat
         periodEnd: "2026-06-30",
         initBalance: 1000000,
         frequency: "1d",
+        standardSymbol: "HSI.HK",
       },
     })
     const validation = await client.research.validateStrategy({
       strategyId: strategy.id,
       expectedSourceRevision: strategy.source_revision,
     })
-    if (validation.valid !== true) throw new Error("Review source diagnostics")
-    
+    const saved = await client.research.getStrategy(strategy.id)
+    if (validation.valid !== true || validation.source_revision !== saved.source_revision) {
+      throw new Error("Review source diagnostics and current revision")
+    }
+    if (saved.parameter_validation?.status !== "valid" ||
+        saved.parameter_validation?.config_revision !== saved.config_revision ||
+        saved.parameters_draft != null) {
+      throw new Error("Resolve saved parameter validation or pending draft")
+    }
+
     const submission = await client.research.runStrategyBacktest(strategy.id, {
       requestId: randomUUID(),
-      expectedSourceRevision: strategy.source_revision,
-      expectedConfigRevision: strategy.config_revision,
+      expectedSourceRevision: saved.source_revision,
+      expectedConfigRevision: saved.config_revision,
     })
     const result = await client.research.pollBacktest(submission.id, {
       interval: 2,
@@ -118,7 +133,7 @@ related: ["/hk/qube/cli/quickstart","/hk/qube/api/runs","/hk/qube/research/strat
     console.log(trades.rows)
     ```
 
-    回測提交會回傳 `id`，與因子分析的 `run_id` 不同。`backtest` 可設定 `periodStart`、`periodEnd`、`initBalance`、`commissionRate`、`slippage` 和 `frequency`（`1d` 或 `1M`）。省略時沿用已儲存設定或市場預設值。日線期間最多十年，分鐘線最多一年，也可執行同日回測。
+    回測提交會回傳 `id`，與因子分析的 `run_id` 不同。`backtest` 可設定 `periodStart`、`periodEnd`、`initBalance`、`commissionRate`、`slippage`、`frequency`（`1d` 或 `1M`）和 `standardSymbol`。省略時沿用已儲存設定或市場預設值。日線期間最多十年，分鐘線最多一年，也可執行同日回測。
 
     ## 讀取、儲存與驗證
 
@@ -165,6 +180,7 @@ related: ["/hk/qube/cli/quickstart","/hk/qube/api/runs","/hk/qube/research/strat
     | `initBalance` | 正數 | 初始資金 |
     | `commissionRate` / `slippage` | 非負數 | 佣金率／比例滑點 |
     | `frequency` | `"1d"` / `"1M"` | 日線／分鐘線 |
+    | `standardSymbol` | 市場專屬指數 | 港股：`HSI.HK`（預設）、`HSCE.HK`、`HSTECH.HK`；美股：`SPX`（預設）、`IXIC`、`NDX`、`DJI` |
 
     ### 主要回傳欄位
 
@@ -173,6 +189,7 @@ related: ["/hk/qube/cli/quickstart","/hk/qube/api/runs","/hk/qube/research/strat
     | `id` | `string` | 策略或回測 ObjectId；回測提交後用它查詢或輪詢 |
     | `source_revision` / `config_revision` | `number` | 策略目前的原始碼／設定修訂 |
     | `parameters` / `factor_binding` | `object` | 策略設定及因子綁定；綁定可為 `null` |
+    | `parameters_draft` / `parameter_validation` | `object`，可空或省略 | 尚未套用的草稿／已儲存設定驗證 |
     | `status` / `strategy_id` | `string` | 回測狀態及所屬策略 ID |
     | `progress` / `metrics` | `object`，可空或省略 | 執行進度及績效摘要，依狀態提供 |
 
@@ -186,6 +203,8 @@ related: ["/hk/qube/cli/quickstart","/hk/qube/api/runs","/hk/qube/research/strat
 
     結果 `field` 可用 `equity`、`trades`、`logs`、`symbol_performance` 或 `account_summary`。分頁回傳 `rows`、`total`、`offset`、`limit` 和 `has_more`。從位移 0 開始，每次讀取 1–500 筆；若 `has_more` 為 true，以回傳筆數推進位移。`symbol` 只適用於交易。圖表 `maxPoints` 可用 2–5000。
 
+    執行中可能回傳空白或部分結果。JSON／SDK 保留 `partial`、`available_from`、`available_total`；圖表另有 `complete` 及可選的 `benchmark`。這些欄位若存在，應連同狀態及查詢範圍一起解讀。缺少基準不代表基準報酬為零；空白分頁也不是最終零結果。遇到 `LIVE_RESULT_UNAVAILABLE` 時延後讀取同一個執行，不要重新提交。
+
     ## 搜尋與因子綁定
 
     `listStrategies({ limit?, cursor?, market?, keyword? })` 回傳 `{ items, hasMore, nextCursor, counts? }`，每頁可取 1–100 筆。跨策略回測摘要使用 `listBacktests(input)`，每頁可取 1–10 筆。
@@ -193,5 +212,6 @@ related: ["/hk/qube/cli/quickstart","/hk/qube/api/runs","/hk/qube/research/strat
     若要綁定因子，先用 `listFactorVersionsForStrategy({ market, query?, factorId?, limit?, cursor? })` 找到同市場的命名版本。建立或更新策略時傳入 `factorBinding: { factorId, factorVersionId }`；設為 `null` 可清除綁定。目前因子草稿或分析快照不能取代可執行的命名版本。每次回測都會固定綁定、原始碼及設定。
 
     建立版本、還原及參數候選請參閱 [執行、版本與調優 API](/hk/qube/api/runs)。進度與失敗處理請參閱 [串流、輪詢與錯誤](/hk/qube/sdk/streaming)。
+
   </Tab>
 </Tabs>

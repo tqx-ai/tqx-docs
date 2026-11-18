@@ -2,7 +2,7 @@
 title: 因子 API
 description: 使用 TQX CLI 或 TypeScript SDK 建立、更新、分析及搜尋因子。
 en_link: /qube/api/factors
-related: ["/hk/qube/cli/quickstart","/hk/qube/api/runs","/hk/qube/research/factor"]
+related: ["/hk/qube/cli/quickstart", "/hk/qube/api/runs", "/hk/qube/research/factor"]
 ---
 
 使用 `tqx research factor` 或 `client.research` 操作同一套 Qube 因子。ID 是 24 位小寫 ObjectId。變更前先讀取目前原始碼及設定修訂。
@@ -16,7 +16,7 @@ related: ["/hk/qube/cli/quickstart","/hk/qube/api/runs","/hk/qube/research/facto
     tqx research factor info <id>
     tqx research factor source <id>
     tqx research factor save <id> --baseSourceRevision=<n> (--formula|--code|--file)
-    tqx research factor update <id> --baseConfigRevision=<n> [--title] [--description] [--startDate] [--endDate] [--adjustmentCycle=1|3|5|10|20|30] [--groupNumber=3|5|10|20] [--factorDirection=Positive|Negative|1|-1]
+    tqx research factor update <id> --baseConfigRevision=<n> [--title] [--description] [--startDate] [--endDate] [--stockPool=<pool>] [--adjustmentCycle=1|3|5|10|20|30] [--groupNumber=3|5|10|20] [--factorDirection=Positive|Negative|1|-1]
     tqx research factor run <id> --expectedSourceRevision=<n> --expectedConfigRevision=<n> [analysis-options] [--pollInterval=<s>] [--timeout=<s>] [--noWait]
     tqx research factor stop <analysis-id>
     tqx research factor result <analysis-id>
@@ -63,6 +63,8 @@ related: ["/hk/qube/cli/quickstart","/hk/qube/api/runs","/hk/qube/research/facto
 
     分析期間最多五個曆年，包含剛好五年的邊界。
 
+    一般分析先用 `factor update` 儲存所需日期、分組、方向及 `--stockPool`，再讀取 `factor info --json`。確認實際已儲存值、`parameter_validation.status="valid"`、驗證內的 `config_revision` 與目前修訂一致，且沒有尚未套用的 `parameters_draft`。確認原始碼驗證有效，並符合目前修訂及雜湊後，以回傳的兩個修訂執行，不帶分析覆寫。只有明確要求單次實驗時，才在 `run` 傳入分析選項；它們不會儲存。股票池須符合市場，伺服器會檢查相容性。
+
     ## 因子調優檔案
 
     ```json
@@ -80,6 +82,7 @@ related: ["/hk/qube/cli/quickstart","/hk/qube/api/runs","/hk/qube/research/facto
     ```
 
     候選必須有一個不帶覆寫的基準，`FACTOR_PARAMS` 只使用有限數值，包含基準最多 32 組，`warmupTradingDays` 為 0 至 5000。目標為 `rank_ic_mean`，不切分保留樣本。套用時提供目前預期修訂，然後先執行並審閱一般分析，再建立命名版本。
+
   </Tab>
   <Tab title="TypeScript SDK">
     ## 建立因子並執行分析
@@ -89,7 +92,7 @@ related: ["/hk/qube/cli/quickstart","/hk/qube/api/runs","/hk/qube/research/facto
     ```typescript
     import { randomUUID } from "node:crypto"
     import { TqxClient } from "@tqx-ai/sdk"
-    
+
     const client = new TqxClient({
       apiKey: process.env.TQX_API_KEY!,
       baseUrl: process.env.TQX_BASE_URL!,
@@ -110,18 +113,27 @@ related: ["/hk/qube/cli/quickstart","/hk/qube/api/runs","/hk/qube/research/facto
         adjustmentCycle: 5,
         groupNumber: 10,
         factorDirection: 1,
+        stockPool: "HSI.HK",
       },
     })
     const validation = await client.research.validateFactor({
       factorId: created.id,
       expectedSourceRevision: configured.source_revision,
     })
-    if (validation.valid !== true) throw new Error("Review source diagnostics")
-    
+    const saved = await client.research.getFactor(created.id)
+    if (validation.valid !== true || validation.source_revision !== saved.source_revision) {
+      throw new Error("Review source diagnostics and current revision")
+    }
+    if (saved.parameter_validation?.status !== "valid" ||
+        saved.parameter_validation?.config_revision !== saved.config_revision ||
+        saved.parameters_draft != null) {
+      throw new Error("Resolve saved parameter validation or pending draft")
+    }
+
     const submission = await client.research.createFactorAnalysis(created.id, {
       requestId: randomUUID(),
-      expectedSourceRevision: configured.source_revision,
-      expectedConfigRevision: configured.config_revision,
+      expectedSourceRevision: saved.source_revision,
+      expectedConfigRevision: saved.config_revision,
     })
     const result = await client.research.pollFactorAnalysis(submission.run_id, {
       interval: 2,
@@ -133,7 +145,7 @@ related: ["/hk/qube/cli/quickstart","/hk/qube/api/runs","/hk/qube/research/facto
     console.log(result.metrics)
     ```
 
-    `codeType` 可用 `formula` 或 `python`。分析設定使用 `periodStart`、`periodEnd`、`adjustmentCycle`、`groupNumber` 和 `factorDirection`。結束日須晚於開始日，期間最多五個曆年。提交分析會回傳 `run_id`，讀取及輪詢時使用這個 ID。
+    `codeType` 可用 `formula` 或 `python`。分析設定使用 `periodStart`、`periodEnd`、`adjustmentCycle`、`groupNumber`、`factorDirection` 和 `stockPool`。結束日須晚於開始日，期間最多五個曆年。提交分析會回傳 `run_id`，讀取及輪詢時使用這個 ID。
 
     ## 讀取與更新因子
 
@@ -179,6 +191,7 @@ related: ["/hk/qube/cli/quickstart","/hk/qube/api/runs","/hk/qube/research/facto
     | `adjustmentCycle` | 1, 3, 5, 10, 20, 30 | 調倉週期（交易日） |
     | `groupNumber` | 3, 5, 10, 20 | 分組數量 |
     | `factorDirection` | `1` / `-1` | 正向／負向評估 |
+    | `stockPool` | `string`，市場專屬值 | 港股：`all`、`HSI.HK`、`HSCE.HK`、`HSTECH.HK`；美股：`all`、`SPX`、`IXIC`、`NDX`、`DJI` |
 
     ### 主要回傳欄位
 
@@ -188,7 +201,8 @@ related: ["/hk/qube/cli/quickstart","/hk/qube/api/runs","/hk/qube/research/facto
     | --- | --- | --- |
     | `id` | `string` | 因子或執行的 ObjectId |
     | `source_revision` / `config_revision` | `number` | 資產目前修訂；供下一次更新或執行使用 |
-    | `parameters` | `object` | 已儲存分析設定 |
+    | `parameters` | `object` | 已儲存分析設定；回應內使用 `stock_pool` 等伺服器欄位名稱 |
+    | `parameters_draft` | `object`，可空或省略 | 尚未套用的草稿；執行前先處理 |
     | `validation` / `parameter_validation` | `object`，可空或省略 | 原始碼／設定的驗證結果 |
     | `run_id` | `string` | 提交分析回傳的執行 ID；傳給 `getFactorAnalysis` 或 `pollFactorAnalysis` |
     | `status` | `string` | 準備、執行或最終狀態 |
@@ -217,5 +231,6 @@ related: ["/hk/qube/cli/quickstart","/hk/qube/api/runs","/hk/qube/research/facto
     資產庫分頁回傳 `{ items, hasMore, nextCursor, counts? }`，每頁可取 1–100 筆。`bindableOnly: true` 可篩選可綁定的因子。跨因子的執行摘要使用 `listAnalyses(input)`，每頁可取 1–10 筆。
 
     命名版本、分析快照、還原及調優請參閱 [執行、版本與調優 API](/hk/qube/api/runs)。SSE 進度及錯誤類型請參閱 [串流、輪詢與錯誤](/hk/qube/sdk/streaming)。
+
   </Tab>
 </Tabs>

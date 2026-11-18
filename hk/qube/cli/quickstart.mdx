@@ -2,7 +2,7 @@
 title: Qube CLI 快速開始
 description: 讓 Coding Agent 安裝 TQX CLI，再透過投研指令管理 Qube 因子、策略及執行結果。
 en_link: /qube/cli/quickstart
-related: ["/hk/qube","/hk/qube/api/factors","/hk/qube/api/strategies","/hk/qube/sdk/overview"]
+related: ["/hk/qube", "/hk/qube/api/factors", "/hk/qube/api/strategies", "/hk/qube/sdk/overview"]
 ---
 
 Qube CLI 指的是 **TQX CLI 中的投研指令**，統一以 `tqx research` 開頭。安裝 TQX CLI 後，你就可以建立因子、執行策略回測及查詢結果，操作與 Qube 網頁工作區相同的研究資產。
@@ -42,23 +42,26 @@ tqx research factor create --market=hk \
 # 先讀取目前修訂，再用正確修訂儲存、設定及執行。
 tqx research factor info <factor-id> --json
 tqx research factor update <factor-id> --baseConfigRevision=<config-revision> \
-  --title="Moving-average spread" --json
-tqx research factor run <factor-id> \
-  --expectedSourceRevision=<source-revision> \
-  --expectedConfigRevision=<config-revision> \
   --startDate=2024-01-01 --endDate=2026-06-30 --groupNumber=10 \
-  --adjustmentCycle=5 --factorDirection=Positive
+  --adjustmentCycle=5 --factorDirection=Positive --stockPool=HSI.HK --json
+
+# 核對已儲存參數、驗證及草稿；使用這次回傳的修訂。
+tqx research factor info <factor-id> --json
+tqx research factor run <factor-id> \
+  --expectedSourceRevision=<saved-source-revision> \
+  --expectedConfigRevision=<saved-config-revision>
 ```
 
-儲存原始碼、更新設定及執行是分開操作。讀取回傳狀態，直到 `succeeded` 後再使用 `factor result <analysis-id>`。
+儲存原始碼、更新設定及執行是分開操作。執行前核對 `parameters`、`parameter_validation.status="valid"`、內層驗證修訂等於目前 `config_revision`，且沒有尚未套用的 `parameters_draft`。原始碼驗證須符合目前修訂及雜湊；缺少或過期的驗證證據須先補齊。一般執行不帶分析覆寫，明確要求的臨時覆寫不會儲存。讀取回傳狀態，直到 `succeeded` 後再使用 `factor result <analysis-id>`。
 
 ## 選擇下一頁
 
 - [因子 API](/hk/qube/api/factors) 涵蓋公式、Python 檔案、分析、列表、版本及調優。
 - [策略 API](/hk/qube/api/strategies) 涵蓋原始碼、回測、結果下載及因子綁定。
 - [執行、版本與調優](/hk/qube/api/runs) 涵蓋輪詢、停止、游標、還原及 JSON。
-- [TypeScript SDK](/hk/qube/sdk/overview) 適用於具型別整合。
+- [TypeScript SDK](/hk/qube/sdk/overview) 讓你編寫自己的 TypeScript 程式，建立研究、啟動回測及讀取結果。
 
 <Note>
-  `SUBMITTED`、`PENDING`、`RUNNING`、`FAILED`、`CANCELLED` 和 `TIMEOUT` 都不代表投研已成功完成。CLI 只會將伺服器的 `succeeded` 對應為 `SUCCESS`；逾時只會停止本機等待。
+  `SUBMITTED`、`PENDING`、`RUNNING`、`FAILED`、`CANCELLED` 和 `TIMEOUT` 都不代表投研已成功完成。CLI
+  只會將伺服器的 `succeeded` 對應為 `SUCCESS`；逾時只會停止本機等待。
 </Note>

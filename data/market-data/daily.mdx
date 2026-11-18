@@ -8,47 +8,47 @@ Qube and the [local `tqx-data` package](/data/local-package) both support the me
 
 ## Obtain daily data of Hong Kong stocks
 
-### Method name: get\_hk\_daily
+### Method name: get_hk_daily
 
 ### Enter parameters
 
-| Field | Type | Description | Is it required |
-| :-- | :-- | :-- | :-- |
-| start\_date | str | Start date in `YYYYMMDD`. Local queries must span no more than five years. | Qube: optional; local: required |
-| end\_date | str | End date in `YYYYMMDD`. Local queries must span no more than five years. | Qube: optional; local: required |
-| symbol | Optional\[Union\[str, List\[str\]\]\] | Stock code | Optional |
-| fields | Optional\[Union\[str, List\[str\]\]\] | Return fields | Optional |
+| Field      | Type                                  | Description                                                                | Is it required                  |
+| :--------- | :------------------------------------ | :------------------------------------------------------------------------- | :------------------------------ |
+| start_date | str                                   | Start date in `YYYYMMDD`. Local queries must span no more than five years. | Qube: optional; local: required |
+| end_date   | str                                   | End date in `YYYYMMDD`. Local queries must span no more than five years.   | Qube: optional; local: required |
+| symbol     | Optional\[Union\[str, List\[str\]\]\] | Stock code                                                                 | Optional                        |
+| fields     | Optional\[Union\[str, List\[str\]\]\] | Return fields                                                              | Optional                        |
 
 ### Response parameters
 
-| Field | Type | Description |
-| :-- | :-- | :-- |
-| date | str | trading day |
-| symbol | str | stock code |
-| open | str | opening price |
-| high | double | highest price |
-| low | double | lowest price |
-| close | double | theoretical closing price |
-| volume | double | trading volume |
-| pre\_close | double | previous day's closing price |
-| name | str | stock name |
-| trade\_status | int | Transaction status code |
-| alt\_close | double | Alternate closing price, equal to close; not adjusted for dividends or splits |
-| bid | double | bid price |
-| ask | double | selling price |
-| vwap | double | volume weighted average price |
-| vwap\_vol | double | Calculate the trading volume of VWAP |
-| opn\_aucvol | double | Trading volume during the opening auction period |
-| opn\_auc | double | opening auction period price |
-| lmt\_refpr2 | double | limit reference price |
-| lolimit | double | price lower limit |
-| uplimit | double | price upper limit |
-| lolimit\_2 | double | Secondary price lower limit |
-| uplimit\_2 | double | Secondary price limit |
-| num\_moves | double | number of transactions |
-| uplimit\_3 | double | Three-level price limit |
-| lolimit\_3 | double | Level three price lower limit |
-| cls\_aucvol | double | Closing auction period trading volume |
+| Field        | Type   | Description                                                                   |
+| :----------- | :----- | :---------------------------------------------------------------------------- |
+| date         | str    | trading day                                                                   |
+| symbol       | str    | stock code                                                                    |
+| open         | str    | opening price                                                                 |
+| high         | double | highest price                                                                 |
+| low          | double | lowest price                                                                  |
+| close        | double | theoretical closing price                                                     |
+| volume       | double | trading volume                                                                |
+| pre_close    | double | previous day's closing price                                                  |
+| name         | str    | stock name                                                                    |
+| trade_status | int    | Transaction status code                                                       |
+| alt_close    | double | Alternate closing price, equal to close; not adjusted for dividends or splits |
+| bid          | double | bid price                                                                     |
+| ask          | double | selling price                                                                 |
+| vwap         | double | volume weighted average price                                                 |
+| vwap_vol     | double | Calculate the trading volume of VWAP                                          |
+| opn_aucvol   | double | Trading volume during the opening auction period                              |
+| opn_auc      | double | opening auction period price                                                  |
+| lmt_refpr2   | double | limit reference price                                                         |
+| lolimit      | double | price lower limit                                                             |
+| uplimit      | double | price upper limit                                                             |
+| lolimit_2    | double | Secondary price lower limit                                                   |
+| uplimit_2    | double | Secondary price limit                                                         |
+| num_moves    | double | number of transactions                                                        |
+| uplimit_3    | double | Three-level price limit                                                       |
+| lolimit_3    | double | Level three price lower limit                                                 |
+| cls_aucvol   | double | Closing auction period trading volume                                         |
 
 ### Usage examples
 
@@ -124,37 +124,37 @@ symbol date ask bid vwap
 
 ## Get daily data of US stocks
 
-### Method name: get\_us\_daily
+### Method name: get_us_daily
 
 ### Enter parameters
 
-| Field | Type | Description | Is it required |
-| :-- | :-- | :-- | :-- |
-| start\_date | str | Start date in `YYYYMMDD`. Local queries must span no more than five years. | Qube: optional; local: required |
-| end\_date | str | End date in `YYYYMMDD`. Local queries must span no more than five years. | Qube: optional; local: required |
-| symbol | Optional\[Union\[str, List\[str\]\]\] | Stock code | Optional |
-| fields | Optional\[Union\[str, List\[str\]\]\] | Return fields | Optional |
+| Field      | Type                                  | Description                                                                | Is it required                  |
+| :--------- | :------------------------------------ | :------------------------------------------------------------------------- | :------------------------------ |
+| start_date | str                                   | Start date in `YYYYMMDD`. Local queries must span no more than five years. | Qube: optional; local: required |
+| end_date   | str                                   | End date in `YYYYMMDD`. Local queries must span no more than five years.   | Qube: optional; local: required |
+| symbol     | Optional\[Union\[str, List\[str\]\]\] | Stock code                                                                 | Optional                        |
+| fields     | Optional\[Union\[str, List\[str\]\]\] | Return fields                                                              | Optional                        |
 
 ### Response parameters
 
-| Field | Type | Description |
-| :-- | :-- | :-- |
-| date | str | trading day |
-| symbol | str | stock code |
-| open | str | opening price |
-| high | double | highest price |
-| low | double | lowest price |
-| close | double | theoretical closing price |
-| volume | double | trading volume |
-| pre\_close | double | previous day's closing price |
-| name | str | stock name |
-| trade\_status | int | Transaction status code |
-| blkcount | double | number of large transactions |
-| blkvolum | double | block volume number |
-| bid | double | bid price |
-| ask | double | selling price |
-| vwap | double | volume weighted average price |
-| num\_moves | double | number of transactions |
+| Field        | Type   | Description                   |
+| :----------- | :----- | :---------------------------- |
+| date         | str    | trading day                   |
+| symbol       | str    | stock code                    |
+| open         | str    | opening price                 |
+| high         | double | highest price                 |
+| low          | double | lowest price                  |
+| close        | double | theoretical closing price     |
+| volume       | double | trading volume                |
+| pre_close    | double | previous day's closing price  |
+| name         | str    | stock name                    |
+| trade_status | int    | Transaction status code       |
+| blkcount     | double | number of large transactions  |
+| blkvolum     | double | block volume number           |
+| bid          | double | bid price                     |
+| ask          | double | selling price                 |
+| vwap         | double | volume weighted average price |
+| num_moves    | double | number of transactions        |
 
 In Qube, `get_us_daily` does not return `amount`, even when requested through `fields`.
 
@@ -248,3 +248,14 @@ symbol date volume close pre_close
 38 AAPL 20250130 55658279.0 237.59 239.36
 39 AAPL 20250131 101075128.0 236.00 237.59
 ```
+
+## Native adjusted daily data in Qube
+
+The native Qube sandbox also exports these signatures. Replace `<market>` with `hk` or `us`; this is signature notation. These methods do not take an additional `market` argument.
+
+```text
+get_<market>_daily_pre(symbol=None, start_date=None, end_date=None, fields=None)
+get_<market>_daily_post(symbol=None, start_date=None, end_date=None, fields=None)
+```
+
+When choosing pre-adjusted or post-adjusted daily data, verify returned fields, dates, and adjustment behavior. These native exports do not establish equivalent local-package support or permitted strategy imports. Strategy history uses the same-market `stock_api_quotation`; see [Write a strategy](/qube/research/strategy/code).

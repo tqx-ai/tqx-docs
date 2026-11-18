@@ -5,40 +5,43 @@ en_link: /data/financial-and-market-factors/factors
 ---
 
 <Note>
-  本頁方法適用於 [Qube 沙箱](/hk/data/qube-runtime)。[本機 `tqx-data` 套件](/hk/data/local-package) 不提供這些方法。
+  本頁方法適用於 [Qube 沙箱](/hk/data/qube-runtime)。[本機 `tqx-data` 套件](/hk/data/local-package)
+  不提供這些方法。
 </Note>
 
 在 Qube 沙箱中使用 `get_factor` 查詢因子欄位，進行研究與探索。因子計算程式碼應使用框架提供的欄位，不要在計算中呼叫此方法；詳見 [編寫因子](/hk/qube/research/factor/code)。
 
 ## 取得港美股回測因子
 
-### 方法名稱：get\_factor
+### 方法名稱：get_factor
 
 ### 入參
 
-| 欄位 | 類型 | 說明 | 是否必填 |
-| :-- | :-- | :-- | :-- |
-| start\_date | str | 開始日期,eg:"20250702" | 必填 |
-| end\_date | str | 結束日期,eg:"20250702" | 必填 |
-| symbol | Optional\[Union\[str, List\[str\]\]\] | 股票代號 | 非必填 |
-| factors | Union\[str, List\[str\]\] | 因子列表 | 必填 |
-| type | Optional\[str\] | 市場，使用 `hk` 或 `us`，預設為 `hk`。 | 非必填 |
+| 欄位       | 類型                                  | 說明                                                                     | 是否必填 |
+| :--------- | :------------------------------------ | :----------------------------------------------------------------------- | :------- |
+| start_date | str                                   | 開始日期,eg:"20250702"                                                   | 必填     |
+| end_date   | str                                   | 結束日期,eg:"20250702"                                                   | 必填     |
+| symbol     | Optional\[Union\[str, List\[str\]\]\] | 股票代號                                                                 | 非必填   |
+| factors    | Union\[str, List\[str\]\]             | 因子列表                                                                 | 必填     |
+| type       | Optional\[str\]                       | 市場：港股 `hk`（預設），美股 `nb`；`us` 與 `nb` 等效。不支援舊值 `ny`。 | 非必填   |
 
 ### 回應參數
 
 基礎因子類:
 
-| 字段 | 類型 | 描述 |
-| :-- | :-- | :-- |
-| date | str | 日期 |
-| symbol | str | 檔 |
-| open | double | 開盤價 |
-| close | double | 收盤價 |
-| high | double | 最高價 |
-| low | double | 最低價 |
-| volume | double | 成交量 |
-| amount | double | 成交額 |
-| pre\_close | double | 前日收盤價 |
+| 字段      | 類型   | 描述       |
+| :-------- | :----- | :--------- |
+| date      | str    | 日期       |
+| symbol    | str    | 檔         |
+| open      | double | 開盤價     |
+| close     | double | 收盤價     |
+| high      | double | 最高價     |
+| low       | double | 最低價     |
+| volume    | double | 成交量     |
+| amount    | double | 成交額     |
+| pre_close | double | 前日收盤價 |
+
+港股基礎因子另提供 `turnover`，美股另提供 `market_cap`。先檢查實際欄位與資料涵蓋範圍。原生欄位存在不代表因子計算端一定支援；已儲存因子仍須驗證及執行。
 
 ### 使用範例
 

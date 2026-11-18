@@ -1,34 +1,45 @@
 ---
-title: Analyze a factor
+title: "Analyze a factor"
 zh-Hant_link: /hk/qube/research/factor/analyze
-related: ["/qube/research/factor/results","/qube/research/factor/versions","/qube/api/factors"]
+related: ["/qube/research/factor/results", "/qube/research/factor/versions", "/qube/api/factors"]
+description: "Choose stocks, dates, and grouping rules, then test whether a score relates to later returns."
+keywords: ["Qube", "research guide"]
 ---
 
-An analysis evaluates the factor's saved signal over a defined period. Save valid source and configuration before submitting a run.
+An analysis asks whether a factor's scores relate to what stocks do afterward. First [create and review the score](/qube/research/factor/create), then choose the settings for this test.
 
-## Set the configuration
+## Choose what to compare
 
-| Setting | Supported values |
-| --- | --- |
-| Period | Start before end; at most five calendar years, including the exact five-year boundary. |
-| Groups | `3`, `5`, `10`, or `20`. |
-| Adjustment cycle | `1`, `3`, `5`, `10`, `20`, or `30` trading days. |
-| Direction | `1` (positive) or `-1` (negative). |
+For a first Hong Kong study, you might use Hang Seng Index constituents, five groups, and regrouping every five trading days. These choices define an example experiment, not recommended investment settings.
 
-Use the asset's Hong Kong or US market. Do not pass stock/futures selectors or a custom `stock_pool` to the TQX equity workflow.
+| Setting          | Plain-language meaning                                  | Example                                                                            |
+| ---------------- | ------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| Stock pool       | Which stocks enter the comparison.                      | Hang Seng Index constituents, rather than the whole Hong Kong market.              |
+| Dates            | When the study takes place.                             | A period with enough history to calculate the score and compare later performance. |
+| Number of groups | How many buckets to split the ranked stocks into.       | Five groups, ordered from low score to high score.                                 |
+| Adjustment cycle | How often scores are used to form the groups again.     | Every five trading days.                                                           |
+| Direction        | Which end of the ranking the idea expects to do better. | Positive targets high scores; negative targets low scores.                         |
 
-## Submit and monitor
+If 100 stocks have usable scores on a date, five groups would contain about 20 stocks each. If some stocks lack data, the usable count may be smaller. Ask Qube to report coverage rather than assuming every stock entered the test.
 
-1. Open the factor detail page and review saved source and analysis settings.
-2. Resolve source or configuration validation errors. Apply or discard any pending parameter draft first.
-3. Submit the analysis. Qube freezes the exact source, configuration, market, and period with the run.
-4. Track `preparing`, `queued`, and `running` until `succeeded`, `failed`, or `cancelled`.
-5. Open that run's [results](/qube/research/factor/results). Changes to the current factor never rewrite it.
+## Review the detail page and run
 
-The CLI and SDK require both expected revisions when starting a run. See [Factor API](/qube/api/factors) for an executable example. Request acceptance is not evidence of successful analysis.
+Open the saved factor. Check the dates, stock pool, grouping, cycle, and direction. Save the settings, resolve validation problems, then start the analysis. Qube keeps the rule and settings used by that run, so later edits do not rewrite the old result.
 
-Stopping requests cancellation; read the final state before assuming execution has ended. A local polling timeout leaves the remote analysis running.
-
-<Frame caption="Factor detail page with analysis parameters, code editor, and result history">
-  ![Factor detail page showing analysis parameters, formula editor, result history, and group return chart](/images/factor/factor-detail-params-code.png)
+<Frame caption="Check the factor's settings and rule before starting; open a completed analysis to inspect the results.">
+  ![Factor detail page showing analysis parameters, formula editor, result history, and group return
+  chart](/images/factor/factor-detail-params-code.png)
 </Frame>
+
+Preparing, queued, and running mean the analysis has not finished. Open the result after it succeeds. If it fails, ask Qube to explain the error and any missing data before running again.
+
+Continue with [Read factor results](/qube/research/factor/results). A submitted request is not yet a completed result. If you stop a run, check its final state; closing a page or a local waiting timeout does not itself cancel it.
+
+<Accordion title="Supported settings and external interfaces">
+  Dates must start before they end, with a maximum span of five calendar years. Supported group counts are 3, 5, 10, and 20. Adjustment cycles are 1, 3, 5, 10, 20, and 30 trading days.
+
+Hong Kong pools are all stocks, Hang Seng, Hang Seng China Enterprises, and Hang Seng TECH. US pools are all stocks, S&P 500, Nasdaq Composite, Nasdaq-100, and Dow Jones. The pool must match the factor's market.
+
+CLI and SDK ordinary runs save and verify the settings first, then submit the current source and configuration revisions without temporary overrides. Exact identifiers, validation checks, and examples are in the [Factor API](/qube/api/factors).
+
+</Accordion>

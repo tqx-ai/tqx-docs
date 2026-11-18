@@ -3,7 +3,7 @@ title: 數據
 sidebarTitle: 總覽
 description: 供 Qube 投研及本機 Python 使用的行情與參考數據。
 en_link: /data/info
-related: ["/hk/data/qube-runtime","/hk/data/local-package","/hk/data/market-data/daily"]
+related: ["/hk/data/qube-runtime", "/hk/data/local-package", "/hk/data/market-data/daily"]
 ---
 
 TQX 為港股及美股研究提供歷史行情、市場參考、財務及因子數據。複製 API 範例前，先選擇執行環境。
@@ -15,6 +15,7 @@ TQX 為港股及美股研究提供歷史行情、市場參考、財務及因子�
     Qube 沙箱原生 `tqx_data` 使用平台提供的歷史數據，不需要以本機 API Key 初始化。使用下列參考頁前，先閱讀 [在 Qube 中存取數據](/hk/data/qube-runtime)。
 
     策略內的數據查詢方式請參閱 [編寫策略](/hk/qube/research/strategy/code)。因子程式碼由 Qube 提供輸入數據，詳見 [編寫因子](/hk/qube/research/factor/code)。
+
   </Tab>
   <Tab title="本機 PyPI 套件">
     在自己的 Python 環境安裝 `tqx-data`，以數據 API Key 及服務地址初始化。[本機套件](/hk/data/local-package) 說明安裝、方法、欄位及 Tick 串流。
@@ -23,30 +24,30 @@ TQX 為港股及美股研究提供歷史行情、市場參考、財務及因子�
 
 ## 哪些 API 在兩個環境都可用？
 
-| 功能 | Qube 沙箱 | 本機 `tqx-data` |
-| --- | --- | --- |
-| [日線](/hk/data/market-data/daily) | 支援 | 支援，須先以 API Key 初始化 |
-| [股票詳情](/hk/data/market-reference/stock-detail) 和 [交易日曆](/hk/data/market-reference/trading-calendar) | 支援 | 支援 |
-| [事件](/hk/data/market-reference/events)、[持股資料](/hk/data/market-reference/ownership)、[公司指標](/hk/data/market-reference/company-metrics) 和 [一致預期](/hk/data/market-reference/consensus) | 支援 | 支援 |
-| [財務報表](/hk/data/financial-and-market-factors/financial-statements) 和 [匯率](/hk/data/utilities/currency) | 支援 | 支援 |
-| [歷史分鐘線](/hk/data/market-data/minute)、[技術指標](/hk/data/market-data/indicators)、[因子欄位](/hk/data/financial-and-market-factors/factors)、[公告](/hk/data/market-reference/filings) 和 [指數成分](/hk/data/market-reference/index-components) | 支援 | 不提供這些方法 |
-| 即時 Tick 訂閱（`TickStreamClient`） | 不含此類別 | 支援 |
+| 功能                                                                                                                                                                                                                                                   | Qube 沙箱  | 本機 `tqx-data`             |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------- | --------------------------- |
+| [日線](/hk/data/market-data/daily)                                                                                                                                                                                                                     | 支援       | 支援，須先以 API Key 初始化 |
+| [股票詳情](/hk/data/market-reference/stock-detail) 和 [交易日曆](/hk/data/market-reference/trading-calendar)                                                                                                                                           | 支援       | 支援                        |
+| [事件](/hk/data/market-reference/events)、[持股資料](/hk/data/market-reference/ownership)、[公司指標](/hk/data/market-reference/company-metrics) 和 [一致預期](/hk/data/market-reference/consensus)                                                    | 支援       | 支援                        |
+| [財務報表](/hk/data/financial-and-market-factors/financial-statements) 和 [匯率](/hk/data/utilities/currency)                                                                                                                                          | 支援       | 支援                        |
+| [歷史分鐘線](/hk/data/market-data/minute)、[技術指標](/hk/data/market-data/indicators)、[因子欄位](/hk/data/financial-and-market-factors/factors)、[公告](/hk/data/market-reference/filings) 和 [指數成分](/hk/data/market-reference/index-components) | 支援       | 不提供這些方法              |
+| 即時 Tick 訂閱（`TickStreamClient`）                                                                                                                                                                                                                   | 不含此類別 | 支援                        |
 
 方法名稱相同，不代表參數、預設值和回傳欄位完全相同。API 參考頁以 Qube 為主；本機初始化、範例及參數差異請參閱 [本機套件](/hk/data/local-package)。
 
 ## 找到合適參考
 
-| 任務 | 參考 |
-| --- | --- |
-| 歷史日線及分鐘價格 | [日線](/hk/data/market-data/daily)、[分鐘線](/hk/data/market-data/minute) |
-| 股票、日曆、事件、公告、股權及指數成分 | 本分頁的市場參考數據 |
-| 財務欄位及報表 | [因子](/hk/data/financial-and-market-factors/factors)、[報表](/hk/data/financial-and-market-factors/financial-statements) |
-| 本機 API Key 數據及 Tick 串流 | [本機套件](/hk/data/local-package) |
+| 任務                                   | 參考                                                                                                                      |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| 歷史日線及分鐘價格                     | [日線](/hk/data/market-data/daily)、[分鐘線](/hk/data/market-data/minute)                                                 |
+| 股票、日曆、事件、公告、股權及指數成分 | 本分頁的市場參考數據                                                                                                      |
+| 財務欄位及報表                         | [因子](/hk/data/financial-and-market-factors/factors)、[報表](/hk/data/financial-and-market-factors/financial-statements) |
+| 本機 API Key 數據及 Tick 串流          | [本機套件](/hk/data/local-package)                                                                                        |
 
 ## 代碼及可用範圍
 
 港股數據使用例如 `0700.HK` 的代碼。Qube 原生 `tqx_data` 的美股歷史行情、市場參考、財務與因子查詢統一使用不帶後綴的代碼，例如 `AAPL`；回傳的 `symbol` 和 `stock_symbol` 亦不帶後綴。需要選擇市場時，使用 `market="us"` 或因子查詢的 `type="us"`。
 
-美股策略引擎使用 `AAPL.NB` 等代碼；策略程式碼請依照 [編寫策略](/hk/qube/research/strategy/code) 使用對應格式。
+美股策略引擎使用 `AAPL.US` 等代碼；策略程式碼請依照 [編寫策略](/hk/qube/research/strategy/code) 使用對應格式。
 
 本站的 Qube 數據範例查詢歷史快照；即時訂閱請參閱 [本機 Tick 串流](/hk/data/market-data/tick)。請驗證涵蓋範圍、缺失欄位、時區、復權行為及公告日期。歷史財務值必須在決策當時已經公開。

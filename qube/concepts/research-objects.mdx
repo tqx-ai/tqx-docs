@@ -1,28 +1,45 @@
 ---
-title: Qube research objects
-description: "Understand factors, strategies, runs, versions, revisions, and tuning tasks before you use the Qube research workflow."
-related: ["/qube/research/factor","/qube/research/strategy","/qube/research/run-history","/qube/research/optimizations"]
+title: "Understand saved research"
+related:
+  [
+    "/qube/research/factor",
+    "/qube/research/strategy",
+    "/qube/research/run-history",
+    "/qube/research/optimizations",
+  ]
 zh-Hant_link: /hk/qube/concepts/research-objects
+description: "Tell your working draft, a completed test, and a named version apart."
+keywords: ["Qube", "research guide"]
 ---
 
-Qube keeps research objects separate so you can change a draft without rewriting the evidence from an earlier run.
+Qube separates what you are editing from what you have already tested. This lets you improve an idea without losing the settings behind an earlier result.
 
-| Object | Purpose |
-| --- | --- |
-| Factor | A market signal evaluated through cross-sectional analysis. |
-| Strategy | A program that produces signals and orders with position, cost, and risk rules. |
-| Run | One frozen factor analysis or strategy backtest. |
-| Version | An immutable named snapshot created from a successful ordinary run. |
-| Tuning | A bounded study that compares candidate parameter combinations. |
+## Follow one strategy through the workspace
 
-## Revisions and request IDs
+Suppose you save a Tencent strategy that buys after a 20-day price breakout:
 
-Source and configuration have independent revisions. Read the current resource before saving, configuring, running, restoring, or applying a tuning candidate. Mutations carry a request ID so an uncertain response can be retried with the same intent.
+1. **Strategy:** the working rules and settings you can edit.
+2. **Run:** one backtest of those rules over particular dates, with particular costs and starting capital.
+3. **Named version:** a fixed, named copy of the inputs from a successful ordinary run, such as “20-day baseline.”
 
-## Run states
+Now change the buy window to 15 days. Your current strategy changes, but the old backtest still records the 20-day rule. A new backtest gives you a separate result to compare with it.
 
-Qube reports `preparing`, `queued`, `running`, `succeeded`, `failed`, and `cancelled`. A submitted or running task is not a successful result until it reaches `succeeded` and its result is available.
+## A short glossary
 
-## Pagination and results
+| Term          | Meaning                                                   | Example                                                        |
+| ------------- | --------------------------------------------------------- | -------------------------------------------------------------- |
+| Factor        | A rule that scores stocks.                                | Rank stocks by recent price strength.                          |
+| Strategy      | Rules for buying, selling, and position sizes.            | Buy a breakout and exit below an average.                      |
+| Run           | One analysis or backtest using fixed inputs.              | Test the strategy over a three-year period.                    |
+| Named version | A preserved set of inputs from a successful ordinary run. | Keep the original rule before trying a change.                 |
+| Tuning        | A comparison of a limited set of parameter choices.       | Compare different lookback windows with the original settings. |
 
-Libraries use a limit and opaque cursor. Result fields such as equity, trades, logs, and symbol performance can be paged independently. Keep the returned `next_cursor`, `has_more`, and result metadata when you build an integration.
+Saving work, running a test, and creating a version are separate actions. Ask Qube which action it completed and open the saved result to check.
+
+## What does a revision mean?
+
+A **revision** is a change counter. Qube tracks code changes and settings changes separately. This helps detect when another edit has happened before a new change or run uses the old information.
+
+The web workspace handles these checks. If you build an integration yourself, read the current revisions and use the expected values described in the [API reference](/qube/api/runs). Identifiers, request IDs, and result paging are integration details; you do not need them to start a web conversation.
+
+Continue with [Your first research task](/qube/research/info) or [Read and compare run history](/qube/research/run-history).

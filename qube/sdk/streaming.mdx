@@ -2,7 +2,7 @@
 title: "Streaming, polling, and errors"
 description: "Follow research progress with polling or SSE, and handle timeouts and SDK errors."
 zh-Hant_link: /hk/qube/sdk/streaming
-related: ["/qube/sdk/overview","/qube/api/runs"]
+related: ["/qube/sdk/overview", "/qube/api/runs"]
 ---
 
 Use polling to check progress at regular intervals. Use SSE (server-sent events) to receive updates over a continuous connection. Initialize the [TypeScript SDK](/qube/sdk/overview) before using the examples below.
@@ -13,8 +13,8 @@ Use polling to check progress at regular intervals. Use SSE (server-sent events)
 const result = await client.research.pollFactorAnalysis(analysisId, {
   interval: 2,
   timeout: 600,
-  progressCallback: value => console.log(value.status),
-})
+  progressCallback: (value) => console.log(value.status),
+});
 ```
 
 Polling stops on succeeded, failed, or cancelled. A timeout returns the latest resource with a timeout marker and does not cancel the server task.
@@ -22,11 +22,11 @@ Polling stops on succeeded, failed, or cancelled. A timeout returns the latest r
 ## SSE protocol 1
 
 ```typescript
-const controller = new AbortController()
+const controller = new AbortController();
 for await (const event of client.research.streamBacktest(runId, {
   signal: controller.signal,
 })) {
-  console.log(event.event, event.seq, event.value.status)
+  console.log(event.event, event.seq, event.value.status);
 }
 ```
 
@@ -43,3 +43,5 @@ Catch TqxNetworkError for transport failures, TqxApiError for server responses, 
 Polling options use seconds: `interval` defaults to 2 and `timeout` defaults to 600. A timeout adds `cli_status: "TIMEOUT"` and `timeout_seconds` to the latest result. Check both terminal state and the timeout marker. Aborting a stream stops reading locally; explicitly call the matching cancellation method to request server cancellation.
 
 On a network interruption, preserve the last `seq` and reopen with `{ after: lastSeq, signal }`. Handle failures and terminal snapshots before deciding whether another connection is appropriate. Reusing a request ID is only safe with an identical mutation body.
+
+A network timeout or response validation failure cannot prove a mutation failed. Preserve the original `requestId`, reconcile remote state, then reuse the same ID and identical body for any retry. Do not automatically create another run. For `LIVE_RESULT_UNAVAILABLE`, back off and read the same run. Results may still be partial; check terminal state and availability before drawing conclusions.

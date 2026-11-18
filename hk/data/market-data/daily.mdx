@@ -8,47 +8,47 @@ Qube 與 [本機 `tqx-data` 套件](/hk/data/local-package) 都支援本頁方�
 
 ## 取得港股日線數據
 
-### 方法名稱：get\_hk\_daily
+### 方法名稱：get_hk_daily
 
 ### 入參
 
-| 欄位 | 類型 | 說明 | 是否必填 |
-| :-- | :-- | :-- | :-- |
-| start\_date | str | 開始日期，格式為 `YYYYMMDD`。本機查詢的起訖日期跨度不得超過五年。 | Qube 選填；本機必填 |
-| end\_date | str | 結束日期，格式為 `YYYYMMDD`。本機查詢的起訖日期跨度不得超過五年。 | Qube 選填；本機必填 |
-| symbol | Optional\[Union\[str, List\[str\]\]\] | 股票代號 | 非必填 |
-| fields | Optional\[Union\[str, List\[str\]\]\] | 傳回欄位 | 非必填 |
+| 欄位       | 類型                                  | 說明                                                              | 是否必填            |
+| :--------- | :------------------------------------ | :---------------------------------------------------------------- | :------------------ |
+| start_date | str                                   | 開始日期，格式為 `YYYYMMDD`。本機查詢的起訖日期跨度不得超過五年。 | Qube 選填；本機必填 |
+| end_date   | str                                   | 結束日期，格式為 `YYYYMMDD`。本機查詢的起訖日期跨度不得超過五年。 | Qube 選填；本機必填 |
+| symbol     | Optional\[Union\[str, List\[str\]\]\] | 股票代號                                                          | 非必填              |
+| fields     | Optional\[Union\[str, List\[str\]\]\] | 傳回欄位                                                          | 非必填              |
 
 ### 回應參數
 
-| 字段 | 類型 | 描述 |
-| :-- | :-- | :-- |
-| date | str | 交易日 |
-| symbol | str | 檔 |
-| open | str | 開盤價 |
-| high | double | 最高價 |
-| low | double | 最低價 |
-| close | double | 理論收市價 |
-| volume | double | 成交量 |
-| pre\_close | double | 前一日收盤價 |
-| name | str | 股票名稱 |
-| trade\_status | int | 交易狀態代碼 |
-| alt\_close | double | 備用收市價，與 close 相同；未做除權除息調整 |
-| bid | double | 買盤價 |
-| ask | double | 賣盤價 |
-| vwap | double | 成交量加權平均價 |
-| vwap\_vol | double | 計算VWAP的成交量 |
-| opn\_aucvol | double | 開市競價時段交易量 |
-| opn\_auc | double | 開市競價時段價格 |
-| lmt\_refpr2 | double | 限價參考價 |
-| lolimit | double | 價格下限 |
-| uplimit | double | 價格上限 |
-| lolimit\_2 | double | 二級價格下限 |
-| uplimit\_2 | double | 二級價格上限 |
-| num\_moves | double | 成交筆數 |
-| uplimit\_3 | double | 三級價格上限 |
-| lolimit\_3 | double | 三級價格下限 |
-| cls\_aucvol | double | 收市競價時段成交量 |
+| 字段         | 類型   | 描述                                        |
+| :----------- | :----- | :------------------------------------------ |
+| date         | str    | 交易日                                      |
+| symbol       | str    | 檔                                          |
+| open         | str    | 開盤價                                      |
+| high         | double | 最高價                                      |
+| low          | double | 最低價                                      |
+| close        | double | 理論收市價                                  |
+| volume       | double | 成交量                                      |
+| pre_close    | double | 前一日收盤價                                |
+| name         | str    | 股票名稱                                    |
+| trade_status | int    | 交易狀態代碼                                |
+| alt_close    | double | 備用收市價，與 close 相同；未做除權除息調整 |
+| bid          | double | 買盤價                                      |
+| ask          | double | 賣盤價                                      |
+| vwap         | double | 成交量加權平均價                            |
+| vwap_vol     | double | 計算VWAP的成交量                            |
+| opn_aucvol   | double | 開市競價時段交易量                          |
+| opn_auc      | double | 開市競價時段價格                            |
+| lmt_refpr2   | double | 限價參考價                                  |
+| lolimit      | double | 價格下限                                    |
+| uplimit      | double | 價格上限                                    |
+| lolimit_2    | double | 二級價格下限                                |
+| uplimit_2    | double | 二級價格上限                                |
+| num_moves    | double | 成交筆數                                    |
+| uplimit_3    | double | 三級價格上限                                |
+| lolimit_3    | double | 三級價格下限                                |
+| cls_aucvol   | double | 收市競價時段成交量                          |
 
 ### 使用範例
 
@@ -124,37 +124,37 @@ symbol date ask bid vwap
 
 ## 取得美股日線數據
 
-### 方法名稱：get\_us\_daily
+### 方法名稱：get_us_daily
 
 ### 入參
 
-| 欄位 | 類型 | 說明 | 是否必填 |
-| :-- | :-- | :-- | :-- |
-| start\_date | str | 開始日期，格式為 `YYYYMMDD`。本機查詢的起訖日期跨度不得超過五年。 | Qube 選填；本機必填 |
-| end\_date | str | 結束日期，格式為 `YYYYMMDD`。本機查詢的起訖日期跨度不得超過五年。 | Qube 選填；本機必填 |
-| symbol | Optional\[Union\[str, List\[str\]\]\] | 股票代號 | 非必填 |
-| fields | Optional\[Union\[str, List\[str\]\]\] | 傳回欄位 | 非必填 |
+| 欄位       | 類型                                  | 說明                                                              | 是否必填            |
+| :--------- | :------------------------------------ | :---------------------------------------------------------------- | :------------------ |
+| start_date | str                                   | 開始日期，格式為 `YYYYMMDD`。本機查詢的起訖日期跨度不得超過五年。 | Qube 選填；本機必填 |
+| end_date   | str                                   | 結束日期，格式為 `YYYYMMDD`。本機查詢的起訖日期跨度不得超過五年。 | Qube 選填；本機必填 |
+| symbol     | Optional\[Union\[str, List\[str\]\]\] | 股票代號                                                          | 非必填              |
+| fields     | Optional\[Union\[str, List\[str\]\]\] | 傳回欄位                                                          | 非必填              |
 
 ### 回應參數
 
-| 字段 | 類型 | 描述 |
-| :-- | :-- | :-- |
-| date | str | 交易日 |
-| symbol | str | 檔 |
-| open | str | 開盤價 |
-| high | double | 最高價 |
-| low | double | 最低價 |
-| close | double | 理論收市價 |
-| volume | double | 成交量 |
-| pre\_close | double | 前一日收盤價 |
-| name | str | 股票名稱 |
-| trade\_status | int | 交易狀態代碼 |
-| blkcount | double | 大宗交易筆數 |
-| blkvolum | double | 大宗交易量數 |
-| bid | double | 買盤價 |
-| ask | double | 賣盤價 |
-| vwap | double | 成交量加權平均價 |
-| num\_moves | double | 成交筆數 |
+| 字段         | 類型   | 描述             |
+| :----------- | :----- | :--------------- |
+| date         | str    | 交易日           |
+| symbol       | str    | 檔               |
+| open         | str    | 開盤價           |
+| high         | double | 最高價           |
+| low          | double | 最低價           |
+| close        | double | 理論收市價       |
+| volume       | double | 成交量           |
+| pre_close    | double | 前一日收盤價     |
+| name         | str    | 股票名稱         |
+| trade_status | int    | 交易狀態代碼     |
+| blkcount     | double | 大宗交易筆數     |
+| blkvolum     | double | 大宗交易量數     |
+| bid          | double | 買盤價           |
+| ask          | double | 賣盤價           |
+| vwap         | double | 成交量加權平均價 |
+| num_moves    | double | 成交筆數         |
 
 Qube 的 `get_us_daily` 不回傳成交額 `amount`，即使在 `fields` 中指定亦然。
 
@@ -248,3 +248,14 @@ symbol date volume close pre_close
 38 AAPL 20250130 55658279.0 237.59 239.36
 39 AAPL 20250131 101075128.0 236.00 237.59
 ```
+
+## Qube 原生復權日線
+
+Qube 沙箱原生介面另提供以下簽名，將 `<market>` 替換為 `hk` 或 `us`；這是簽名表示法。這些方法不另外接受 `market` 參數。
+
+```text
+get_<market>_daily_pre(symbol=None, start_date=None, end_date=None, fields=None)
+get_<market>_daily_post(symbol=None, start_date=None, end_date=None, fields=None)
+```
+
+選擇前復權或後復權日線時，確認實際欄位、日期及復權行為。這些原生方法不表示本機套件具有相同功能，也不能直接匯入策略。策略歷史數據使用同市場的 `stock_api_quotation`；詳見 [編寫策略](/hk/qube/research/strategy/code)。

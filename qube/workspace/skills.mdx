@@ -1,12 +1,38 @@
 ---
-title: Skills and data access
-description: Choose a Skill that matches the runtime before generating code.
+title: "Understand Skills"
 zh-Hant_link: /hk/qube/workspace/skills
 related: ["/qube"]
+description: "See how Qube uses task guides to work with data, strategies, and saved knowledge."
+keywords: ["Qube", "research guide"]
 ---
 
-Skills are reusable instructions that tell Qube how to query data, author factors, write strategies, save knowledge, or manage schedules. Select the Skill that matches the task before asking the agent to generate or run code.
+A <strong>Skill</strong> is a task guide Qube can read while helping you. It explains how to do a particular job, such as looking up market data or saving a research note. Think of it as instructions for the assistant, rather than a course you must study first.
 
-The Qube data Skill exposes the native historical data runtime. It does not require a local API key. Factor and strategy Skills describe different source contracts; a factor's injected fields are not the same as a strategy's backtest engine APIs.
+## What a Skill adds
 
-A Skill improves the instructions available to the agent. It does not bypass validation, revision checks, research execution states, or human review.
+Suppose you ask Qube to save the reasons behind a strategy. The knowledge Skill explains where and how that note should be stored. A data Skill instead explains how to query data, while factor and strategy Skills explain the rules for those research tasks.
+
+You still describe the goal in conversation. For example:
+
+```text
+Save a research note explaining this strategy's buying and selling rules,
+the dates we tested, and what the backtest did not establish.
+Use the knowledge Skill and show me where the note was saved.
+```
+
+A Skill supplies task-specific instructions. It does not make a strategy profitable or replace checking the saved result.
+
+## Recognize the files in the workspace
+
+The workspace lets you inspect Skill files. In the screenshot, the official `qube-wiki` Skill has an instruction file (`SKILL.md`), supporting references, and a helper script. The **read-only** badges mean you can inspect these official files but cannot edit them there.
+
+<Frame caption="Official Skill files are visible as read-only references in the workspace.">
+  ![Qube workspace showing the official qube-wiki Skill, its references and scripts, and an open
+  read-only helper script](/images/qube/workspace-official-skill.png)
+</Frame>
+
+The screenshot shows what Qube can consult behind the scenes. You do not need to read the Python script or run it yourself to use the Skill. Ask Qube to explain which guide it used and what it actually did.
+
+## When you need more detail
+
+Data used during a conversation and data used inside a submitted strategy have different rules. If you are asking Qube to write code, have it use the guide for that specific task. If you want to inspect the technical details yourself, start with [data environments](/data/qube-runtime) or [strategy code](/qube/research/strategy/code).

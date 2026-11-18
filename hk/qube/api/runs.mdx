@@ -2,7 +2,7 @@
 title: 執行、版本與調優 API
 description: 使用 CLI 或 SDK 等待執行、管理版本及比較調優候選。
 en_link: /qube/api/runs
-related: ["/hk/qube/api/factors","/hk/qube/api/strategies","/hk/qube/sdk/streaming"]
+related: ["/hk/qube/api/factors", "/hk/qube/api/strategies", "/hk/qube/sdk/streaming"]
 ---
 
 建立因子或策略後，使用以下 CLI 或 SDK 操作管理執行、版本及調優。每次執行會固定當時的原始碼及設定；保留執行 ID，之後仍可查詢同一次結果。
@@ -33,7 +33,7 @@ related: ["/hk/qube/api/factors","/hk/qube/api/strategies","/hk/qube/sdk/streami
 
     ```text
     tqx research backtest result <run-id> --field=equity|trades|logs|symbol_performance|account_summary --offset=0 --limit=100
-    
+
     tqx research factor list --market=hk --limit=50 --cursor=<next_cursor>
     tqx research strategy list --keyword=momentum --includeContent
     ```
@@ -91,6 +91,7 @@ related: ["/hk/qube/api/factors","/hk/qube/api/strategies","/hk/qube/sdk/streami
     ID 都是 24 位小寫 ObjectId，只有因子調優 trial 識別碼使用回傳的試驗字串。即使使用 `--noWait`，`run` 仍須兩個預期修訂號。CLI 會為個別變更產生 request ID；調優 JSON 則明確提供 `requestId`。遇到修訂衝突時，重新讀取 `info` 並協調變更，不要直接替換修訂數字。
 
     因子研究使用 [因子 JSON 範例](/hk/qube/api/factors)，以 `info` 回傳值替換修訂，並使用已宣告參數鍵。策略則建立含 `strategyParameters`、預期修訂、request ID、目標及實際市場 `tradingDates` 的 JSON 請求。[策略調優指南](/hk/qube/research/strategy/optimization) 說明驗證及評分。
+
   </Tab>
   <Tab title="TypeScript SDK">
     ## 等待或取消執行
@@ -199,7 +200,7 @@ related: ["/hk/qube/api/factors","/hk/qube/api/strategies","/hk/qube/sdk/streami
     | 重新執行研究 | `rerunFactorTuning(tuningId, { requestId })` | `rerunStrategyTuning(tuningId, { requestId })` |
     | 套用選定候選 | `applyFactorTuning(tuningId, { requestId, trialId, expectedSourceRevision, expectedConfigRevision })` | `applyStrategyTuning(tuningId, { requestId, candidateId, expectedSourceRevision, expectedConfigRevision })` |
 
-    因子套用回傳 `{ tuning, factor }`，策略套用回傳 `{ tuning, strategy }`。套用只更新草稿設定，不會建立一般執行或命名版本。請另外執行並審閱選定候選。調優結果是待審閱方案，不是自動投入生產的決策。
+    因子套用回傳 `{ tuning, factor }`，策略套用回傳 `{ tuning, strategy }`。套用會更新已儲存原始碼或設定，不會建立一般執行或命名版本。請另外執行並審閱選定候選。調優結果是待審閱方案，不是自動投入生產的決策。
 
     ### 調優方法的輸入與輸出
 
@@ -212,6 +213,8 @@ related: ["/hk/qube/api/factors","/hk/qube/api/strategies","/hk/qube/sdk/streami
     | get / cancel | `tuningId` | 目前／取消請求後的調優物件 |
     | rerun | `tuningId`、`{ requestId }` | 重新提交的調優物件 |
     | apply | `tuningId`、`requestId`、兩個預期修訂；因子加 `trialId`，策略加 `candidateId` | `{ tuning, factor }` / `{ tuning, strategy }` |
+
+    調優回應的根層 `id` 是後續輸入的 `tuningId`，不是一般執行 ID。因子套用使用回傳的 `trialId`；策略套用使用候選的 `id` 作為 `candidateId`。重新執行會回傳新的調優 ID，須保留新回應。`cancelling` 尚未結束；`no_valid_candidates` 是最終狀態。套用可變更已儲存原始碼或設定，須再次讀取修訂及驗證，再進行一般執行。
 
     ## 跨資產摘要與分頁
 
@@ -231,10 +234,13 @@ related: ["/hk/qube/api/factors","/hk/qube/api/strategies","/hk/qube/sdk/streami
     | `items` | 回傳陣列 | 本頁摘要，每筆至少含 `id` |
     | `hasMore` / `nextCursor` / `counts` | `boolean` / `string or null` / 選填計數物件 | 是否有下一頁、續讀游標及可用計數 |
 
+    資產內的調優列表最多回傳 200 筆；SDK 原始陣列到達上限時不能視為完整歷史，改用調優摘要游標分頁。
+
     ## 衝突、重試與進度
 
-    遇到 `SOURCE_CONFLICT` 或 `CONFIG_CONFLICT`，先重新讀取資產並協調變更，再重試。變更請求的回應不確定時，以相同 request ID 和完全相同的 body 重試。SDK 輸入使用 camelCase，回傳的原始資產欄位仍可能是 snake\_case。
+    遇到 `SOURCE_CONFLICT` 或 `CONFIG_CONFLICT`，先重新讀取資產並協調變更，再重試。網路逾時或回應驗證失敗，不能證明變更未發生。先用原 request ID 核對遠端狀態，再以相同 ID 及完全相同的 body 重試。SDK 輸入使用 camelCase，回傳的原始資產欄位仍可能是 snake\_case。
 
     SSE protocol 1 及 `TqxNetworkError`、`TqxApiError`、`TqxProtocolError`、`TqxValidationError` 請參閱 [串流、輪詢與錯誤](/hk/qube/sdk/streaming)。
+
   </Tab>
 </Tabs>

@@ -2,7 +2,7 @@
 title: Factor API
 description: "Create, update, analyze, and find factors with the TQX CLI or TypeScript SDK."
 zh-Hant_link: /hk/qube/api/factors
-related: ["/qube/cli/quickstart","/qube/api/runs","/qube/research/factor"]
+related: ["/qube/cli/quickstart", "/qube/api/runs", "/qube/research/factor"]
 ---
 
 Use `tqx research factor` or `client.research` to manage the same Qube factors. IDs are lowercase 24-character ObjectIds. Read current source and configuration revisions before making changes.
@@ -16,7 +16,7 @@ Use `tqx research factor` or `client.research` to manage the same Qube factors. 
     tqx research factor info <id>
     tqx research factor source <id>
     tqx research factor save <id> --baseSourceRevision=<n> (--formula|--code|--file)
-    tqx research factor update <id> --baseConfigRevision=<n> [--title] [--description] [--startDate] [--endDate] [--adjustmentCycle=1|3|5|10|20|30] [--groupNumber=3|5|10|20] [--factorDirection=Positive|Negative|1|-1]
+    tqx research factor update <id> --baseConfigRevision=<n> [--title] [--description] [--startDate] [--endDate] [--stockPool=<pool>] [--adjustmentCycle=1|3|5|10|20|30] [--groupNumber=3|5|10|20] [--factorDirection=Positive|Negative|1|-1]
     tqx research factor run <id> --expectedSourceRevision=<n> --expectedConfigRevision=<n> [analysis-options] [--pollInterval=<s>] [--timeout=<s>] [--noWait]
     tqx research factor stop <analysis-id>
     tqx research factor result <analysis-id>
@@ -63,6 +63,8 @@ Use `tqx research factor` or `client.research` to manage the same Qube factors. 
 
     The analysis period is at most five calendar years, including the exact five-year boundary.
 
+    For an ordinary analysis, save the requested dates, groups, direction, and `--stockPool` with `factor update`, then read `factor info --json`. Verify the actual saved values, `parameter_validation.status="valid"`, matching nested `config_revision`, and no unapplied `parameters_draft`. Verify source validation against the current revision and hash, then run with the returned revisions and no analysis overrides. Pass analysis options to `run` only for an explicitly temporary experiment; they do not persist. The server checks pool compatibility with the market.
+
     ## Factor tuning file
 
     ```json
@@ -80,6 +82,7 @@ Use `tqx research factor` or `client.research` to manage the same Qube factors. 
     ```
 
     Use one baseline with no overrides, finite numeric `FACTOR_PARAMS`, at most 32 candidates including the baseline, and `warmupTradingDays` from 0 to 5000. The objective is `rank_ic_mean`; there is no holdout split. Apply with the current expected revisions, then run and review an ordinary analysis before creating a named version.
+
   </Tab>
   <Tab title="TypeScript SDK">
     ## Create and analyze a factor
@@ -89,7 +92,7 @@ Use `tqx research factor` or `client.research` to manage the same Qube factors. 
     ```typescript
     import { randomUUID } from "node:crypto"
     import { TqxClient } from "@tqx-ai/sdk"
-    
+
     const client = new TqxClient({
       apiKey: process.env.TQX_API_KEY!,
       baseUrl: process.env.TQX_BASE_URL!,
@@ -110,18 +113,27 @@ Use `tqx research factor` or `client.research` to manage the same Qube factors. 
         adjustmentCycle: 5,
         groupNumber: 10,
         factorDirection: 1,
+        stockPool: "HSI.HK",
       },
     })
     const validation = await client.research.validateFactor({
       factorId: created.id,
       expectedSourceRevision: configured.source_revision,
     })
-    if (validation.valid !== true) throw new Error("Review source diagnostics")
-    
+    const saved = await client.research.getFactor(created.id)
+    if (validation.valid !== true || validation.source_revision !== saved.source_revision) {
+      throw new Error("Review source diagnostics and current revision")
+    }
+    if (saved.parameter_validation?.status !== "valid" ||
+        saved.parameter_validation?.config_revision !== saved.config_revision ||
+        saved.parameters_draft != null) {
+      throw new Error("Resolve saved parameter validation or pending draft")
+    }
+
     const submission = await client.research.createFactorAnalysis(created.id, {
       requestId: randomUUID(),
-      expectedSourceRevision: configured.source_revision,
-      expectedConfigRevision: configured.config_revision,
+      expectedSourceRevision: saved.source_revision,
+      expectedConfigRevision: saved.config_revision,
     })
     const result = await client.research.pollFactorAnalysis(submission.run_id, {
       interval: 2,
@@ -133,7 +145,7 @@ Use `tqx research factor` or `client.research` to manage the same Qube factors. 
     console.log(result.metrics)
     ```
 
-    `codeType` is `formula` or `python`. Analysis settings use `periodStart`, `periodEnd`, `adjustmentCycle`, `groupNumber`, and `factorDirection`. The period must increase and span at most five calendar years. Submission returns `run_id`; use it when reading or polling the analysis.
+    `codeType` is `formula` or `python`. Analysis settings use `periodStart`, `periodEnd`, `adjustmentCycle`, `groupNumber`, `factorDirection`, and `stockPool`. The period must increase and span at most five calendar years. Submission returns `run_id`; use it when reading or polling the analysis.
 
     ## Read and update a factor
 
@@ -179,6 +191,7 @@ Use `tqx research factor` or `client.research` to manage the same Qube factors. 
     | `adjustmentCycle` | 1, 3, 5, 10, 20, 30 | Rebalancing cycle in trading days |
     | `groupNumber` | 3, 5, 10, 20 | Number of groups |
     | `factorDirection` | `1` / `-1` | Positive / negative direction |
+    | `stockPool` | Market-specific `string` | HK: `all`, `HSI.HK`, `HSCE.HK`, `HSTECH.HK`; US: `all`, `SPX`, `IXIC`, `NDX`, `DJI` |
 
     ### Main response fields
 
@@ -188,7 +201,8 @@ Use `tqx research factor` or `client.research` to manage the same Qube factors. 
     | --- | --- | --- |
     | `id` | `string` | Factor or run ObjectId |
     | `source_revision` / `config_revision` | `number` | Current resource revisions for the next update or run |
-    | `parameters` | `object` | Saved analysis settings |
+    | `parameters` | `object` | Saved settings; nested fields retain server names such as `stock_pool` |
+    | `parameters_draft` | `object`, nullable or omitted | Unapplied draft; resolve before running |
     | `validation` / `parameter_validation` | `object`, nullable or omitted | Source / configuration validation |
     | `run_id` | `string` | Submission run ID for `getFactorAnalysis` or `pollFactorAnalysis` |
     | `status` | `string` | Preparation, execution, or terminal state |
@@ -217,5 +231,6 @@ Use `tqx research factor` or `client.research` to manage the same Qube factors. 
     Library pages return `{ items, hasMore, nextCursor, counts? }`, with limits of 1–100. `bindableOnly: true` filters for bindable factors. Use `listAnalyses(input)` for cross-factor run summaries, with limits of 1–10.
 
     Continue with [runs, versions, and tuning](/qube/api/runs) for named versions, analysis snapshots, restore, and tuning. For SSE progress and error classes, see [streaming, polling, and errors](/qube/sdk/streaming).
+
   </Tab>
 </Tabs>

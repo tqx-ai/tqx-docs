@@ -2,7 +2,7 @@
 title: TQX CLI
 description: "Install the TQX CLI, authenticate securely, and choose Qube research or Trading commands for your workflow."
 sidebarTitle: CLI
-related: ["/qube/cli/quickstart","/trading/info","/qube/sdk/overview"]
+related: ["/qube/cli/quickstart", "/trading/info", "/qube/sdk/overview"]
 zh-Hant_link: /hk/cli
 ---
 
@@ -17,6 +17,7 @@ The TQX CLI gives an AI coding agent or shell workflow access to TQX research an
     ```bash
     tqx --version
     ```
+
   </Tab>
   <Tab title="npm">
     Node.js 22.18 or newer is required.
@@ -25,6 +26,7 @@ The TQX CLI gives an AI coding agent or shell workflow access to TQX research an
     npm install --global @tqx-ai/cli
     tqx --version
     ```
+
   </Tab>
   <Tab title="pnpm">
     ```bash
@@ -68,5 +70,7 @@ For a single command, set `TQX_API_KEY` in the command environment instead of st
 TQX Skills are instructions that help your coding agent use TQX tools. Follow the [Skills installation guide](https://github.com/tqx-ai/tqx-ts/blob/main/INSTALL.md#step-5-install-the-tqx-skills) to install them. The [Qube CLI quickstart](/qube/cli/quickstart) covers research. The [Trading guide](/trading/info) covers account workflows.
 
 <Info>
-  The CLI and web workspace use the same Qube research objects. The CLI does not make a backtest successful merely because the request was accepted. Read the run status and result before interpreting it.
+  The CLI and web workspace use the same Qube research objects. The CLI does not make a backtest
+  successful merely because the request was accepted. Read the run status and result before
+  interpreting it.
 </Info>

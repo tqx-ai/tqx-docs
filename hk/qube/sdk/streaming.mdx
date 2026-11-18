@@ -2,7 +2,7 @@
 title: 串流、輪詢與錯誤
 description: 使用輪詢或 SSE 追蹤研究進度，並處理逾時與 SDK 錯誤。
 en_link: /qube/sdk/streaming
-related: ["/hk/qube/sdk/overview","/hk/qube/api/runs"]
+related: ["/hk/qube/sdk/overview", "/hk/qube/api/runs"]
 ---
 
 使用輪詢可定期檢查進度；使用 SSE（伺服器發送事件）則可透過持續連線接收更新。執行以下範例前，先初始化 [TypeScript SDK](/hk/qube/sdk/overview)。
@@ -13,8 +13,8 @@ related: ["/hk/qube/sdk/overview","/hk/qube/api/runs"]
 const result = await client.research.pollFactorAnalysis(analysisId, {
   interval: 2,
   timeout: 600,
-  progressCallback: value => console.log(value.status),
-})
+  progressCallback: (value) => console.log(value.status),
+});
 ```
 
 輪詢在 succeeded、failed 或 cancelled 時停止。逾時會回傳最新資產並附帶逾時標記，不會取消伺服器任務。
@@ -22,11 +22,11 @@ const result = await client.research.pollFactorAnalysis(analysisId, {
 ## SSE protocol 1
 
 ```typescript
-const controller = new AbortController()
+const controller = new AbortController();
 for await (const event of client.research.streamBacktest(runId, {
   signal: controller.signal,
 })) {
-  console.log(event.event, event.seq, event.value.status)
+  console.log(event.event, event.seq, event.value.status);
 }
 ```
 
@@ -43,3 +43,5 @@ SDK 使用 protocol 1：每個事件的 `value` 都包含完整狀態快照。�
 輪詢選項以秒為單位，`interval` 預設 2，`timeout` 預設 600。逾時會在最新結果加上 `cli_status: "TIMEOUT"` 及 `timeout_seconds`，須同時檢查最終狀態及逾時標記。中止串流只會停止本機讀取；要請求伺服器取消，請明確呼叫對應取消方法。
 
 網路中斷時，保留最後 `seq`，再以 `{ after: lastSeq, signal }` 續接。先處理失敗及最終快照，再決定是否重連。只有變更 body 完全相同時，才能安全重用 request ID。
+
+網路逾時或回應驗證失敗，不能證明變更未發生。保留原本 `requestId`，先核對遠端狀態，再以相同 ID 及完全相同的 body 重試；不要自動建立另一個執行。`LIVE_RESULT_UNAVAILABLE` 代表目前即時結果不可讀，應退避後讀取同一執行。結果仍可能為部分資料，確認最終狀態與可用範圍後再下結論。

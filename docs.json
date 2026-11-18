@@ -28,6 +28,11 @@
               "anchor": "Competitions",
               "href": "https://www.tqx.ai/user-center?tab=dashboard",
               "icon": "newspaper"
+            },
+            {
+              "anchor": "Open Qube",
+              "href": "https://www.tqx.ai/qube",
+              "icon": "arrow-up-right-from-square"
             }
           ]
         },
@@ -37,10 +42,7 @@
             "groups": [
               {
                 "group": "Getting started",
-                "pages": [
-                  "index",
-                  "cli"
-                ]
+                "pages": ["index", "cli"]
               },
               {
                 "group": "Trading",
@@ -69,11 +71,7 @@
                 "pages": [
                   {
                     "group": "FAQ",
-                    "pages": [
-                      "faq/tqx",
-                      "faq/qube",
-                      "faq/gatc"
-                    ]
+                    "pages": ["faq/tqx", "faq/qube", "faq/gatc"]
                   },
                   "more/contact-us"
                 ]
@@ -85,9 +83,7 @@
             "groups": [
               {
                 "group": "Start with Qube",
-                "pages": [
-                  "qube"
-                ]
+                "pages": ["qube"]
               },
               {
                 "group": "Concepts",
@@ -100,9 +96,7 @@
               },
               {
                 "group": "Research workflow",
-                "pages": [
-                  "qube/research/info"
-                ]
+                "pages": ["qube/research/info"]
               },
               {
                 "group": "Factor",
@@ -131,10 +125,7 @@
               },
               {
                 "group": "Runs and tuning",
-                "pages": [
-                  "qube/research/run-history",
-                  "qube/research/optimizations"
-                ]
+                "pages": ["qube/research/run-history", "qube/research/optimizations"]
               },
               {
                 "group": "CLI and SDK",
@@ -164,11 +155,7 @@
             "groups": [
               {
                 "group": "Data",
-                "pages": [
-                  "data/info",
-                  "data/qube-runtime",
-                  "data/local-package"
-                ]
+                "pages": ["data/info", "data/qube-runtime", "data/local-package"]
               },
               {
                 "group": "API",
@@ -205,9 +192,7 @@
                   },
                   {
                     "group": "Utilities",
-                    "pages": [
-                      "data/utilities/currency"
-                    ]
+                    "pages": ["data/utilities/currency"]
                   }
                 ]
               }
@@ -223,6 +208,11 @@
               "anchor": "參賽",
               "href": "https://www.tqx.ai/user-center?tab=dashboard",
               "icon": "newspaper"
+            },
+            {
+              "anchor": "前往 Qube",
+              "href": "https://www.tqx.ai/qube",
+              "icon": "arrow-up-right-from-square"
             }
           ]
         },
@@ -232,10 +222,7 @@
             "groups": [
               {
                 "group": "入門指南",
-                "pages": [
-                  "hk/index",
-                  "hk/cli"
-                ]
+                "pages": ["hk/index", "hk/cli"]
               },
               {
                 "group": "交易",
@@ -264,11 +251,7 @@
                 "pages": [
                   {
                     "group": "常見問題",
-                    "pages": [
-                      "hk/faq/tqx",
-                      "hk/faq/qube",
-                      "hk/faq/gatc"
-                    ]
+                    "pages": ["hk/faq/tqx", "hk/faq/qube", "hk/faq/gatc"]
                   },
                   "hk/more/contact-us"
                 ]
@@ -280,9 +263,7 @@
             "groups": [
               {
                 "group": "開始使用 Qube",
-                "pages": [
-                  "hk/qube"
-                ]
+                "pages": ["hk/qube"]
               },
               {
                 "group": "核心概念",
@@ -295,9 +276,7 @@
               },
               {
                 "group": "研究流程",
-                "pages": [
-                  "hk/qube/research/info"
-                ]
+                "pages": ["hk/qube/research/info"]
               },
               {
                 "group": "因子",
@@ -326,10 +305,7 @@
               },
               {
                 "group": "執行紀錄與調優",
-                "pages": [
-                  "hk/qube/research/run-history",
-                  "hk/qube/research/optimizations"
-                ]
+                "pages": ["hk/qube/research/run-history", "hk/qube/research/optimizations"]
               },
               {
                 "group": "CLI 與 SDK",
@@ -359,11 +335,7 @@
             "groups": [
               {
                 "group": "數據",
-                "pages": [
-                  "hk/data/info",
-                  "hk/data/qube-runtime",
-                  "hk/data/local-package"
-                ]
+                "pages": ["hk/data/info", "hk/data/qube-runtime", "hk/data/local-package"]
               },
               {
                 "group": "API",
@@ -400,9 +372,7 @@
                   },
                   {
                     "group": "輔助工具",
-                    "pages": [
-                      "hk/data/utilities/currency"
-                    ]
+                    "pages": ["hk/data/utilities/currency"]
                   }
                 ]
               }
@@ -636,16 +606,7 @@
     ]
   },
   "contextual": {
-    "options": [
-      "copy",
-      "view",
-      "chatgpt",
-      "claude",
-      "perplexity",
-      "mcp",
-      "cursor",
-      "vscode"
-    ]
+    "options": ["copy", "view", "chatgpt", "claude", "perplexity", "cursor", "vscode"]
   },
   "footer": {
     "socials": {

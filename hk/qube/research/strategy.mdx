@@ -1,27 +1,51 @@
 ---
-title: 什麼是策略？
+title: "什麼是策略？"
 sidebarTitle: 什麼是策略？
-description: 先用簡單例子了解策略，再認識 Qube 如何驗證、回測、保存版本及調優策略。
 en_link: /qube/research/strategy
-related: ["/hk/qube/research/strategy/create","/hk/qube/research/strategy/code","/hk/qube/research/strategy/backtest"]
+related:
+  [
+    "/hk/qube/research/strategy/create",
+    "/hk/qube/research/strategy/code",
+    "/hk/qube/research/strategy/backtest",
+  ]
+description: "理解買賣規則需要哪些內容，並在策略庫找到已儲存的研究。"
+keywords: ["Qube", "研究指南"]
 ---
 
-想像一份決定投資的方法：要買什麼、持有多少、何時調整，以及如何計算成本。策略就是把這份方法寫成可以重複測試的規則。回測會用歷史數據走過這些規則，讓你檢查當時可能出現的結果。
+策略是一套可重複執行的買賣規則，就像食譜需要材料、份量及步驟。「買強勢股票」只是想法；策略要說明如何辨認強勢、何時買入、持有多少，以及何時賣出。
 
-在 Qube 中，策略把訊號、持倉、下單、成本假設和風險規則組合起來。Qube 會驗證原始碼，再由策略回測引擎使用單一市場的歷史數據執行回測，並記錄權益、交易、成本、日誌及失敗原因。這個環境與用於對話和工作區任務的 [Qube 沙箱](/hk/data/qube-runtime) 分開。回測不會向你的交易帳戶下單。
+## 用一個例子理解
 
-## Qube 的策略流程
+以騰訊的日線策略為例：
 
-1. [建立](/hk/qube/research/strategy/create) `hk` 或 `us` 策略，填寫 `title` 及 `description`。
-2. [撰寫及驗證原始碼](/hk/qube/research/strategy/code)，並儲存有效的回測設定。
-3. [提交回測](/hk/qube/research/strategy/backtest)。每次執行會固定兩個修訂及任何因子綁定。
-4. 檢查權益、交易、成本、日誌及失敗原因。
-5. 從成功的一般執行 [建立命名版本](/hk/qube/research/strategy/versions)。
-6. [調優](/hk/qube/research/strategy/optimization) 有限的數值參數，並重新驗證。
+| 規則部分   | 例子                                 | 為什麼需要                         |
+| ---------- | ------------------------------------ | ---------------------------------- |
+| 買賣對象   | 港股騰訊，代號 `0700.HK`。           | 決定使用哪隻股票及哪個市場的數據。 |
+| 買入時機   | 收盤價高於之前 20 個交易日的最高價。 | 把「走勢強」變成可測試的條件。     |
+| 賣出時機   | 收盤價低於最近 10 日的平均收盤價。   | 明確定義離場條件。                 |
+| 買入數量   | 指定股數，或使用模擬資金的某個比例。 | 決定承擔多少資金風險。             |
+| 成交與成本 | 約定下單時間、費用及成交假設。       | 買入訊號本身不等於實際成交價格。   |
 
-| 市場 | 策略代碼 | 引擎歷史模組 |
-| --- | --- | --- |
-| 港股 | `0700.HK` | [`stock_hk_api`](https://github.com/tqx-ai/tqx-ts/blob/main/skills/tqx-research/references/stock_hk_api.md) |
-| 美股 | `AAPL.NB` | [`stock_us_api`](https://github.com/tqx-ai/tqx-ts/blob/main/skills/tqx-research/references/stock_us_api.md) |
+只有前三項，仍未決定每次買多少及如何成交。請 Qube 在執行前說明這些選擇。你可以透過對話開始，不必自己寫 Python，詳見[建立策略](/hk/qube/research/strategy/create)。
 
-原始碼與設定修訂各自推進。儲存不等於執行，命名版本也不會自動建立。你可以透過 [策略 API](/hk/qube/api/strategies) 頁面中的 CLI 或 SDK 操作同一資產。
+## 找到已儲存的策略
+
+開啟**策略庫**，查看你已儲存的策略。你可以切換港股或美股，或用名稱搜尋。開啟卡片後，可查看規則、設定及執行紀錄。
+
+<Frame caption="策略庫集中展示已儲存的策略及結果摘要。">
+  ![Qube
+  策略庫顯示市場篩選、搜尋、已儲存的騰訊策略卡片及新增策略按鈕](/images/strategy/strategy-library-overview.png)
+</Frame>
+
+卡片上的數字只是快速摘要。比較前應開啟對應回測：日期或成本不同，數字就未必能直接比較。截圖只用來示範介面，不代表預期收益。
+
+## 從想法走到測試結果
+
+1. **建立及儲存：** 描述規則，核對 Qube 的理解。
+2. **回測：** 按已儲存的日期、資金及成本，用歷史數據模擬。
+3. **審閱：** 比較資金曲線與市場基準，再看虧損及個別交易。
+4. **保留或調整：** 從有參考價值的成功執行建立命名版本，或透過調優比較幾組參數。
+
+回測使用模擬資金，不會向你的交易帳戶送出訂單。歷史表現不能保證未來結果。
+
+下一步可閱讀[回測與結果](/hk/qube/research/strategy/backtest)。想自己寫程式，可參考[策略程式碼指南](/hk/qube/research/strategy/code)；外部程式串接則參考[策略 API](/hk/qube/api/strategies)。

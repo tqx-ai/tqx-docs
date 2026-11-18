@@ -5,40 +5,43 @@ zh-Hant_link: /hk/data/financial-and-market-factors/factors
 ---
 
 <Note>
-  These methods are available in the [Qube sandbox](/data/qube-runtime). They are unavailable in the [local `tqx-data` package](/data/local-package).
+  These methods are available in the [Qube sandbox](/data/qube-runtime). They are unavailable in the
+  [local `tqx-data` package](/data/local-package).
 </Note>
 
 Use `get_factor` in the Qube sandbox to explore factor fields. Factor calculations use framework-provided fields instead of calling this method; see [Write factor code](/qube/research/factor/code).
 
 ## Get backtest factors for Hong Kong and US stocks
 
-### Method name: get\_factor
+### Method name: get_factor
 
 ### Enter parameters
 
-| Field | Type | Description | Is it required |
-| :-- | :-- | :-- | :-- |
-| start\_date | str | Start date,eg: "20250702" | Required |
-| end\_date | str | End date,eg: "20250702" | Required |
-| symbol | Optional\[Union\[str, List\[str\]\]\] | Stock code | Optional |
-| factors | Union\[str, List\[str\]\] | Factor list | Required |
-| type | Optional\[str\] | Market: `hk` or `us`; defaults to `hk`. | Optional |
+| Field      | Type                                  | Description                                                                                       | Is it required |
+| :--------- | :------------------------------------ | :------------------------------------------------------------------------------------------------ | :------------- |
+| start_date | str                                   | Start date,eg: "20250702"                                                                         | Required       |
+| end_date   | str                                   | End date,eg: "20250702"                                                                           | Required       |
+| symbol     | Optional\[Union\[str, List\[str\]\]\] | Stock code                                                                                        | Optional       |
+| factors    | Union\[str, List\[str\]\]             | Factor list                                                                                       | Required       |
+| type       | Optional\[str\]                       | Market: `hk` (default) or US `nb`; `us` is equivalent to `nb`. The old `ny` value is unsupported. | Optional       |
 
 ### Response parameters
 
 Basic factor class:
 
-| Field | Type | Description |
-| :-- | :-- | :-- |
-| date | str | date |
-| symbol | str | stock code |
-| open | double | opening price |
-| close | double | closing price |
-| high | double | highest price |
-| low | double | lowest price |
-| volume | double | trading volume |
-| amount | double | transaction amount |
-| pre\_close | double | previous day's closing price |
+| Field     | Type   | Description                  |
+| :-------- | :----- | :--------------------------- |
+| date      | str    | date                         |
+| symbol    | str    | stock code                   |
+| open      | double | opening price                |
+| close     | double | closing price                |
+| high      | double | highest price                |
+| low       | double | lowest price                 |
+| volume    | double | trading volume               |
+| amount    | double | transaction amount           |
+| pre_close | double | previous day's closing price |
+
+HK base factor data also provides `turnover`; US provides `market_cap`. Check actual columns and coverage. A native field's existence does not establish factor-consumer support; validate and run saved factor source separately.
 
 ### Usage examples
 

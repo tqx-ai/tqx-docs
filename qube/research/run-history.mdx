@@ -1,26 +1,40 @@
 ---
-title: "Runs, results, and reproducibility"
+title: "Read and compare run history"
 zh-Hant_link: /hk/qube/research/run-history
-related: ["/qube/api/runs","/qube/sdk/streaming","/qube/research/optimizations"]
+related: ["/qube/api/runs", "/qube/sdk/streaming", "/qube/research/optimizations"]
+description: "Find an earlier analysis or backtest, check its settings, and compare results fairly."
+keywords: ["Qube", "research guide"]
 ---
 
-Each analysis or backtest has its own ObjectId and frozen source, configuration, market, period, and optional factor binding. The asset's current edits do not rewrite historical results.
+A **run** is one attempt to execute a factor analysis or strategy backtest. Each run keeps the code and settings used at its start, together with its status and results. Editing today's strategy does not rewrite yesterday's run.
 
-| State | Meaning |
-| --- | --- |
-| `preparing` | Inputs or execution are being prepared. |
-| `queued` | Waiting to execute. |
-| `running` | Execution in progress. |
-| `succeeded` | Execution completed successfully; inspect the available result. |
-| `failed` | Execution ended unsuccessfully; inspect the error and logs. |
-| `cancelled` | Execution was cancelled. |
+## Find the right run
 
-## Inspect and compare
+Open the factor or strategy and inspect its analysis or backtest history. Check the start time, date range, and settings so you know which experiment you are reading.
 
-Open the run from its parent asset or run history. Verify source/configuration revisions, actual period and settings, terminal status, metrics, and logs. Compare like-for-like runs; changing costs or dates can matter as much as changing code.
+For example, a Tencent backtest with a 20-day buy rule and one with a 15-day buy rule are two different experiments. If you also changed the fees, the result cannot tell you how much of the difference came from the rule alone.
 
-Libraries and cross-resource summaries use opaque cursor pagination. Per-asset analysis history returns runs; strategy backtest history has a bounded limit. Backtest result fields use offset pagination. See [CLI runs](/qube/api/runs) and [SDK API](/qube/api/runs) for exact limits.
+## Understand the status
 
-Cancellation is a request: confirm the terminal state. Polling timeout only ends local waiting. Retain the run ID so you can read it again.
+| Status                  | What it means                     | What to do                                                 |
+| ----------------------- | --------------------------------- | ---------------------------------------------------------- |
+| Preparing (`preparing`) | Inputs are being prepared.        | Wait and return to the same run.                           |
+| Queued (`queued`)       | Waiting for execution.            | Do not submit a duplicate just because it has not started. |
+| Running (`running`)     | The calculation is in progress.   | Treat any visible charts as incomplete.                    |
+| Succeeded (`succeeded`) | Execution completed successfully. | Review the inputs, results, and limitations.               |
+| Failed (`failed`)       | Execution ended with a problem.   | Read the error and logs before retrying.                   |
+| Cancelled (`cancelled`) | Execution was cancelled.          | Do not interpret it as a completed test.                   |
 
-You may create a named version from a successful ordinary run or restore a historical run's inputs to the current asset. Neither operation rewrites the old run or submits a new one.
+A stop request can take time to finish; check the final status. A local waiting timeout does not cancel the remote run. Keep the run's identifier if you need to return to it through the CLI or SDK.
+
+## Compare like with like
+
+Check the stock or stock pool, dates, starting capital, costs, benchmark, and rules. Change one choice at a time when you want to explain its effect. Then compare both the ending result and the losses along the way.
+
+A successful run means the calculation finished, not that the idea is profitable or reliable. Ask Qube to explain missing data, rejected trades, and unusual periods before drawing a conclusion.
+
+## Keep or restore a useful result
+
+A named version preserves the inputs from a successful ordinary run. Restoring an old version or run replaces your current working inputs; it does not alter the old result or automatically start a new calculation. Review the restored settings before running again.
+
+For technical details on identifiers, result paging, incomplete charts, cancellation, and restore commands, see the [Runs API](/qube/api/runs) and [SDK progress guide](/qube/sdk/streaming).
