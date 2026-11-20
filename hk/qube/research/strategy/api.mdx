@@ -1,0 +1,252 @@
+---
+title: 策略程式碼中的 API
+description: 供港股及美股策略原始碼使用的下單、訂單查詢及歷史數據方法。
+en_link: /qube/research/strategy/api
+related:
+  [
+    "/hk/qube/research/strategy/code",
+    "/hk/qube/research/strategy/backtest",
+    "/hk/data/qube-runtime",
+  ]
+---
+
+在已儲存的策略原始碼中使用以下方法。共通訂單 API 來自 `panda_backtest.api.api`；歷史數據 API 則來自與策略市場相符的模組。
+
+本頁收錄下列已核實的港股及美股方法，並非回測引擎所有匯出項目的清單。最小策略範例與參數設定，請參閱 [編寫策略](/hk/qube/research/strategy/code)。
+
+## 匯入與帳戶
+
+```python
+from panda_backtest.api.api import (
+    order_shares, order_values, target_stock_group_order,
+    cancel_order, get_today_order, get_today_work_order,
+    MarketOrderStyle, LimitOrderStyle, TimeConditionType,
+    SIDE_BUY, SIDE_SELL,
+)
+```
+
+從 `context.run_info.stock_account` 取得帳戶鍵，並將這個字串傳入下單與查詢方法。要查看現金或持倉，則透過 `context.stock_account_dict[account_id]` 取得帳戶物件。
+
+港股使用四位數代碼，例如 `0700.HK`；美股使用例如 `AAPL.NB` 的代碼。依市場選擇歷史數據匯入：
+
+<CodeGroup>
+```python 港股
+from panda_backtest.api.stock_hk_api import stock_api_quotation, stock_api_pre_close
+```
+
+```python 美股
+from panda_backtest.api.stock_us_api import stock_api_quotation, stock_api_pre_close
+```
+
+</CodeGroup>
+
+## 下單與撤單
+
+`handle_data` 提交的訂單，以同一標的下一個合資格 Bar 開盤價為參考，該 Bar 完成後才確認成交，仍受滑價、限價及可成交量影響。回測日期、資金、頻率及成本應放在已儲存的執行設定中。
+
+### order_shares
+
+<Badge color="purple" icon="code">
+  策略原始碼
+</Badge>
+
+```python
+order_shares(
+    account_id, id_or_ins, quantity, style=None, retry_num=0,
+    risk_control_client=None, remark=None, margin_usage="CASH",
+)
+```
+
+按股數下單。正數買入，負數賣出。
+
+| 參數                  | 說明                                                                   |
+| --------------------- | ---------------------------------------------------------------------- |
+| `account_id`          | `context.run_info.stock_account` 中的帳戶鍵                            |
+| `id_or_ins`           | 與策略市場相符的股票代碼                                               |
+| `quantity`            | 帶正負號的股數                                                         |
+| `style`               | `MarketOrderStyle()` 或 `LimitOrderStyle(limit_price)`；省略時為市價單 |
+| `retry_num`           | 引擎重試設定，預設 `0`                                                 |
+| `risk_control_client` | 引擎風控設定，預設 `None`                                              |
+| `remark`              | 選填的訂單備註                                                         |
+| `margin_usage`        | 一般現金下單預設為 `"CASH"`                                            |
+
+回傳的訂單清單可能包含被拒絕的訂單。檢查各筆訂單的 `status`、`message`，並透過回呼追蹤成交。下單須符合可用現金、手數及可賣數量限制。空結果不能作為提交成功或成交的確認。
+
+### order_values
+
+<Badge color="purple" icon="code">
+  策略原始碼
+</Badge>
+
+```python
+order_values(
+    account_id, id_or_ins, amount, style=None, retry_num=0,
+    risk_control_client=None, remark=None, _bypass_signal_pipeline=False,
+    margin_usage="CASH",
+)
+```
+
+按金額下單。正數買入，負數賣出。其他參數與 `order_shares` 相同；相容性參數 `_bypass_signal_pipeline` 請維持預設值。
+
+此方法需要交易時段內的有效報價。股票市場非交易時段會回傳空清單。與 `order_shares` 一樣，須檢查回傳訂單及成交回呼。
+
+### target_stock_group_order
+
+<Badge color="purple" icon="code">
+  策略原始碼
+</Badge>
+
+```python
+target_stock_group_order(account, symbol_dict, price_type=0)
+```
+
+| 參數          | 說明                                              |
+| ------------- | ------------------------------------------------- |
+| `account`     | 帳戶鍵字串，例如 `context.run_info.stock_account` |
+| `symbol_dict` | 股票代碼至目標股數的字典，例如 `{"0700.HK": 100}` |
+| `price_type`  | 相容性參數；目前股票組單實作會忽略此值            |
+
+引擎以市價單調整目前持倉與目標持倉的差額。未列入字典或目標設為零的持倉，會被要求平倉，但仍受可賣數量限制。目標值的單位是股數，並非權重或金額。
+
+回傳 `None`。透過訂單及成交回呼檢查產生的委託與成交。
+
+### cancel_order
+
+<Badge color="purple" icon="code">
+  策略原始碼
+</Badge>
+
+```python
+cancel_order(account_id, order_id, _bypass_signal_pipeline=False)
+```
+
+以帳戶鍵及訂單 ID 請求撤單。`_bypass_signal_pipeline` 請維持預設值。回傳 `None`；透過訂單回呼或後續訂單查詢確認結果。
+
+## 訂單類型與常數
+
+### MarketOrderStyle
+
+<Badge color="purple" icon="code">
+  策略原始碼
+</Badge>
+
+```python
+MarketOrderStyle(time_condition=None, gtd_date=None)
+```
+
+建立市價單類型。Bar 回測省略 `time_condition` 時，使用 GFD。港股及美股訂單請維持 `gtd_date=None`。
+
+### LimitOrderStyle
+
+<Badge color="purple" icon="code">
+  策略原始碼
+</Badge>
+
+```python
+LimitOrderStyle(limit_price, time_condition=None, gtd_date=None)
+```
+
+以必填的 `limit_price` 建立限價單類型。有效期規則與 `MarketOrderStyle` 相同。
+
+### TimeConditionType 與買賣方向常數
+
+<Badge color="purple" icon="code">
+  策略原始碼
+</Badge>
+
+| 常數                                  | 值            | 港股及美股訂單                   |
+| ------------------------------------- | ------------- | -------------------------------- |
+| `TimeConditionType.IOC`               | `1`           | 支援                             |
+| `TimeConditionType.GFD`               | `3`           | 支援；Bar 回測的預設值           |
+| `TimeConditionType.GTC`               | `5`           | 支援                             |
+| `TimeConditionType.GFS`、`GTD`、`GFA` | `2`、`4`、`6` | 拒絕；非空 `gtd_date` 亦會被拒絕 |
+| `SIDE_BUY` / `SIDE_SELL`              | `0` / `1`     | 用於比對訂單或成交的 `side`      |
+
+## 訂單查詢
+
+### get_today_order
+
+<Badge color="purple" icon="code">
+  策略原始碼
+</Badge>
+
+```python
+get_today_order(account_id, order_id)
+```
+
+回傳符合帳戶、訂單 ID 及目前重播交易日的訂單快照；沒有符合項目則回傳 `None`。快照可包含已拒絕或已結束的訂單。
+
+### get_today_work_order
+
+<Badge color="purple" icon="code">
+  策略原始碼
+</Badge>
+
+```python
+get_today_work_order(account_id)
+```
+
+回傳該帳戶在目前重播交易日仍在排隊的訂單清單，包括部分成交後仍在排隊的訂單。沒有待成交訂單時回傳 `[]`。此方法查詢的是待成交委託，並非當天提交的全部訂單。
+
+訂單快照提供例如 `order_id`、`order_book_id`、`status`、`side`、`quantity`、`filled_quantity`、`unfilled_quantity`、`avg_price` 及 `message` 等欄位。
+
+## 歷史數據
+
+兩個市場模組均提供以下兩個方法。只匯入與策略市場相符的模組。在 `init_preheating_data(context)` 中查詢歷史，由 `initialize` 明確呼叫一次，並將結果快取在 `context`。預載歷史須結束於 `context.run_info.start_date` 之前。
+
+在逐 Bar 回呼中使用快取及已完成的 Bars，避免重複查詢歷史。用 `bar = data[symbol]` 讀取目前 Bar，檢查 `bar is None` 及所用價格是否為正數。驗證器會拒絕 `symbol in data` 這類成員檢查；`before_trading` 和 `after_trading` 不會收到目前 BarMap。
+
+### stock_api_quotation
+
+<Badge color="purple" icon="code">
+  策略原始碼
+</Badge>
+
+```python
+stock_api_quotation(
+    symbol_list=None, start_date=None, end_date=None, fields=None, period=None,
+)
+```
+
+| 參數                     | 說明                                                                    |
+| ------------------------ | ----------------------------------------------------------------------- |
+| `symbol_list`            | 必填，包含同市場代碼的非空 list 或 tuple                                |
+| `start_date`、`end_date` | 歷史查詢起訖日期，使用 `YYYYMMDD` 字串                                  |
+| `fields`                 | 選填的欄位，例如 `["symbol", "date", "close"]`                          |
+| `period`                 | 必須明確指定 `"1d"` 或 `"1m"`；其他值（包括 `None`）會拋出 `ValueError` |
+
+回傳 `pandas.DataFrame`。使用前檢查 `empty`、標的與日期涵蓋範圍，以及所需欄位。可用欄位取決於市場、週期及快照。日線結果會將昨收價標準化為 `preclose`，有資料時亦提供 `pre_close` 別名。
+
+分鐘回測的設定頻率為 `"1M"`，此處查詢則使用小寫 `period="1m"`。
+
+```python
+# 在 init_preheating_data(context) 中使用，回測開始日期須晚於 20251231：
+context.history = stock_api_quotation(
+    symbol_list=["0700.HK", "0941.HK"],
+    start_date="20250101",
+    end_date="20251231",
+    fields=["symbol", "date", "close"],
+    period="1d",
+)
+```
+
+美股策略則匯入 `stock_us_api`，並使用例如 `AAPL.NB` 的代碼。
+
+### stock_api_pre_close
+
+<Badge color="purple" icon="code">
+  策略原始碼
+</Badge>
+
+```python
+stock_api_pre_close(df_stock_code, date)
+```
+
+| 參數            | 說明                                                 |
+| --------------- | ---------------------------------------------------- |
+| `df_stock_code` | 含有 `symbol` 欄位的 DataFrame，代碼須與策略市場相符 |
+| `date`          | 查詢日期，使用 `YYYYMMDD` 字串                       |
+
+此方法查詢指定日期的日線，再選取 `symbol` 及 `pre_close`，因此查詢結果必須包含這些欄位。涵蓋範圍不確定時，請用 `stock_api_quotation` 並先檢查結果，再選取欄位。
+
+讀取目前重播 Bar 的昨收價時，使用 `bar.preclose`；Bar 的 `pre_close` 屬性可能為零。

@@ -4,9 +4,7 @@ description: Retrieve Hong Kong and US index constituent information.
 zh-Hant_link: /hk/data/market-reference/index-components
 ---
 
-<Warning>
-  These methods are available in the [Qube sandbox](/data/qube-runtime). They are unavailable in the [local `tqx-data` package](/data/local-package).
-</Warning>
+<Badge color="blue" icon="cloud">Qube sandbox</Badge>
 
 Qube distinguishes undated constituent lookup from market-specific queries with historical date bounds. Build historical universes from membership valid at the decision time instead of applying today's members to the whole backtest.
 
@@ -27,10 +25,6 @@ The shared `get_index_component` below has no historical date parameter and cann
 ## Obtain information on Hong Kong and US stock index constituents
 
 ### Method name: get_index_component
-
-<Badge color="blue" icon="cloud">
-  Qube only
-</Badge>
 
 ### Enter parameters
 

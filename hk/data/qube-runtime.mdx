@@ -20,22 +20,14 @@ related:
 
 在 Qube 中開啟 [Qube Market](https://www.tqx.ai/qube/market)，選擇港股或美股，再搜尋標的。你可以切換圖表週期、查看標的資料和快照時間。解讀畫面上的價格前，先確認 **Not realtime**（非即時）標籤。
 
-<Info>
-  Qube 透過原生執行環境提供歷史數據。你可以從 [數據總覽](/hk/data/info) 尋找
-  API，再確認其參考頁標示的支援環境。
-</Info>
-
-<Tabs>
-  <Tab title="Qube 沙箱">
-    使用 Qube 內建的 `tqx_data` 模組。從 [數據總覽](/hk/data/info) 找到所需 API
-    後，請在其參考頁確認是否支援 Qube，以及可用的參數與欄位。
-  </Tab>
-  <Tab title="策略回測">
-    策略使用公開的 `panda_backtest.api.api` 及同市場的 `stock_hk_api` 或
-    `stock_us_api`。驗證會拒絕直接匯入 `tqx_data`，包含別名、子模組及 `from` 匯入。請參閱
-    [編寫策略](/hk/qube/research/strategy/code)，了解 Bars、歷史數據和重播行為。
-  </Tab>
-</Tabs>
+<Columns cols={2}>
+  <Card title="Qube 沙箱" icon="cloud" href="/hk/data/info">
+    使用內建的 `tqx_data` 查詢歷史數據。從數據總覽尋找 API，並確認參數與欄位。
+  </Card>
+  <Card title="策略原始碼" icon="code" href="/hk/qube/research/strategy/api">
+    使用 `panda_backtest` 的共通 API 及對應市場的歷史數據 API。策略不能直接匯入 `tqx_data`。
+  </Card>
+</Columns>
 
 ## 沙箱與策略回測
 

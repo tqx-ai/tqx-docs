@@ -4,11 +4,11 @@ description: 取得港股與美股的日線行情資料。
 en_link: /data/market-data/daily
 ---
 
-Qube 與 [本機 `tqx-data` 套件](/hk/data/local-package) 都支援本頁方法。以下參數與欄位以 Qube 為主；本機初始化、範例和差異請參閱 [本機使用指南](/hk/data/local-package)。
-
 ## 取得港股日線數據
 
 ### 方法名稱：get_hk_daily
+
+<Badge color="blue" icon="cloud">Qube 沙箱</Badge> <Badge color="green" icon="laptop">本機 tqx_data</Badge>
 
 ### 入參
 
@@ -125,6 +125,8 @@ symbol date ask bid vwap
 ## 取得美股日線數據
 
 ### 方法名稱：get_us_daily
+
+<Badge color="blue" icon="cloud">Qube 沙箱</Badge> <Badge color="green" icon="laptop">本機 tqx_data</Badge>
 
 ### 入參
 
@@ -250,6 +252,8 @@ symbol date volume close pre_close
 ```
 
 ## Qube 原生復權日線
+
+<Badge color="blue" icon="cloud">Qube 沙箱</Badge>
 
 Qube 沙箱原生介面另提供以下簽名，將 `<market>` 替換為 `hk` 或 `us`；這是簽名表示法。這些方法不另外接受 `market` 參數。
 

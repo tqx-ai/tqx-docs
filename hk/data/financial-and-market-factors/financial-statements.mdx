@@ -4,7 +4,7 @@ description: 取得適用於研究與回測的時點季度財務報表。
 en_link: /data/financial-and-market-factors/financial-statements
 ---
 
-Qube 與 [本機 `tqx-data` 套件](/hk/data/local-package) 都支援本頁方法。以下參數與欄位以 Qube 為主；本機初始化、範例和差異請參閱 [本機使用指南](/hk/data/local-package)。
+<Badge color="blue" icon="cloud">Qube 沙箱</Badge> <Badge color="green" icon="laptop">本機 tqx_data</Badge>
 
 <Warning>
   進行歷史研究時，請以 `date` 傳入決策或公告截止日，先按公告日期篩選，避免較晚披露的報表洩漏到較早的回測。
@@ -36,8 +36,6 @@ Qube 與 [本機 `tqx-data` 套件](/hk/data/local-package) 都支援本頁方�
 - `True`：在指定範圍內，每隻股票只保留公告日期最新的一行，適合單期快照。
 - `False`：回傳範圍內的多個財期及披露記錄，適合趨勢、動態券池及回測。使用前，按 `(symbol, fy_period)` 保留公告日期最新的版本。
 - 歷史研究和回測必須傳入 `date=<截面日或調倉日>`，先排除該日後才公告的報表，避免未來資料洩漏。
-
-本頁以 Qube 的參數與欄位為主。兩個環境都使用 `market="hk"` 或 `market="us"`；Qube 必須明確傳入 `market`，本機套件省略時則使用 `hk`。本機初始化方式請參閱 [本機套件](/hk/data/local-package)。
 
 ### 參數使用建議
 

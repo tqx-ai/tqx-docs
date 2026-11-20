@@ -4,9 +4,7 @@ description: 取得港股與美股指數成分股資料。
 en_link: /data/market-reference/index-components
 ---
 
-<Warning>
-  本頁方法適用於 [Qube 沙箱](/hk/data/qube-runtime)。[本機 `tqx-data` 套件](/hk/data/local-package) 不提供這些方法。
-</Warning>
+<Badge color="blue" icon="cloud">Qube 沙箱</Badge>
 
 Qube 原生介面區分無日期的成分股查詢，以及可指定歷史期間的市場專屬查詢。歷史股票池應核對當時有效的成分，不要把目前成分套用到整段回測。
 
@@ -27,10 +25,6 @@ get_<market>_index_daily(start_date='', end_date='', symbol=None, fields=None)
 ## 取得港美股指數成分股資訊
 
 ### 方法名稱：get_index_component
-
-<Badge color="blue" icon="cloud">
-  僅限 Qube
-</Badge>
 
 ### 入參
 

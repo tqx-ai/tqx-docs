@@ -9,13 +9,15 @@ related:
   ]
 ---
 
+<Badge color="purple" icon="code">Strategy source</Badge>
+
 Qube runs strategy source through a market-specific backtest engine. Keep the run's dates, capital, frequency, and costs in saved configuration.
 
 ## Minimal source
 
-Qube's Python backtest engine provides the `panda_backtest` modules imported below. The [Hong Kong strategy API reference](https://github.com/tqx-ai/tqx-ts/blob/main/skills/tqx-research/references/stock_hk_api.md) describes the market-specific functions.
+Qube's Python backtest engine provides the `panda_backtest` modules. See the [APIs in strategy code](/qube/research/strategy/api) for orders, cancellations, order queries, and market history methods.
 
-This Hong Kong example reads completed Bars without placing orders. For US strategies, use the [`stock_us_api` reference](https://github.com/tqx-ai/tqx-ts/blob/main/skills/tqx-research/references/stock_us_api.md) and a symbol such as `AAPL.US`.
+This Hong Kong example reads completed Bars without placing orders. For US strategies, use `stock_us_api` and a symbol such as `AAPL.NB`.
 
 ```python
 from panda_backtest.api.api import *
@@ -37,16 +39,10 @@ Use one literal `STRATEGY_PARAMS` dictionary. Copy it to `context.params` exactl
 
 ## Historical data and replay
 
-If your strategy needs history, batch it in `init_preheating_data(context)` and call that function directly once from `initialize(context)`. Query required symbols together instead of repeatedly fetching history in bar callbacks. See the [strategy examples](https://github.com/tqx-ai/tqx-ts/blob/main/skills/tqx-research/references/strategy-examples.md) for historical queries and caching. Load history ending before `context.run_info.start_date`, check coverage and required columns, and cache it on `context`.
-
-Use `stock_api_quotation(symbol_list, start_date, end_date, fields=None, period=None)` from the selected market module with explicit `period="1d"` or `"1m"`. A minute backtest uses configuration frequency `1M`, while its history query uses `1m`.
-
-During callbacks, combine cached history with completed Bars. Read `bar = data[symbol]`; check missing Bars and positive prices. Do not use dictionary membership checks such as `symbol in data`. `before_trading` and `after_trading` do not receive the current BarMap.
+Batch and cache history from before the backtest starts, then combine it with completed Bars during replay. See the [APIs in strategy code](/qube/research/strategy/api#historical-data) for query methods, parameters, and Bar access rules.
 
 ## Orders and costs
 
-The common API exposes `order_shares(account_id, id_or_ins, quantity, style=None, retry_num=0, risk_control_client=None, remark=None, margin_usage="CASH")`. Positive quantities buy; negative quantities sell. Use `MarketOrderStyle()` or `LimitOrderStyle(limit_price)`, then check order status, rejection messages, and trade callbacks.
+Use the common order APIs to place, cancel, and query orders, and confirm fills through callbacks. See the [APIs in strategy code](/qube/research/strategy/api#orders) for parameters, order styles, and matching rules.
 
-Read the account ID from `context.run_info.stock_account`. Respect instrument lots, available cash, and sellable quantity. A submitted order may be rejected. Orders from `handle_data` use the next eligible same-symbol Bar open as the reference price under the fixed matching rule, with fills confirmed after that Bar completes.
-
-For bound factors, `context.df_factor` contains full-period data. Filter to observations strictly available before the decision; it is not automatically restricted to the current replay time. See [factor binding](/qube/research/strategy/factor-to-strategy).
+For bound factors, use only data available at the decision time; see [factor binding](/qube/research/strategy/factor-to-strategy).

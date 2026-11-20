@@ -4,11 +4,11 @@ description: Retrieve daily OHLCV data for Hong Kong and US stocks.
 zh-Hant_link: /hk/data/market-data/daily
 ---
 
-Qube and the [local `tqx-data` package](/data/local-package) both support the methods on this page. The reference below describes Qube parameters and fields; see the [local package guide](/data/local-package) for initialization, examples, and differences.
-
 ## Obtain daily data of Hong Kong stocks
 
 ### Method name: get_hk_daily
+
+<Badge color="blue" icon="cloud">Qube sandbox</Badge> <Badge color="green" icon="laptop">Local tqx_data</Badge>
 
 ### Enter parameters
 
@@ -125,6 +125,8 @@ symbol date ask bid vwap
 ## Get daily data of US stocks
 
 ### Method name: get_us_daily
+
+<Badge color="blue" icon="cloud">Qube sandbox</Badge> <Badge color="green" icon="laptop">Local tqx_data</Badge>
 
 ### Enter parameters
 
@@ -250,6 +252,8 @@ symbol date volume close pre_close
 ```
 
 ## Native adjusted daily data in Qube
+
+<Badge color="blue" icon="cloud">Qube sandbox</Badge>
 
 The native Qube sandbox also exports these signatures. Replace `<market>` with `hk` or `us`; this is signature notation. These methods do not take an additional `market` argument.
 

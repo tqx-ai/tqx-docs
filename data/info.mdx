@@ -8,19 +8,17 @@ related: ["/data/qube-runtime", "/data/local-package", "/data/market-data/daily"
 
 TQX provides Hong Kong and US historical market, reference, financial, and factor data for research. Choose the environment before copying an API example.
 
-## Choose the runtime
+## Supported environments
 
-<Tabs>
-  <Tab title="Qube runtime">
-    In the Qube sandbox, native `tqx_data` uses platform-provided historical data. Do not initialize it with a local API key. Read [Access data in Qube](/data/qube-runtime) before using the reference pages below.
+Tags identify where a method or example is supported. Multiple tags indicate support in each listed environment.
 
-    For data access inside a strategy, follow [Write a strategy](/qube/research/strategy/code). Factor code receives its inputs from Qube; see [Write a factor](/qube/research/factor/code).
+| Tag                                                       | Usage                                                                                             |
+| --------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| <Badge color="purple" icon="code">Strategy source</Badge> | Use market-specific `panda_backtest` APIs. [APIs in strategy code](/qube/research/strategy/api). |
+| <Badge color="blue" icon="cloud">Qube sandbox</Badge>     | Use built-in `tqx_data` without local initialization. [Sandbox guide](/data/qube-runtime).        |
+| <Badge color="green" icon="laptop">Local tqx_data</Badge> | Install `tqx-data` and initialize with a data API key. [Local guide](/data/local-package).        |
 
-  </Tab>
-  <Tab title="Local PyPI package">
-    Install `tqx-data` in your own Python environment and initialize with a data API key and service address. Follow [Local package](/data/local-package) for installation, methods, fields, and Tick streaming. This contract differs from Qube.
-  </Tab>
-</Tabs>
+Factor code uses framework-provided inputs; see [Write a factor](/qube/research/factor/code).
 
 ## Which APIs work in each environment?
 
@@ -33,12 +31,13 @@ TQX provides Hong Kong and US historical market, reference, financial, and facto
 | [Historical minute bars](/data/market-data/minute), [technical indicators](/data/market-data/indicators), [factor fields](/data/financial-and-market-factors/factors), [filings](/data/market-reference/filings), and [index members](/data/market-reference/index-components) | Supported                  | These methods are unavailable               |
 | Live Tick subscriptions (`TickStreamClient`)                                                                                                                                                                                                                                   | This class is not included | Supported                                   |
 
-Shared method names do not guarantee identical parameters, defaults, or returned fields. The API references describe Qube. For local initialization, examples, and parameter differences, see [Local package](/data/local-package).
+Parameter and field references describe the Qube sandbox. For local initialization and differences, see the [local tqx_data guide](/data/local-package).
 
 ## Find the right reference
 
 | Task                                                                | Reference                                                                                                                    |
 | ------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| Strategy orders, cancellations, order queries, and history | [APIs in strategy code](/qube/research/strategy/api) |
 | Historical daily and minute prices                                  | [Daily](/data/market-data/daily), [minute](/data/market-data/minute)                                                         |
 | Stocks, calendars, events, filings, ownership, and index membership | Market reference pages in this tab                                                                                           |
 | Financial fields and statements                                     | [Factors](/data/financial-and-market-factors/factors), [statements](/data/financial-and-market-factors/financial-statements) |
@@ -48,6 +47,6 @@ Shared method names do not guarantee identical parameters, defaults, or returned
 
 Hong Kong data uses symbols such as `0700.HK`. Qube native `tqx_data` queries for US historical prices, market reference, financial statements, and factors use bare symbols such as `AAPL`. Returned `symbol` and `stock_symbol` columns also use bare symbols. When selecting the market, use `market="us"` or `type="us"` for factor queries.
 
-The US strategy engine uses symbols such as `AAPL.US`. Follow [Write a strategy](/qube/research/strategy/code) for the format used in strategy code.
+The US strategy engine uses symbols such as `AAPL.NB`. Follow [Write a strategy](/qube/research/strategy/code) for the format used in strategy code.
 
 The Qube data examples here query historical snapshots. For live subscriptions, see [Local Tick streaming](/data/market-data/tick). Verify coverage, missing fields, timezones, adjustment behavior, and announcement dates. Historical financial values must have been available at the decision time.

@@ -20,23 +20,14 @@ Use this page when Python code runs inside Qube. The native `tqx_data` Skill pro
 
 In Qube, open [Qube Market](https://www.tqx.ai/qube/market), choose Hong Kong or U.S. stocks, and search for a symbol. You can inspect chart intervals, instrument details, and the snapshot timestamp. Check the **Not realtime** label before interpreting a displayed price.
 
-<Info>
-  Qube provides historical data through its native runtime. Start with the [Data
-  overview](/data/info) to find an API, then check the supported environment on its reference page.
-</Info>
-
-<Tabs>
-  <Tab title="Qube sandbox">
-    Use Qube's built-in `tqx_data` module. Find the API you need in the [Data overview](/data/info),
-    then check its reference page for Qube support, parameters, and fields.
-  </Tab>
-  <Tab title="Strategy backtest">
-    Strategies use the public `panda_backtest.api.api` and same-market `stock_hk_api` or
-    `stock_us_api`. Validation rejects direct `tqx_data` imports, including aliases, submodules, and
-    from-imports. Follow [Write a strategy](/qube/research/strategy/code) for Bars, historical data,
-    and replay behavior.
-  </Tab>
-</Tabs>
+<Columns cols={2}>
+  <Card title="Qube sandbox" icon="cloud" href="/data/info">
+    Query historical data with built-in `tqx_data`. Find an API in the data overview and check its parameters and fields.
+  </Card>
+  <Card title="Strategy source" icon="code" href="/qube/research/strategy/api">
+    Use the common `panda_backtest` API and the matching market's history API. Direct `tqx_data` imports are not supported in strategies.
+  </Card>
+</Columns>
 
 ## Sandbox and strategy backtest
 

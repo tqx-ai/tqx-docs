@@ -117,6 +117,7 @@
                   "qube/research/strategy",
                   "qube/research/strategy/create",
                   "qube/research/strategy/code",
+                  "qube/research/strategy/api",
                   "qube/research/strategy/backtest",
                   "qube/research/strategy/versions",
                   "qube/research/strategy/optimization",
@@ -125,7 +126,10 @@
               },
               {
                 "group": "Runs and tuning",
-                "pages": ["qube/research/run-history", "qube/research/optimizations"]
+                "pages": [
+                  "qube/research/run-history",
+                  "qube/research/optimizations"
+                ]
               },
               {
                 "group": "CLI and SDK",
@@ -155,7 +159,11 @@
             "groups": [
               {
                 "group": "Data",
-                "pages": ["data/info", "data/qube-runtime", "data/local-package"]
+                "pages": [
+                  "data/info",
+                  "data/qube-runtime",
+                  "data/local-package"
+                ]
               },
               {
                 "group": "API",
@@ -297,6 +305,7 @@
                   "hk/qube/research/strategy",
                   "hk/qube/research/strategy/create",
                   "hk/qube/research/strategy/code",
+                  "hk/qube/research/strategy/api",
                   "hk/qube/research/strategy/backtest",
                   "hk/qube/research/strategy/versions",
                   "hk/qube/research/strategy/optimization",
@@ -305,7 +314,10 @@
               },
               {
                 "group": "執行紀錄與調優",
-                "pages": ["hk/qube/research/run-history", "hk/qube/research/optimizations"]
+                "pages": [
+                  "hk/qube/research/run-history",
+                  "hk/qube/research/optimizations"
+                ]
               },
               {
                 "group": "CLI 與 SDK",
@@ -335,7 +347,11 @@
             "groups": [
               {
                 "group": "數據",
-                "pages": ["hk/data/info", "hk/data/qube-runtime", "hk/data/local-package"]
+                "pages": [
+                  "hk/data/info",
+                  "hk/data/qube-runtime",
+                  "hk/data/local-package"
+                ]
               },
               {
                 "group": "API",
@@ -606,7 +622,15 @@
     ]
   },
   "contextual": {
-    "options": ["copy", "view", "chatgpt", "claude", "perplexity", "cursor", "vscode"]
+    "options": [
+      "copy",
+      "view",
+      "chatgpt",
+      "claude",
+      "perplexity",
+      "cursor",
+      "vscode"
+    ]
   },
   "footer": {
     "socials": {

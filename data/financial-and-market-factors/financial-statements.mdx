@@ -4,7 +4,7 @@ description: Retrieve point-in-time quarterly financial statements for research 
 zh-Hant_link: /hk/data/financial-and-market-factors/financial-statements
 ---
 
-Qube and the [local `tqx-data` package](/data/local-package) both support the methods on this page. The reference below describes Qube parameters and fields; see the [local package guide](/data/local-package) for initialization, examples, and differences.
+<Badge color="blue" icon="cloud">Qube sandbox</Badge> <Badge color="green" icon="laptop">Local tqx_data</Badge>
 
 <Warning>
   For historical research, set `date` to the decision or disclosure cutoff date. Filter by announcement date first to exclude reports disclosed after that date.
@@ -36,8 +36,6 @@ Qube and the [local `tqx-data` package](/data/local-package) both support the me
 - `True` keeps the latest disclosed row for each symbol in the requested range. Use it for a single-period snapshot.
 - `False` returns multiple periods and disclosure records. Use it for trends, dynamic universes, and backtests, then keep the latest disclosure for each `(symbol, fy_period)` pair.
 - Historical research and backtests must set `date=<decision or rebalance date>`. This excludes reports disclosed later and prevents future-data leakage.
-
-This reference focuses on Qube parameters and fields. Both environments use `market="hk"` or `market="us"`. Qube requires an explicit `market`; the local package defaults to `hk`. For local initialization, see the [local package guide](/data/local-package).
 
 ### Parameter guidance
 
