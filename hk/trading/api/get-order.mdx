@@ -1,7 +1,7 @@
 ---
-title: "查詢訂單詳情"
-description: "按訂單 ID 讀取目前訂單狀態。"
-en_link: "/trading/api/get-order"
+title: 查詢訂單詳情
+description: 按訂單 ID 讀取目前訂單狀態。
+en_link: /trading/api/get-order
 ---
 
 返回已驗證帳戶的一項目前訂單快照。
@@ -52,6 +52,6 @@ JSON envelope 包含 `code`（string；`"0"` 表示成功）、`message`（strin
 | `cancel_request_id` | string 或 `null`（可選） | 取消請求識別碼（如有）。 |
 | `price_currency` | string 或 `null`（可選） | `price` 和 `average_fill_price` 的貨幣，即該證券的交易貨幣。TQX 無法確定時為 `null`。請勿根據 `market` 推斷。 |
 
-`status` 與[訂單列表](/hk/trading/api/list-orders)使用相同的列舉值。
+`status` 與 [訂單列表](/hk/trading/api/list-orders) 使用相同的列舉值。
 
 `order_not_found` 不代表訂單必然已成交、撤銷或拒絕；請交叉核對原始訊號和成交記錄。

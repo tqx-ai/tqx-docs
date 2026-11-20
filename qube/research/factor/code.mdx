@@ -1,0 +1,40 @@
+---
+title: Write factor code
+zh-Hant_link: /hk/qube/research/factor/code
+related: ["/qube/research/factor/operator-reference","/qube/research/factor/analyze","/qube/api/factors"]
+---
+
+Factor code calculates a signal from framework-injected fields. Return one numeric value per `(date, symbol)` row and preserve that index. Query data for exploration in the workspace; do not call `tqx_data` from a factor's calculation.
+
+<Tabs>
+  <Tab title="Formula">
+    Write one expression with uppercase field names and supported operators. Do not add assignments, imports, or multiple statements.
+
+    ```text
+    TS_MEAN(CLOSE, 5) - TS_MEAN(CLOSE, 20)
+    ```
+  </Tab>
+  <Tab title="Python">
+    Define one `Factor` subclass with `calculate(self, factors)`. The runtime provides `Factor` and supported operators.
+
+    ```python
+    FACTOR_PARAMS = {"short_window": 5, "long_window": 20}
+    
+    class MovingAverageSpread(Factor):
+        def calculate(self, factors):
+            close = factors["close"]
+            return (TS_MEAN(close, FACTOR_PARAMS["short_window"])
+                    - TS_MEAN(close, FACTOR_PARAMS["long_window"]))
+    ```
+
+    Use a single literal `FACTOR_PARAMS` dictionary for numeric tunable parameters. Do not mutate or reassign it. Keep the final result one-dimensional and aligned by index.
+  </Tab>
+</Tabs>
+
+## Validate the calculation
+
+Rolling means fill incomplete windows with zero. Mask incomplete history when your hypothesis requires both windows to be complete. Avoid negative lags, which expose future observations. `MEAN(A,B)` is element-wise; use `TS_MEAN(X,N)` for rolling means.
+
+Prefer platform operators. Use only allowed public numpy, pandas, or scipy facilities when needed; avoid external I/O, dynamic execution, and private imports. Static validation does not prove runtime behavior, data coverage, or freedom from look-ahead bias.
+
+Save the source, inspect validation, then [configure and run](/qube/research/factor/analyze). Source saving advances `source_revision` independently of `config_revision` and does not run an analysis.

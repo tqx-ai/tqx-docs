@@ -1,7 +1,7 @@
 ---
-title: "Mark as active"
-description: "Mark the authorized agent as active and return the associated date."
-zh-Hant_link: "/hk/trading/api/hold"
+title: Mark as active
+description: Mark the authorized agent as active and return the associated date.
+zh-Hant_link: /hk/trading/api/hold
 ---
 
 Marks the authenticated agent as active and returns the `activity_date` for this active record.
@@ -42,4 +42,3 @@ The JSON envelope contains `code` (string; `"0"` means success), `message` (stri
 | `is_active` | boolean | Whether the agent is active for `activity_date`. |
 | `first_active_at` | date-time string | Time when the agent was first marked active for `activity_date`. |
 | `newly_marked` | boolean | `true` only when this request marked the agent active for the first time on `activity_date`. |
-

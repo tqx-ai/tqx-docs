@@ -1,0 +1,41 @@
+---
+title: TypeScript SDK
+description: "Set up @tqx-ai/sdk and use client.research for Qube research tasks."
+zh-Hant_link: /hk/qube/sdk/overview
+related:
+  [
+    "/qube/cli/quickstart",
+    "/qube/api/factors",
+    "/qube/api/strategies",
+    "/qube/api/runs",
+    "/qube/sdk/streaming",
+  ]
+---
+
+Use the npm package `@tqx-ai/sdk` when you need typed access to the same Qube objects used by the web workspace and CLI. The [SDK package guide](https://github.com/tqx-ai/tqx-ts/blob/main/packages/sdk/README.md) covers installation and general client setup.
+
+```bash
+npm install @tqx-ai/sdk
+```
+
+```typescript
+import { TqxClient } from "@tqx-ai/sdk";
+const client = new TqxClient({
+  apiKey: process.env.TQX_API_KEY!,
+  baseUrl: process.env.TQX_BASE_URL!, // ends with /tqxApi
+});
+const page = await client.research.listFactors({ market: "hk", limit: 20 });
+```
+
+Inputs use camelCase. Resource IDs are lowercase 24-character ObjectIds. Create, source updates, runs, versions, restores, and tuning use request IDs or expected revisions for safe retries and conflict detection.
+
+For an ordinary run, persist requested settings with `updateFactor` or `updateStrategy`. Check saved values, current source validation, `parameter_validation.status="valid"`, matching nested `config_revision`, and no unapplied `parameters_draft`. Submit with those verified revisions and omit `parameters`/`backtest` overrides. Explicit one-run overrides do not change saved settings. Raw resource responses retain server snake_case fields.
+
+Choose a task page and switch to its **TypeScript SDK** tab:
+
+- [Factor API](/qube/api/factors): create, update, validate, and analyze factors.
+- [Strategy API](/qube/api/strategies): manage strategies, run backtests, and read results.
+- [Runs, versions, and tuning API](/qube/api/runs): wait, cancel, version, restore, snapshot, and tune.
+- [Streaming, polling, and errors](/qube/sdk/streaming): progress events, timeouts, and failure handling.
+
+For account orders, use the independent [Trading API](/trading/info).

@@ -1,0 +1,236 @@
+---
+title: 因子 API
+description: 使用 TQX CLI 或 TypeScript SDK 建立、更新、分析及搜尋因子。
+en_link: /qube/api/factors
+related: ["/hk/qube/cli/quickstart", "/hk/qube/api/runs", "/hk/qube/research/factor"]
+---
+
+使用 `tqx research factor` 或 `client.research` 操作同一套 Qube 因子。ID 是 24 位小寫 ObjectId。變更前先讀取目前原始碼及設定修訂。
+
+<Tabs>
+  <Tab title="CLI">
+    ## 指令
+
+    ```text
+    tqx research factor create --market=hk|us (--formula=<formula>|--code=<python>|--file=<path>) [--title] [--description]
+    tqx research factor info <id>
+    tqx research factor source <id>
+    tqx research factor save <id> --baseSourceRevision=<n> (--formula|--code|--file)
+    tqx research factor update <id> --baseConfigRevision=<n> [--title] [--description] [--startDate] [--endDate] [--stockPool=<pool>] [--adjustmentCycle=1|3|5|10|20|30] [--groupNumber=3|5|10|20] [--factorDirection=Positive|Negative|1|-1]
+    tqx research factor run <id> --expectedSourceRevision=<n> --expectedConfigRevision=<n> [analysis-options] [--pollInterval=<s>] [--timeout=<s>] [--noWait]
+    tqx research factor stop <analysis-id>
+    tqx research factor result <analysis-id>
+    tqx research factor analyses <id> [--includeDeleted] [--status=<status>]
+    tqx research factor list [list-options]
+    tqx research factor delete <id>... --yes
+    ```
+
+    ## 指令輸入與輸出
+
+    | 指令 | 主要輸入 | 輸出 |
+    | --- | --- | --- |
+    | `factor create` | `--market`，以及 `--formula`、`--code`、`--file` 三選一；可加 `--title`、`--description` | 回傳因子 ObjectId、原始碼及設定修訂 |
+    | `factor info` | `<factor-id>` | 目前標題、原始碼/設定修訂、設定、驗證及狀態 |
+    | `factor source` | `<factor-id>` | 目前原始碼及程式類型 |
+    | `factor save` | `<factor-id>`、`--baseSourceRevision`、新公式或 Python 原始碼 | 更新後的原始碼修訂；不會執行分析 |
+    | `factor update` | `<factor-id>`、`--baseConfigRevision`、標題/描述/分析選項 | 更新後的設定修訂；不會執行分析 |
+    | `factor run` | `<factor-id>`、兩個預期修訂、分析及等待選項 | 分析提交結果；沒有 `--noWait` 時會繼續輪詢 |
+    | `factor result` | `<analysis-id>` | 目前狀態及成功後的分析結果 |
+    | `factor list` | 市場、游標、筆數、關鍵字、`--includeContent` | JSON 或文字列表，含 `has_more` 和 `next_cursor` |
+    | `factor delete` | 一個或多個 ID 及 `--yes` | 已刪除資產的確認 |
+
+    `--json` 將機器格式輸出到 stdout，JSON 錯誤寫入 stderr。`--plain` 輸出易讀文字。只有伺服器狀態為 `succeeded` 才代表執行成功。
+
+    建立時必須且只能提供一種原始碼輸入。公式使用大寫欄位及支援算子。`save` 保留現有程式類型。`update` 只修改標題、描述或已儲存的分析設定，不會執行任務。
+
+    ## 列表及輸出
+
+    | 選項或欄位 | 用途 | 限制或輸出 |
+    | --- | --- | --- |
+    | `--market=all\|hk\|us` | 按市場篩選 | 預設為所有可用市場 |
+    | `--cursor=<next_cursor>` | 繼續上一頁 | 使用回傳的完整游標 |
+    | `--limit=1..100` | 每頁因子數量 | 資產庫每頁 1–100 筆 |
+    | `--keyword=<text>` | 搜尋標題或描述 | 文字篩選 |
+    | `--includeContent` | 同時讀取原始碼或執行細節 | 回應較大；只列資產資料時可省略 |
+    | `--json` / `--plain` | 選擇輸出格式 | JSON 錯誤寫入 stderr |
+    | `has_more` / `next_cursor` | 回應中的分頁欄位 | 只有 `has_more` 為 true 才繼續讀取 |
+
+    | 分析狀態 | 含義 |
+    | --- | --- |
+    | `preparing`、`queued`、`running` | 伺服器正在準備或執行分析 |
+    | `succeeded` | 可以讀取結果及圖表 |
+    | `failed`、`cancelled` | 沒有成功的分析結果 |
+
+    分析期間最多五個曆年，包含剛好五年的邊界。
+
+    一般分析先用 `factor update` 儲存所需日期、分組、方向及 `--stockPool`，再讀取 `factor info --json`。確認實際已儲存值、`parameter_validation.status="valid"`、驗證內的 `config_revision` 與目前修訂一致，且沒有尚未套用的 `parameters_draft`。確認原始碼驗證有效，並符合目前修訂及雜湊後，以回傳的兩個修訂執行，不帶分析覆寫。只有明確要求單次實驗時，才在 `run` 傳入分析選項；它們不會儲存。股票池須符合市場，伺服器會檢查相容性。
+
+    ## 因子調優檔案
+
+    ```json
+    {
+      "requestId": "factor-tuning-2026-01",
+      "expectedSourceRevision": 2,
+      "expectedConfigRevision": 3,
+      "candidates": [
+        { "baseline": true },
+        { "factorParameters": { "short_window": 5, "long_window": 20 } }
+      ],
+      "researchPeriod": { "periodStart": "2025-01-01", "periodEnd": "2026-06-30" },
+      "warmupTradingDays": 20
+    }
+    ```
+
+    候選必須有一個不帶覆寫的基準，`FACTOR_PARAMS` 只使用有限數值，包含基準最多 32 組，`warmupTradingDays` 為 0 至 5000。目標為 `rank_ic_mean`，不切分保留樣本。套用時提供目前預期修訂，然後先執行並審閱一般分析，再建立命名版本。
+
+  </Tab>
+  <Tab title="TypeScript SDK">
+    ## 建立因子並執行分析
+
+    先安裝並初始化 [TypeScript SDK](/hk/qube/sdk/overview)。以下 Node.js 範例會建立公式因子、儲存分析設定、驗證原始碼，再等待分析結果。執行前先確認市場及期間。
+
+    ```typescript
+    import { randomUUID } from "node:crypto"
+    import { TqxClient } from "@tqx-ai/sdk"
+
+    const client = new TqxClient({
+      apiKey: process.env.TQX_API_KEY!,
+      baseUrl: process.env.TQX_BASE_URL!,
+    })
+    const created = await client.research.createFactor({
+      requestId: randomUUID(),
+      title: "Moving-average spread",
+      description: "5-day minus 20-day mean close",
+      market: "hk",
+      codeType: "formula",
+      code: "TS_MEAN(CLOSE,5)-TS_MEAN(CLOSE,20)",
+    })
+    const configured = await client.research.updateFactor(created.id, {
+      baseConfigRevision: created.config_revision,
+      parameters: {
+        periodStart: "2025-01-01",
+        periodEnd: "2026-06-30",
+        adjustmentCycle: 5,
+        groupNumber: 10,
+        factorDirection: 1,
+        stockPool: "HSI.HK",
+      },
+    })
+    const validation = await client.research.validateFactor({
+      factorId: created.id,
+      expectedSourceRevision: configured.source_revision,
+    })
+    const saved = await client.research.getFactor(created.id)
+    if (validation.valid !== true || validation.source_revision !== saved.source_revision) {
+      throw new Error("Review source diagnostics and current revision")
+    }
+    if (saved.parameter_validation?.status !== "valid" ||
+        saved.parameter_validation?.config_revision !== saved.config_revision ||
+        saved.parameters_draft != null) {
+      throw new Error("Resolve saved parameter validation or pending draft")
+    }
+
+    const submission = await client.research.createFactorAnalysis(created.id, {
+      requestId: randomUUID(),
+      expectedSourceRevision: saved.source_revision,
+      expectedConfigRevision: saved.config_revision,
+    })
+    const result = await client.research.pollFactorAnalysis(submission.run_id, {
+      interval: 2,
+      timeout: 600,
+    })
+    if (result.status !== "succeeded") {
+      throw new Error(`Inspect run ${result.id}: ${result.status}`)
+    }
+    console.log(result.metrics)
+    ```
+
+    `codeType` 可用 `formula` 或 `python`。分析設定使用 `periodStart`、`periodEnd`、`adjustmentCycle`、`groupNumber`、`factorDirection` 和 `stockPool`。結束日須晚於開始日，期間最多五個曆年。提交分析會回傳 `run_id`，讀取及輪詢時使用這個 ID。
+
+    ## 讀取與更新因子
+
+    以下方法都由 `client.research` 提供。請把 `id` 和 `runId` 換成回傳的資產及執行 ID。
+
+    | 方法 | 輸入 | 輸出 |
+    | --- | --- | --- |
+    | `createFactor(input)` | `requestId`、`title`、`code`、`codeType`、`market`，可選 `description` | 含 `id`、`source_revision`、`config_revision` 的因子 |
+    | `getFactor(id)` | 因子 ObjectId | 目前因子及設定 |
+    | `getFactorSource(id)` | 因子 ObjectId | 含 `code` 及修訂的原始碼物件 |
+    | `updateFactorSource(id, input)` | `requestId`、`baseSourceRevision`、`code` | 更新後原始碼及新修訂 |
+    | `updateFactor(id, input)` | `baseConfigRevision`，可選標題/描述/參數 | 更新後因子及新設定修訂 |
+    | `validateFactor(input)` | 已儲存因子 ID 加預期原始碼修訂，或直接傳 `code`、`codeType`、`market` | `{ valid, diagnostics, code_sha256 }` |
+    | `createFactorAnalysis(id, input)` | request ID、兩個預期修訂、可選參數 | 含 `run_id`、狀態及固定參數的提交結果 |
+    | `getFactorAnalysis(runId)` | 分析 `run_id` | 狀態、進度及指標 |
+    | `pollFactorAnalysis(runId, options)` | 可選 `interval`、`timeout`、回呼 | 最新分析；逾時會加上 `cli_status: "TIMEOUT"` |
+    | `listFactorAnalyses(id, input)` | 可選 `includeDeleted`、狀態 | `{ runs }` |
+    | `cancelFactorAnalysis(runId)` | 分析 `run_id` | 更新後的取消狀態 |
+    | `deleteFactor(id)` | 因子 ObjectId | 已刪除因子的資料 |
+
+    `?` 表示選填欄位。儲存原始碼會保留程式類型。原始碼與設定各自記錄修訂；更新前先讀取目前資產。儲存或靜態驗證都不會執行分析。
+
+    ## 輸入欄位
+
+    建立、更新及分析方法使用下列欄位。`parameters` 中每個設定均為選填；省略時沿用已儲存設定或市場預設值。
+
+    | 欄位 | 類型／限制 | 用途 |
+    | --- | --- | --- |
+    | `requestId` | `string`，1–128 字元 | 識別一次變更；重試同一請求時沿用 |
+    | `title` | `string`，1–200 字元 | 業務名稱，不含路徑或 `.py` / `.formula` 副檔名 |
+    | `description` | `string`，選填，最多 2000 字元 | 研究目的及假設 |
+    | `market` | `"hk"`、`"us"` | 本節的港股或美股研究市場 |
+    | `code` | `string`，最多 1 MiB | 完整原始碼 |
+    | `baseSourceRevision` / `baseConfigRevision` | 正整數 | 更新前以 `getFactor` 讀取，用於原始碼／設定更新 |
+    | `expectedSourceRevision` / `expectedConfigRevision` | 正整數，執行時必填 | 固定本次執行使用的原始碼及設定修訂 |
+    | `codeType` | `"formula"` / `"python"` | 建立因子時必填；儲存原始碼時保留原有類型 |
+
+    ### 分析設定 `parameters`
+
+    | 欄位 | 類型／限制 | 用途 |
+    | --- | --- | --- |
+    | `periodStart` / `periodEnd` | `YYYY-MM-DD` | 結束日須晚於開始日，最多五個曆年 |
+    | `adjustmentCycle` | 1, 3, 5, 10, 20, 30 | 調倉週期（交易日） |
+    | `groupNumber` | 3, 5, 10, 20 | 分組數量 |
+    | `factorDirection` | `1` / `-1` | 正向／負向評估 |
+    | `stockPool` | `string`，市場專屬值 | 港股：`all`、`HSI.HK`、`HSCE.HK`、`HSTECH.HK`；美股：`all`、`SPX`、`IXIC`、`NDX`、`DJI` |
+
+    ### 主要回傳欄位
+
+    資產與分析回應包含不同欄位；以方法表中的回傳類型為準。
+
+    | 欄位 | 類型／限制 | 用途 |
+    | --- | --- | --- |
+    | `id` | `string` | 因子或執行的 ObjectId |
+    | `source_revision` / `config_revision` | `number` | 資產目前修訂；供下一次更新或執行使用 |
+    | `parameters` | `object` | 已儲存分析設定；回應內使用 `stock_pool` 等伺服器欄位名稱 |
+    | `parameters_draft` | `object`，可空或省略 | 尚未套用的草稿；執行前先處理 |
+    | `validation` / `parameter_validation` | `object`，可空或省略 | 原始碼／設定的驗證結果 |
+    | `run_id` | `string` | 提交分析回傳的執行 ID；傳給 `getFactorAnalysis` 或 `pollFactorAnalysis` |
+    | `status` | `string` | 準備、執行或最終狀態 |
+    | `idempotent` / `code_sha256` / `params` | `boolean` / `string` / `object` | 提交回應中的重試標記、原始碼雜湊及本次固定參數 |
+    | `progress` / `metrics` | `object`，可空或省略 | 執行進度／分析指標，依狀態提供 |
+
+    ## 搜尋與分頁
+
+    ```typescript
+    const first = await client.research.listFactors({
+      market: "hk",
+      keyword: "moving-average",
+      limit: 20,
+    })
+    if (first.hasMore && first.nextCursor) {
+      const next = await client.research.listFactors({
+        market: "hk",
+        keyword: "moving-average",
+        limit: 20,
+        cursor: first.nextCursor,
+      })
+      console.log(next.items)
+    }
+    ```
+
+    資產庫分頁回傳 `{ items, hasMore, nextCursor, counts? }`，每頁可取 1–100 筆。`bindableOnly: true` 可篩選可綁定的因子。跨因子的執行摘要使用 `listAnalyses(input)`，每頁可取 1–10 筆。
+
+    命名版本、分析快照、還原及調優請參閱 [執行、版本與調優 API](/hk/qube/api/runs)。SSE 進度及錯誤類型請參閱 [串流、輪詢與錯誤](/hk/qube/sdk/streaming)。
+
+  </Tab>
+</Tabs>

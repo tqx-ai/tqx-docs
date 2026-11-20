@@ -1,0 +1,246 @@
+---
+title: "Runs, versions, and tuning API"
+description: "Wait for runs, manage versions, and compare tuning candidates with the CLI or SDK."
+zh-Hant_link: /hk/qube/api/runs
+related: ["/qube/api/factors", "/qube/api/strategies", "/qube/sdk/streaming"]
+---
+
+After creating a factor or strategy, use these CLI or SDK operations to manage runs, versions, and tuning. Every run freezes its source and configuration; keep its ID to return to the same result.
+
+<Tabs>
+  <Tab title="CLI">
+    ## Submit, stop, and read
+
+    ```text
+    tqx research factor result <analysis-id>
+    tqx research strategy result <run-id> [--download=<path>]
+    tqx research factor stop <analysis-id>
+    tqx research strategy stop <run-id>
+    tqx research factor run <id> ... --noWait
+    tqx research strategy run <id> ... --pollInterval=2 --timeout=600
+    ```
+
+    The default poll interval is 2 seconds and local timeout is 600 seconds. Timeout leaves the remote task running. Stop requests cancellation; read again until the server reports cancelled or another terminal state. Server states are preparing, queued, running, succeeded, failed, and cancelled.
+
+    | Operation | Input | Output |
+    | --- | --- | --- |
+    | Submit factor analysis | Factor ID, both expected revisions, analysis options; `--pollInterval`, `--timeout`, `--noWait` control waiting | Submission, then the terminal analysis when waiting |
+    | Submit strategy backtest | Strategy ID, both expected revisions, backtest options; same wait options | Submission, then the terminal backtest when waiting |
+    | Stop a run | Analysis ID or run ID | Cancellation request and current status |
+    | Read a result | Analysis/run ID; result field for backtests | Result rows, metrics, or logs |
+
+    ## Result pages and cursors
+
+    ```text
+    tqx research backtest result <run-id> --field=equity|trades|logs|symbol_performance|account_summary --offset=0 --limit=100
+
+    tqx research factor list --market=hk --limit=50 --cursor=<next_cursor>
+    tqx research strategy list --keyword=momentum --includeContent
+    ```
+
+    Library lists accept limits 1–100. Summary lists accept 1–10. Backtest result pages accept 1–500. Keep next\_cursor and has\_more; do not invent page numbers. The symbol filter applies only to trades.
+
+    ## Named versions and restore
+
+    ```text
+    tqx research factor versions <factor-id>
+    tqx research factor version-create <factor-id> <successful-analysis-id> --name="ma-spread-2026"
+    tqx research factor version-restore <factor-id> <version-id> --expectedSourceRevision=<n> --expectedConfigRevision=<n>
+    tqx research strategy versions <strategy-id>
+    tqx research strategy version-create <strategy-id> <successful-run-id> --name="daily-2026"
+    tqx research strategy version-restore <strategy-id> <version-id> --expectedSourceRevision=<n> --expectedConfigRevision=<n>
+    tqx research factor analysis-restore <factor-id> <analysis-id> --expectedSourceRevision=<n> --expectedConfigRevision=<n>
+    tqx research strategy backtest-restore <strategy-id> <run-id> --expectedSourceRevision=<n> --expectedConfigRevision=<n>
+    ```
+
+    Only a successful ordinary run belonging to the asset can create a named version. Versions are immutable. Restore replaces current source and full configuration, validates, and does not execute or create a backup.
+
+    ## Tuning
+
+    ```text
+    tqx research factor tuning list <factor-id>
+    tqx research factor tuning get <tuning-id>
+    tqx research factor tuning create <factor-id> --file=factor-tuning.json
+    tqx research factor tuning cancel <tuning-id>
+    tqx research factor tuning rerun <tuning-id>
+    tqx research factor tuning apply <tuning-id> --trialId=<trial-id> --expectedSourceRevision=<n> --expectedConfigRevision=<n>
+    tqx research strategy tuning apply <tuning-id> <candidate-id> --expectedSourceRevision=<n> --expectedConfigRevision=<n>
+    ```
+
+    The JSON file uses SDK camelCase field names. Factor tuning requires one explicit baseline and at most 32 total candidates; strategy tuning deduplicates a baseline and also caps at 32. Applying a candidate updates current configuration but does not create a named version or ordinary run. Run and review the applied inputs yourself.
+
+    ## Output and exit codes
+
+    Use --json for machine-readable stdout and JSON errors on stderr, or --plain for readable text. Exit code 2 means invalid input. Exit code 1 covers API, network, protocol, failed run, cancellation, and local timeout. Never interpret an accepted request or SUBMITTED status as a successful result.
+
+    ## Complete version and tuning command reference
+
+    Replace `<kind>` with `factor` or `strategy`. `version` reads a version by its version ID; `versions` lists an asset's versions.
+
+    ```text
+    tqx research <kind> version <version-id>
+    tqx research <kind> version-create <resource-id> <successful-run-id> --name=<name> [--description=<text>]
+    tqx research <kind> tuning list <resource-id>
+    tqx research <kind> tuning get <tuning-id>
+    tqx research <kind> tuning create <resource-id> --file=<request.json>
+    tqx research <kind> tuning cancel <tuning-id>
+    tqx research <kind> tuning rerun <tuning-id>
+    tqx research backtest list [--market=all|hk|us] [--cursor=<cursor>] [--limit=1..10] [--keyword=<text>] [--includeContent]
+    ```
+
+    All IDs are lowercase 24-character ObjectIds except the factor tuning trial identifier, which is the returned trial string. `run` requires both expected revisions even with `--noWait`. The CLI generates request IDs for individual mutations; the tuning JSON carries its explicit `requestId`. On revision conflicts, reread `info` and reconcile the change instead of blindly replacing a revision.
+
+    For a factor study, use the [factor JSON example](/qube/api/factors#factor-tuning-file), replace the revisions with `info` values, and use declared parameter keys. For a strategy, create a JSON request with `strategyParameters`, expected revisions, request ID, objective, and the actual market `tradingDates`. The [strategy tuning guide](/qube/research/strategy/optimization) explains validation and scoring.
+
+  </Tab>
+  <Tab title="TypeScript SDK">
+    ## Wait for or cancel a run
+
+    Use the `client` initialized in the [TypeScript SDK overview](/qube/sdk/overview). Keep the submitted run ID so you can inspect it after a timeout or connection failure.
+
+    ```typescript
+    const result = await client.research.pollBacktest(runId, {
+      interval: 2,
+      timeout: 600,
+      progressCallback: value => console.log(value.status),
+    })
+    if (result.cli_status === "TIMEOUT") {
+      console.log("Still waiting remotely", runId)
+    } else if (result.status !== "succeeded") {
+      throw new Error(`Inspect run ${runId}: ${result.status}`)
+    }
+    ```
+
+    | Task | Factor analysis | Strategy backtest |
+    | --- | --- | --- |
+    | Read current status and results | `getFactorAnalysis(runId)` | `getBacktest(runId)` |
+    | Wait for a terminal state | `pollFactorAnalysis(runId, options)` | `pollBacktest(runId, options)` |
+    | Request cancellation | `cancelFactorAnalysis(runId)` | `cancelBacktest(runId)` |
+
+    Polling ends on `succeeded`, `failed`, or `cancelled`. Defaults are 2 seconds between checks and a 600-second local timeout. A timeout returns the latest resource with `cli_status: "TIMEOUT"` and `timeout_seconds`; it does not cancel the remote task. Cancellation requests can take time to reach a terminal state.
+
+    | Field | Type / limit | Purpose |
+    | --- | --- | --- |
+    | `interval` | `number`, greater than 0, default 2 seconds | Time between checks |
+    | `timeout` | `number`, non-negative, default 600 seconds | Local wait limit |
+    | `progressCallback` | `(value) => void`, optional | Receives the complete run on each check |
+    | `id` / `status` / `progress` / `metrics` | Returned run fields | Latest state; progress and metrics may not be available |
+    | `cli_status` / `timeout_seconds` | Returned only on local timeout | `"TIMEOUT"` and wait limit; remote task continues |
+
+    ## Create and restore a named version
+
+    Create a version only after reviewing a successful ordinary run belonging to that asset. This example uses an existing `factorId` and a successful `analysisId`.
+
+    ```typescript
+    const version = await client.research.createFactorVersion(factorId, {
+      requestId: crypto.randomUUID(),
+      runId: analysisId,
+      name: "ma-spread-2026",
+    })
+    const current = await client.research.getFactor(factorId)
+    const restored = await client.research.restoreFactorVersion(factorId, version.id, {
+      requestId: crypto.randomUUID(),
+      expectedSourceRevision: current.source_revision,
+      expectedConfigRevision: current.config_revision,
+    })
+    ```
+
+    Restoring replaces current source and full configuration, then validates them. It does not start an ordinary run or create a backup. Source and configuration revisions advance independently.
+
+    | Task | Factor | Strategy |
+    | --- | --- | --- |
+    | List versions | `listFactorVersions(id)` | `listStrategyVersions(id)` |
+    | Read a version | `getFactorVersion(versionId)` | `getStrategyVersion(versionId)` |
+    | Create from a successful run | `createFactorVersion(id, { requestId, runId, name, description? })` | `createStrategyVersion(id, { requestId, runId, name, description? })` |
+    | Restore a version | `restoreFactorVersion(id, versionId, restoreInput)` | `restoreStrategyVersion(id, versionId, restoreInput)` |
+    | Restore a historical ordinary run | `restoreFactorAnalysis(id, runId, restoreInput)` | `restoreBacktest(id, runId, restoreInput)` |
+
+    `restoreInput` contains `{ requestId, expectedSourceRevision, expectedConfigRevision }`. `?` marks an optional field. Named versions are immutable. Factor analysis snapshots use `listFactorSnapshots(id)` and `createFactorSnapshot(id, { runId, name })`; they are separate from executable named versions used in strategy bindings.
+
+    ### Version inputs and outputs
+
+    | Field | Type / limit | Purpose |
+    | --- | --- | --- |
+    | `requestId` | `string`, required for create / restore | Mutation identifier |
+    | `runId` | `string`, required for create | Successful ordinary run belonging to the asset |
+    | `name` / `description` | `string`; name 1–120 characters, description optional | Version name and description |
+    | `expectedSourceRevision` / `expectedConfigRevision` | Positive integer, required for restore | Read current asset first to protect concurrent changes |
+    | Create / get output | Version object | `id`, `factor_id` / `strategy_id`, `version`, `name`, `run_id` |
+    | List output | Version array | Each item identifies its version, name, and source run |
+    | Restore output | Factor or strategy object | Restored source, full configuration, and updated revisions |
+
+    ### Factor analysis snapshots
+
+    | Method | Input | Output |
+    | --- | --- | --- |
+    | `listFactorSnapshots(id)` | Factor ID | Snapshot array: `id`, `run_id`, `name` |
+    | `createFactorSnapshot(id, input)` | `runId`, `name` (1–120 characters) | Snapshot with `id`, `run_id`, `name` |
+
+    ## Compare parameter candidates
+
+    Build the request for your factor or strategy, then submit it with `createFactorTuning(id, input)` or `createStrategyTuning(id, input)`. The JSON used by the CLI has the same camelCase fields as the SDK input.
+
+    | Input | Factor tuning | Strategy tuning |
+    | --- | --- | --- |
+    | Required shared fields | `requestId`, `expectedSourceRevision`, `expectedConfigRevision`, `candidates` | Same |
+    | Candidate overrides | `parameters` for analysis settings; `factorParameters` for declared numeric `FACTOR_PARAMS` | `strategyParameters` for declared, referenced numeric `STRATEGY_PARAMS` |
+    | Baseline and limit | Exactly one explicit `{ baseline: true }` with no overrides; at most 32 total | At most 31 unique explicit candidates; automatic baseline keeps total at most 32; at most 256 total parameter keys |
+    | Research dates | `researchPeriod: { periodStart, periodEnd }` and `warmupTradingDays` (0–5000) | `tradingDates`: 2–4000 actual, sorted, unique ISO trading dates |
+    | Objective | `rank_ic_mean` | `total_return` (default), `sharpe`, or `max_drawdown` |
+    | Validation | `holdoutEnabled: false` | `validationEnabled: true` by default |
+
+    The [factor request example](/qube/api/factors#factor-tuning-file) shows a complete JSON shape. For strategy candidate design, see [strategy tuning](/qube/research/strategy/optimization).
+
+    | Task | Factor | Strategy |
+    | --- | --- | --- |
+    | List studies for an asset | `listFactorTunings(id)` | `listStrategyTunings(id)` |
+    | Read a study | `getFactorTuning(tuningId)` | `getStrategyTuning(tuningId)` |
+    | Submit candidates | `createFactorTuning(id, input)` | `createStrategyTuning(id, input)` |
+    | Request cancellation | `cancelFactorTuning(tuningId)` | `cancelStrategyTuning(tuningId)` |
+    | Rerun a study | `rerunFactorTuning(tuningId, { requestId })` | `rerunStrategyTuning(tuningId, { requestId })` |
+    | Apply a selected candidate | `applyFactorTuning(tuningId, { requestId, trialId, expectedSourceRevision, expectedConfigRevision })` | `applyStrategyTuning(tuningId, { requestId, candidateId, expectedSourceRevision, expectedConfigRevision })` |
+
+    Factor apply returns `{ tuning, factor }`; strategy apply returns `{ tuning, strategy }`. Applying updates saved source or configuration without creating an ordinary run or named version. Run and review the selected candidate separately. Tuning results are candidates for review, not automatic production decisions.
+
+    ### Tuning method inputs and outputs
+
+    The methods above use the following response shapes for factors and strategies.
+
+    | Operation | Input | Output |
+    | --- | --- | --- |
+    | list | Asset ID | Array of tuning objects |
+    | create | Asset ID and tuning request above | Tuning with `id`, parent asset ID, and `status` |
+    | get / cancel | `tuningId` | Current tuning / tuning after cancellation request |
+    | rerun | `tuningId`, `{ requestId }` | Resubmitted tuning object |
+    | apply | `tuningId`, `requestId`, both expected revisions; factor `trialId` or strategy `candidateId` | `{ tuning, factor }` / `{ tuning, strategy }` |
+
+    The tuning response root `id` becomes `tuningId` in later inputs; it is not an ordinary run ID. Factor apply uses the returned trial identifier; strategy apply uses the selected candidate's `id` as `candidateId`. Rerun returns a new tuning ID. `cancelling` is nonterminal; `no_valid_candidates` is terminal. Apply can change saved source or configuration, so read its new revisions and validation before an ordinary run.
+
+    ## Cross-asset summaries and pagination
+
+    Use `listAnalyses(input)`, `listBacktests(input)`, `listFactorTuningSummaries(input)`, `listStrategyTuningSummaries(input)`, or `listStrategyVersionSummaries(input)` to find records across assets. Summary limits are 1–10. Pages return `{ items, hasMore, nextCursor, counts? }`; pass the exact returned cursor to continue.
+
+    Filters include title, description, market, keyword, parent asset ID, `timeField`, `from`/`to`, and applicable statuses. Date-only boundaries use Shanghai calendar days and include the whole `to` day. Datetimes require a timezone. Strategy version summaries accept only `created_at` ordering and no status filter.
+
+    Library pages allow 1–100 items. Strategy backtest history returns `{ runs }` with a 1–200 limit. Backtest result pages use offsets and a 1–500 limit; see [Strategy API](/qube/api/strategies).
+
+    | Field | Type / limit | Purpose |
+    | --- | --- | --- |
+    | `limit` / `cursor` | Optional, 1–10 items | Page size and previous `nextCursor` |
+    | `market` / `keyword` / `title` / `description` | Optional strings | Market and text filters |
+    | `factorId` / `strategyId` | Optional ObjectId | Use the parent asset type matching the method |
+    | `status` | Optional, depends on record type | Six run states; tuning also accepts `cancelling`, `no_valid_candidates`; versions reject status |
+    | `timeField` / `from` / `to` | Optional | Filter `created_at` / `updated_at` by dates; versions accept only `created_at` |
+    | `items` | Returned array | Summary records on this page, each with `id` |
+    | `hasMore` / `nextCursor` / `counts` | `boolean` / `string or null` / optional count object | Next-page flag, continuation cursor, and available counts |
+
+    Resource-local tuning lists are capped at 200. A full SDK array at that cap does not establish complete history; use tuning summary cursor pagination.
+
+    ## Conflicts, retries, and progress
+
+    On `SOURCE_CONFLICT` or `CONFIG_CONFLICT`, read the current asset and reconcile your changes before retrying. A timeout or response validation failure does not prove a mutation failed. Reconcile remote state using the original request ID before retrying with that ID and an identical body. SDK inputs use camelCase; returned raw resource fields can remain snake\_case.
+
+    See [streaming, polling, and errors](/qube/sdk/streaming) for SSE protocol 1 and `TqxNetworkError`, `TqxApiError`, `TqxProtocolError`, and `TqxValidationError`.
+
+  </Tab>
+</Tabs>

@@ -1,32 +1,26 @@
-﻿---
-title: "Technical indicators"
-description: "Calculate technical indicators from market data."
-zh-Hant_link: "/hk/data/market-data/indicators"
+---
+title: Technical indicators
+description: Calculate technical indicators from market data.
+zh-Hant_link: /hk/data/market-data/indicators
 ---
 
-<Note>
-  The methods on this page are available only in Qube, where the Qube assistant can calculate these indicators for you. Qube strategy code can't call `calculate_indicators`, so calculate indicators in your strategy instead. The `tqx-data` package on PyPI doesn't include these methods.
-</Note>
+<Badge color="blue" icon="cloud">Qube sandbox</Badge>
 
 ## Calculate indicators
 
-### Method name: calculate_indicators
-
-<Badge icon="cloud" color="blue">Qube only</Badge>
+### Method name: calculate\_indicators
 
 ### Enter parameters
 
-
 | Field | Type | Description |
-|:---|:---|:---|
-| market_data | Dict[str, List[Dict]] | Dictionary of real-time market data grouped by stock code |
-| indicator_params | Dict[str, Dict] | Dictionary of indicator parameters. Format: `{"rsi": {"period": 7, "limit": 30}, "macd": {"period": 26, "limit": 30}}`. `period` is required; for MACD it is the slow-line period. `limit` is optional and defaults to `period`. Supported indicators: rsi, macd, atr, ema, boll |
-
+| :-- | :-- | :-- |
+| market\_data | Dict\[str, List\[Dict\]\] | Historical bars grouped by symbol, sorted oldest to newest |
+| indicator\_params | Dict\[str, Dict\] | Dictionary of indicator parameters. Format: `{"rsi": {"period": 7, "limit": 30}, "macd": {"period": 26, "limit": 30}}`. `period` is required; for MACD it is the slow-line period. `limit` is optional and defaults to `period`. Supported indicators: rsi, macd, atr, ema, boll |
 
 ### Response parameters
 
 | Field | Type | Description |
-|:---------------|:-------|:------------------|
+| :-- | :-- | :-- |
 | symbol | str | stock code |
 | rsi\_{period} | Double | RSI indicator result list |
 | macd\_{period} | Double | MACD indicator result list |
@@ -38,10 +32,15 @@ zh-Hant_link: "/hk/data/market-data/indicators"
 
 ```python
 import tqx_data
-market_data = tqx_data.get_live_market_data(
-    symbols=["0005.HK"],
-    count=60,
+minute_df = tqx_data.get_hk_min(
+    symbol="0005.HK",
+    start_date="20260101",
+    end_date="20260131",
+    fields=["symbol", "date", "datetime", "open", "high", "low", "close", "volume", "amount"],
+    frequency="1m",
 )
+minute_df = minute_df.sort_values("datetime")
+market_data = {"0005.HK": minute_df.to_dict(orient="records")}
 result = tqx_data.calculate_indicators(
     market_data = market_data,
     indicator_params={
@@ -74,4 +73,3 @@ print(result)
   }
 }
 ```
-

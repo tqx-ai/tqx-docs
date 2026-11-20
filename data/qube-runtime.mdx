@@ -1,0 +1,41 @@
+---
+title: Access data in Qube
+description: Choose the data contract for the environment where your code runs.
+zh-Hant_link: /hk/data/qube-runtime
+related:
+  [
+    "/data/info",
+    "/data/market-data/daily",
+    "/data/market-data/minute",
+    "/qube/research/strategy/code",
+  ]
+---
+
+Use this page when Python code runs inside Qube. The native `tqx_data` Skill provides historical market and reference data from Qube's research snapshots. It does not require `tqx_data.init()` or a local API key.
+
+<Frame caption="Qube Market shows a historical market snapshot">
+  ![Qube Market page showing Hong Kong stock data, chart intervals, instrument details, and a Not
+  realtime label](/images/qube/qube-market.png)
+</Frame>
+
+In Qube, open [Qube Market](https://www.tqx.ai/qube/market), choose Hong Kong or U.S. stocks, and search for a symbol. You can inspect chart intervals, instrument details, and the snapshot timestamp. Check the **Not realtime** label before interpreting a displayed price.
+
+<Columns cols={2}>
+  <Card title="Qube sandbox" icon="cloud" href="/data/info">
+    Query historical data with built-in `tqx_data`. Find an API in the data overview and check its parameters and fields.
+  </Card>
+  <Card title="Strategy source" icon="code" href="/qube/research/strategy/api">
+    Use the common `panda_backtest` API and the matching market's history API. Direct `tqx_data` imports are not supported in strategies.
+  </Card>
+</Columns>
+
+## Sandbox and strategy backtest
+
+These are two Qube execution contexts with different responsibilities:
+
+| Context           | What it does                                                                                                                                                                                                                                                                                                                                                                                             | Code interface                                                            | Typical result                                     |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- | -------------------------------------------------- |
+| Qube sandbox      | Runs conversations, Skills, workspace tasks, and exploratory Python code in your cloud workspace                                                                                                                                                                                                                                                                                                         | Workspace files and native `tqx_data` methods                             | Files, charts, data queries, and draft code        |
+| Strategy backtest | Runs a saved strategy over <Tooltip tip="A Bar summarizes a time interval, like one candlestick on a chart. It typically contains the open, high, low, close, and volume. A daily Bar covers one trading day; a minute Bar covers one minute. A backtest replays these historical records in time order." headline="Historical Bars">historical Bars</Tooltip> using the market-specific backtest engine | `panda_backtest`, `initialize`, `handle_data`, Bars, and replay callbacks | Equity, trades, costs, logs, and a backtest result |
+
+You can think of the sandbox as Qube's general agent and workspace runtime. A submitted strategy backtest then uses the strategy runtime and backtest engine, which have a stricter source contract. Code that works in the sandbox is not automatically valid strategy code; follow [Write a strategy](/qube/research/strategy/code) before submitting a backtest.

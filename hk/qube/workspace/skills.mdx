@@ -1,0 +1,39 @@
+---
+title: "認識 Skills"
+en_link: /qube/workspace/skills
+related: ["/hk/qube"]
+description: "了解 Qube 如何參照任務指南處理數據、策略及研究筆記。"
+keywords: ["Qube", "研究指南"]
+---
+
+<strong>Skill（技能）</strong>是一份 Qube
+執行任務時可參閱的指南，說明如何做某項工作，例如查詢市場數據或儲存研究筆記。你可以把它理解為給助手看的工作說明，不是你必須先讀完的課程。
+
+## Skill 提供什麼協助
+
+例如你請 Qube 保留某個策略的設計理由，知識 Skill 會說明筆記應放在哪裡、如何儲存；數據 Skill 則說明查詢方法，因子及策略 Skill 說明各自研究任務的規則。
+
+你仍然在對話中描述目標，例如：
+
+```text
+幫我儲存一份研究筆記，說明這個策略的買賣規則、測試日期，
+以及這次回測還不能證明的事情。
+請使用知識 Skill，並告訴我筆記儲存在哪裡。
+```
+
+Skill 提供任務所需的指示，不會讓策略自動獲利，也不能代替核對儲存後的結果。
+
+## 認識工作區裡的檔案
+
+工作區可以查看 Skill 檔案。圖中的官方 `qube-wiki` Skill 包含指示檔（`SKILL.md`）、補充參考資料及輔助腳本。**唯讀**標記代表你可查看這些官方檔案，但不能在這裡修改。
+
+<Frame caption="官方 Skill 檔案在工作區中以唯讀參考資料顯示。">
+  ![Qube 工作區顯示官方 qube-wiki
+  Skill、參考資料、腳本及已開啟的唯讀輔助程式](/images/qube/workspace-official-skill.png)
+</Frame>
+
+截圖展示的是 Qube 背後可以參閱的內容。使用 Skill 不需要先讀懂 Python 腳本，也不需要自己執行它。你可以請 Qube 說明用了哪份指南，以及實際完成了什麼。
+
+## 何時需要了解更多
+
+對話中查詢數據，與提交策略後在回測中使用數據，規則並不相同。請 Qube 撰寫程式時，應讓它使用該任務對應的指南。想自行查看技術細節，可從[數據環境](/hk/data/qube-runtime)或[策略程式碼](/hk/qube/research/strategy/code)開始。

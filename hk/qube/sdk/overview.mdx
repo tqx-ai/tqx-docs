@@ -1,0 +1,41 @@
+---
+title: TypeScript SDK
+description: "設定 @tqx-ai/sdk，透過 client.research 操作 Qube 投研任務。"
+en_link: /qube/sdk/overview
+related:
+  [
+    "/hk/qube/cli/quickstart",
+    "/hk/qube/api/factors",
+    "/hk/qube/api/strategies",
+    "/hk/qube/api/runs",
+    "/hk/qube/sdk/streaming",
+  ]
+---
+
+使用 npm 套件 `@tqx-ai/sdk`，在自己的 TypeScript 程式中建立因子或策略、啟動分析或回測，以及讀取結果；操作的是 Qube 網頁工作區與 CLI 中的同一份研究。[SDK 套件指南](https://github.com/tqx-ai/tqx-ts/blob/main/packages/sdk/README.md) 說明安裝及共用客戶端設定。
+
+```bash
+npm install @tqx-ai/sdk
+```
+
+```typescript
+import { TqxClient } from "@tqx-ai/sdk";
+const client = new TqxClient({
+  apiKey: process.env.TQX_API_KEY!,
+  baseUrl: process.env.TQX_BASE_URL!, // 必須以 /tqxApi 結尾
+});
+const page = await client.research.listFactors({ market: "hk", limit: 20 });
+```
+
+輸入使用 camelCase。資產 ID 是 24 位小寫 ObjectId。建立、原始碼更新、執行、版本、還原及調優會使用 request ID 或預期修訂，以安全重試及偵測衝突。
+
+一般執行先用 `updateFactor` 或 `updateStrategy` 儲存所需設定，再核對已儲存值、目前原始碼驗證、`parameter_validation.status="valid"`、內層 `config_revision` 及 `parameters_draft`。確認沒有尚未套用的草稿後，以這次回傳的修訂執行，不傳入 `parameters`／`backtest` 覆寫。明確要求的單次覆寫不會修改已儲存設定。資產回應保留伺服器的 snake_case 欄位。
+
+依照任務進入對應頁面，切換至 **TypeScript SDK** 分頁：
+
+- [因子 API](/hk/qube/api/factors)：建立、更新、驗證及分析因子。
+- [策略 API](/hk/qube/api/strategies)：管理策略、執行回測及讀取結果。
+- [執行、版本與調優 API](/hk/qube/api/runs)：等待、取消、版本、還原、快照及調優。
+- [串流、輪詢與錯誤](/hk/qube/sdk/streaming)：進度事件、逾時及錯誤處理。
+
+SDK 管理研究物件；帳戶下單請參閱獨立的 [交易 API](/hk/trading/info)。

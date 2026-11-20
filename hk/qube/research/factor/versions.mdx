@@ -1,0 +1,50 @@
+---
+title: 因子版本與還原
+en_link: /qube/research/factor/versions
+related: ["/hk/qube/research/factor","/hk/qube/api/runs"]
+---
+
+命名版本保留同一因子中**成功的一般分析**所使用的完整原始碼及設定。你須明確建立，填寫名稱及選填描述。儲存原始碼及套用調優不會建立命名版本。
+
+## 建立可重現的參考
+
+1. 審閱成功的一般執行及其固定輸入。
+2. 以該次執行 ID 建立命名版本。
+3. 在研究記錄保留版本 ObjectId 及名稱。
+
+命名版本不可變更，不能重新命名、編輯或刪除。調優子執行不符合資格。從歷史執行建立版本不會覆蓋目前草稿。
+
+## 審慎還原
+
+在網頁打開因子，進入**版本記錄**並選擇要還原的版本。Qube 會處理修訂檢查。
+
+使用 CLI 或 SDK 時，先讀取目前因子的修訂號：
+
+使用 CLI 時，在第一個指令的輸出中找到 `source_revision` 及 `config_revision`，再填入還原指令的對應參數。
+
+<CodeGroup>
+
+```bash CLI
+tqx research factor info <factor-id> --json
+
+tqx research factor version-restore <factor-id> <version-id> \
+  --expectedSourceRevision=<source_revision> \
+  --expectedConfigRevision=<config_revision>
+```
+
+```typescript TypeScript SDK
+const current = await client.research.getFactor(factorId)
+const restored = await client.research.restoreFactorVersion(factorId, versionId, {
+  requestId: crypto.randomUUID(),
+  expectedSourceRevision: current.source_revision,
+  expectedConfigRevision: current.config_revision,
+})
+```
+
+</CodeGroup>
+
+還原會一次替換目前原始碼及完整設定，然後重新驗證；不會執行新任務，也不會自動建立備份版本。
+
+如需保留目前工作，應先在符合條件時執行並建立版本。還原後檢查驗證結果，再明確執行。遇到衝突時，先重新讀取狀態並協調變更。
+
+你也可以從歷史一般執行還原。指令、方法及輸入輸出請參閱 [執行、版本與調優 API](/hk/qube/api/runs)。

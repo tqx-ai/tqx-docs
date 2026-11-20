@@ -1,31 +1,39 @@
-﻿---
-title: "Consensus estimates"
-description: "Retrieve consensus estimates and analyst recommendations."
-zh-Hant_link: "/hk/data/market-reference/consensus"
 ---
+title: Consensus estimates
+description: Retrieve consensus estimates and analyst recommendations.
+zh-Hant_link: /hk/data/market-reference/consensus
+---
+
+<Badge color="blue" icon="cloud">Qube sandbox</Badge> <Badge color="green" icon="laptop">Local tqx_data</Badge>
 
 ## Obtain consensus expectations of non-cyclical indicators
 
-### Method name: get_consensus_nonperiod
+### Method name: get\_consensus\_nonperiod
 
-<Badge icon="clock" stroke>Latest data only</Badge>
+<Badge stroke icon="clock">Latest data only</Badge>
 
 ### Enter parameters
 
 | Field | Type | Description | Is it required |
-|:---|:---|:---|:---|
+| :-- | :-- | :-- | :-- |
 | symbol | Optional\[Union\[str, List\[str\]\]\] | Stock code | Optional |
 | fields | Optional\[Union\[str, List\[str\]\]\] | Return fields | Optional |
-| market | str | Market, supports `hk`, `us`, default is `hk` | required |
+| market | str | Market: `hk` or `us`; defaults to `hk`. | Optional |
 
 ### Response parameters
 
-Note: For parameters other than symbol, currency, and indicator, the default is the prediction of the latest date, and there are historical dimension derived fields. The derived suffix is ​​week, and 1month~12month constitutes a total of thirteen derived fields for each field, indicating the predicted value of the corresponding field one week, one month to twelve months ago.
+Fields without a time suffix contain the latest available prediction. Historical prediction fields use a suffix to show when that prediction was made:
 
-Example: mean_week represents the predicted mean one week ago, std_6month represents the predicted standard deviation six months ago.
+| Suffix | Meaning |
+| --- | --- |
+| _(none)_ | Latest available prediction |
+| `_week` | Prediction made one week earlier |
+| `_1month` to `_12month` | Prediction made one to twelve months earlier |
+
+For example, `mean_week` is the predicted mean from one week earlier, and `std_6month` is the predicted standard deviation from six months earlier. `symbol`, `currency`, and `indicator` identify the row and do not use these time suffixes.
 
 | Field | Type | Description |
-|:---|:---|:---|
+| :-- | :-- | :-- |
 | symbol | str | stock code |
 | currency | str | currency unit |
 | indicator | str | Indicator name: LTGROWTH is the long-term growth in the next 3 to 5 years, TP is the target price in the next 1 year |
@@ -34,8 +42,8 @@ Example: mean_week represents the predicted mean one week ago, std_6month repres
 | high | double | predicted highest value |
 | low | double | predicted lowest value |
 | std | double | forecast standard deviation |
-| estimates_num | double | forecast number |
-| included_estimates_num | double | Number of forecasts included in statistics |
+| estimates\_num | double | forecast number |
+| included\_estimates\_num | double | Number of forecasts included in statistics |
 
 ### Usage examples
 
@@ -70,40 +78,45 @@ symbol indicator mean std_6month high_week
 
 ## Obtain consensus expectations for buying and selling recommendations
 
-### Method name: get_consensus_recommend
+### Method name: get\_consensus\_recommend
 
-<Badge icon="clock" stroke>Latest data only</Badge>
+<Badge stroke icon="clock">Latest data only</Badge>
 
 ### Enter parameters
 
 | Field | Type | Description | Is it required |
-|:---|:---|:---|:---|
+| :-- | :-- | :-- | :-- |
 | symbol | Optional\[Union\[str, List\[str\]\]\] | Stock code | Optional |
 | fields | Optional\[Union\[str, List\[str\]\]\] | Return fields | Optional |
-| market | str | Market, supports `hk`, `us`, default is `hk` | required |
+| market | str | Market: `hk` or `us`; defaults to `hk`. | Optional |
 
 ### Response parameters
 
-Note 1: For parameters other than symbol and currency, the default is the prediction of the latest date, and there are historical dimension derived fields. The derived suffix is ​​week, and 1month~12month constitutes a total of thirteen derived fields for each field, indicating the predicted value of the corresponding field one week, one month to twelve months ago.
+Fields without a time suffix contain the latest available recommendation. Historical fields use the same suffixes:
 
-Example: mean_week represents the expected mean one week ago, and low_6month represents the expected lowest value 6 months ago.
-Note 2: Strong sell, sell, hold, buy, and strong buy are scored as 5, 4, 3, 2, and 1 in sequence.
+| Suffix | Meaning |
+| --- | --- |
+| _(none)_ | Latest available recommendation |
+| `_week` | Recommendation from one week earlier |
+| `_1month` to `_12month` | Recommendation from one to twelve months earlier |
+
+For example, `mean_week` is the expected mean from one week earlier, and `low_6month` is the expected low value from six months earlier. Recommendation counts use these scores: strong sell = 5, sell = 4, hold = 3, buy = 2, and strong buy = 1.
 
 | Field | Type | Description |
-|:--------------------|:-------|:-----------|
+| :-- | :-- | :-- |
 | symbol | str | stock code |
 | currency | str | currency unit |
 | mean | double | expected mean |
 | median | double | expected median |
 | high | double | expected highest value |
 | low | double | expected lowest value |
-| strong_buy_num | double | Number of strong buy recommendations |
-| buy_num | double | Number of buy recommendations |
+| strong\_buy\_num | double | Number of strong buy recommendations |
+| buy\_num | double | Number of buy recommendations |
 | hold | double | recommended number of positions |
-| sell_num | double | Sell recommendation number |
-| strong_sell_num | double | Number of strong sell recommendations |
-| no_opinion_num | double | No opinion number |
-| recommendations_num | double | total number of recommendations |
+| sell\_num | double | Sell recommendation number |
+| strong\_sell\_num | double | Number of strong sell recommendations |
+| no\_opinion\_num | double | No opinion number |
+| recommendations\_num | double | total number of recommendations |
 
 ### Usage examples
 
@@ -139,4 +152,3 @@ symbol strong_buy_num buy_num_week
 **3. Financial and market factors**
 
 **1. Obtain Hong Kong and US stock backtest factors**
-

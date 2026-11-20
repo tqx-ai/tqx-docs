@@ -1,7 +1,7 @@
 ---
-title: "下單"
-description: "提交 MARKET 或 LIMIT 訂單並取得訊號狀態。"
-en_link: "/trading/api/place-order"
+title: 下單
+description: 提交 MARKET 或 LIMIT 訂單並取得訊號狀態。
+en_link: /trading/api/place-order
 ---
 
 向已驗證的交易帳戶提交訂單。API 會返回訊號 envelope，不會同步保證訂單已成交。
@@ -54,8 +54,8 @@ curl --request POST \
 
 成功時返回 HTTP `202` 和標準 envelope。`data` 是 `SignalData`，包含 `signal_id`、`state`、`order_id`、`order_status`、`message`、`created_at` 和 `updated_at`。
 
-`state` 可為 `PENDING`、`ACCEPTED`、`UNKNOWN` 或 `REJECTED`。`ACCEPTED` 只表示訊號請求已接受，不代表訂單已提交或成交。請查詢訊號，再使用[訂單詳情](/hk/trading/api/get-order)和[成交記錄](/hk/trading/api/list-trades)確認結果。
+`state` 可為 `PENDING`、`ACCEPTED`、`UNKNOWN` 或 `REJECTED`。`ACCEPTED` 只表示訊號請求已接受，不代表訂單已提交或成交。請查詢訊號，再使用 [訂單詳情](/hk/trading/api/get-order) 和 [成交記錄](/hk/trading/api/list-trades) 確認結果。
 
 常見錯誤包括 `409 idempotency_conflict`、`409 insufficient_funds`、`409 insufficient_position`、`409 market_closed`、`409 account_locked`、`422 invalid_lot_size`、`422 invalid_order_price` 和 `422 invalid_symbol`。`409` 和 `422` 的 `data` 仍可能帶有 `SignalData`。
 
-`502` 表示未分類的上游券商拒絕，會返回 `SignalData`，包含 `error_code`、`broker_error_id` 和 `rejection_reason`。`503` 表示交易通道不可用，`504` 表示券商或交易通道逾時；兩者都不返回 `data`，且訂單可能已在上游存在，重試前請先查詢訊號和[訂單詳情](/hk/trading/api/get-order)。
+`502` 表示未分類的上游券商拒絕，會返回 `SignalData`，包含 `error_code`、`broker_error_id` 和 `rejection_reason`。`503` 表示交易通道不可用，`504` 表示券商或交易通道逾時；兩者都不返回 `data`，且訂單可能已在上游存在，重試前請先查詢訊號和 [訂單詳情](/hk/trading/api/get-order)。

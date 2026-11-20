@@ -1,0 +1,56 @@
+---
+title: "Tune strategy parameters"
+zh-Hant_link: /hk/qube/research/strategy/optimization
+related: ["/qube/research/strategy/versions", "/qube/api/runs", "/qube/research/optimizations"]
+description: "Compare a few rule settings and learn why the best past result still needs a separate check."
+keywords: ["Qube", "research guide"]
+---
+
+A **parameter** is an adjustable value in a rule. In the Tencent example, “buy above the previous 20-day high” has a 20-day lookback parameter. Changing it to 15 days changes when buy signals appear without changing the basic idea.
+
+**Tuning** runs several parameter combinations so you can compare them with the original settings, called the **baseline**. It helps answer a specific question; it cannot tell you which setting will work best in the future.
+
+## Choose a small comparison
+
+Start with a strategy that has already completed an ordinary backtest. Ask Qube to explain which numeric parameters it can vary. For example:
+
+```text
+Compare a small set of lookback windows for this saved Tencent strategy.
+Keep the trading rules, capital, fees, and benchmark consistent.
+Include the current settings as the baseline.
+Before running, show me the candidate combinations, the dates used for
+research and validation, and the metric used to compare them.
+Do not apply any candidate until I have reviewed the results.
+```
+
+Begin with a few meaningful choices. Testing more combinations gives you more chances to find a result that merely fits the selected past data. Decide whether you care most about total return, return relative to volatility (Sharpe), or limiting the largest decline (maximum drawdown).
+
+## Understand research and validation
+
+By default, strategy tuning splits the selected trading dates into two parts:
+
+- **Research, the first 70%:** compare the candidate settings.
+- **Validation, the remaining 30%:** check the selected research winner on a later period it was not selected on.
+
+The platform validates the research winner; do not assume every candidate has a validation result. Ask Qube which candidate was validated and which dates its figures cover. This is still one historical split, so it does not establish how the strategy will behave in every market.
+
+<Frame caption="Tuning compares candidates on the right; the conversation explains why the research winner failed the later validation check.">
+  ![Qube strategy tuning showing 16 completed candidates, return-comparison curves, and a
+  conversation comparing positive research return with negative validation
+  return](/images/strategy/strategy-tuning-validation.png)
+</Frame>
+
+In this example, the selected candidate gained about **63.62%** in the research period but lost about **43.17%** in validation. These are different periods, not contradictory calculations. The result shows why choosing the largest research return alone can be misleading.
+
+## Review before applying
+
+Compare the baseline, research result, validation result, and losses. Check failed candidates too: a failed run is not a zero-return strategy. Ask whether the apparent improvement comes from a few trades, one market trend, or an unrealistic cost assumption.
+
+If you choose **Apply these parameters**, Qube updates the saved strategy code or settings. Applying does not start an ordinary backtest, create a named version, or place a trade. Check the updated rules, run an ordinary backtest, and review it before [creating a version](/qube/research/strategy/versions).
+
+<Accordion title="Limits for CLI and SDK users">
+  Strategy tuning varies numeric keys already declared and referenced in `STRATEGY_PARAMS`. Dates and starting capital are not strategy-code search dimensions. A typical study has 16 candidates including the baseline; the maximum is 32 after baseline insertion and deduplication.
+
+Supply 2–4000 sorted, unique, actual market trading dates. Supported objectives are `total_return`, `sharpe`, and absolute `max_drawdown`. Applying requires the current source and configuration revisions; reread the saved asset and validation afterward. See the [tuning API reference](/qube/api/runs) for commands and request examples.
+
+</Accordion>

@@ -1,0 +1,67 @@
+---
+title: Qube CLI 快速開始
+description: 讓 Coding Agent 安裝 TQX CLI，再透過投研指令管理 Qube 因子、策略及執行結果。
+en_link: /qube/cli/quickstart
+related: ["/hk/qube", "/hk/qube/api/factors", "/hk/qube/api/strategies", "/hk/qube/sdk/overview"]
+---
+
+Qube CLI 指的是 **TQX CLI 中的投研指令**，統一以 `tqx research` 開頭。安裝 TQX CLI 後，你就可以建立因子、執行策略回測及查詢結果，操作與 Qube 網頁工作區相同的研究資產。
+
+## 讓 Coding Agent 安裝
+
+點擊下方文字區塊右上角的複製按鈕，將完整提示詞貼到你的 Coding Agent。它會依照 [TQX CLI 安裝指南](https://github.com/tqx-ai/tqx-ts/blob/main/INSTALL.md) 安裝 CLI 與投研 Skill，最後檢查連線。
+
+```text wrap
+Read [https://raw.githubusercontent.com/tqx-ai/tqx-ts/refs/heads/main/INSTALL.md](https://raw.githubusercontent.com/tqx-ai/tqx-ts/refs/heads/main/INSTALL.md)
+
+請按文件安裝或更新 TQX CLI 與 Skills。
+我要使用 Qube 投研，也就是 tqx research 指令。
+請確認 tqx-research Skill 可用，並按文件完成驗證。
+最後用 tqx research factor list --market=hk --json 檢查投研連線，回報結果。
+```
+
+## 手動安裝及登入
+
+```bash
+npm install --global @tqx-ai/cli
+tqx --version
+tqx login --api-key=<YOUR_API_KEY>
+tqx status --json
+```
+
+npm 發行版需要 Node.js 22.18 或更新版本。你也可以從 [TQX Releases](https://github.com/tqx-ai/tqx-ts/releases) 下載獨立執行檔。投研請求使用 [API Key](https://www.tqx.ai/user-center?tab=dev-settings)。連線設定及服務地址錯誤請依照 [安裝指南的疑難排解](https://github.com/tqx-ai/tqx-ts/blob/main/INSTALL.md#troubleshooting) 處理。
+
+## 第一個因子流程
+
+```bash
+# 使用公式建立；保留回傳的 24 位小寫因子 ID。
+tqx research factor create --market=hk \
+  --title="Moving-average spread" \
+  --formula='TS_MEAN(CLOSE,5)-TS_MEAN(CLOSE,20)' --json
+
+# 先讀取目前修訂，再用正確修訂儲存、設定及執行。
+tqx research factor info <factor-id> --json
+tqx research factor update <factor-id> --baseConfigRevision=<config-revision> \
+  --startDate=2024-01-01 --endDate=2026-06-30 --groupNumber=10 \
+  --adjustmentCycle=5 --factorDirection=Positive --stockPool=HSI.HK --json
+
+# 核對已儲存參數、驗證及草稿；使用這次回傳的修訂。
+tqx research factor info <factor-id> --json
+tqx research factor run <factor-id> \
+  --expectedSourceRevision=<saved-source-revision> \
+  --expectedConfigRevision=<saved-config-revision>
+```
+
+儲存原始碼、更新設定及執行是分開操作。執行前核對 `parameters`、`parameter_validation.status="valid"`、內層驗證修訂等於目前 `config_revision`，且沒有尚未套用的 `parameters_draft`。原始碼驗證須符合目前修訂及雜湊；缺少或過期的驗證證據須先補齊。一般執行不帶分析覆寫，明確要求的臨時覆寫不會儲存。讀取回傳狀態，直到 `succeeded` 後再使用 `factor result <analysis-id>`。
+
+## 選擇下一頁
+
+- [因子 API](/hk/qube/api/factors) 涵蓋公式、Python 檔案、分析、列表、版本及調優。
+- [策略 API](/hk/qube/api/strategies) 涵蓋原始碼、回測、結果下載及因子綁定。
+- [執行、版本與調優](/hk/qube/api/runs) 涵蓋輪詢、停止、游標、還原及 JSON。
+- [TypeScript SDK](/hk/qube/sdk/overview) 讓你編寫自己的 TypeScript 程式，建立研究、啟動回測及讀取結果。
+
+<Note>
+  `SUBMITTED`、`PENDING`、`RUNNING`、`FAILED`、`CANCELLED` 和 `TIMEOUT` 都不代表投研已成功完成。CLI
+  只會將伺服器的 `succeeded` 對應為 `SUCCESS`；逾時只會停止本機等待。
+</Note>

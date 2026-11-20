@@ -1,84 +1,52 @@
 ---
-title: "TQX data"
-description: "Market and reference data available through tqx_data."
-zh-Hant_link: "/hk/data/info"
+title: Data
+sidebarTitle: Overview
+description: Market and reference data for Qube research and local Python use.
+zh-Hant_link: /hk/data/info
+related: ["/data/qube-runtime", "/data/local-package", "/data/market-data/daily"]
 ---
 
-TQX provides market, reference, financial, and market-factor data for Hong Kong and US stocks. Hong Kong symbols use `.HK`, for example `0700.HK`. US symbol formats depend on the interface: some Qube methods use a `.NB` suffix, for example `AAPL.NB`, while the local package's documented examples use `AAPL`.
+TQX provides Hong Kong and US historical market, reference, financial, and factor data for research. Choose the environment before copying an API example.
 
-## Install tqx_data
+## Supported environments
 
-Download the `tqx-data` package from [PyPI](https://pypi.org/project/tqx-data/):
+Tags identify where a method or example is supported. Multiple tags indicate support in each listed environment.
 
-```bash
-pip install tqx-data
-```
+| Tag                                                       | Usage                                                                                             |
+| --------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| <Badge color="purple" icon="code">Strategy source</Badge> | Use market-specific `panda_backtest` APIs. [APIs in strategy code](/qube/research/strategy/api). |
+| <Badge color="blue" icon="cloud">Qube sandbox</Badge>     | Use built-in `tqx_data` without local initialization. [Sandbox guide](/data/qube-runtime).        |
+| <Badge color="green" icon="laptop">Local tqx_data</Badge> | Install `tqx-data` and initialize with a data API key. [Local guide](/data/local-package).        |
 
-The API-Key build of `tqx-data` requires Python 3.10 or later. Follow the
-`tqx_data.md` shipped inside the installed package for its exact dependency
-constraints.
+Factor code uses framework-provided inputs; see [Write a factor](/qube/research/factor/code).
 
-<Note>
-  The local data package uses an API key with data access permission. It is
-  separate from the Qube research client and trading APIs. Contact Audrey at
-  [audrey@tqx.ai](mailto:audrey@tqx.ai) to request data access.
-</Note>
+## Which APIs work in each environment?
 
-## Initialize with an API key
+| Capability                                                                                                                                                                                                                                                                     | Qube sandbox               | Local `tqx-data`                            |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------- | ------------------------------------------- |
+| [Daily prices](/data/market-data/daily)                                                                                                                                                                                                                                        | Supported                  | Supported; initialize with an API key first |
+| [Stock details](/data/market-reference/stock-detail) and [trading calendars](/data/market-reference/trading-calendar)                                                                                                                                                          | Supported                  | Supported                                   |
+| [Events](/data/market-reference/events), [ownership](/data/market-reference/ownership), [company metrics](/data/market-reference/company-metrics), and [consensus](/data/market-reference/consensus)                                                                           | Supported                  | Supported                                   |
+| [Financial statements](/data/financial-and-market-factors/financial-statements) and [currency rates](/data/utilities/currency)                                                                                                                                                 | Supported                  | Supported                                   |
+| [Historical minute bars](/data/market-data/minute), [technical indicators](/data/market-data/indicators), [factor fields](/data/financial-and-market-factors/factors), [filings](/data/market-reference/filings), and [index members](/data/market-reference/index-components) | Supported                  | These methods are unavailable               |
+| Live Tick subscriptions (`TickStreamClient`)                                                                                                                                                                                                                                   | This class is not included | Supported                                   |
 
-Pass the key and service base URL before calling a data method:
+Parameter and field references describe the Qube sandbox. For local initialization and differences, see the [local tqx_data guide](/data/local-package).
 
-```python
-import tqx_data
+## Find the right reference
 
-tqx_data.init(api_key="sk-tqx-...", base_url="https://tqxdata.tqx.ai")
-print(tqx_data.get_hk_daily(symbol=["0700.HK"], start_date="20260901", end_date="20260930"))
-```
+| Task                                                                | Reference                                                                                                                    |
+| ------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| Strategy orders, cancellations, order queries, and history | [APIs in strategy code](/qube/research/strategy/api) |
+| Historical daily and minute prices                                  | [Daily](/data/market-data/daily), [minute](/data/market-data/minute)                                                         |
+| Stocks, calendars, events, filings, ownership, and index membership | Market reference pages in this tab                                                                                           |
+| Financial fields and statements                                     | [Factors](/data/financial-and-market-factors/factors), [statements](/data/financial-and-market-factors/financial-statements) |
+| Local API-key data and Tick streaming                               | [Local package](/data/local-package)                                                                                         |
 
-You can instead set `TQX_API_KEY` and `TQX_API_BASE_URL`, then call
-`tqx_data.init()`. The explicit `api_key` takes precedence over the
-environment variable. Never put the key in source files or repositories.
+## Symbols and availability
 
-### Use tqx-data with a coding agent
+Hong Kong data uses symbols such as `0700.HK`. Qube native `tqx_data` queries for US historical prices, market reference, financial statements, and factors use bare symbols such as `AAPL`. Returned `symbol` and `stock_symbol` columns also use bare symbols. When selecting the market, use `market="us"` or `type="us"` for factor queries.
 
-Copy the following prompt into your coding agent:
+The US strategy engine uses symbols such as `AAPL.NB`. Follow [Write a strategy](/qube/research/strategy/code) for the format used in strategy code.
 
-```text
-Read https://raw.githubusercontent.com/tqx-ai/tqx-ts/refs/heads/main/skills/tqx-data/SKILL.md, set up tqx-data on this computer, and show me the daily bars of 0700.HK for September 2026.
-```
-
-The agent asks for the API key only when it is not already saved and does not
-repeat it in output.
-
-## Qube and the PyPI package
-
-The methods on these pages follow the `tqx_data` built into Qube. The local
-API-Key package differs in these ways:
-
-- Pages and methods marked **Qube only** are not in the local package: minute
-  bars, live minute bars, latest tick snapshots, indicator calculation, factors,
-  and index components.
-- The local package documents these methods:
-
-  `get_hk_daily`, `get_us_daily`, `get_stock_detail`,
-  `get_trading_calendar`, `get_currency`, `get_event_devidend`,
-  `get_event_capital_market`, `get_event_corporate_actions`,
-  `get_event_fina_disclosure`, `get_event_investor_relation_activities`,
-  `get_company_concentration`, `get_company_top_concentration`,
-  `get_company_investor`, `get_company_insider_transaction`,
-  `get_company_shareholder_report`, `get_company_price_vol`,
-  `get_company_oper_metrics`, `get_company_current`, `get_company_imed`,
-  `get_consensus_nonperiod`, `get_consensus_recommend`, and
-  `get_financial_statement`.
-
-- The local package also documents `TickStreamClient` for real-time tick
-  delivery. Its `tqx_data.md` file is the allowlist for supported method names,
-  parameters, and fields.
-- Source files may contain readers that are not in `tqx_data.md`; those readers
-  are not documented or supported for users.
-
-## Use the data in backtests
-
-- Daily bars aren't adjusted for dividends or splits, and `alt_close` equals `close`. To build an adjusted or total-return series, apply the events from `get_event_devidend`.
-- Data marked **Latest data only** has no history. Don't use it for historical signals in a backtest, because it would leak later information into earlier dates.
-- Use an event only from its announcement date onward.
+The Qube data examples here query historical snapshots. For live subscriptions, see [Local Tick streaming](/data/market-data/tick). Verify coverage, missing fields, timezones, adjustment behavior, and announcement dates. Historical financial values must have been available at the decision time.

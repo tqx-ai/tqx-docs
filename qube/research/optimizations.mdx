@@ -1,0 +1,33 @@
+---
+title: "Parameter tuning"
+zh-Hant_link: /hk/qube/research/optimizations
+related:
+  ["/qube/research/factor/optimization", "/qube/research/strategy/optimization", "/qube/api/runs"]
+description: "Understand what tuning changes and how to compare a candidate with the original settings."
+keywords: ["Qube", "research guide"]
+---
+
+A parameter is an adjustable number, such as the 20 days in a moving-average rule. Tuning compares several choices while keeping the underlying research idea fixed.
+
+The original settings are the **baseline**. Without that comparison, a result that looks attractive may still be worse than what you started with.
+
+## Choose the right kind of tuning
+
+|                      | Factor tuning                                                                 | Strategy tuning                                                                                    |
+| -------------------- | ----------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Main question        | Does a different scoring or analysis setting improve the signal relationship? | Does a different numeric rule setting improve the simulated strategy result?                       |
+| Example              | Compare eligible moving-average lookbacks or group settings.                  | Compare buy/sell lookback windows already used in the strategy.                                    |
+| How it ranks results | Average Rank IC, comparing score ranks with later-return ranks.               | Total return, Sharpe, or maximum drawdown.                                                         |
+| Separate check       | Uses the full research period; you must test another period separately.       | By default uses 70% research and 30% validation, checking the research winner on the later period. |
+
+## A useful comparison has a plan
+
+Before running, agree on the baseline, candidate choices, dates, costs where applicable, and metric. Start small; searching many combinations makes it easier to find one that only happens to fit the past.
+
+Afterward, inspect failures and losses as well as the highest score. A failed candidate has no valid successful result; do not treat it as zero return. If no candidate is valid, fix the study rather than selecting a winner.
+
+## Applying is a separate decision
+
+Applying a candidate changes saved code or settings. Review the changes, run an ordinary analysis or backtest, and check it before creating a named version. Applying alone does not run that ordinary test or place a trade.
+
+Continue with [factor tuning](/qube/research/factor/optimization) or [strategy tuning](/qube/research/strategy/optimization). The [CLI and JSON reference](/qube/api/runs) provides candidate limits and exact request fields.

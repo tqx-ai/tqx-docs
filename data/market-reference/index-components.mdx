@@ -1,126 +1,138 @@
-﻿---
-title: "Index components"
-description: "Retrieve Hong Kong and US index constituent information."
-zh-Hant_link: "/hk/data/market-reference/index-components"
+---
+title: Index components
+description: Retrieve Hong Kong and US index constituent information.
+zh-Hant_link: /hk/data/market-reference/index-components
 ---
 
-<Note>
-  The methods on this page are available only in Qube. The `tqx-data` package on PyPI doesn't include them.
-</Note>
+<Badge color="blue" icon="cloud">Qube sandbox</Badge>
+
+Qube distinguishes undated constituent lookup from market-specific queries with historical date bounds. Build historical universes from membership valid at the decision time instead of applying today's members to the whole backtest.
+
+## Query historical membership
+
+These native Qube sandbox signatures use `<market>` as notation for `hk` or `us`; they are not executable source. Market-specific methods do not take an additional `market` argument.
+
+```text
+get_<market>_index_constituents(start_date='', end_date='', index_symbol=None, stock_symbol=None, fields=None)
+get_<market>_index_detail(symbol=None, fields=None, date=None)
+get_<market>_index_daily(start_date='', end_date='', symbol=None, fields=None)
+```
+
+Dated constituents can cover a requested historical interval when data is available. Check returned columns, effective dates, symbols, and actual coverage before building a point-in-time universe. A benchmark or pool ID accepted by resource configuration does not establish the symbol format for a native index query. Native exports also do not imply permitted strategy imports; use the [market engine APIs](/qube/research/strategy/code) in strategies.
+
+The shared `get_index_component` below has no historical date parameter and cannot by itself establish historical membership.
 
 ## Obtain information on Hong Kong and US stock index constituents
 
 ### Method name: get_index_component
 
-<Badge icon="cloud" color="blue">Qube only</Badge>
-
 ### Enter parameters
 
-| Field | Type | Description | Is it required |
-|:---|:---|:---|:---|
-| stock_symbol | Optional\[Union\[str, List\[str\]\]\] | Stock code | Optional |
-| index_symbol | Optional\[Union\[str, List\[str\]\]\] | Index code | Optional |
-| market | str | Market, supports `hk`, `us`, default is `hk` | required |
+| Field        | Type                                  | Description                             | Is it required |
+| :----------- | :------------------------------------ | :-------------------------------------- | :------------- |
+| stock_symbol | Optional\[Union\[str, List\[str\]\]\] | Stock symbol                            | Optional       |
+| index_symbol | Optional\[Union\[str, List\[str\]\]\] | Index symbol                            | Optional       |
+| market       | str                                   | Market: `hk` or `us`; defaults to `hk`. | Optional       |
 
 Supported index list:
 
-|            |                                     |
-|:-----------|:------------------------------------|
-| Index Code | Name |
-| HSCC | Hang Seng CC Index |
-| HSCE | Hang Seng China Enterprises Index |
-| HSCEEWI | Hang Seng State-owned Enterprises Equal Weight Index |
-| HSCI | Hang Seng Composite Index |
-| HSCIE | Hang Seng Energy Index |
-| HSCIM | Hang Seng Raw Materials Index |
-| HSEWI | Hang Seng Equal Weight Index |
-| HSHFI | Hang Seng Southbound China Financial Sector Select Index |
-| HSI | Hang Seng Index |
-| HSLI | Hang Seng Composite Large Cap Index |
-| HSMI | Hang Seng Composite MidCap Index |
-| HSNC | Hang Seng Commercial Index |
-| HSNF | Hang Seng Financial Industry Index |
-| HSNP | Hang Seng Property Index |
-| HSNU | Hang Seng Utilities Index |
-| HSSI | Hang Seng Composite Small Cap Index |
-| HSC50 | Hang Seng China 50 Index |
-| HSCAHAI | Hang Seng Southbound China AH Shares (A Shares) Index |
-| HSCAHHI | Hang Seng Southbound China AH Shares (H Shares) Index |
-| HSCAHI | Hang Seng Southbound China AH Shares (A+H Shares) Index |
-| HSCAHPI | Hang Seng Southbound China AH Shares Premium Index |
-| HSCIC | Hang Seng Composite Index |
-| HSCIF | Hang Seng Financial Industry Index |
-| HSCIIG | Hang Seng Industrial Products Index |
-| HSCIIT | Hang Seng Information Technology Index |
-| HSCIPC | Hang Seng Real Estate Construction Index |
-| HSCIT | Hang Seng Composite Telecommunications Index |
-| HSCIU | Hang Seng Utilities Index |
-| HSFM25 | Hang Seng China (Hong Kong Listed) 30 Index |
-| HSH35 | Hang Seng Hong Kong 35 Index |
-| HSM100 | Hang Seng China (Hong Kong Listed) 100 Index |
-| HSREIT | Hang Seng REIT Index |
-| HSCASUS | Hang Seng (China A Shares) Corporate Sustainability Index |
-| HSCASUSB | Hang Seng (China A Shares) Corporate Sustainability Benchmark Index |
-| HSCEIDPI | Hang Seng State-owned Enterprise Dividend Points Index |
-| HSFCCI | Hang Seng Foreign Companies Composite Index |
-| HSIDPI | Hang Seng Index Dividend Points Index |
-| HSMHSUS | Hang Seng (Mainland and Hong Kong) Corporate Sustainability Index |
-| HSSUS | Hang Seng Corporate Sustainability Index |
-| HSSUSB | Hang Seng Corporate Sustainability Benchmark Index |
-| HSCAHSI | Hang Seng Southbound China AH Smart Index |
-| HSCAT100 | Hang Seng China A Top 100 Index |
-| HSHBI | Hang Seng High Beta Index |
-| HSHDYI | Hang Seng High Dividend Yield Index |
-| HSHYLV | Hang Seng Hong Kong Stock Connect High Dividend Low Volatility Index |
-| HSLVI | Hang Seng Low Volatility Index |
-| HSMBI | Hang Seng Mainland Bank Index |
-| HSMPI | Hang Seng Mainland Property Index |
-| HSCGSI | Hang Seng Consumer Index |
-| HSCICS | Hang Seng Composite Industry Index (Consumer Staples) |
-| HSHCI | Hang Seng Healthcare Index |
-| HSIII | Hang Seng Internet and Information Technology Index |
-| HSMOGI | Hang Seng Mainland Oil & Gas Index |
-| HKCSCMC | CSI Consumer Staples Index |
-| HKCSHKDIV | CSI Dividend Index |
-| HKCSHKLC | CSI Consumer Index |
-| HKCSHKLRE | CSI Real Estate Index |
-| HKCSHKMCS | CSI Mid Cap Index |
-| HKCSHKME | CSI Enterprise Index (ME) |
-| HKCSHKPE | CSI Enterprise Index (PE) |
-| HKCSHKSE | CSI Enterprise Index (SE) |
-| HKCSIHK100 | CSI Hong Kong 100 Index |
-| HKSSE180 | Shanghai Composite 180 Index |
-| HKSSE180GV | SSE Corporate Governance Index |
-| HKSSE380 | Shanghai Composite 380 Index |
-| HKSSECEQT | Shanghai Commodity Index |
-| HKSSEDIV | Shanghai Stock Exchange Dividend Index |
-| HKSSEITOP | Shanghai Composite Industry Leading Index |
-| HKSSEMCAP | Shanghai Composite Mid Cap Index |
-| HSCICD | Hang Seng Composite Industry Index (Consumption Discretionary) |
-| HKCES100 | China Exchange Service Hong Kong Stock Connect Select 100 Index |
-| HKCES120 | China 120 Index |
-| HKCES280 | China China 280 Index |
-| HKCES300 | China Hong Kong Stock Connect 300 Index |
-| HKCESA80 | China A-Share 80 Index |
-| HKCESG10 | China G10 Index |
-| HKCESHKM | CES Hong Kong Main Board Index |
-| HKCSRHK50 | CSI Fundamental Index |
-| HKSEMEGA | Shanghai Super Large Cap Index |
-| HSCIH | Hang Seng Healthcare Industry Index |
-| SPHKGEM | S&P Hong Kong GEM Index |
-| SPHKL | S&P Hong Kong Large Cap Index |
-| NDX | Nasdaq 100 Index |
-| IXIC | Nasdaq Composite Index |
-| NBI | Nasdaq Biotechnology Index |
+|            |                                                                      |
+| :--------- | :------------------------------------------------------------------- |
+| Index symbol | Name                                                               |
+| HSCC       | Hang Seng CC Index                                                   |
+| HSCE       | Hang Seng China Enterprises Index                                    |
+| HSCEEWI    | Hang Seng State-owned Enterprises Equal Weight Index                 |
+| HSCI       | Hang Seng Composite Index                                            |
+| HSCIE      | Hang Seng Energy Index                                               |
+| HSCIM      | Hang Seng Raw Materials Index                                        |
+| HSEWI      | Hang Seng Equal Weight Index                                         |
+| HSHFI      | Hang Seng Southbound China Financial Sector Select Index             |
+| HSI        | Hang Seng Index                                                      |
+| HSLI       | Hang Seng Composite Large Cap Index                                  |
+| HSMI       | Hang Seng Composite MidCap Index                                     |
+| HSNC       | Hang Seng Commercial Index                                           |
+| HSNF       | Hang Seng Financial Industry Index                                   |
+| HSNP       | Hang Seng Property Index                                             |
+| HSNU       | Hang Seng Utilities Index                                            |
+| HSSI       | Hang Seng Composite Small Cap Index                                  |
+| HSC50      | Hang Seng China 50 Index                                             |
+| HSCAHAI    | Hang Seng Southbound China AH Shares (A Shares) Index                |
+| HSCAHHI    | Hang Seng Southbound China AH Shares (H Shares) Index                |
+| HSCAHI     | Hang Seng Southbound China AH Shares (A\+H Shares) Index             |
+| HSCAHPI    | Hang Seng Southbound China AH Shares Premium Index                   |
+| HSCIC      | Hang Seng Composite Index                                            |
+| HSCIF      | Hang Seng Financial Industry Index                                   |
+| HSCIIG     | Hang Seng Industrial Products Index                                  |
+| HSCIIT     | Hang Seng Information Technology Index                               |
+| HSCIPC     | Hang Seng Real Estate Construction Index                             |
+| HSCIT      | Hang Seng Composite Telecommunications Index                         |
+| HSCIU      | Hang Seng Utilities Index                                            |
+| HSFM25     | Hang Seng China (Hong Kong Listed) 30 Index                          |
+| HSH35      | Hang Seng Hong Kong 35 Index                                         |
+| HSM100     | Hang Seng China (Hong Kong Listed) 100 Index                         |
+| HSREIT     | Hang Seng REIT Index                                                 |
+| HSCASUS    | Hang Seng (China A Shares) Corporate Sustainability Index            |
+| HSCASUSB   | Hang Seng (China A Shares) Corporate Sustainability Benchmark Index  |
+| HSCEIDPI   | Hang Seng State-owned Enterprise Dividend Points Index               |
+| HSFCCI     | Hang Seng Foreign Companies Composite Index                          |
+| HSIDPI     | Hang Seng Index Dividend Points Index                                |
+| HSMHSUS    | Hang Seng (Mainland and Hong Kong) Corporate Sustainability Index    |
+| HSSUS      | Hang Seng Corporate Sustainability Index                             |
+| HSSUSB     | Hang Seng Corporate Sustainability Benchmark Index                   |
+| HSCAHSI    | Hang Seng Southbound China AH Smart Index                            |
+| HSCAT100   | Hang Seng China A Top 100 Index                                      |
+| HSHBI      | Hang Seng High Beta Index                                            |
+| HSHDYI     | Hang Seng High Dividend Yield Index                                  |
+| HSHYLV     | Hang Seng Hong Kong Stock Connect High Dividend Low Volatility Index |
+| HSLVI      | Hang Seng Low Volatility Index                                       |
+| HSMBI      | Hang Seng Mainland Bank Index                                        |
+| HSMPI      | Hang Seng Mainland Property Index                                    |
+| HSCGSI     | Hang Seng Consumer Index                                             |
+| HSCICS     | Hang Seng Composite Industry Index (Consumer Staples)                |
+| HSHCI      | Hang Seng Healthcare Index                                           |
+| HSIII      | Hang Seng Internet and Information Technology Index                  |
+| HSMOGI     | Hang Seng Mainland Oil & Gas Index                                   |
+| HKCSCMC    | CSI Consumer Staples Index                                           |
+| HKCSHKDIV  | CSI Dividend Index                                                   |
+| HKCSHKLC   | CSI Consumer Index                                                   |
+| HKCSHKLRE  | CSI Real Estate Index                                                |
+| HKCSHKMCS  | CSI Mid Cap Index                                                    |
+| HKCSHKME   | CSI Enterprise Index (ME)                                            |
+| HKCSHKPE   | CSI Enterprise Index (PE)                                            |
+| HKCSHKSE   | CSI Enterprise Index (SE)                                            |
+| HKCSIHK100 | CSI Hong Kong 100 Index                                              |
+| HKSSE180   | Shanghai Composite 180 Index                                         |
+| HKSSE180GV | SSE Corporate Governance Index                                       |
+| HKSSE380   | Shanghai Composite 380 Index                                         |
+| HKSSECEQT  | Shanghai Commodity Index                                             |
+| HKSSEDIV   | Shanghai Stock Exchange Dividend Index                               |
+| HKSSEITOP  | Shanghai Composite Industry Leading Index                            |
+| HKSSEMCAP  | Shanghai Composite Mid Cap Index                                     |
+| HSCICD     | Hang Seng Composite Industry Index (Consumption Discretionary)       |
+| HKCES100   | China Exchange Service Hong Kong Stock Connect Select 100 Index      |
+| HKCES120   | China 120 Index                                                      |
+| HKCES280   | China China 280 Index                                                |
+| HKCES300   | China Hong Kong Stock Connect 300 Index                              |
+| HKCESA80   | China A-Share 80 Index                                               |
+| HKCESG10   | China G10 Index                                                      |
+| HKCESHKM   | CES Hong Kong Main Board Index                                       |
+| HKCSRHK50  | CSI Fundamental Index                                                |
+| HKSEMEGA   | Shanghai Super Large Cap Index                                       |
+| HSCIH      | Hang Seng Healthcare Industry Index                                  |
+| SPHKGEM    | S&P Hong Kong GEM Index                                              |
+| SPHKL      | S&P Hong Kong Large Cap Index                                        |
+| NDX        | Nasdaq 100 Index                                                     |
+| IXIC       | Nasdaq Composite Index                                               |
+| NBI        | Nasdaq Biotechnology Index                                           |
 
 ### Response parameters
 
-| Field | Type | Description |
-|:-------------|:-----|:---------------|
-| index_symbol | str | index code |
-| stock_symbol | str | stock symbol |
-| added_date | str | date of inclusion into constituent stocks |
-| deleted_date | str | date of deletion of constituent stocks |
+| Field        | Type | Description                               |
+| :----------- | :--- | :---------------------------------------- |
+| index_symbol | str  | index symbol                              |
+| stock_symbol | str  | stock symbol                              |
+| added_date   | str  | date of inclusion into constituent stocks |
+| deleted_date | str  | date of deletion of constituent stocks    |
 
 ### Usage examples
 
@@ -152,4 +164,3 @@ index_symbol stock_symbol added_date deleted_date
 6656 SPHKL 9992.HK 20210118 None
 6657 SPHKL 9999.HK 20210118 None
 ```
-

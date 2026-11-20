@@ -1,7 +1,7 @@
 ---
-title: "修改訂單"
-description: "請求修改現有訂單的價格。"
-en_link: "/trading/api/modify-order"
+title: 修改訂單
+description: 請求修改現有訂單的價格。
+en_link: /trading/api/modify-order
 ---
 
 請求修改現有訂單的價格。
@@ -29,6 +29,6 @@ curl --request PATCH \
 
 ## 回應
 
-成功時返回 HTTP `202`。`data` 包含 `order_id` 和 `accepted`。`accepted: true` 只確認修改請求已接受，不代表訂單已進入最終狀態；請之後查詢[訂單詳情](/hk/trading/api/get-order)。
+成功時返回 HTTP `202`。`data` 包含 `order_id` 和 `accepted`。`accepted: true` 只確認修改請求已接受，不代表訂單已進入最終狀態；請之後查詢 [訂單詳情](/hk/trading/api/get-order)。
 
 可能的操作錯誤包括 `order_not_found`、`order_not_modifiable` 和券商拒絕。

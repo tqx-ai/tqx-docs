@@ -1,0 +1,31 @@
+---
+title: "Schedule a recurring task"
+zh-Hant_link: /hk/qube/workspace/schedules
+related: ["/qube"]
+description: "Set the prompt, local time, and repeat rule for a task, then review its execution history."
+keywords: ["Qube", "research guide"]
+---
+
+A schedule asks Qube to start a new conversation and carry out a saved instruction at a chosen time. Use it for recurring work, such as preparing a morning industry-news summary, instead of typing the same request each day.
+
+## Create a morning briefing
+
+Open **Scheduled tasks** and add a task. The form below shows a daily schedule at 08:00 in the Shanghai timezone.
+
+<Frame caption="A scheduled task combines a name, an instruction, and a timezone-aware repeat rule.">
+  ![Create-task dialog showing task name, AI instruction, calendar repeat type, Shanghai timezone,
+  daily 08:00 time, and next-three-runs preview](/images/qube/schedule-create-task.png)
+</Frame>
+
+1. **Give it a recognizable name.** For example, “Daily battery-industry briefing.” The name helps you find it later; the next field tells Qube what to do.
+2. **Write the instruction.** For example: “Summarize today's battery-industry news. Give the publication date, source, main point, and companies mentioned. If no relevant news is available, say so.”
+3. **Choose the repeat rule and timezone.** For the pictured example, use calendar repeat, daily, and 08:00. The time is interpreted in the selected timezone, not necessarily the timezone of your computer.
+4. **Preview the next three runs.** Check that the displayed dates and times match your intention, then select **Create task**.
+
+“Every day” also includes weekends; it does not mean “every trading day.” Choose a repeat rule that matches the work you actually want.
+
+## Check what happened
+
+After a scheduled time, inspect the execution history and resulting conversation. Check whether the task completed, whether the sources are current, and whether the answer follows your instruction. Edit the instruction or timing if needed, and stop the schedule when you no longer want it.
+
+A schedule starts a conversation. It is not itself a backtest result or a trading instruction. If you want it to produce research, make the requested steps explicit and review what was actually saved or run; the schedule alone is not evidence that a factor, strategy, version, or order was created.

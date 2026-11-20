@@ -1,41 +1,38 @@
-﻿---
-title: "市場事件"
-description: "取得股息、市場活動、公司、披露與投資者關係事件。"
-en_link: "/data/market-reference/events"
 ---
+title: 市場事件
+description: 取得股息、市場活動、公司、披露與投資者關係事件。
+en_link: /data/market-reference/events
+---
+
+<Badge color="blue" icon="cloud">Qube 沙箱</Badge> <Badge color="green" icon="laptop">本機 tqx_data</Badge>
 
 ## 取得股票股利相關的事件
 
-### 方法名稱：get_event_devidend
+### 方法名稱：get\_event\_devidend
 
-<Badge icon="calendar" stroke>
-  港股歷史區間：1981-12-05 ~ 至今
-</Badge>
-<Badge icon="calendar" stroke>
-  美股歷史區間：2000-01-06 ~ 至今
-</Badge>
+<Badge stroke icon="calendar">港股歷史區間：1981-12-05 ~ 至今</Badge><Badge stroke icon="calendar">美股歷史區間：2000-01-06 ~ 至今</Badge>
 
 ### 入參
 
-| 欄位       | 類型                                  | 說明                               | 是否必填 |
-| :--------- | :------------------------------------ | :--------------------------------- | :------- |
-| start_date | str                                   | 開始日期,eg:"20250702"             | 必填     |
-| end_date   | str                                   | 結束日期,eg:"20250702"             | 必填     |
-| symbol     | Optional\[Union\[str, List\[str\]\]\] | 股票代號                           | 非必填   |
-| fields     | Optional\[Union\[str, List\[str\]\]\] | 傳回欄位                           | 非必填   |
-| market     | str                                   | 市場，支援 `hk`、`us`，預設為 `hk` | 必填     |
+| 欄位 | 類型 | 說明 | 是否必填 |
+| :-- | :-- | :-- | :-- |
+| start\_date | str | 開始日期,eg:"20250702" | 必填 |
+| end\_date | str | 結束日期,eg:"20250702" | 必填 |
+| symbol | Optional\[Union\[str, List\[str\]\]\] | 股票代號 | 非必填 |
+| fields | Optional\[Union\[str, List\[str\]\]\] | 傳回欄位 | 非必填 |
+| market | str | 市場，使用 `hk` 或 `us`，預設為 `hk`。 | 非必填 |
 
 ### 回應參數
 
-| 字段         | 類型 | 描述                             |
-| :----------- | :--- | :------------------------------- |
-| publish_date | str  | 活動公告發佈日期（日期篩選依據） |
-| symbol       | str  | 檔                               |
-| excute_date  | str  | 事件執行日期                     |
-| event_type   | str  | 事件類型                         |
-| number       | str  | 每股金額                         |
-| currency     | str  | 交易幣種                         |
-| event        | str  | 事件                             |
+| 字段 | 類型 | 描述 |
+| :-- | :-- | :-- |
+| publish\_date | str | 活動公告發佈日期（日期篩選依據） |
+| symbol | str | 檔 |
+| excute\_date | str | 事件執行日期 |
+| event\_type | str | 事件類型 |
+| number | str | 每股金額 |
+| currency | str | 交易幣種 |
+| event | str | 事件 |
 
 ### 使用範例
 
@@ -82,52 +79,47 @@ print(result)
 
 ```text
 symbol publish_date ... currency event
-0 A.NB 20250401 ... USD A.NB Interim Cash Dividend of gross USD 0.248 ...
-1 A.NB 20250701 ... USD A.NB Interim Cash Dividend of gross USD 0.248 ...
-2 A.NB 20250930 ... USD A.NB Final Cash Dividend of gross USD 0.248 pa...
-3 A.NB 20260106 ... USD A.NB Interim Cash Dividend of gross USD 0.255 ...
-4 A.NB 20260331 ... USD A.NB Interim Cash Dividend of gross USD 0.255 ...
+0 A 20250401 ... USD ...
+1 A 20250701 ... USD ...
+2 A 20250930 ... USD ...
+3 A 20260106 ... USD ...
+4 A 20260331 ... USD ...
 ... ... ... ... ... ...
-14433 ZWS.NB 20250220 ... USD ZWS.NB Interim Cash Dividend of gross USD 0.09...
-14434 ZWS.NB 20250520 ... USD ZWS.NB Interim Cash Dividend of gross USD 0.09...
-14435 ZWS.NB 20250820 ... USD ZWS.NB Interim Cash Dividend of gross USD 0.09...
-14436 ZWS.NB 20251120 ... USD ZWS.NB Final Cash Dividend of gross USD 0.11 p...
-14437 ZWS.NB 20260220 ... USD ZWS.NB Interim Cash Dividend of gross USD 0.11...
+14433 ZWS 20250220 ... USD ...
+14434 ZWS 20250520 ... USD ...
+14435 ZWS 20250820 ... USD ...
+14436 ZWS 20251120 ... USD ...
+14437 ZWS 20260220 ... USD ...
 ```
 
 ## 與市場活動相關的事件
 
-### 方法名稱：get_event_capital_market
+### 方法名稱：get\_event\_capital\_market
 
-<Badge icon="calendar" stroke>
-  港股歷史區間：2021-03-29 ~ 至今
-</Badge>
-<Badge icon="calendar" stroke>
-  美股歷史區間：2025-02-23 ~ 至今
-</Badge>
+<Badge stroke icon="calendar">港股歷史區間：2021-03-29 ~ 至今</Badge><Badge stroke icon="calendar">美股歷史區間：2025-02-23 ~ 至今</Badge>
 
 ### 入參
 
-| 欄位       | 類型                                  | 說明                               | 是否必填 |
-| :--------- | :------------------------------------ | :--------------------------------- | :------- |
-| start_date | str                                   | 開始日期,eg:"20250702"             | 必填     |
-| end_date   | str                                   | 結束日期,eg:"20250702"             | 必填     |
-| symbol     | Optional\[Union\[str, List\[str\]\]\] | 股票代號                           | 非必填   |
-| fields     | Optional\[Union\[str, List\[str\]\]\] | 傳回欄位                           | 非必填   |
-| market     | str                                   | 市場，支援 `hk`、`us`，預設為 `hk` | 必填     |
+| 欄位 | 類型 | 說明 | 是否必填 |
+| :-- | :-- | :-- | :-- |
+| start\_date | str | 開始日期,eg:"20250702" | 必填 |
+| end\_date | str | 結束日期,eg:"20250702" | 必填 |
+| symbol | Optional\[Union\[str, List\[str\]\]\] | 股票代號 | 非必填 |
+| fields | Optional\[Union\[str, List\[str\]\]\] | 傳回欄位 | 非必填 |
+| market | str | 市場，使用 `hk` 或 `us`，預設為 `hk`。 | 非必填 |
 
 ### 回應參數
 
-| 字段           | 類型 | 描述                                           |
-| :------------- | :--- | :--------------------------------------------- |
-| info_date      | str  | 公告日期（日期篩選依據）                       |
-| symbol         | str  | 檔                                             |
-| start_date     | str  | 事件執行日期                                   |
-| end_date       | str  | 事件完成日期                                   |
-| is_estimated   | int  | 事件是否被預期（0表示否，1表示是）             |
-| event_type     | str  | 事件類型                                       |
-| fiscal_quarter | str  | 財政年度季度（若事件不涉及財年季度則此列為空） |
-| event          | str  | 事件                                           |
+| 字段 | 類型 | 描述 |
+| :-- | :-- | :-- |
+| info\_date | str | 公告日期（日期篩選依據） |
+| symbol | str | 檔 |
+| start\_date | str | 事件執行日期 |
+| end\_date | str | 事件完成日期 |
+| is\_estimated | int | 事件是否被預期（0表示否，1表示是） |
+| event\_type | str | 事件類型 |
+| fiscal\_quarter | str | 財政年度季度（若事件不涉及財年季度則此列為空） |
+| event | str | 事件 |
 
 ### 使用範例
 
@@ -164,37 +156,32 @@ symbol start_date ... event_type fiscal_quarter
 
 ## 取得公司會議相關的事件
 
-### 方法名稱：get_event_corporate_actions
+### 方法名稱：get\_event\_corporate\_actions
 
-<Badge icon="calendar" stroke>
-  港股歷史區間：2001-04-05 ~ 至今
-</Badge>
-<Badge icon="calendar" stroke>
-  美股歷史區間：2000-01-04 ~ 至今
-</Badge>
+<Badge stroke icon="calendar">港股歷史區間：2001-04-05 ~ 至今</Badge><Badge stroke icon="calendar">美股歷史區間：2000-01-04 ~ 至今</Badge>
 
 ### 入參
 
-| 欄位       | 類型                                  | 說明                               | 是否必填 |
-| :--------- | :------------------------------------ | :--------------------------------- | :------- |
-| start_date | str                                   | 開始日期,eg:"20250702"             | 必填     |
-| end_date   | str                                   | 結束日期,eg:"20250702"             | 必填     |
-| symbol     | Optional\[Union\[str, List\[str\]\]\] | 股票代號                           | 非必填   |
-| fields     | Optional\[Union\[str, List\[str\]\]\] | 傳回欄位                           | 非必填   |
-| market     | str                                   | 市場，支援 `hk`、`us`，預設為 `hk` | 必填     |
+| 欄位 | 類型 | 說明 | 是否必填 |
+| :-- | :-- | :-- | :-- |
+| start\_date | str | 開始日期,eg:"20250702" | 必填 |
+| end\_date | str | 結束日期,eg:"20250702" | 必填 |
+| symbol | Optional\[Union\[str, List\[str\]\]\] | 股票代號 | 非必填 |
+| fields | Optional\[Union\[str, List\[str\]\]\] | 傳回欄位 | 非必填 |
+| market | str | 市場，使用 `hk` 或 `us`，預設為 `hk`。 | 非必填 |
 
 ### 回應參數
 
-| 字段           | 類型 | 描述                                           |
-| :------------- | :--- | :--------------------------------------------- |
-| info_date      | str  | 公告日期（日期篩選依據）                       |
-| symbol         | str  | 檔                                             |
-| start_date     | str  | 事件執行日期                                   |
-| end_date       | str  | 事件完成日期                                   |
-| is_estimated   | int  | 事件是否被預期（0表示否，1表示是）             |
-| event_type     | str  | 事件類型                                       |
-| fiscal_quarter | str  | 財政年度季度（若事件不涉及財年季度則此列為空） |
-| event          | str  | 事件                                           |
+| 字段 | 類型 | 描述 |
+| :-- | :-- | :-- |
+| info\_date | str | 公告日期（日期篩選依據） |
+| symbol | str | 檔 |
+| start\_date | str | 事件執行日期 |
+| end\_date | str | 事件完成日期 |
+| is\_estimated | int | 事件是否被預期（0表示否，1表示是） |
+| event\_type | str | 事件類型 |
+| fiscal\_quarter | str | 財政年度季度（若事件不涉及財年季度則此列為空） |
+| event | str | 事件 |
 
 ### 使用範例
 
@@ -231,37 +218,32 @@ symbol start_date ... event_type fiscal_quarter
 
 ## 取得財務揭露相關的事件
 
-### 方法名稱：get_event_fina_disclosure
+### 方法名稱：get\_event\_fina\_disclosure
 
-<Badge icon="calendar" stroke>
-  港股歷史區間：2000-01-13 ~ 至今
-</Badge>
-<Badge icon="calendar" stroke>
-  美股歷史區間：2000-01-03 ~ 至今
-</Badge>
+<Badge stroke icon="calendar">港股歷史區間：2000-01-13 ~ 至今</Badge><Badge stroke icon="calendar">美股歷史區間：2000-01-03 ~ 至今</Badge>
 
 ### 入參
 
-| 欄位       | 類型                                  | 說明                               | 是否必填 |
-| :--------- | :------------------------------------ | :--------------------------------- | :------- |
-| start_date | str                                   | 開始日期,eg:"20250702"             | 必填     |
-| end_date   | str                                   | 結束日期,eg:"20250702"             | 必填     |
-| symbol     | Optional\[Union\[str, List\[str\]\]\] | 股票代號                           | 非必填   |
-| fields     | Optional\[Union\[str, List\[str\]\]\] | 傳回欄位                           | 非必填   |
-| market     | str                                   | 市場，支援 `hk`、`us`，預設為 `hk` | 必填     |
+| 欄位 | 類型 | 說明 | 是否必填 |
+| :-- | :-- | :-- | :-- |
+| start\_date | str | 開始日期,eg:"20250702" | 必填 |
+| end\_date | str | 結束日期,eg:"20250702" | 必填 |
+| symbol | Optional\[Union\[str, List\[str\]\]\] | 股票代號 | 非必填 |
+| fields | Optional\[Union\[str, List\[str\]\]\] | 傳回欄位 | 非必填 |
+| market | str | 市場，使用 `hk` 或 `us`，預設為 `hk`。 | 非必填 |
 
 ### 回應參數
 
-| 字段           | 類型 | 描述                                           |
-| :------------- | :--- | :--------------------------------------------- |
-| info_date      | str  | 公告日期（日期篩選依據）                       |
-| symbol         | str  | 檔                                             |
-| start_date     | str  | 事件執行日期                                   |
-| end_date       | str  | 事件完成日期                                   |
-| is_estimated   | int  | 事件是否被預期（0表示否，1表示是）             |
-| event_type     | str  | 事件類型                                       |
-| fiscal_quarter | str  | 財政年度季度（若事件不涉及財年季度則此列為空） |
-| event          | str  | 事件                                           |
+| 字段 | 類型 | 描述 |
+| :-- | :-- | :-- |
+| info\_date | str | 公告日期（日期篩選依據） |
+| symbol | str | 檔 |
+| start\_date | str | 事件執行日期 |
+| end\_date | str | 事件完成日期 |
+| is\_estimated | int | 事件是否被預期（0表示否，1表示是） |
+| event\_type | str | 事件類型 |
+| fiscal\_quarter | str | 財政年度季度（若事件不涉及財年季度則此列為空） |
+| event | str | 事件 |
 
 ### 使用範例
 
@@ -298,37 +280,32 @@ symbol start_date ... event_type fiscal_quarter
 
 ## 取得投資者關係活動相關的事件
 
-### 方法名稱：get_event_investor_relation_activities
+### 方法名稱：get\_event\_investor\_relation\_activities
 
-<Badge icon="calendar" stroke>
-  港股歷史區間：2000-01-13 ~ 至今
-</Badge>
-<Badge icon="calendar" stroke>
-  美股歷史區間：2000-01-04 ~ 至今
-</Badge>
+<Badge stroke icon="calendar">港股歷史區間：2000-01-13 ~ 至今</Badge><Badge stroke icon="calendar">美股歷史區間：2000-01-04 ~ 至今</Badge>
 
 ### 入參
 
-| 欄位       | 類型                                  | 說明                               | 是否必填 |
-| :--------- | :------------------------------------ | :--------------------------------- | :------- |
-| start_date | str                                   | 開始日期,eg:"20250702"             | 必填     |
-| end_date   | str                                   | 結束日期,eg:"20250702"             | 必填     |
-| symbol     | Optional\[Union\[str, List\[str\]\]\] | 股票代號                           | 非必填   |
-| fields     | Optional\[Union\[str, List\[str\]\]\] | 傳回欄位                           | 非必填   |
-| market     | str                                   | 市場，支援 `hk`、`us`，預設為 `hk` | 必填     |
+| 欄位 | 類型 | 說明 | 是否必填 |
+| :-- | :-- | :-- | :-- |
+| start\_date | str | 開始日期,eg:"20250702" | 必填 |
+| end\_date | str | 結束日期,eg:"20250702" | 必填 |
+| symbol | Optional\[Union\[str, List\[str\]\]\] | 股票代號 | 非必填 |
+| fields | Optional\[Union\[str, List\[str\]\]\] | 傳回欄位 | 非必填 |
+| market | str | 市場，使用 `hk` 或 `us`，預設為 `hk`。 | 非必填 |
 
 ### 回應參數
 
-| 字段           | 類型 | 描述                                           |
-| :------------- | :--- | :--------------------------------------------- |
-| info_date      | str  | 公告日期（日期篩選依據）                       |
-| symbol         | str  | 檔                                             |
-| start_date     | str  | 事件執行日期                                   |
-| end_date       | str  | 事件完成日期                                   |
-| is_estimated   | int  | 事件是否被預期（0表示否，1表示是）             |
-| event_type     | str  | 事件類型                                       |
-| fiscal_quarter | str  | 財政年度季度（若事件不涉及財年季度則此列為空） |
-| event          | str  | 事件                                           |
+| 字段 | 類型 | 描述 |
+| :-- | :-- | :-- |
+| info\_date | str | 公告日期（日期篩選依據） |
+| symbol | str | 檔 |
+| start\_date | str | 事件執行日期 |
+| end\_date | str | 事件完成日期 |
+| is\_estimated | int | 事件是否被預期（0表示否，1表示是） |
+| event\_type | str | 事件類型 |
+| fiscal\_quarter | str | 財政年度季度（若事件不涉及財年季度則此列為空） |
+| event | str | 事件 |
 
 ### 使用範例
 

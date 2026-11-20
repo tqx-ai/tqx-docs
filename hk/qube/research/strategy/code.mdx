@@ -1,0 +1,48 @@
+---
+title: 編寫策略
+en_link: /qube/research/strategy/code
+related:
+  [
+    "/hk/qube/research/strategy/backtest",
+    "/hk/qube/research/strategy/factor-to-strategy",
+    "/hk/data/qube-runtime",
+  ]
+---
+
+<Badge color="purple" icon="code">策略原始碼</Badge>
+
+Qube 透過市場專屬回測引擎執行策略原始碼。執行日期、資金、頻率及成本應放在已儲存的設定中。
+
+## 最小原始碼
+
+Qube 的 Python 回測引擎提供 `panda_backtest` 模組。下單、撤單、訂單查詢及市場歷史數據方法，詳見 [策略程式碼中的 API](/hk/qube/research/strategy/api)。
+
+這個港股範例只讀取已完成的 Bar，不會下單。美股策略請改用 `stock_us_api`，並使用例如 `AAPL.NB` 的代碼。
+
+```python
+from panda_backtest.api.api import *
+from panda_backtest.api.stock_hk_api import *
+
+STRATEGY_PARAMS = {"symbol": "0700.HK"}
+
+def initialize(context):
+    context.params = dict(STRATEGY_PARAMS)
+
+def handle_data(context, data):
+    bar = data[context.params["symbol"]]
+    if bar is None or bar.open is None or bar.open <= 0:
+        return
+    context.latest_open = bar.open
+```
+
+使用單一字面值 `STRATEGY_PARAMS` 字典，在 `initialize` 中只複製一次到 `context.params`；調優只使用已宣告且實際引用的數值鍵。策略驗證會拒絕直接匯入 `tqx_data`，包括別名、子模組及 `from` 匯入。策略使用公開的 `panda_backtest.api.api` 與同市場的 `stock_hk_api` 或 `stock_us_api`。沙箱探索可用原生 `tqx_data`，但不能把其匯入直接放進策略。
+
+## 歷史數據及重播
+
+在初始化時批次載入並快取回測開始前的歷史數據，重播時結合已完成的 Bars 使用。查詢方法、參數及 Bar 讀取規則，詳見 [策略程式碼中的 API](/hk/qube/research/strategy/api#歷史數據)。
+
+## 訂單及成本
+
+使用共通訂單 API 下單、撤單及查詢狀態，並透過回呼確認成交。方法參數、訂單類型及撮合規則，詳見 [策略程式碼中的 API](/hk/qube/research/strategy/api#下單與撤單)。
+
+使用綁定因子時，只讀取決策當時已知的數據；詳見 [因子綁定](/hk/qube/research/strategy/factor-to-strategy)。

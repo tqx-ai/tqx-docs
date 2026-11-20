@@ -1,0 +1,49 @@
+---
+title: "What is a factor?"
+sidebarTitle: "What is a factor?"
+zh-Hant_link: /hk/qube/research/factor
+related:
+  [
+    "/qube/research/factor/create",
+    "/qube/research/factor/code",
+    "/qube/research/factor/analyze",
+    "/qube/research/factor/results",
+  ]
+description: "Use a repeatable stock score to test a stock-selection idea before defining trading rules."
+keywords: ["Qube", "research guide"]
+---
+
+A **factor** is a rule that gives each stock a score on each date. It helps you study a stock-selection idea across many stocks, rather than decide immediately when to buy or sell one stock.
+
+For example, you might ask whether stocks whose prices have risen more recently tend to keep rising. Give each stock a score based on its recent price increase, then check what happened afterward. A high score is a description of the signal, not proof that the stock is a good investment.
+
+## How a factor analysis works
+
+Imagine scoring 100 stocks on the same day and sorting them from lowest to highest. With five groups, each group would contain about 20 stocks. Qube can compare how the groups perform after that date and repeat the process over a longer period.
+
+If the high-score group repeatedly does better than the low-score group, the score may be useful for further research. If the ranking has no consistent relationship with later performance, the idea may not help. One strong period is not enough to establish a dependable pattern.
+
+## Factor or strategy?
+
+| You want to ask…                                                                 | Start with…          | What it adds                                       |
+| -------------------------------------------------------------------------------- | -------------------- | -------------------------------------------------- |
+| Do higher-scoring stocks tend to perform differently later?                      | A factor analysis.   | Scores, groups, and signal diagnostics.            |
+| What if I bought selected stocks, held specific amounts, and paid trading costs? | A strategy backtest. | Buy/sell rules, position sizes, orders, and costs. |
+
+A factor result is not a complete trading simulation. For example, a group return does not by itself establish what you could have earned after executing your own orders and paying costs.
+
+## Find and test a factor
+
+The **Factor Library** holds your saved factors. Filter by Hong Kong or US market, search by name, then open a factor to inspect its rule and analysis history.
+
+<Frame caption="The Factor Library helps you find saved signals and reopen their analyses.">
+  ![Qube Factor Library showing market filters, search, and factor
+  cards](/images/factor/factor-library.png)
+</Frame>
+
+1. [Create a factor](/qube/research/factor/create) by describing the score you want to test.
+2. [Choose analysis settings](/qube/research/factor/analyze), including dates, stock group, and how often to regroup.
+3. [Read the result](/qube/research/factor/results), looking for consistency as well as return.
+4. Preserve a useful successful analysis as a [named version](/qube/research/factor/versions), or [compare parameter choices](/qube/research/factor/optimization).
+
+If you want to inspect the formula or write Python yourself, continue to [Factor code](/qube/research/factor/code). To use a reviewed signal in trading rules, see [Factor to strategy](/qube/research/strategy/factor-to-strategy).

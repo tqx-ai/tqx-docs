@@ -1,0 +1,51 @@
+---
+title: "What is a strategy?"
+sidebarTitle: "What is a strategy?"
+zh-Hant_link: /hk/qube/research/strategy
+related:
+  [
+    "/qube/research/strategy/create",
+    "/qube/research/strategy/code",
+    "/qube/research/strategy/backtest",
+  ]
+description: "Learn what buying and selling rules contain and where to find your saved strategies."
+keywords: ["Qube", "research guide"]
+---
+
+A strategy is a repeatable set of buying and selling rules. Think of it as a recipe: it needs ingredients, quantities, and instructions. “Buy strong stocks” is an idea; a strategy explains how to identify those stocks, when to buy, how much to hold, and when to sell.
+
+## A concrete example
+
+Consider a daily Tencent strategy:
+
+| Part of the rule    | Example                                                                  | Why it matters                                           |
+| ------------------- | ------------------------------------------------------------------------ | -------------------------------------------------------- |
+| What to trade       | Tencent, `0700.HK`, in the Hong Kong market.                             | Defines which stock and market data to use.              |
+| When to buy         | Closing price exceeds the highest price of the previous 20 trading days. | Makes “price strength” something you can test.           |
+| When to sell        | Closing price falls below its latest 10-day average.                     | Defines when the strategy exits.                         |
+| How much to buy     | A stated share quantity or share of simulated cash.                      | Determines how much money is exposed.                    |
+| Execution and costs | Agreed order timing, fees, and fill assumptions.                         | A signal alone does not tell you the actual trade price. |
+
+The first three rules still leave position size and execution undefined. Ask Qube to explain those choices before it runs the strategy. You can start through conversation without writing Python yourself; see [Create a strategy](/qube/research/strategy/create).
+
+## Find your saved strategies
+
+Open **Strategy Library** to find the strategies you have saved. Use the Hong Kong and US market filters, or search by name. Open a card to inspect its rules, settings, and run history.
+
+<Frame caption="The Strategy Library brings saved strategies and their result summaries together.">
+  ![Qube Strategy Library with market filters, search, a saved Tencent strategy card, and the new
+  strategy button](/images/strategy/strategy-library-overview.png)
+</Frame>
+
+The card shows a quick result summary. Open the underlying backtest before comparing strategies: results from different dates or cost assumptions are not directly comparable. The screenshot illustrates the interface, not an expected return.
+
+## From an idea to a tested strategy
+
+1. **Create and save.** Describe the rules and check Qube's interpretation.
+2. **Backtest.** Simulate those rules on past data with saved dates, capital, and costs.
+3. **Review.** Compare the account-value chart with the market benchmark, then inspect losses and individual trades.
+4. **Preserve or adjust.** Save a named version of a useful successful run, or compare a few parameter choices through tuning.
+
+A backtest uses simulated money and does not place orders in your trading account. Historical performance cannot guarantee future results.
+
+Continue with [Backtest and results](/qube/research/strategy/backtest). If you want to write the program yourself, use the [Strategy code guide](/qube/research/strategy/code); external integrations use the [Strategy API](/qube/api/strategies).

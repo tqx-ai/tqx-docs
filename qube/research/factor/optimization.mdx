@@ -1,0 +1,43 @@
+---
+title: "Tune factor parameters"
+zh-Hant_link: /hk/qube/research/factor/optimization
+related: ["/qube/api/runs", "/qube/research/factor/versions", "/qube/research/optimizations"]
+description: "Compare a small set of score settings, then test the selected choice on a separate period."
+keywords: ["Qube", "research guide"]
+---
+
+Factor tuning compares a few settings for the same stock-scoring idea. For example, a factor based on the difference between a short and long moving average might compare different lookback lengths.
+
+## Define what changes
+
+Ask Qube to list the candidate settings before running. Include the current settings as the **baseline**, so you can see whether any change improves on what you already had. Keep the research question and test period clear.
+
+A useful request is:
+
+```text
+Compare a small set of settings for this factor.
+Show the current baseline and each proposed change before running.
+Explain the comparison metric in plain language, report any failed
+candidates, and do not apply a result until I review it.
+```
+
+For Python factors, tuning can vary eligible numeric parameters already declared in the code. Formula factors can vary supported analysis settings. Ask Qube which choices your factor supports; tuning does not freely rewrite its logic during the study.
+
+## Understand what the ranking means
+
+Factor tuning compares candidates using average <strong>Rank IC</strong>: the relationship between the stock-score ranking and the ranking of later returns. A stronger score on this measure is not the same thing as a higher realizable trading profit.
+
+Unlike strategy tuning's default research/validation split, factor tuning evaluates the full chosen research period. **It does not automatically reserve a separate validation period.** After choosing a candidate, test another period yourself rather than treating the first ranking as independent confirmation.
+
+## Apply and check again
+
+Review the baseline, candidate results, failures, and stability. A single standout result may depend on the chosen dates or missing data.
+
+Applying a candidate changes saved factor code or settings. Check those changes, run an ordinary analysis, and read the result. Applying alone does not create a [named version](/qube/research/factor/versions).
+
+<Accordion title="Limits for external interfaces">
+  Include exactly one explicit baseline with no overrides. A typical study has 16 candidates; the maximum is 32 including the baseline. Eligible code parameters are finite numeric keys in the literal `FACTOR_PARAMS` dictionary. Supported analysis dimensions include group count, adjustment cycle, direction, and market-compatible stock pool; candidate dates are not search dimensions.
+
+Use one research period. Warmup is 0–5000 trading days, chosen to cover the largest needed lookback. The objective is `rank_ic_mean`. Applying requires current source and configuration revisions; read the resulting asset and validation before running. See [tuning commands and request JSON](/qube/api/runs).
+
+</Accordion>

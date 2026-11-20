@@ -22,261 +22,379 @@
       {
         "language": "en",
         "default": true,
-        "groups": [
+        "global": {
+          "anchors": [
+            {
+              "anchor": "Competitions",
+              "href": "https://www.tqx.ai/user-center?tab=dashboard",
+              "icon": "newspaper"
+            },
+            {
+              "anchor": "Open Qube",
+              "href": "https://www.tqx.ai/qube",
+              "icon": "arrow-up-right-from-square"
+            }
+          ]
+        },
+        "tabs": [
           {
-            "group": "Getting Started",
-            "pages": ["index", "cli"]
+            "tab": "Guides",
+            "groups": [
+              {
+                "group": "Getting started",
+                "pages": ["index", "cli"]
+              },
+              {
+                "group": "Trading",
+                "pages": [
+                  "trading/info",
+                  {
+                    "group": "API",
+                    "pages": [
+                      "trading/api/place-order",
+                      "trading/api/list-orders",
+                      "trading/api/get-order",
+                      "trading/api/modify-order",
+                      "trading/api/cancel-order",
+                      "trading/api/get-positions",
+                      "trading/api/get-assets",
+                      "trading/api/list-trades",
+                      "trading/api/list-cash-flows",
+                      "trading/api/get-signal",
+                      "trading/api/hold"
+                    ]
+                  }
+                ]
+              },
+              {
+                "group": "More",
+                "pages": [
+                  {
+                    "group": "FAQ",
+                    "pages": ["faq/tqx", "faq/qube", "faq/gatc"]
+                  },
+                  "more/contact-us"
+                ]
+              }
+            ]
           },
           {
-            "group": "Research",
-            "pages": [
-              "research/info",
+            "tab": "Qube",
+            "groups": [
+              {
+                "group": "Start with Qube",
+                "pages": ["qube"]
+              },
+              {
+                "group": "Concepts",
+                "pages": [
+                  "qube/concepts/what-is-qube",
+                  "qube/concepts/conversations",
+                  "qube/concepts/data-and-skills",
+                  "qube/concepts/research-objects"
+                ]
+              },
+              {
+                "group": "Research workflow",
+                "pages": ["qube/research/info"]
+              },
               {
                 "group": "Factor",
                 "pages": [
-                  "research/factor",
-                  "research/factor/create",
-                  "research/factor/code",
-                  "research/factor/analyze",
-                  "research/factor/results",
-                  "research/factor/versions",
-                  "research/factor/optimization",
-                  "research/factor/operator-reference"
+                  "qube/research/factor",
+                  "qube/research/factor/create",
+                  "qube/research/factor/code",
+                  "qube/research/factor/analyze",
+                  "qube/research/factor/results",
+                  "qube/research/factor/versions",
+                  "qube/research/factor/optimization",
+                  "qube/research/factor/operator-reference"
                 ]
               },
               {
                 "group": "Strategy",
                 "pages": [
-                  "research/strategy",
-                  "research/strategy/create",
-                  "research/strategy/code",
-                  "research/strategy/backtest",
-                  "research/strategy/versions",
-                  "research/strategy/optimization",
-                  "research/strategy/factor-to-strategy"
+                  "qube/research/strategy",
+                  "qube/research/strategy/create",
+                  "qube/research/strategy/code",
+                  "qube/research/strategy/api",
+                  "qube/research/strategy/backtest",
+                  "qube/research/strategy/versions",
+                  "qube/research/strategy/optimization",
+                  "qube/research/strategy/factor-to-strategy"
                 ]
               },
-              "research/run-history",
-              "research/optimizations"
+              {
+                "group": "Runs and tuning",
+                "pages": [
+                  "qube/research/run-history",
+                  "qube/research/optimizations"
+                ]
+              },
+              {
+                "group": "CLI and SDK",
+                "pages": [
+                  "qube/cli/quickstart",
+                  "qube/sdk/overview",
+                  "qube/api/factors",
+                  "qube/api/strategies",
+                  "qube/api/runs",
+                  "qube/sdk/streaming"
+                ]
+              },
+              {
+                "group": "Advanced",
+                "pages": [
+                  "qube/workspace",
+                  "qube/workspace/files",
+                  "qube/workspace/skills",
+                  "qube/workspace/knowledge",
+                  "qube/workspace/schedules"
+                ]
+              }
             ]
           },
           {
-            "group": "Trading",
-            "pages": [
-              "trading/info",
+            "tab": "Data",
+            "groups": [
+              {
+                "group": "Data",
+                "pages": [
+                  "data/info",
+                  "data/qube-runtime",
+                  "data/local-package"
+                ]
+              },
               {
                 "group": "API",
                 "pages": [
-                  "trading/api/place-order",
-                  "trading/api/list-orders",
-                  "trading/api/get-order",
-                  "trading/api/modify-order",
-                  "trading/api/cancel-order",
-                  "trading/api/get-positions",
-                  "trading/api/get-assets",
-                  "trading/api/list-trades",
-                  "trading/api/list-cash-flows",
-                  "trading/api/get-signal",
-                  "trading/api/hold"
+                  {
+                    "group": "Market data",
+                    "pages": [
+                      "data/market-data/daily",
+                      "data/market-data/minute",
+                      "data/market-data/live-minute",
+                      "data/market-data/tick",
+                      "data/market-data/indicators"
+                    ]
+                  },
+                  {
+                    "group": "Market reference",
+                    "pages": [
+                      "data/market-reference/stock-detail",
+                      "data/market-reference/trading-calendar",
+                      "data/market-reference/events",
+                      "data/market-reference/filings",
+                      "data/market-reference/ownership",
+                      "data/market-reference/index-components",
+                      "data/market-reference/company-metrics",
+                      "data/market-reference/consensus"
+                    ]
+                  },
+                  {
+                    "group": "Financial and market factors",
+                    "pages": [
+                      "data/financial-and-market-factors/factors",
+                      "data/financial-and-market-factors/financial-statements"
+                    ]
+                  },
+                  {
+                    "group": "Utilities",
+                    "pages": ["data/utilities/currency"]
+                  }
                 ]
               }
-            ]
-          },
-          {
-            "group": "Data",
-            "pages": [
-              "data/info",
-              "data/local-package",
-              {
-                "group": "Market data",
-                "pages": [
-                  "data/market-data/daily",
-                  "data/market-data/minute",
-                  "data/market-data/live-minute",
-                  "data/market-data/tick",
-                  "data/market-data/indicators"
-                ]
-              },
-              {
-                "group": "Market reference",
-                "pages": [
-                  "data/market-reference/stock-detail",
-                  "data/market-reference/trading-calendar",
-                  "data/market-reference/events",
-                  "data/market-reference/filings",
-                  "data/market-reference/ownership",
-                  "data/market-reference/index-components",
-                  "data/market-reference/company-metrics",
-                  "data/market-reference/consensus"
-                ]
-              },
-              {
-                "group": "Financial and market factors",
-                "pages": [
-                  "data/financial-and-market-factors/factors",
-                  "data/financial-and-market-factors/financial-statements"
-                ]
-              },
-              {
-                "group": "Utilities",
-                "pages": ["data/utilities/currency"]
-              }
-            ]
-          },
-          {
-            "group": "More",
-            "pages": [
-              {
-                "group": "FAQ",
-                "pages": ["faq/tqx", "faq/qube", "faq/gatc"]
-              },
-              "more/contact-us"
             ]
           }
-        ],
-        "global": {
-          "anchors": [
-            {
-              "anchor": "Qube",
-              "href": "https://www.tqx.ai/agent_quant",
-              "icon": "book-open-cover"
-            },
-            {
-              "anchor": "Competitions",
-              "href": "https://www.tqx.ai/user-center?tab=dashboard",
-              "icon": "newspaper"
-            }
-          ]
-        }
+        ]
       },
       {
         "language": "zh-Hant",
-        "groups": [
-          {
-            "group": "\u958b\u59cb\u4f7f\u7528",
-            "pages": ["hk/index", "hk/cli"]
-          },
-          {
-            "group": "\u6295\u7814",
-            "pages": [
-              "hk/research/info",
-              {
-                "group": "\u56e0\u5b50",
-                "pages": [
-                  "hk/research/factor",
-                  "hk/research/factor/create",
-                  "hk/research/factor/code",
-                  "hk/research/factor/analyze",
-                  "hk/research/factor/results",
-                  "hk/research/factor/versions",
-                  "hk/research/factor/optimization",
-                  "hk/research/factor/operator-reference"
-                ]
-              },
-              {
-                "group": "\u7b56\u7565",
-                "pages": [
-                  "hk/research/strategy",
-                  "hk/research/strategy/create",
-                  "hk/research/strategy/code",
-                  "hk/research/strategy/backtest",
-                  "hk/research/strategy/versions",
-                  "hk/research/strategy/optimization",
-                  "hk/research/strategy/factor-to-strategy"
-                ]
-              },
-              "hk/research/run-history",
-              "hk/research/optimizations"
-            ]
-          },
-          {
-            "group": "\u4ea4\u6613",
-            "pages": [
-              "hk/trading/info",
-              {
-                "group": "\u4ea4\u6613 API",
-                "pages": [
-                  "hk/trading/api/place-order",
-                  "hk/trading/api/list-orders",
-                  "hk/trading/api/get-order",
-                  "hk/trading/api/modify-order",
-                  "hk/trading/api/cancel-order",
-                  "hk/trading/api/get-positions",
-                  "hk/trading/api/get-assets",
-                  "hk/trading/api/list-trades",
-                  "hk/trading/api/list-cash-flows",
-                  "hk/trading/api/get-signal",
-                  "hk/trading/api/hold"
-                ]
-              }
-            ]
-          },
-          {
-            "group": "\u6578\u64da",
-            "pages": [
-              "hk/data/info",
-              "hk/data/local-package",
-              {
-                "group": "\u884c\u60c5\u6578\u64da",
-                "pages": [
-                  "hk/data/market-data/daily",
-                  "hk/data/market-data/minute",
-                  "hk/data/market-data/live-minute",
-                  "hk/data/market-data/tick",
-                  "hk/data/market-data/indicators"
-                ]
-              },
-              {
-                "group": "\u5e02\u5834\u53c3\u8003\u6578\u64da",
-                "pages": [
-                  "hk/data/market-reference/stock-detail",
-                  "hk/data/market-reference/trading-calendar",
-                  "hk/data/market-reference/events",
-                  "hk/data/market-reference/filings",
-                  "hk/data/market-reference/ownership",
-                  "hk/data/market-reference/index-components",
-                  "hk/data/market-reference/company-metrics",
-                  "hk/data/market-reference/consensus"
-                ]
-              },
-              {
-                "group": "\u8ca1\u52d9\u8207\u5e02\u5834\u56e0\u5b50",
-                "pages": [
-                  "hk/data/financial-and-market-factors/factors",
-                  "hk/data/financial-and-market-factors/financial-statements"
-                ]
-              },
-              {
-                "group": "\u8f14\u52a9\u5de5\u5177",
-                "pages": ["hk/data/utilities/currency"]
-              }
-            ]
-          },
-          {
-            "group": "\u66f4\u591a",
-            "pages": [
-              {
-                "group": "常見問題",
-                "pages": ["hk/faq/tqx", "hk/faq/qube", "hk/faq/gatc"]
-              },
-              "hk/more/contact-us"
-            ]
-          }
-        ],
         "global": {
           "anchors": [
             {
-              "anchor": "Qube",
-              "href": "https://www.tqx.ai/agent_quant",
-              "icon": "book-open-cover"
-            },
-            {
-              "anchor": "\u53c3\u8cfd",
+              "anchor": "參賽",
               "href": "https://www.tqx.ai/user-center?tab=dashboard",
               "icon": "newspaper"
+            },
+            {
+              "anchor": "前往 Qube",
+              "href": "https://www.tqx.ai/qube",
+              "icon": "arrow-up-right-from-square"
             }
           ]
-        }
+        },
+        "tabs": [
+          {
+            "tab": "指南",
+            "groups": [
+              {
+                "group": "入門指南",
+                "pages": ["hk/index", "hk/cli"]
+              },
+              {
+                "group": "交易",
+                "pages": [
+                  "hk/trading/info",
+                  {
+                    "group": "交易 API",
+                    "pages": [
+                      "hk/trading/api/place-order",
+                      "hk/trading/api/list-orders",
+                      "hk/trading/api/get-order",
+                      "hk/trading/api/modify-order",
+                      "hk/trading/api/cancel-order",
+                      "hk/trading/api/get-positions",
+                      "hk/trading/api/get-assets",
+                      "hk/trading/api/list-trades",
+                      "hk/trading/api/list-cash-flows",
+                      "hk/trading/api/get-signal",
+                      "hk/trading/api/hold"
+                    ]
+                  }
+                ]
+              },
+              {
+                "group": "更多",
+                "pages": [
+                  {
+                    "group": "常見問題",
+                    "pages": ["hk/faq/tqx", "hk/faq/qube", "hk/faq/gatc"]
+                  },
+                  "hk/more/contact-us"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "Qube",
+            "groups": [
+              {
+                "group": "開始使用 Qube",
+                "pages": ["hk/qube"]
+              },
+              {
+                "group": "核心概念",
+                "pages": [
+                  "hk/qube/concepts/what-is-qube",
+                  "hk/qube/concepts/conversations",
+                  "hk/qube/concepts/data-and-skills",
+                  "hk/qube/concepts/research-objects"
+                ]
+              },
+              {
+                "group": "研究流程",
+                "pages": ["hk/qube/research/info"]
+              },
+              {
+                "group": "因子",
+                "pages": [
+                  "hk/qube/research/factor",
+                  "hk/qube/research/factor/create",
+                  "hk/qube/research/factor/code",
+                  "hk/qube/research/factor/analyze",
+                  "hk/qube/research/factor/results",
+                  "hk/qube/research/factor/versions",
+                  "hk/qube/research/factor/optimization",
+                  "hk/qube/research/factor/operator-reference"
+                ]
+              },
+              {
+                "group": "策略",
+                "pages": [
+                  "hk/qube/research/strategy",
+                  "hk/qube/research/strategy/create",
+                  "hk/qube/research/strategy/code",
+                  "hk/qube/research/strategy/api",
+                  "hk/qube/research/strategy/backtest",
+                  "hk/qube/research/strategy/versions",
+                  "hk/qube/research/strategy/optimization",
+                  "hk/qube/research/strategy/factor-to-strategy"
+                ]
+              },
+              {
+                "group": "執行紀錄與調優",
+                "pages": [
+                  "hk/qube/research/run-history",
+                  "hk/qube/research/optimizations"
+                ]
+              },
+              {
+                "group": "CLI 與 SDK",
+                "pages": [
+                  "hk/qube/cli/quickstart",
+                  "hk/qube/sdk/overview",
+                  "hk/qube/api/factors",
+                  "hk/qube/api/strategies",
+                  "hk/qube/api/runs",
+                  "hk/qube/sdk/streaming"
+                ]
+              },
+              {
+                "group": "進階",
+                "pages": [
+                  "hk/qube/workspace",
+                  "hk/qube/workspace/files",
+                  "hk/qube/workspace/skills",
+                  "hk/qube/workspace/knowledge",
+                  "hk/qube/workspace/schedules"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "數據",
+            "groups": [
+              {
+                "group": "數據",
+                "pages": [
+                  "hk/data/info",
+                  "hk/data/qube-runtime",
+                  "hk/data/local-package"
+                ]
+              },
+              {
+                "group": "API",
+                "pages": [
+                  {
+                    "group": "行情數據",
+                    "pages": [
+                      "hk/data/market-data/daily",
+                      "hk/data/market-data/minute",
+                      "hk/data/market-data/live-minute",
+                      "hk/data/market-data/tick",
+                      "hk/data/market-data/indicators"
+                    ]
+                  },
+                  {
+                    "group": "市場參考數據",
+                    "pages": [
+                      "hk/data/market-reference/stock-detail",
+                      "hk/data/market-reference/trading-calendar",
+                      "hk/data/market-reference/events",
+                      "hk/data/market-reference/filings",
+                      "hk/data/market-reference/ownership",
+                      "hk/data/market-reference/index-components",
+                      "hk/data/market-reference/company-metrics",
+                      "hk/data/market-reference/consensus"
+                    ]
+                  },
+                  {
+                    "group": "財務與市場因子",
+                    "pages": [
+                      "hk/data/financial-and-market-factors/factors",
+                      "hk/data/financial-and-market-factors/financial-statements"
+                    ]
+                  },
+                  {
+                    "group": "輔助工具",
+                    "pages": ["hk/data/utilities/currency"]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
       }
     ]
   },
@@ -304,6 +422,190 @@
     {
       "source": "/hk/more/gatc",
       "destination": "/hk/faq/gatc"
+    },
+    {
+      "source": "/research/factor/analyze",
+      "destination": "/qube/research/factor/analyze"
+    },
+    {
+      "source": "/hk/research/factor/analyze",
+      "destination": "/hk/qube/research/factor/analyze"
+    },
+    {
+      "source": "/research/factor/code",
+      "destination": "/qube/research/factor/code"
+    },
+    {
+      "source": "/hk/research/factor/code",
+      "destination": "/hk/qube/research/factor/code"
+    },
+    {
+      "source": "/research/factor/create",
+      "destination": "/qube/research/factor/create"
+    },
+    {
+      "source": "/hk/research/factor/create",
+      "destination": "/hk/qube/research/factor/create"
+    },
+    {
+      "source": "/research/factor/operator-reference",
+      "destination": "/qube/research/factor/operator-reference"
+    },
+    {
+      "source": "/hk/research/factor/operator-reference",
+      "destination": "/hk/qube/research/factor/operator-reference"
+    },
+    {
+      "source": "/research/factor/optimization",
+      "destination": "/qube/research/factor/optimization"
+    },
+    {
+      "source": "/hk/research/factor/optimization",
+      "destination": "/hk/qube/research/factor/optimization"
+    },
+    {
+      "source": "/research/factor/results",
+      "destination": "/qube/research/factor/results"
+    },
+    {
+      "source": "/hk/research/factor/results",
+      "destination": "/hk/qube/research/factor/results"
+    },
+    {
+      "source": "/research/factor/versions",
+      "destination": "/qube/research/factor/versions"
+    },
+    {
+      "source": "/hk/research/factor/versions",
+      "destination": "/hk/qube/research/factor/versions"
+    },
+    {
+      "source": "/research/factor",
+      "destination": "/qube/research/factor"
+    },
+    {
+      "source": "/hk/research/factor",
+      "destination": "/hk/qube/research/factor"
+    },
+    {
+      "source": "/research/info",
+      "destination": "/qube/research/info"
+    },
+    {
+      "source": "/hk/research/info",
+      "destination": "/hk/qube/research/info"
+    },
+    {
+      "source": "/research/optimizations",
+      "destination": "/qube/research/optimizations"
+    },
+    {
+      "source": "/hk/research/optimizations",
+      "destination": "/hk/qube/research/optimizations"
+    },
+    {
+      "source": "/research/run-history",
+      "destination": "/qube/research/run-history"
+    },
+    {
+      "source": "/hk/research/run-history",
+      "destination": "/hk/qube/research/run-history"
+    },
+    {
+      "source": "/research/strategy/backtest",
+      "destination": "/qube/research/strategy/backtest"
+    },
+    {
+      "source": "/hk/research/strategy/backtest",
+      "destination": "/hk/qube/research/strategy/backtest"
+    },
+    {
+      "source": "/research/strategy/code",
+      "destination": "/qube/research/strategy/code"
+    },
+    {
+      "source": "/hk/research/strategy/code",
+      "destination": "/hk/qube/research/strategy/code"
+    },
+    {
+      "source": "/research/strategy/create",
+      "destination": "/qube/research/strategy/create"
+    },
+    {
+      "source": "/hk/research/strategy/create",
+      "destination": "/hk/qube/research/strategy/create"
+    },
+    {
+      "source": "/research/strategy/factor-to-strategy",
+      "destination": "/qube/research/strategy/factor-to-strategy"
+    },
+    {
+      "source": "/hk/research/strategy/factor-to-strategy",
+      "destination": "/hk/qube/research/strategy/factor-to-strategy"
+    },
+    {
+      "source": "/research/strategy/optimization",
+      "destination": "/qube/research/strategy/optimization"
+    },
+    {
+      "source": "/hk/research/strategy/optimization",
+      "destination": "/hk/qube/research/strategy/optimization"
+    },
+    {
+      "source": "/research/strategy/versions",
+      "destination": "/qube/research/strategy/versions"
+    },
+    {
+      "source": "/hk/research/strategy/versions",
+      "destination": "/hk/qube/research/strategy/versions"
+    },
+    {
+      "source": "/research/strategy",
+      "destination": "/qube/research/strategy"
+    },
+    {
+      "source": "/hk/research/strategy",
+      "destination": "/hk/qube/research/strategy"
+    },
+    {
+      "source": "/qube/cli/factors",
+      "destination": "/qube/api/factors"
+    },
+    {
+      "source": "/qube/cli/strategies",
+      "destination": "/qube/api/strategies"
+    },
+    {
+      "source": "/qube/cli/runs",
+      "destination": "/qube/api/runs"
+    },
+    {
+      "source": "/qube/sdk/research-api",
+      "destination": "/qube/sdk/overview"
+    },
+    {
+      "source": "/qube/quickstart",
+      "destination": "/qube/research/info"
+    },
+    {
+      "source": "/hk/qube/cli/factors",
+      "destination": "/hk/qube/api/factors"
+    },
+    {
+      "source": "/hk/qube/cli/strategies",
+      "destination": "/hk/qube/api/strategies"
+    },
+    {
+      "source": "/hk/qube/cli/runs",
+      "destination": "/hk/qube/api/runs"
+    },
+    {
+      "source": "/hk/qube/sdk/research-api",
+      "destination": "/hk/qube/sdk/overview"
+    },
+    {
+      "source": "/hk/qube/quickstart",
+      "destination": "/hk/qube/research/info"
     }
   ],
   "logo": {
@@ -320,7 +622,15 @@
     ]
   },
   "contextual": {
-    "options": ["copy", "view", "chatgpt", "claude", "perplexity", "mcp", "cursor", "vscode"]
+    "options": [
+      "copy",
+      "view",
+      "chatgpt",
+      "claude",
+      "perplexity",
+      "cursor",
+      "vscode"
+    ]
   },
   "footer": {
     "socials": {

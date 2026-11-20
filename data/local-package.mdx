@@ -1,16 +1,23 @@
 ---
-title: "Local tqx-data package"
-description: "Documented API-Key interface of the tqx-data package installed on your computer."
-zh-Hant_link: "/hk/data/local-package"
+title: Local tqx-data package
+description: "Install tqx-data, authenticate with a data API key, and query market and reference data from your own Python environment."
+zh-Hant_link: /hk/data/local-package
+related: ["/data/info","/data/qube-runtime"]
 ---
 
-<Note>
-  This page describes the local package. The pages under the Data sections
-  describe the `tqx_data` environment available in Qube. Check the package's
-  installed `tqx_data.md` for field-level details and version-specific changes.
-</Note>
+Use `tqx-data` in your own Python scripts or notebooks to query Hong Kong and US stock data. You can install it from [PyPI](https://pypi.org/project/tqx-data/) and authenticate with a data API key.
+
+## Install
+
+Use Python 3.10 or newer:
+
+```bash
+python -m pip install --upgrade tqx-data
+```
 
 ## Initialize
+
+Create a data [API key](https://www.tqx.ai/user-center?tab=dev-settings), then initialize the package before your first query:
 
 ```python
 import tqx_data
@@ -21,51 +28,105 @@ tqx_data.init(
 )
 ```
 
-You can set `TQX_API_KEY` and `TQX_API_BASE_URL` instead, then call
-`tqx_data.init()`. Do not put an API key in source code or repositories.
+You can set `TQX_API_KEY` and `TQX_API_BASE_URL` instead, then call `tqx_data.init()`. Do not put an API key in source code or repositories.
 
-## Documented methods
+## Run a first query
 
-All tabular methods return a `pandas.DataFrame`. The returned columns are the
-fields requested through `fields`, together with the identifying columns that
-the method requires. Read the installed `tqx_data.md` for the complete field
-list of each method.
+After initialization, you can query both stock details and trading calendars locally:
 
-| Method                                   | Parameters                                                                                        | Return                           |
-| ---------------------------------------- | ------------------------------------------------------------------------------------------------- | -------------------------------- |
-| `get_hk_daily`                           | `symbol`, `start_date`, `end_date`, `fields`                                                      | Daily Hong Kong stock data       |
-| `get_us_daily`                           | `symbol`, `start_date`, `end_date`, `fields`                                                      | Daily US stock data              |
-| `get_stock_detail`                       | `symbol`, `market`, `status`, `fields`                                                            | Stock reference data             |
-| `get_trading_calendar`                   | `start_date`, `end_date`, `market`, `is_trading_day`, `fields`                                    | Trading and non-trading dates    |
-| `get_currency`                           | `start_date`, `end_date`, `fields`                                                                | Currency rates                   |
-| `get_event_devidend`                     | `symbol`, `market`, `fields`, `start_date`, `end_date`                                            | Dividend and split events        |
-| `get_event_capital_market`               | `symbol`, `market`, `fields`, `start_date`, `end_date`                                            | Capital-market events            |
-| `get_event_corporate_actions`            | `symbol`, `market`, `fields`, `start_date`, `end_date`                                            | Corporate meeting events         |
-| `get_event_fina_disclosure`              | `symbol`, `market`, `fields`, `start_date`, `end_date`                                            | Financial disclosure events      |
-| `get_event_investor_relation_activities` | `symbol`, `market`, `fields`, `start_date`, `end_date`                                            | Investor-relations events        |
-| `get_company_concentration`              | `symbol`, `market`, `fields`                                                                      | Investor concentration           |
-| `get_company_top_concentration`          | `symbol`, `market`, `fields`                                                                      | Top-investor concentration       |
-| `get_company_investor`                   | `symbol`, `market`, `fields`, `max_rank`                                                          | Investor rankings                |
-| `get_company_insider_transaction`        | `symbol`, `market`, `fields`, `start_date`, `end_date`                                            | Insider transactions             |
-| `get_company_shareholder_report`         | `symbol`, `market`, `fields`, `start_date`, `end_date`                                            | Shareholder reports              |
-| `get_company_price_vol`                  | `symbol`, `market`, `fields`                                                                      | Company price and volume metrics |
-| `get_company_oper_metrics`               | `symbol`, `market`, `fields`, `start_year`, `end_year`                                            | Operating metrics                |
-| `get_company_current`                    | `symbol`, `market`, `fields`                                                                      | Current company metrics          |
-| `get_company_imed`                       | `symbol`, `market`, `fields`                                                                      | Industry median metrics          |
-| `get_consensus_nonperiod`                | `symbol`, `market`, `fields`                                                                      | Non-period consensus data        |
-| `get_consensus_recommend`                | `symbol`, `market`, `fields`                                                                      | Recommendation consensus         |
-| `get_financial_statement`                | `start_quarter`, `end_quarter`, `symbol`, `fields`, `market`, `date`, `is_latest`, `interim_type` | Financial statement rows         |
+```python
+stocks = tqx_data.get_stock_detail(
+    symbol=["0700.HK"],
+    market="hk",
+    fields=["symbol", "name", "listed_date"],
+)
+calendar = tqx_data.get_trading_calendar(
+    start_date="20250101",
+    end_date="20250131",
+    market="hk",
+    is_trading_day=1,
+    fields=["nature_date", "is_trade"],
+)
+print(stocks)
+print(calendar)
+```
 
-For combined methods, use `market="hk"` for Hong Kong and `market="us"` for
-US data, including `get_financial_statement`. Some methods also accept `nb`
-for compatibility; use `us` in new code. Dates use `YYYYMMDD`; financial
-quarters use `YYYYqN`.
+Both calls return a `pandas.DataFrame`. Stock details include the requested stock identifiers and names. The calendar contains trading dates for the selected market and period.
+
+## Methods
+
+In the API references, the <Badge color="green" icon="laptop">Local tqx_data</Badge> badge identifies methods available in the local package.
+
+All tabular methods return a `pandas.DataFrame`. The returned columns are the fields requested through `fields`, together with the identifying columns that the method requires. The table below lists the supported methods and their inputs.
+
+| Method | Parameters | Return |
+| --- | --- | --- |
+| `get_hk_daily` | `symbol`, `start_date`, `end_date`, `fields` | Daily Hong Kong stock data |
+| `get_us_daily` | `symbol`, `start_date`, `end_date`, `fields` | Daily US stock data |
+| `get_stock_detail` | `symbol`, `market`, `status`, `fields` | Stock reference data |
+| `get_trading_calendar` | `start_date`, `end_date`, `market`, `is_trading_day`, `fields` | Trading and non-trading dates |
+| `get_currency` | `start_date`, `end_date`, `fields` | Currency rates |
+| `get_event_devidend` | `symbol`, `market`, `fields`, `start_date`, `end_date` | Dividend and split events |
+| `get_event_capital_market` | `symbol`, `market`, `fields`, `start_date`, `end_date` | Capital-market events |
+| `get_event_corporate_actions` | `symbol`, `market`, `fields`, `start_date`, `end_date` | Corporate meeting events |
+| `get_event_fina_disclosure` | `symbol`, `market`, `fields`, `start_date`, `end_date` | Financial disclosure events |
+| `get_event_investor_relation_activities` | `symbol`, `market`, `fields`, `start_date`, `end_date` | Investor-relations events |
+| `get_company_concentration` | `symbol`, `market`, `fields` | Investor concentration |
+| `get_company_top_concentration` | `symbol`, `market`, `fields` | Top-investor concentration |
+| `get_company_investor` | `symbol`, `market`, `fields`, `max_rank` | Investor rankings |
+| `get_company_insider_transaction` | `symbol`, `market`, `fields`, `start_date`, `end_date` | Insider transactions |
+| `get_company_shareholder_report` | `symbol`, `market`, `fields`, `start_date`, `end_date` | Shareholder reports |
+| `get_company_price_vol` | `symbol`, `market`, `fields` | Company price and volume metrics |
+| `get_company_oper_metrics` | `symbol`, `market`, `fields`, `start_year`, `end_year` | Operating metrics |
+| `get_company_current` | `symbol`, `market`, `fields` | Current company metrics |
+| `get_company_imed` | `symbol`, `market`, `fields` | Industry median metrics |
+| `get_consensus_nonperiod` | `symbol`, `market`, `fields` | Non-period consensus data |
+| `get_consensus_recommend` | `symbol`, `market`, `fields` | Recommendation consensus |
+| `get_financial_statement` | `start_quarter`, `end_quarter`, `symbol`, `fields`, `market`, `date`, `is_latest`, `interim_type` | Financial statement rows |
+
+For combined methods, use `market="hk"` for Hong Kong and `market="us"` for US data, including `get_financial_statement`. Omitted `market` values default to `hk`. Dates use `YYYYMMDD`; financial quarters use `YYYYqN`.
+
+## Differences from Qube
+
+The local package and Qube both use `import tqx_data`. Stock details, trading calendars, daily prices, events, company metrics, consensus estimates, financial statements, and currency rates are available in both environments. Their initialization, required parameters, and available fields can differ.
+
+| Method or capability | Qube | Local package |
+| --- | --- | --- |
+| Initialize | No local API key required | Call `tqx_data.init(...)` with a data API key |
+| Query daily prices | `get_hk_daily`, `get_us_daily` | Same methods; supply both dates and keep the span within five years |
+| Query stock details or calendars | `get_stock_detail`, `get_trading_calendar`; `market="hk"` or `"us"` | Same methods and market codes, after initialization |
+| Query financial statements | `market` is required: `hk` or `us` | `market` is optional and defaults to `hk`; use `us` for US data |
+| Query historical minute bars | `get_hk_min`, `get_us_min` | These methods are unavailable |
+| Query factor fields, filings, or index members | `get_factor`, `get_filing_announcement`, `get_index_component` | These methods are unavailable |
+| Subscribe to Tick messages | Does not provide `TickStreamClient` | `TickStreamClient` |
+
+The API pages identify supported environments. Local daily queries require both `start_date` and `end_date` and allow a maximum five-year range; see [Daily parameters](/data/market-data/daily). Financial statements default to `market="hk"` when omitted; see [Financial statement parameters](/data/financial-and-market-factors/financial-statements).
+
+## Trading calendar helpers
+
+Use these functions after initialization. `market` accepts `hk` or `us` and defaults to `hk`.
+
+| Function | Input | Return |
+| --- | --- | --- |
+| `get_prev_trade_date(date, market="hk", n=1)` | Required `date` in `YYYYMMDD`; positive integer `n`, default `1` | The `n`th trading day before `date` as `str`, or `None` if no result |
+| `get_last_trade_date(market="hk")` | Optional `market` | The latest trading date as `str`, or `None` if no result |
+| `get_trade_list(date, market="hk")` | Required `date` as a date string or list of dates | Tradable stocks on the specified dates as a `pandas.DataFrame` |
+
+## Authentication status
+
+Use these functions to inspect or clear local authentication state. They do not check API-key permissions with the service.
+
+| Function | Input | Return and purpose |
+| --- | --- | --- |
+| `is_authenticated()` | None | `bool`: whether a local API key is set or valid authentication state exists |
+| `auth_remaining_seconds()` | None | `float`: `float("inf")` in API-key mode, or `0.0` when unauthenticated |
+| `auth_expires_at()` | None | Expiry as a Unix timestamp or `None`; returns `None` in API-key mode |
+| `auth_info()` | None | `dict` with authentication status, remaining seconds, and expiry; does not include the API key |
+| `clear_auth()` | None | Clears local authentication state and returns `None`; does not revoke the API key on the service |
 
 ## TickStreamClient
 
-`TickStreamClient` delivers real-time Tick messages over WebSocket. The
-constructor requires `market="HK"` or `market="US"`; use `.HK` symbols for Hong
-Kong and bare symbols such as `AAPL` for US stocks.
+`TickStreamClient` delivers real-time Tick messages over WebSocket. The constructor requires `market="HK"` or `market="US"`; use `.HK` symbols for Hong Kong and bare symbols such as `AAPL` for US stocks.
 
 ```python
 from tqx_data import TickStreamClient
@@ -75,5 +136,4 @@ client.subscribe_tick(["0700.HK"])
 client.listen(handler=print)
 ```
 
-The public controls are `subscribe_tick`, `unsubscribe_tick`, `listen`,
-`close`, `subscribed_symbols`, `is_running`, and `get_stats`.
+The public controls are `subscribe_tick`, `unsubscribe_tick`, `listen`, `close`, `subscribed_symbols`, `is_running`, and `get_stats`.

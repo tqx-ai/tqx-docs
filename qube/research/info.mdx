@@ -1,0 +1,72 @@
+---
+title: "Your first research task"
+zh-Hant_link: /hk/qube/research/info
+related: ["/qube/research/factor", "/qube/research/strategy", "/qube/research/run-history"]
+description: "Turn a trading idea into clear rules, test it on past data, and learn how to read the result."
+keywords: ["Qube", "research guide"]
+---
+
+You can start with a question in everyday language. Qube helps turn it into rules, test those rules on past market data, and explain what happened. You do not need to write code to begin, but you do need to check that the rules match your idea.
+
+This guide follows one example: buying Tencent shares after the price rises above its recent high. The example teaches the workflow; it is not a recommendation to trade Tencent.
+
+## 1. Turn an idea into a clear question
+
+“Find a profitable strategy” leaves too much undefined. Instead, name the stock, the buying and selling rules, and the period you want to study. You can paste this into a new Qube conversation:
+
+```text
+Help me test a Hong Kong stock strategy for Tencent (0700.HK).
+Buy when the closing price rises above the highest price of the previous
+20 trading days. Sell when the closing price falls below the average
+closing price of the latest 10 trading days.
+Study November 1, 2023 through November 17, 2026 using daily data.
+Before running anything, explain when orders would execute, how much to
+buy, the starting capital, and trading costs. Ask me about missing choices.
+Explain unfamiliar terms and wait for me to review the rules.
+```
+
+A **trading day** is a day the market opens. Twenty trading days are roughly a month, rather than twenty calendar days. A **moving average** is the average price over a recent window; that window moves forward as each new day arrives.
+
+## 2. Check the rules before running
+
+Ask Qube to restate the rules in plain language. Check three questions:
+
+- **When does a decision happen?** If the rule needs today's closing price, it cannot assume you already bought at an earlier price that day.
+- **How much does it buy?** A rule that buys a few shares differs from one that spends nearly all the simulated cash.
+- **What costs apply?** Fees and differences between an expected and simulated fill price can reduce the result.
+
+Qube can help write the underlying code. You can ask it to explain how the code implements each rule. Saving a strategy keeps that work; running a backtest is a separate step.
+
+## 3. Test the saved strategy
+
+A **backtest** simulates what the rules would have done in the past. It does not place a real order.
+
+Ask Qube to save and check the strategy and its settings, then run the backtest after your review. Choose a **benchmark**, a comparison such as the Hang Seng Index, so you can see whether the strategy did better than the wider market during the same period.
+
+Follow [Create a strategy](/qube/research/strategy/create) and [Backtest and results](/qube/research/strategy/backtest) for the screens and settings.
+
+## 4. Read more than the return
+
+A positive result is only the start. Ask Qube:
+
+```text
+Explain this completed backtest in plain language.
+Did it beat the benchmark over the same dates?
+What was the largest fall from a previous high, and when did it happen?
+Show a few trades and explain why the strategy bought or sold.
+Tell me which assumptions or missing data could change the conclusion.
+```
+
+The largest fall from a previous high is called **maximum drawdown**. For example, a simulated account falling from 100,000 to 80,000 has a 20% drawdown, even if it later recovers.
+
+## 5. Change one thing and compare
+
+Try a different lookback window while keeping dates, starting capital, and costs the same. That makes the comparison easier to explain. [Parameter tuning](/qube/research/strategy/optimization) can compare several choices, but the best result on one period may do poorly on another.
+
+Keep useful completed results in [run history](/qube/research/run-history). A [named version](/qube/research/strategy/versions) preserves the rules and settings from a successful backtest so you can return to them later.
+
+## When should you use a factor instead?
+
+A **factor** gives stocks a score, such as how much their prices have risen recently. Factor analysis asks whether stocks with higher scores tend to perform differently later. A strategy adds decisions about buying, selling, position size, and costs.
+
+Start with [factors](/qube/research/factor) if you want to study a stock-selection idea. Start with [strategies](/qube/research/strategy) if you already want to test buying and selling rules. The [CLI](/qube/cli/quickstart) and [SDK](/qube/sdk/overview) are optional ways to work with the same saved research outside the web workspace.

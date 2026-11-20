@@ -1,7 +1,7 @@
 ---
-title: "List cash flows"
+title: List cash flows
 description: "List the broker cash ledger in each row's native currency, with signed amounts."
-zh-Hant_link: "/hk/trading/api/list-cash-flows"
+zh-Hant_link: /hk/trading/api/list-cash-flows
 ---
 
 Returns the broker's cash ledger for the authenticated account: trade settlements, fees, FX, deposits, and withdrawals. Use it to trace how each currency's cash balance changed.
@@ -18,7 +18,7 @@ Each row keeps the broker's native currency and a signed amount. Amounts are nev
 | Huatai, Futu, TQX simulation | No | No complete cash ledger is available. |
 
 <Warning>
-On an unsupported channel, the request fails with `cash_flows_unsupported` (HTTP 501). It never returns an empty list for an unsupported channel. An empty `items` list means the channel is supported and had no cash movements in the requested range.
+  On an unsupported channel, the request fails with `cash_flows_unsupported` (HTTP 501). It never returns an empty list for an unsupported channel. An empty `items` list means the channel is supported and had no cash movements in the requested range.
 </Warning>
 
 ## CLI

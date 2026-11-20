@@ -1,109 +1,103 @@
-﻿---
-title: "Tick data"
-description: "Retrieve the latest tick data for Hong Kong and US stocks."
-zh-Hant_link: "/hk/data/market-data/tick"
+---
+title: Tick data
+description: "Subscribe to live Hong Kong and US ticks, handle messages, and manage connections with TickStreamClient."
+zh-Hant_link: /hk/data/market-data/tick
+related: ["/data/market-data/live-minute","/data/local-package"]
 ---
 
-<Note>
-  The methods on this page are available only in Qube. The `tqx-data` package on PyPI doesn't include them.
-</Note>
+<Badge color="green" icon="laptop">Local tqx_data</Badge>
 
-## Retrieve tick data
+## What is a Tick?
 
-### Method name: get_tick_data
+A Tick is one small update from the market. It may record a trade, a quote change, or another piece of live market information. If you watch a stock during the trading day, you may receive many Tick updates for the same symbol.
 
-<Badge icon="cloud" color="blue">Qube only</Badge> <Badge icon="bolt" stroke>Real-time data</Badge>
+A minute bar combines many updates into one summary for a minute. Tick data keeps the updates separate, so it is useful when you need to react as the market changes. It also means that messages arrive continuously and may not have a fixed interval.
 
-### Enter parameters
+Use `TickStreamClient` to subscribe to live market data. Provide stock symbols and a message handler; the client delivers incoming <Tooltip tip="WebSocket is a connection that stays open between your program and the data service, so the service can push new messages to you as they arrive. You do not need to send a new request for every update." headline="WebSocket">WebSocket</Tooltip> messages to that function.
 
-| Field | Type | Description |
-|:---|:---|:---|
-| symbol | Optional\[Union\[str, List\[str\]\]\] | Stock code |
-| market | Optional\[str\] | Market, default is `hk`, optional `hk`, `nb` |
+## Start a subscription
 
-### Response parameters
+Install the package:
 
-| Field | Type | Description |
-|:-------------|:-------|:---------------|
-| date | str | date and time |
-| symbol | str | stock code |
-| last_price | double | latest price |
-| price_change | double | price change |
-| percentage | double | price percentage change |
+```bash
+python -m pip install --upgrade tqx-data
+```
 
-### Usage examples
-
-#### Get the latest tick data of a stock
+Create a data API key in [developer settings](https://www.tqx.ai/user-center?tab=dev-settings) and replace `sk-tqx-...` below. This example receives Hong Kong messages for 30 seconds, then closes the connection.
 
 ```python
+import time
 import tqx_data
-result = tqx_data.get_tick_data(
-    symbol=["0700.HK"],
-    market="hk",
+from tqx_data import TickStreamClient
+
+tqx_data.init(
+    api_key="sk-tqx-...",
+    base_url="https://tqxdata.tqx.ai",
 )
-print(result)
+
+def on_message(message):
+    print(message)
+
+client = TickStreamClient(market="HK")
+client.subscribe_tick(["0700.HK", "0005.HK"])
+
+try:
+    client.listen(handler=on_message)
+    time.sleep(30)
+finally:
+    client.close()
 ```
 
-**Response Example**
+For US stocks, use `market="US"` and bare symbols such as `AAPL` or `TSLA`. Each client subscribes to one market.
 
-```text
-symbol last_price date
-0 0700.HK 516.0 2026-03-24 15:59:59.000
-```
+## Constructor parameters
 
-#### Get the latest tick data of all Hong Kong stocks
+After `tqx_data.init(...)`, you only need to provide `market` to create a client. Use these parameters to adjust message delivery:
+
+| Parameter | Type | Default | Description |
+| --- | --- | --- | --- |
+| `market` | `str` | Required | `"HK"` or `"US"` |
+| `heartbeat_interval` | `int` | `30` | Heartbeat interval in seconds |
+| `reconnect_interval` | `float` | `3.0` | Seconds to wait before reconnecting |
+| `max_reconnect_attempts` | `int` | `0` | Maximum reconnection attempts; `0` means unlimited |
+| `parse_json` | `bool` | `True` | Parse JSON messages; `False` delivers raw strings |
+| `batch_callback` | `bool` | `False` | Deliver a list of messages per callback when `True` |
+| `handler_batch_size` | `int` | `1000` | Maximum messages per batch |
+| `handler_batch_timeout` | `float` | `0.01` | Maximum batch wait in seconds |
+
+## Methods and return values
+
+| Method or property | Input | Returns | Purpose |
+| --- | --- | --- | --- |
+| `subscribe_tick(symbols)` | A symbol string or list of strings | `None` | Add subscriptions |
+| `unsubscribe_tick(symbols)` | A symbol string or list of strings | `None` | Remove specific subscriptions while keeping others active |
+| `listen(handler=None, block=False)` | Message handler and whether to block the current thread | `None` | Start receiving; print messages when no handler is provided |
+| `close()` | None | `None` | Close the connection and stop receiving |
+| `subscribed_symbols` | Property; no parentheses | `set[str]` | Currently subscribed symbols |
+| `is_running` | Property; no parentheses | `bool` | Whether the client is running |
+| `get_stats()` | None | `dict` | Received, processed, and dropped counts, plus throughput |
+
+`listen` runs in the background by default. The example uses `time.sleep(30)` to keep the process alive. To keep receiving on the current thread, use `listen(handler=on_message, block=True)`.
+
+## Handle incoming messages
+
+By default, the handler receives one message at a time. JSON messages are parsed; content that cannot be parsed stays a raw string. Messages can include subscription confirmations as well as market data. Print the messages to inspect their fields before adding your processing logic.
+
+For batch processing, set `batch_callback=True`. The handler then receives a list:
 
 ```python
-import tqx_data
-result = tqx_data.get_tick_data(
-    market="hk",
-)
-print(result)
+def on_batch(messages):
+    for message in messages:
+        print(message)
+
+client = TickStreamClient(market="HK", batch_callback=True)
+client.subscribe_tick("0700.HK")
+
+try:
+    client.listen(handler=on_batch)
+    time.sleep(30)
+finally:
+    client.close()
 ```
 
-**Response Example**
-
-```text
-symbol date last_price
-0 0001.HK 2026-03-24 15:59:56.000 58.850
-1 0002.HK 2026-03-24 15:59:55.000 72.350
-2 0003.HK 2026-03-24 15:59:54.000 7.130
-3 0004.HK 2026-03-24 15:59:51.000 23.040
-4 0005.HK 2026-03-24 15:59:57.000 123.500
-... ... ... ...
-2731 9993.HK 2026-03-24 15:59:48.000 1.370
-2732 9995.HK 2026-03-24 15:59:55.000 91.400
-2733 9996.HK 2026-03-24 15:59:18.000 5.600
-2734 9998.HK 2026-03-24 15:58:54.000 0.475
-2735 9999.HK 2026-03-24 15:59:53.000 177.300
-```
-
-#### Get the latest tick data of U.S. stocks
-
-```python
-import tqx_data
-result = tqx_data.get_tick_data(
-    market="nb",
-)
-print(result)
-```
-
-**Response Example**
-
-```text
-symbol date last_price
-0 A.NB 2026-03-25 03:59:49.344 114.1400
-1 AA.NB 2026-03-25 03:59:51.123 56.6900
-2 AACBR.NB 2026-03-25 02:24:16.798 0.3250
-3 AACBU.NB 2026-03-24 03:59:00 10.5300
-4 AACG.NB 2026-03-25 03:59:29.319 1.0100
-... ... ... ...
-6470 ZWZZT.NB 2026-03-25 03:59:00 10.0100
-6471 ZXIET.NB 2026-03-25 03:59:00 100.0000
-6472 ZXZZT.NB 2026-03-25 03:59:00 12.1000
-6473 ZYBT.NB 2026-03-25 03:59:48.032 0.8404
-6474 ZYME.NB 2026-03-25 03:59:50.931 23.6150
-```
-
-**7.Indicator calculation interface**
-
+This uses the imports and initialization from the first example. To change subscriptions, call `client.subscribe_tick("0005.HK")` to add a symbol or `client.unsubscribe_tick("0700.HK")` to remove one.

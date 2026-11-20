@@ -1,12 +1,12 @@
-﻿---
-title: "Backtest factors"
-description: "Retrieve financial and market factors for Hong Kong and US backtests."
-zh-Hant_link: "/hk/data/financial-and-market-factors/factors"
+---
+title: Backtest factors
+description: Retrieve financial and market factors for Hong Kong and US backtests.
+zh-Hant_link: /hk/data/financial-and-market-factors/factors
 ---
 
-<Note>
-  You can use `get_factor` in Qube research and strategy code. It isn't available yet in the `tqx-data` package on PyPI.
-</Note>
+<Badge color="blue" icon="cloud">Qube sandbox</Badge>
+
+Use `get_factor` in the Qube sandbox to explore factor fields. Factor calculations use framework-provided fields instead of calling this method; see [Write factor code](/qube/research/factor/code).
 
 ## Get backtest factors for Hong Kong and US stocks
 
@@ -14,29 +14,31 @@ zh-Hant_link: "/hk/data/financial-and-market-factors/factors"
 
 ### Enter parameters
 
-| Field | Type | Description | Is it required |
-|:---|:---|:---|:---|
-| start_date | str | Start date,eg: "20250702" | Required |
-| end_date | str | End date,eg: "20250702" | Required |
-| symbol | Optional\[Union\[str, List\[str\]\]\] | Stock code | Optional |
-| factors | Union\[str, List\[str\]\] | Factor list | Required |
-| type | Optional\[str\] | Product type, supports `hk`, `nb`, default is `hk` | Optional |
+| Field      | Type                                  | Description                                                                                       | Is it required |
+| :--------- | :------------------------------------ | :------------------------------------------------------------------------------------------------ | :------------- |
+| start_date | str                                   | Start date,eg: "20250702"                                                                         | Required       |
+| end_date   | str                                   | End date,eg: "20250702"                                                                           | Required       |
+| symbol     | Optional\[Union\[str, List\[str\]\]\] | Stock code                                                                                        | Optional       |
+| factors    | Union\[str, List\[str\]\]             | Factor list                                                                                       | Required       |
+| type       | Optional\[str\]                       | Market: `hk` (default) or US `nb`; `us` is equivalent to `nb`. The old `ny` value is unsupported. | Optional       |
 
 ### Response parameters
 
 Basic factor class:
 
-| Field | Type | Description |
-|:----------|:-------|:-----------|
-| date | str | date |
-| symbol | str | stock code |
-| open | double | opening price |
-| close | double | closing price |
-| high | double | highest price |
-| low | double | lowest price |
-| volume | double | trading volume |
-| amount | double | transaction amount |
+| Field     | Type   | Description                  |
+| :-------- | :----- | :--------------------------- |
+| date      | str    | date                         |
+| symbol    | str    | stock code                   |
+| open      | double | opening price                |
+| close     | double | closing price                |
+| high      | double | highest price                |
+| low       | double | lowest price                 |
+| volume    | double | trading volume               |
+| amount    | double | transaction amount           |
 | pre_close | double | previous day's closing price |
+
+HK base factor data also provides `turnover`; US provides `market_cap`. Check actual columns and coverage. A native field's existence does not establish factor-consumer support; validate and run saved factor source separately.
 
 ### Usage examples
 
@@ -86,10 +88,10 @@ symbol date close
 ```python
 import tqx_data
 result = tqx_data.get_factor(
-    symbol="AAPL.NB",
+    symbol="AAPL",
     start_date="20260101",
     end_date="20260131",
-    type="nb",
+    type="us",
     factors=["symbol", "date", "volume"],
 )
 print(result)
@@ -99,25 +101,24 @@ print(result)
 
 ```text
 symbol date volume
-0 AAPL.NB 20260130 92443408.0
-1 AAPL.NB 20260129 67253009.0
-2 AAPL.NB 20260128 41287971.0
-3 AAPL.NB 20260127 49648271.0
-4 AAPL.NB 20260126 55969234.0
-5 AAPL.NB 20260123 41688982.0
-6 AAPL.NB 20260122 39708340.0
-7 AAPL.NB 20260121 54641725.0
-8 AAPL.NB 20260120 80267517.0
-9 AAPL.NB 20260116 72142773.0
-10 AAPL.NB 20260115 39388564.0
-11 AAPL.NB 20260114 40019421.0
-12 AAPL.NB 20260113 45730847.0
-13 AAPL.NB 20260112 45263767.0
-14 AAPL.NB 20260109 39996967.0
-15 AAPL.NB 20260108 50419337.0
-16 AAPL.NB 20260107 48309804.0
-17 AAPL.NB 20260106 52352090.0
-18 AAPL.NB 20260105 45647190.0
-19 AAPL.NB 20260102 37838054.0
+0 AAPL 20260130 92443408.0
+1 AAPL 20260129 67253009.0
+2 AAPL 20260128 41287971.0
+3 AAPL 20260127 49648271.0
+4 AAPL 20260126 55969234.0
+5 AAPL 20260123 41688982.0
+6 AAPL 20260122 39708340.0
+7 AAPL 20260121 54641725.0
+8 AAPL 20260120 80267517.0
+9 AAPL 20260116 72142773.0
+10 AAPL 20260115 39388564.0
+11 AAPL 20260114 40019421.0
+12 AAPL 20260113 45730847.0
+13 AAPL 20260112 45263767.0
+14 AAPL 20260109 39996967.0
+15 AAPL 20260108 50419337.0
+16 AAPL 20260107 48309804.0
+17 AAPL 20260106 52352090.0
+18 AAPL 20260105 45647190.0
+19 AAPL 20260102 37838054.0
 ```
-

@@ -1,0 +1,252 @@
+---
+title: APIs in strategy code
+description: Order, order-query, and historical-data helpers for Hong Kong and US strategy source.
+zh-Hant_link: /hk/qube/research/strategy/api
+related:
+  [
+    "/qube/research/strategy/code",
+    "/qube/research/strategy/backtest",
+    "/data/qube-runtime",
+  ]
+---
+
+Use these helpers inside saved strategy source. Common order APIs come from `panda_backtest.api.api`; history APIs come from the module matching the strategy's market.
+
+This reference covers the verified Hong Kong and US helpers below, rather than every export in the backtest engine. For a minimal strategy and parameter setup, see [Write a strategy](/qube/research/strategy/code).
+
+## Imports and account
+
+```python
+from panda_backtest.api.api import (
+    order_shares, order_values, target_stock_group_order,
+    cancel_order, get_today_order, get_today_work_order,
+    MarketOrderStyle, LimitOrderStyle, TimeConditionType,
+    SIDE_BUY, SIDE_SELL,
+)
+```
+
+Read the account key from `context.run_info.stock_account`. Pass that string to order and query methods. To inspect cash or positions, resolve the account object through `context.stock_account_dict[account_id]`.
+
+Use four-digit Hong Kong symbols such as `0700.HK`, or US symbols such as `AAPL.NB`. Select the matching history import:
+
+<CodeGroup>
+```python Hong Kong
+from panda_backtest.api.stock_hk_api import stock_api_quotation, stock_api_pre_close
+```
+
+```python US
+from panda_backtest.api.stock_us_api import stock_api_quotation, stock_api_pre_close
+```
+
+</CodeGroup>
+
+## Orders
+
+Orders submitted in `handle_data` use the next eligible same-symbol Bar open as the reference price. Fills are confirmed after that Bar completes, subject to slippage, order limits, and available volume. Keep dates, capital, frequency, and costs in saved run configuration.
+
+### order_shares
+
+<Badge color="purple" icon="code">
+  Strategy source
+</Badge>
+
+```python
+order_shares(
+    account_id, id_or_ins, quantity, style=None, retry_num=0,
+    risk_control_client=None, remark=None, margin_usage="CASH",
+)
+```
+
+Place an order by share quantity. Positive quantities buy; negative quantities sell.
+
+| Parameter             | Meaning                                                                      |
+| --------------------- | ---------------------------------------------------------------------------- |
+| `account_id`          | Account key from `context.run_info.stock_account`                            |
+| `id_or_ins`           | Symbol for the strategy's market                                             |
+| `quantity`            | Signed share quantity                                                        |
+| `style`               | `MarketOrderStyle()` or `LimitOrderStyle(limit_price)`; omitted means market |
+| `retry_num`           | Engine retry setting; default `0`                                            |
+| `risk_control_client` | Engine risk-control setting; default `None`                                  |
+| `remark`              | Optional order remark                                                        |
+| `margin_usage`        | Defaults to `"CASH"` for ordinary cash orders                                |
+
+The returned order list can include rejected orders. Check each order's `status` and `message`, and track execution through callbacks. Respect available cash, lot sizes, and sellable quantity. An empty result does not confirm submission or execution.
+
+### order_values
+
+<Badge color="purple" icon="code">
+  Strategy source
+</Badge>
+
+```python
+order_values(
+    account_id, id_or_ins, amount, style=None, retry_num=0,
+    risk_control_client=None, remark=None, _bypass_signal_pipeline=False,
+    margin_usage="CASH",
+)
+```
+
+Place an order by monetary amount. Positive amounts buy; negative amounts sell. Other parameters follow `order_shares`. Leave the compatibility parameter `_bypass_signal_pipeline` at its default.
+
+This method needs a valid quote during market hours. It returns an empty list outside the stock trading session. Check returned orders and execution callbacks as for `order_shares`.
+
+### target_stock_group_order
+
+<Badge color="purple" icon="code">
+  Strategy source
+</Badge>
+
+```python
+target_stock_group_order(account, symbol_dict, price_type=0)
+```
+
+| Parameter     | Meaning                                                                      |
+| ------------- | ---------------------------------------------------------------------------- |
+| `account`     | Account key string, such as `context.run_info.stock_account`                 |
+| `symbol_dict` | Mapping from symbol to target share quantity, for example `{"0700.HK": 100}` |
+| `price_type`  | Compatibility parameter; ignored by this stock group-order implementation    |
+
+The engine orders the difference between current and target holdings using market orders. Holdings omitted from the map, or given a zero target, are requested to close, subject to sellable quantity. Targets are share quantities, not weights or monetary amounts.
+
+Returns `None`. Use order and trade callbacks to inspect the resulting orders and fills.
+
+### cancel_order
+
+<Badge color="purple" icon="code">
+  Strategy source
+</Badge>
+
+```python
+cancel_order(account_id, order_id, _bypass_signal_pipeline=False)
+```
+
+Request cancellation by account key and order ID. Leave `_bypass_signal_pipeline` at its default. Returns `None`; confirm the outcome through order callbacks or a subsequent order query.
+
+## Order styles and constants
+
+### MarketOrderStyle
+
+<Badge color="purple" icon="code">
+  Strategy source
+</Badge>
+
+```python
+MarketOrderStyle(time_condition=None, gtd_date=None)
+```
+
+Create a market-order style. In a Bar backtest, an omitted `time_condition` resolves to GFD. Leave `gtd_date=None` for Hong Kong and US stock orders.
+
+### LimitOrderStyle
+
+<Badge color="purple" icon="code">
+  Strategy source
+</Badge>
+
+```python
+LimitOrderStyle(limit_price, time_condition=None, gtd_date=None)
+```
+
+Create a limit-order style with the required `limit_price`. Its time-condition rules match `MarketOrderStyle`.
+
+### TimeConditionType and side constants
+
+<Badge color="purple" icon="code">
+  Strategy source
+</Badge>
+
+| Constant                              | Value         | Hong Kong and US stock orders          |
+| ------------------------------------- | ------------- | -------------------------------------- |
+| `TimeConditionType.IOC`               | `1`           | Supported                              |
+| `TimeConditionType.GFD`               | `3`           | Supported; default in Bar backtests    |
+| `TimeConditionType.GTC`               | `5`           | Supported                              |
+| `TimeConditionType.GFS`, `GTD`, `GFA` | `2`, `4`, `6` | Rejected, as is a non-empty `gtd_date` |
+| `SIDE_BUY` / `SIDE_SELL`              | `0` / `1`     | Compare with order or trade `side`     |
+
+## Order queries
+
+### get_today_order
+
+<Badge color="purple" icon="code">
+  Strategy source
+</Badge>
+
+```python
+get_today_order(account_id, order_id)
+```
+
+Return an order snapshot matching the account, order ID, and current replay trade date, or `None` if no match exists. The snapshot can represent a rejected or completed order.
+
+### get_today_work_order
+
+<Badge color="purple" icon="code">
+  Strategy source
+</Badge>
+
+```python
+get_today_work_order(account_id)
+```
+
+Return a list of the account's orders still queued on the current replay trade date, including partially filled orders that remain queued. Returns `[]` when none exist. This is a pending-order query, rather than a list of all orders placed that day.
+
+Order snapshots expose fields such as `order_id`, `order_book_id`, `status`, `side`, `quantity`, `filled_quantity`, `unfilled_quantity`, `avg_price`, and `message`.
+
+## Historical data
+
+Both market modules provide the following two helpers. Import only the module matching your strategy's market. Query history in `init_preheating_data(context)`, call that helper once from `initialize`, and cache the results on `context`. End preloaded history before `context.run_info.start_date`.
+
+Use cached history and completed Bars in Bar callbacks instead of repeatedly querying history. Read the current Bar with `bar = data[symbol]`; check `bar is None` and positive prices before use. Validation rejects membership checks such as `symbol in data`. `before_trading` and `after_trading` do not receive the current BarMap.
+
+### stock_api_quotation
+
+<Badge color="purple" icon="code">
+  Strategy source
+</Badge>
+
+```python
+stock_api_quotation(
+    symbol_list=None, start_date=None, end_date=None, fields=None, period=None,
+)
+```
+
+| Parameter                | Meaning                                                                                |
+| ------------------------ | -------------------------------------------------------------------------------------- |
+| `symbol_list`            | Required non-empty list or tuple of same-market symbols                                |
+| `start_date`, `end_date` | Historical query bounds; use `YYYYMMDD` strings                                        |
+| `fields`                 | Optional requested columns, such as `["symbol", "date", "close"]`                      |
+| `period`                 | Required explicit `"1d"` or `"1m"`; other values, including `None`, raise `ValueError` |
+
+Returns a `pandas.DataFrame`. Check `empty`, symbol/date coverage, and required columns before using it. Available fields depend on the market, period, and snapshot. Daily results normalize previous close as `preclose` and also expose the `pre_close` alias when available.
+
+A minute run uses configuration frequency `"1M"`, while this query uses lowercase `period="1m"`.
+
+```python
+# Inside init_preheating_data(context), for a run starting after 20251231:
+context.history = stock_api_quotation(
+    symbol_list=["0700.HK", "0941.HK"],
+    start_date="20250101",
+    end_date="20251231",
+    fields=["symbol", "date", "close"],
+    period="1d",
+)
+```
+
+For a US strategy, import `stock_us_api` and use symbols such as `AAPL.NB`.
+
+### stock_api_pre_close
+
+<Badge color="purple" icon="code">
+  Strategy source
+</Badge>
+
+```python
+stock_api_pre_close(df_stock_code, date)
+```
+
+| Parameter       | Meaning                                                         |
+| --------------- | --------------------------------------------------------------- |
+| `df_stock_code` | DataFrame with a `symbol` column containing same-market symbols |
+| `date`          | Query date as a `YYYYMMDD` string                               |
+
+This helper queries daily history for that date and selects `symbol` and `pre_close`. It requires those columns to exist in the query result. When coverage is uncertain, use `stock_api_quotation` and check its output before selecting columns.
+
+For the current replay Bar, read `bar.preclose`. A Bar's `pre_close` attribute can contain zero.

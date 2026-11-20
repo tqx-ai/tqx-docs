@@ -1,0 +1,76 @@
+---
+title: "Qube: AI workspace for quantitative research"
+description: "Understand Qube's research workspace, shared assets, reproducible runs, and interfaces for web, CLI, and TypeScript SDK users."
+sidebarTitle: Overview
+keywords: ["Qube", "AI research workspace", "factor", "strategy", "backtest"]
+related: ["/qube/research/info", "/qube/concepts/what-is-qube", "/qube/cli/quickstart"]
+zh-Hant_link: /hk/qube
+---
+
+Qube is TQX's AI workspace for quantitative research. It connects your research question, data, code, runs, results, and versions so you can move through a reproducible workflow and review the evidence before making a trading decision.
+
+<Frame caption="Qube conversational research workspace">
+  ![Qube home page showing the chat workspace, Factors, Strategies, Qube Market, and scheduled
+  tasks](/images/qube/qube-home.png)
+</Frame>
+
+<Columns cols={3}>
+  <Card title="Open Qube" icon="rocket" href="https://www.tqx.ai/qube">
+    Go to the web workspace and start a research conversation.
+  </Card>
+
+<Card title="Understand Qube" icon="lightbulb" href="/qube/concepts/what-is-qube">
+  Learn the objects and workflow.
+</Card>
+
+<Card title="Research" icon="flask" href="/qube/research/info">
+  Choose a factor or strategy workflow.
+</Card>
+
+<Card title="CLI and SDK" icon="terminal" href="/qube/cli/quickstart">
+  Operate the same assets from code.
+</Card>
+
+<Card title="Workspace" icon="folder-open" href="/qube/workspace">
+  Use files, Skills, knowledge, and schedules.
+</Card>
+
+  <Card title="Data" icon="database" href="/data/info">
+    Choose the correct TQX data environment.
+  </Card>
+</Columns>
+
+## The Qube research loop
+
+1. Start with a market question or hypothesis.
+2. Query or prepare the data you need.
+3. Create a factor or strategy.
+4. Write and validate the source.
+5. Run a factor analysis or strategy backtest.
+6. Review metrics, trades, logs, and diagnostics.
+7. Save a named version or tune a bounded parameter set.
+8. Recheck the candidate on a different period.
+9. Review and authorize any move toward trading separately.
+
+<Warning>
+  A saved factor or strategy is a research asset. Saving code does not run it, and a historical
+  result does not guarantee future performance.
+</Warning>
+
+## Use Qube through three interfaces
+
+<Tabs>
+  <Tab title="Web workspace">
+    Open the [Qube web workspace](https://www.tqx.ai/qube) to create and review research assets
+    through conversation, the Factor Library, the Strategy Library, run history, and workspace
+    files.
+  </Tab>
+  <Tab title="Qube CLI">
+    Use `tqx research` for factor and strategy lifecycle commands, polling, results, versions, and
+    tuning.
+  </Tab>
+  <Tab title="TypeScript SDK">
+    Use `@tqx-ai/sdk` and `client.research` to write your own TypeScript program that creates
+    research, runs backtests, and reads results.
+  </Tab>
+</Tabs>

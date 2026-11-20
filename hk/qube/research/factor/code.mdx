@@ -1,0 +1,40 @@
+---
+title: 撰寫因子程式碼
+en_link: /qube/research/factor/code
+related: ["/hk/qube/research/factor/operator-reference","/hk/qube/research/factor/analyze","/hk/qube/api/factors"]
+---
+
+因子程式從框架注入的欄位計算訊號。每個 `(date, symbol)` 資料列應回傳一個數值，並保留原索引。資料探索可在工作區查詢；因子的計算函式不要呼叫 `tqx_data`。
+
+<Tabs>
+  <Tab title="公式">
+    使用大寫欄位名稱及支援的算子，撰寫單一運算式。不要加入賦值、匯入或多個敘述。
+
+    ```text
+    TS_MEAN(CLOSE, 5) - TS_MEAN(CLOSE, 20)
+    ```
+  </Tab>
+  <Tab title="Python">
+    定義一個 `Factor` 子類別，提供 `calculate(self, factors)`。執行環境會提供 `Factor` 及支援的算子。
+
+    ```python
+    FACTOR_PARAMS = {"short_window": 5, "long_window": 20}
+    
+    class MovingAverageSpread(Factor):
+        def calculate(self, factors):
+            close = factors["close"]
+            return (TS_MEAN(close, FACTOR_PARAMS["short_window"])
+                    - TS_MEAN(close, FACTOR_PARAMS["long_window"]))
+    ```
+
+    用單一字面值 `FACTOR_PARAMS` 字典定義可調整的數值參數。不要重新賦值或修改該字典。最終結果須為一維，並按索引對齊。
+  </Tab>
+</Tabs>
+
+## 驗證計算
+
+移動平均會將不完整視窗填為零。如果假說要求兩個視窗均完整，應遮罩歷史不足的資料。避免負向位移，以免讀取未來觀測值。`MEAN(A,B)` 是逐元素平均；移動平均須用 `TS_MEAN(X,N)`。
+
+優先使用平台算子。有需要時才使用允許的 numpy、pandas 或 scipy 公開功能；避免外部 I/O、動態執行及私有匯入。靜態驗證無法證明執行行為、數據涵蓋範圍或沒有前視偏差。
+
+儲存原始碼並檢查驗證結果，再 [設定及執行分析](/hk/qube/research/factor/analyze)。原始碼儲存會獨立推進 `source_revision`，不會執行分析。
