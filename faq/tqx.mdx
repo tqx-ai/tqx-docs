@@ -22,31 +22,38 @@ TQX supports several workflows:
 
 - **Research:** use Qube to create and evaluate factors and strategies.
 - **Simulation:** use TQX CLI with a coding agent to test a strategy in a simulation account.
+- **Trading:** use TQX CLI to query accounts and execute decisions through a `PAPER` or supported `LIVE` account.
 - **Competition:** enter GATC with a supported live brokerage account and an original AI strategy executed through TQX CLI. Participants must be at least 18 and meet the applicable securities trading and competition eligibility requirements.
 
 ### How do I get started? {#quick-start}
 
 <Steps>
   <Step title="Research and backtest">
-    Create a strategy in Qube and run a backtest.
+    Create a factor or strategy in Qube, validate it, run an analysis or
+    backtest, review the results, and save a version.
   </Step>
-  <Step title="Test in simulation">
-    [Install TQX CLI](/cli), connect a simulation account, and test the
-    strategy's execution.
+  <Step title="Verify with TQX CLI">
+    [Install TQX CLI](/cli), sign in with an API key, connect a `PAPER` account,
+    and test the strategy's execution. Read the run status and result before
+    interpreting it.
   </Step>
-  <Step title="Choose whether to compete">
-    If you choose to enter GATC, review the [competition FAQ](/faq/gatc) and
-    connect a supported live brokerage account. Simulation results do not count
-    toward competition rankings.
+  <Step title="Choose your next step">
+    Continue with a general trading workflow or enter GATC after reviewing the
+    requirements for each path below.
   </Step>
 </Steps>
 
-<Accordion title="View the workflow diagram" id="workflow-diagram">
-  <Frame caption="Overview of the TQX workflow">
-    ![TQX research, simulation, and trading
-    workflow](/images/2c7c7a4e-4bb3-4c00-82c4-07e8725ce438.jpeg)
-  </Frame>
-</Accordion>
+<Columns cols={2}>
+  <Card title="Trade with TQX" icon="arrow-right-arrow-left" href="/trading/info">
+    Use `tqx trading` with a `PAPER` or supported `LIVE` account. Set account
+    permissions and risk limits before executing trading decisions.
+  </Card>
+
+  <Card title="Enter GATC" icon="trophy" href="/faq/gatc">
+    Review the competition requirements, then connect a supported live brokerage
+    account. Simulation results do not count toward competition rankings.
+  </Card>
+</Columns>
 
 ### Do I need separate accounts for research, simulation, and competition? {#accounts}
 

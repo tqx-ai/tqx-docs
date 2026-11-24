@@ -9,7 +9,22 @@ related:
 
 TQX CLI 讓 AI 編程代理在同一流程中串連投研與交易。Agent 使用 `tqx research` 管理 Qube 因子和策略，使用 `tqx trading` 查詢已連接帳戶，並在權限和風險限制內執行交易決策。
 
-## 安裝 CLI
+## 讓 Agent 幫你安裝
+
+TQX Skills 協助編程代理使用 TQX CLI。點擊下方文字區塊右上角的複製按鈕，將完整提示詞貼到你的 Agent：
+
+```text wrap
+請讀取以下安裝指南：
+https://github.com/tqx-ai/tqx-ts/blob/main/INSTALL.md
+
+請依照指南安裝或更新 TQX CLI 的 Skills。識別你目前使用的 Agent，並使用該 Agent 的全域 Skills 目錄。檢查現有的 TQX CLI 安裝狀態，按指南需要安裝或更新 CLI。
+
+請確認指南列出的所有 TQX Skills 均已安裝，且目前的 Agent 可以使用，並回報安裝路徑及驗證結果。
+```
+
+以上提示詞能讓你的 Agent 為你安裝好 TQX CLI 和 Skills。
+
+## 手動安裝 CLI
 
 <Tabs>
   <Tab title="獨立執行檔">
@@ -66,9 +81,7 @@ tqx status --json
   </Card>
 </Columns>
 
-## 給編程代理提供正確背景
-
-TQX Skill 是協助編程代理使用 TQX 工具的操作指引。你可以依照 [Skill 安裝指南](https://github.com/tqx-ai/tqx-ts/blob/main/INSTALL.md#step-5-install-the-tqx-skills) 安裝。[Qube CLI 快速開始](/hk/qube/cli/quickstart) 涵蓋投研流程，[交易指南](/hk/trading/info) 涵蓋帳戶操作。
+[Qube CLI 快速開始](/hk/qube/cli/quickstart) 涵蓋投研流程，[交易指南](/hk/trading/info) 涵蓋帳戶操作。
 
 <Info>
   CLI 和網頁工作區使用同一套 Qube 研究資產。CLI

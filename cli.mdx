@@ -8,7 +8,22 @@ zh-Hant_link: /hk/cli
 
 TQX CLI lets an AI coding agent connect research and trading in one workflow. The agent uses `tqx research` for Qube factors and strategies, and `tqx trading` to query connected accounts and execute trading decisions within its permissions and risk limits.
 
-## Install the CLI
+## Let your agent install for you
+
+TQX Skills help your coding agent use TQX CLI. Use the copy button in the top-right corner of the text block below, then paste the full prompt into your agent:
+
+```text wrap
+Read the installation guide:
+https://github.com/tqx-ai/tqx-ts/blob/main/INSTALL.md
+
+Follow the guide to install or update the Skills for TQX CLI. Identify the agent you are running in and use its global Skills directory. Check the existing TQX CLI installation and install or update it as required by the guide.
+
+Verify that all TQX Skills listed in the guide are installed and available to this agent. Report the installation paths and verification results.
+```
+
+The prompt above lets your agent install TQX CLI and Skills for you.
+
+## Manually install the CLI
 
 <Tabs>
   <Tab title="Standalone binary">
@@ -65,9 +80,7 @@ For a single command, set `TQX_API_KEY` in the command environment instead of st
   </Card>
 </Columns>
 
-## Give an agent the right context
-
-TQX Skills are instructions that help your coding agent use TQX tools. Follow the [Skills installation guide](https://github.com/tqx-ai/tqx-ts/blob/main/INSTALL.md#step-5-install-the-tqx-skills) to install them. The [Qube CLI quickstart](/qube/cli/quickstart) covers research. The [Trading guide](/trading/info) covers account workflows.
+The [Qube CLI quickstart](/qube/cli/quickstart) covers research. The [Trading guide](/trading/info) covers account workflows.
 
 <Info>
   The CLI and web workspace use the same Qube research objects. The CLI does not

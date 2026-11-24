@@ -22,27 +22,32 @@ TQX 支援以下工作流程：
 
 - **研究：** 使用 Qube 建立及評估因子和策略。
 - **模擬測試：** 透過 TQX CLI 與編程代理，在模擬帳戶中測試策略。
+- **交易：** 透過 TQX CLI 查詢帳戶，並在 `PAPER` 或支援的 `LIVE` 帳戶中執行交易決策。
 - **參賽：** 以支援的真實券商帳戶參加 GATC，透過 TQX CLI 執行原創 AI 策略。參賽者須年滿 18 歲，並符合適用的證券交易及賽事資格要求。
 
 ### 如何開始使用？ {#quick-start}
 
 <Steps>
-  <Step title="研究與回測">在 Qube 建立策略並執行回測。</Step>
-  <Step title="模擬測試">
-    [安裝 TQX CLI](/hk/cli)，連接模擬帳戶，測試策略的執行情況。
+  <Step title="在 Qube 研究">
+    在 Qube 建立因子或策略、完成驗證、執行分析或回測、檢視結果，並保存版本。
   </Step>
-  <Step title="選擇參賽">
-    如選擇參加 GATC，請先閱讀
-    [參賽常見問題](/hk/faq/gatc)，再連接支援的真實券商帳戶。模擬帳戶的成績不計入賽事排名。
+  <Step title="使用 TQX CLI 驗證">
+    [安裝 TQX CLI](/hk/cli)，使用 API Key 登入，連接 `PAPER` 帳戶，並測試策略的執行情況。解讀結果前，請先讀取執行狀態和結果。
+  </Step>
+  <Step title="選擇下一步">
+    你可以繼續一般交易流程，或先閱讀以下各流程的要求，再決定是否參加 GATC。
   </Step>
 </Steps>
 
-<Accordion title="查看流程圖" id="workflow-diagram">
-  <Frame caption="TQX 使用流程概覽">
-    ![TQX
-    的研究、模擬測試與交易流程](/images/2c7c7a4e-4bb3-4c00-82c4-07e8725ce438.jpeg)
-  </Frame>
-</Accordion>
+<Columns cols={2}>
+  <Card title="使用 TQX 交易" icon="arrow-right-arrow-left" href="/hk/trading/info">
+    使用 `tqx trading` 連接 `PAPER` 或支援的 `LIVE` 帳戶。執行交易決策前，先設定帳戶權限與風險限制。
+  </Card>
+
+  <Card title="參加 GATC" icon="trophy" href="/hk/faq/gatc">
+    閱讀參賽要求，再連接支援的真實券商帳戶。模擬帳戶的成績不計入賽事排名。
+  </Card>
+</Columns>
 
 ### 研究、模擬測試和參賽需要不同帳戶嗎？ {#accounts}
 
