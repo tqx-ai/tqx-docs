@@ -67,7 +67,7 @@ After creating a factor or strategy, use these CLI or SDK operations to manage r
     tqx research strategy tuning apply <tuning-id> <candidate-id> --expectedSourceRevision=<n> --expectedConfigRevision=<n>
     ```
 
-    The JSON file uses SDK camelCase field names. Factor tuning requires one explicit baseline and at most 32 total candidates; strategy tuning deduplicates a baseline and also caps at 32. Applying a candidate updates current configuration but does not create a named version or ordinary run. Run and review the applied inputs yourself.
+    The JSON file uses SDK camelCase field names. Factor tuning requires one explicit baseline and at most 32 total candidates; strategy tuning deduplicates a baseline and also caps at 32. Applying a candidate updates current configuration but does not create a named version or ordinary run. Have the agent run and inspect the applied inputs before creating a named version.
 
     ## Output and exit codes
 
@@ -129,7 +129,7 @@ After creating a factor or strategy, use these CLI or SDK operations to manage r
 
     ## Create and restore a named version
 
-    Create a version only after reviewing a successful ordinary run belonging to that asset. This example uses an existing `factorId` and a successful `analysisId`.
+    Create a version only after checking a successful ordinary run belonging to that asset. This example uses an existing `factorId` and a successful `analysisId`.
 
     ```typescript
     const version = await client.research.createFactorVersion(factorId, {
@@ -200,7 +200,7 @@ After creating a factor or strategy, use these CLI or SDK operations to manage r
     | Rerun a study | `rerunFactorTuning(tuningId, { requestId })` | `rerunStrategyTuning(tuningId, { requestId })` |
     | Apply a selected candidate | `applyFactorTuning(tuningId, { requestId, trialId, expectedSourceRevision, expectedConfigRevision })` | `applyStrategyTuning(tuningId, { requestId, candidateId, expectedSourceRevision, expectedConfigRevision })` |
 
-    Factor apply returns `{ tuning, factor }`; strategy apply returns `{ tuning, strategy }`. Applying updates saved source or configuration without creating an ordinary run or named version. Run and review the selected candidate separately. Tuning results are candidates for review, not automatic production decisions.
+    Factor apply returns `{ tuning, factor }`; strategy apply returns `{ tuning, strategy }`. Applying updates saved source or configuration without creating an ordinary run or named version. The agent can run and evaluate the selected candidate, then create a named version from a successful ordinary run when it meets the acceptance criteria in its instructions.
 
     ### Tuning method inputs and outputs
 

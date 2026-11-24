@@ -7,7 +7,9 @@ zh-Hant_link: /hk/trading/api/place-order
 Submits an order to the authenticated trading account. The API acknowledges the request with a signal envelope; it does not synchronously guarantee that the order was filled.
 
 <Warning>
-  Only submit an order after confirming the account mode, market, symbol, side, quantity, price, and risk limits. Use a `PAPER` account to test an integration. `LIVE` orders can affect real funds.
+  Configure the agent to validate the account mode, market, symbol, side,
+  quantity, price, and risk limits before submitting an order. Use a `PAPER`
+  account to test an integration. `LIVE` orders can affect real funds.
 </Warning>
 
 ## CLI
@@ -25,6 +27,8 @@ tqx trading orders place --symbol=00700.HK --side=BUY --quantity=100 --orderType
 ```
 
 The CLI defaults `orderType` to `MARKET` and `timeInForce` to `DAY`. `--yes` is required. `symbol` must use `<code>.<market>` with `HK` or `US`; the CLI trims whitespace and uppercases it. `quantity` is a positive integer string. `LIMIT` requires a positive `price`; `MARKET` must omit `price`. `reason` is optional and is limited to 512 characters.
+
+The agent supplies `--yes` when submitting an order within its authorized scope. The flag supports non-interactive execution; it does not require a person to confirm each order.
 
 `idempotencyKey` is 8 to 128 characters, starts with a letter or number, and then uses only letters, numbers, `.`, `_`, `:`, or `-`. The CLI generates one when omitted. Reuse the same stable key only when safely retrying the same intent.
 

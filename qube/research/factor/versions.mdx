@@ -1,14 +1,14 @@
 ---
 title: Factor versions and restore
 zh-Hant_link: /hk/qube/research/factor/versions
-related: ["/qube/research/factor","/qube/api/runs"]
+related: ["/qube/research/factor", "/qube/api/runs"]
 ---
 
 A named version preserves the exact source and full configuration from a **successful ordinary analysis** belonging to this factor. Create it explicitly with a name and optional description. Source saving and tuning application do not create named versions.
 
 ## Create a reproducible reference
 
-1. Review a successful ordinary run and its frozen inputs.
+1. Check a successful ordinary run and its frozen inputs.
 2. Create a named version from that run ID.
 3. Keep its ObjectId and name with your research record.
 
@@ -33,12 +33,16 @@ tqx research factor version-restore <factor-id> <version-id> \
 ```
 
 ```typescript TypeScript SDK
-const current = await client.research.getFactor(factorId)
-const restored = await client.research.restoreFactorVersion(factorId, versionId, {
-  requestId: crypto.randomUUID(),
-  expectedSourceRevision: current.source_revision,
-  expectedConfigRevision: current.config_revision,
-})
+const current = await client.research.getFactor(factorId);
+const restored = await client.research.restoreFactorVersion(
+  factorId,
+  versionId,
+  {
+    requestId: crypto.randomUUID(),
+    expectedSourceRevision: current.source_revision,
+    expectedConfigRevision: current.config_revision,
+  },
+);
 ```
 
 </CodeGroup>

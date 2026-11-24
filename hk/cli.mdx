@@ -3,10 +3,11 @@ title: TQX CLI
 description: 安裝 TQX CLI、安全完成驗證，並按需要選擇 Qube 投研或交易指令。
 sidebarTitle: CLI
 en_link: /cli
-related: ["/hk/qube/cli/quickstart", "/hk/trading/info", "/hk/qube/sdk/overview"]
+related:
+  ["/hk/qube/cli/quickstart", "/hk/trading/info", "/hk/qube/sdk/overview"]
 ---
 
-TQX CLI 讓 AI 編程代理或 Shell 流程使用 TQX 的投研和交易能力。使用 `tqx research` 管理 Qube 因子和策略，使用 `tqx trading` 操作已連接帳戶和已授權訂單。
+TQX CLI 讓 AI 編程代理在同一流程中串連投研與交易。Agent 使用 `tqx research` 管理 Qube 因子和策略，使用 `tqx trading` 查詢已連接帳戶，並在權限和風險限制內執行交易決策。
 
 ## 安裝 CLI
 
@@ -61,7 +62,7 @@ tqx status --json
   </Card>
 
   <Card title="交易" icon="arrow-right-arrow-left" href="/hk/trading/info">
-    查詢帳戶、持倉、訂單、成交和訊號，再提交已獲授權的請求。
+    讓 Agent 查詢帳戶、持倉、訂單、成交和訊號，再於授權範圍內執行交易決策。
   </Card>
 </Columns>
 

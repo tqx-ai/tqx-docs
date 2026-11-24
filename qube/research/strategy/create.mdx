@@ -2,7 +2,11 @@
 title: "Create a strategy"
 zh-Hant_link: /hk/qube/research/strategy/create
 related:
-  ["/qube/research/strategy/code", "/qube/research/strategy/backtest", "/qube/api/strategies"]
+  [
+    "/qube/research/strategy/code",
+    "/qube/research/strategy/backtest",
+    "/qube/api/strategies",
+  ]
 description: "Describe your rules, review the missing choices, and save a strategy you can backtest."
 keywords: ["Qube", "research guide"]
 ---
@@ -19,7 +23,7 @@ Use the Tencent example from [Your first research task](/qube/research/info), or
 - **Position size:** how much simulated money or how many shares each purchase uses.
 - **Order timing:** when a signal becomes a simulated trade.
 
-You do not need to know how to write these rules in Python. Ask Qube to draft the code and explain it. If you do not yet know how much to buy or what costs to use, ask it to present the choices before proceeding.
+You do not need to know how to write these rules in Python. Ask Qube to draft the code and explain it. For unspecified research settings, let it choose and document assumptions for position size and costs so the backtest can be reproduced.
 
 ## Review what Qube understood
 
@@ -29,15 +33,15 @@ Ask Qube to restate the exact rules and explain one hypothetical buy and sell. G
 
 ## Save, then prepare the test
 
-Review and save the strategy code and backtest settings. Qube checks whether they are usable. If validation fails, ask it to explain and fix the reported problem; saving a draft does not mean it can run successfully.
+Validate and save the strategy code and backtest settings. Qube checks whether they are usable. If validation fails, have it explain and fix the reported problem; saving a draft does not mean it can run successfully.
 
 After saving, return to the same strategy in the library. The code and settings are the current working copy. Saving them does not start a backtest or create a named version.
 
 <Frame caption="Use the Strategy Library to create a strategy or reopen one you have saved.">
-  ![Qube Strategy Library showing market filters, search, and a Hong Kong strategy
-  card](/images/strategy/strategy-library.png)
+  ![Qube Strategy Library showing market filters, search, and a Hong Kong
+  strategy card](/images/strategy/strategy-library.png)
 </Frame>
 
-Continue with [Backtest and results](/qube/research/strategy/backtest) to choose dates, simulated starting capital, costs, and a benchmark. If your strategy uses a factor, first choose a reviewed named factor version from the same market; see [Factor to strategy](/qube/research/strategy/factor-to-strategy).
+Continue with [Backtest and results](/qube/research/strategy/backtest) to choose dates, simulated starting capital, costs, and a benchmark. If your strategy uses a factor, first choose a validated named factor version from the same market; see [Factor to strategy](/qube/research/strategy/factor-to-strategy).
 
 For writing code yourself, use [Strategy code](/qube/research/strategy/code). For CLI or SDK automation, use [Strategy API](/qube/api/strategies).

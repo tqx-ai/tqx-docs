@@ -1,7 +1,7 @@
 ---
 title: "What is Qube?"
 description: "Learn how Qube connects AI conversations, data, research assets, executions, results, and versions into one quantitative workflow."
-related: ["/qube/research/info","/qube/concepts/research-objects"]
+related: ["/qube/research/info", "/qube/concepts/research-objects"]
 zh-Hant_link: /hk/qube/concepts/what-is-qube
 ---
 
@@ -17,10 +17,10 @@ Qube is an AI workspace for quantitative research. It helps you turn a market qu
 - **Results** expose metrics, charts, trades, logs, and diagnostics.
 - **Versions** preserve named snapshots that you can compare, bind, or restore.
 
-## What Qube does not decide for you
+## Set the agent's goals and permissions
 
-Qube can generate and evaluate research code, but it does not turn a historical result into a trading recommendation. You decide which hypothesis to test, how to interpret the evidence, and whether any later action is authorized.
+You can set research goals, account permissions, and risk limits so an AI agent can create and evaluate research code, analyze results, and carry out subsequent actions within its authorization.
 
 ## Qube and trading
 
-Research and trading are connected through review. Qube can help you produce a strategy and test it historically. Account access, order submission, and live execution remain in the [Trading](/trading/info) module.
+An AI agent can connect research and trading workflows itself through the [TQX CLI](/cli). The agent uses `tqx research` to create strategies, run backtests, and read results, then `tqx trading` to query accounts and positions, submit orders, and track execution status. You can authorize the agent to trade in simulation or live accounts within specified account permissions and risk limits. See the [Trading guide](/trading/info).

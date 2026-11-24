@@ -2,7 +2,11 @@
 title: "Parameter tuning"
 zh-Hant_link: /hk/qube/research/optimizations
 related:
-  ["/qube/research/factor/optimization", "/qube/research/strategy/optimization", "/qube/api/runs"]
+  [
+    "/qube/research/factor/optimization",
+    "/qube/research/strategy/optimization",
+    "/qube/api/runs",
+  ]
 description: "Understand what tuning changes and how to compare a candidate with the original settings."
 keywords: ["Qube", "research guide"]
 ---
@@ -28,6 +32,6 @@ Afterward, inspect failures and losses as well as the highest score. A failed ca
 
 ## Applying is a separate decision
 
-Applying a candidate changes saved code or settings. Review the changes, run an ordinary analysis or backtest, and check it before creating a named version. Applying alone does not run that ordinary test or place a trade.
+Applying a candidate changes saved code or settings. Validate the changes, run an ordinary analysis or backtest, and check it before creating a named version. Applying alone does not run that ordinary test or place a trade.
 
 Continue with [factor tuning](/qube/research/factor/optimization) or [strategy tuning](/qube/research/strategy/optimization). The [CLI and JSON reference](/qube/api/runs) provides candidate limits and exact request fields.

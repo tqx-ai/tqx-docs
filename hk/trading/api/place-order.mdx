@@ -7,7 +7,8 @@ en_link: /trading/api/place-order
 向已驗證的交易帳戶提交訂單。API 會返回訊號 envelope，不會同步保證訂單已成交。
 
 <Warning>
-  下單前請確認帳戶模式、市場、標的、方向、數量、價格和風險限制。請使用**仿真**帳戶測試整合；**實盤**訂單可能影響真實資金。
+  請設定 Agent
+  在下單前驗證帳戶模式、市場、標的、方向、數量、價格和風險限制。請使用**仿真**帳戶測試整合；**實盤**訂單可能影響真實資金。
 </Warning>
 
 ## CLI
@@ -25,6 +26,8 @@ tqx trading orders place --symbol=00700.HK --side=BUY --quantity=100 --orderType
 ```
 
 CLI 預設 `orderType` 為 `MARKET`，`timeInForce` 為 `DAY`。必須使用 `--yes`。`symbol` 必須使用 `<code>.<market>` 格式，市場只能是 `HK` 或 `US`，CLI 會自動去除前後空白並轉為大寫；`quantity` 必須是正整數字串。`LIMIT` 必須提供正數 `price`；`MARKET` 不得提供 `price`。`reason` 可選，最多 512 個字元。
+
+Agent 在授權範圍內提交訂單時，自行傳入 `--yes`。此旗標支援非互動執行，無須由人逐筆確認訂單。
 
 `idempotencyKey` 長度為 8 至 128 個字元，首字元為字母或數字，其後只能使用字母、數字、`.`、`_`、`:` 或 `-`。省略時 CLI 會自動產生；重試同一意圖時才重用同一個穩定 Key。
 

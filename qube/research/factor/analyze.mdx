@@ -1,12 +1,17 @@
 ---
 title: "Analyze a factor"
 zh-Hant_link: /hk/qube/research/factor/analyze
-related: ["/qube/research/factor/results", "/qube/research/factor/versions", "/qube/api/factors"]
+related:
+  [
+    "/qube/research/factor/results",
+    "/qube/research/factor/versions",
+    "/qube/api/factors",
+  ]
 description: "Choose stocks, dates, and grouping rules, then test whether a score relates to later returns."
 keywords: ["Qube", "research guide"]
 ---
 
-An analysis asks whether a factor's scores relate to what stocks do afterward. First [create and review the score](/qube/research/factor/create), then choose the settings for this test.
+An analysis asks whether a factor's scores relate to what stocks do afterward. First [create and validate the score](/qube/research/factor/create), then choose the settings for this test.
 
 ## Choose what to compare
 
@@ -27,8 +32,8 @@ If 100 stocks have usable scores on a date, five groups would contain about 20 s
 Open the saved factor. Check the dates, stock pool, grouping, cycle, and direction. Save the settings, resolve validation problems, then start the analysis. Qube keeps the rule and settings used by that run, so later edits do not rewrite the old result.
 
 <Frame caption="Check the factor's settings and rule before starting; open a completed analysis to inspect the results.">
-  ![Factor detail page showing analysis parameters, formula editor, result history, and group return
-  chart](/images/factor/factor-detail-params-code.png)
+  ![Factor detail page showing analysis parameters, formula editor, result
+  history, and group return chart](/images/factor/factor-detail-params-code.png)
 </Frame>
 
 Preparing, queued, and running mean the analysis has not finished. Open the result after it succeeds. If it fails, ask Qube to explain the error and any missing data before running again.

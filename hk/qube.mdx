@@ -4,13 +4,19 @@ description: 了解 Qube 的投研工作區、共用資產、可重現執行記�
 sidebarTitle: 概覽
 en_link: /qube
 keywords: ["Qube", "AI 投研工作區", "因子", "策略", "回測"]
-related: ["/hk/qube/research/info", "/hk/qube/concepts/what-is-qube", "/hk/qube/cli/quickstart"]
+related:
+  [
+    "/hk/qube/research/info",
+    "/hk/qube/concepts/what-is-qube",
+    "/hk/qube/cli/quickstart",
+  ]
 ---
 
-Qube 是 TQX 的 AI 量化研究工作區。它將研究問題、數據、程式碼、執行記錄、結果和版本串成可重現的流程，讓你在作出交易決定前先檢查研究證據。
+Qube 是 TQX 的 AI 量化研究工作區。它將研究問題、數據、程式碼、執行記錄、結果和版本串成可重現的流程，讓 AI Agent 建立策略並評估研究證據。
 
 <Frame caption="Qube 對話式投研工作區">
-  ![Qube 首頁展示對話工作區、因子、策略、Qube 行情和排程任務](/images/qube/qube-home.png)
+  ![Qube 首頁展示對話工作區、因子、策略、Qube
+  行情和排程任務](/images/qube/qube-home.png)
 </Frame>
 
 <Columns cols={3}>
@@ -41,6 +47,8 @@ Qube 是 TQX 的 AI 量化研究工作區。它將研究問題、數據、程式
 
 ## Qube 投研循環
 
+設定研究目標後，可以讓 Qube 自行完成投研步驟。編程代理可透過 [TQX CLI](/hk/cli)，在帳戶權限與風險限制內繼續銜接交易。
+
 1. 從市場問題或假設開始。
 2. 查詢或準備所需數據。
 3. 建立因子或策略。
@@ -49,7 +57,7 @@ Qube 是 TQX 的 AI 量化研究工作區。它將研究問題、數據、程式
 6. 檢查指標、交易、日誌和診斷。
 7. 保存命名版本，或調優有限的參數範圍。
 8. 在另一段期間重新驗證候選方案。
-9. 之後再獨立審閱和授權任何交易操作。
+9. 交易前，讓 Agent 按已設定的交易規則、風險限制及執行條件評估候選方案，再透過 TQX CLI 執行。
 
 <Warning>
   已保存的因子或策略是研究資產。保存程式碼不會自動執行，而歷史結果也不保證未來表現。
@@ -62,7 +70,9 @@ Qube 是 TQX 的 AI 量化研究工作區。它將研究問題、數據、程式
     前往 [Qube
     網頁工作區](https://www.tqx.ai/qube)，透過對話、因子庫、策略庫、執行歷史和工作區建立及檢查研究資產。
   </Tab>
-  <Tab title="Qube CLI">使用 `tqx research` 管理因子和策略、輪詢狀態、查看結果、版本和調優。</Tab>
+  <Tab title="Qube CLI">
+    使用 `tqx research` 管理因子和策略、輪詢狀態、查看結果、版本和調優。
+  </Tab>
   <Tab title="TypeScript SDK">
     使用 `@tqx-ai/sdk` 和 `client.research` 編寫自己的 TypeScript
     程式，建立研究、執行回測及讀取結果。

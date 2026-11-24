@@ -1,7 +1,12 @@
 ---
 title: "Create a factor"
 zh-Hant_link: /hk/qube/research/factor/create
-related: ["/qube/research/factor/code", "/qube/research/factor/analyze", "/qube/api/factors"]
+related:
+  [
+    "/qube/research/factor/code",
+    "/qube/research/factor/analyze",
+    "/qube/api/factors",
+  ]
 description: "Describe the stock score you want to study and review how Qube calculates it."
 keywords: ["Qube", "research guide"]
 ---
@@ -18,21 +23,22 @@ closing price from the 5-trading-day average closing price.
 Explain what a positive, zero, or negative score means.
 Tell me how it handles stocks with fewer than 20 days of price history,
 and whether the scores can be compared fairly across different stock prices.
-Save the factor for review, but do not start an analysis yet.
+Save the factor and report its source validation results.
 ```
 
 If the 5-day average is 102 and the 20-day average is 100, the score is 2. That means the recent average is above the longer average; it does not mean the stock will rise by 2%.
 
 This simple score uses price units. A difference of 2 means something different for a stock priced at 10 than one priced at 1,000. Ask Qube to explain whether a price-normalized score would better match your question before you interpret a cross-stock ranking.
 
-## Review and save
+## Validate and save
 
 Choose Hong Kong or US stocks and give the factor a recognizable name. Ask Qube to explain the calculation with a small example, what data it uses, and what happens when history is missing. Missing information should not silently become evidence of a good or bad stock.
 
 Review the formula or code in the detail page. Qube checks whether it is usable. You can save an unfinished draft, but saving does not mean validation passed or an analysis completed.
 
 <Frame caption="Create a factor or return to a saved one through the Factor Library.">
-  ![Factor Library with market tabs, search, and a factor card](/images/factor/factor-library.png)
+  ![Factor Library with market tabs, search, and a factor
+  card](/images/factor/factor-library.png)
 </Frame>
 
 ## Prepare the analysis separately

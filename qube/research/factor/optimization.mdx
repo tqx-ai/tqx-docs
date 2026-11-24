@@ -1,7 +1,12 @@
 ---
 title: "Tune factor parameters"
 zh-Hant_link: /hk/qube/research/factor/optimization
-related: ["/qube/api/runs", "/qube/research/factor/versions", "/qube/research/optimizations"]
+related:
+  [
+    "/qube/api/runs",
+    "/qube/research/factor/versions",
+    "/qube/research/optimizations",
+  ]
 description: "Compare a small set of score settings, then test the selected choice on a separate period."
 keywords: ["Qube", "research guide"]
 ---
@@ -12,13 +17,13 @@ Factor tuning compares a few settings for the same stock-scoring idea. For examp
 
 Ask Qube to list the candidate settings before running. Include the current settings as the **baseline**, so you can see whether any change improves on what you already had. Keep the research question and test period clear.
 
-A useful request is:
+Set the comparison goal and acceptance criteria in the agent's instructions. A useful request is:
 
 ```text
 Compare a small set of settings for this factor.
 Show the current baseline and each proposed change before running.
 Explain the comparison metric in plain language, report any failed
-candidates, and do not apply a result until I review it.
+candidates, and apply a result only after it passes the configured checks.
 ```
 
 For Python factors, tuning can vary eligible numeric parameters already declared in the code. Formula factors can vary supported analysis settings. Ask Qube which choices your factor supports; tuning does not freely rewrite its logic during the study.
@@ -27,7 +32,7 @@ For Python factors, tuning can vary eligible numeric parameters already declared
 
 Factor tuning compares candidates using average <strong>Rank IC</strong>: the relationship between the stock-score ranking and the ranking of later returns. A stronger score on this measure is not the same thing as a higher realizable trading profit.
 
-Unlike strategy tuning's default research/validation split, factor tuning evaluates the full chosen research period. **It does not automatically reserve a separate validation period.** After choosing a candidate, test another period yourself rather than treating the first ranking as independent confirmation.
+Unlike strategy tuning's default research/validation split, factor tuning evaluates the full chosen research period. **It does not automatically reserve a separate validation period.** Have the agent test the selected candidate on another period; the first ranking is not independent confirmation.
 
 ## Apply and check again
 

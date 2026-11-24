@@ -10,7 +10,7 @@ A backtest asks: “If these rules had been followed in the past, what would hav
 
 ## Choose the settings
 
-Open your saved strategy and review its backtest settings before starting. For the Tencent example, the screenshot below uses daily data from November 1, 2023 to November 17, 2026.
+Open your saved strategy and validate its backtest settings before starting. For the Tencent example, the screenshot below uses daily data from November 1, 2023 to November 17, 2026.
 
 | Setting             | What it means                                                               | What to check                                                                                        |
 | ------------------- | --------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
@@ -32,8 +32,8 @@ Save the settings and check that the strategy and settings pass validation. Then
 The run keeps the code and settings it started with. Editing your working copy afterward does not change that result. While the run is preparing, queued, or running, charts may still be empty or incomplete. Wait for completion before interpreting them.
 
 <Frame caption="Saved settings on the left; completed backtest and benchmark comparison on the right.">
-  ![Tencent strategy with saved dates, daily frequency, simulated capital, fees and Hang Seng
-  benchmark, alongside completed results and account-value
+  ![Tencent strategy with saved dates, daily frequency, simulated capital, fees
+  and Hang Seng benchmark, alongside completed results and account-value
   curves](/images/strategy/strategy-backtest-benchmark.png)
 </Frame>
 
@@ -56,10 +56,10 @@ These figures illustrate how to read the page. They do not predict a future resu
 
 Ask Qube to explain when the largest loss occurred, why specific trades happened, and whether missing prices or rejected orders affected the run. If the run failed, inspect the error before trying again. If it is still running, return to the same run instead of launching a duplicate.
 
-To compare a change fairly, keep the dates, starting capital, fees, and benchmark consistent. After reviewing a successful ordinary backtest, you can create a [named version](/qube/research/strategy/versions) or compare settings with [parameter tuning](/qube/research/strategy/optimization).
+To compare a change fairly, keep the dates, starting capital, fees, and benchmark consistent. After a successful ordinary backtest, the agent can create a [named version](/qube/research/strategy/versions) or compare settings with [parameter tuning](/qube/research/strategy/optimization).
 
 <Accordion title="Inspect code and results together">
-  The detail view also lets you inspect strategy code alongside parameters and results. You can ask Qube to explain the relevant lines; you do not need to understand every line to begin reviewing the buying and selling rules.
+The detail view also lets you inspect strategy code alongside parameters and results. You can ask Qube to explain the relevant lines; the agent can validate the buying and selling rules without requiring you to understand every line.
 
   <Frame caption="The strategy detail view connects settings, code, results, and trades.">
     ![Qube strategy detail page showing backtest parameters, strategy code, completed metrics, equity curve, and trades](/images/strategy/strategy-detail-params-code.png)

@@ -2,7 +2,7 @@
 title: 什麼是 Qube？
 description: 了解 Qube 如何將 AI 對話、數據、研究資產、執行記錄、結果和版本串成量化研究流程。
 en_link: /qube/concepts/what-is-qube
-related: ["/hk/qube/research/info","/hk/qube/concepts/research-objects"]
+related: ["/hk/qube/research/info", "/hk/qube/concepts/research-objects"]
 ---
 
 Qube 是一個 AI 量化研究工作區。它協助你將市場問題轉化為程式碼，使用受控數據執行，並把證據保留在研究資產旁邊。
@@ -17,10 +17,10 @@ Qube 是一個 AI 量化研究工作區。它協助你將市場問題轉化為�
 - **結果**：查看指標、圖表、交易、日誌和診斷。
 - **版本**：保存可比較、綁定或還原的命名快照。
 
-## Qube 不會代替你作出什麼決定
+## 設定 Agent 的目標與授權
 
-Qube 可以產生和評估研究程式碼，但不會將歷史結果變成交易建議。你需要決定測試哪個假設、如何解讀證據，以及是否授權後續操作。
+你可以設定研究目標、帳戶權限和風險限制，讓 AI Agent 建立及評估研究程式碼、分析結果，並在授權範圍內執行後續操作。
 
 ## Qube 與交易
 
-投研和交易透過人工審閱連接。Qube 可以協助你建立策略並進行歷史回測，帳戶存取、下單和實盤執行則保留在 [交易](/hk/trading/info) 模組。
+AI Agent 可以透過 [TQX CLI](/hk/cli) 自行串連投研與交易流程。Agent 使用 `tqx research` 建立策略、執行回測並讀取結果，再使用 `tqx trading` 查詢帳戶和持倉、提交訂單及追蹤執行狀態。你可以授權 Agent 在指定帳戶和風險限制內執行仿真或實盤交易，詳見[交易指南](/hk/trading/info)。

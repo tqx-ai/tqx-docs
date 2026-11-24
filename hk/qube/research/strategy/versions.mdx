@@ -1,14 +1,14 @@
 ---
 title: 版本與還原
 en_link: /qube/research/strategy/versions
-related: ["/hk/qube/research/strategy","/hk/qube/api/runs"]
+related: ["/hk/qube/research/strategy", "/hk/qube/api/runs"]
 ---
 
 命名版本保留同一策略中**成功的一般回測**所使用的完整原始碼及設定。你須明確建立，填寫名稱及選填描述。儲存原始碼及套用調優不會建立命名版本。
 
 ## 建立可重現的參考
 
-1. 審閱成功的一般執行及其固定輸入。
+1. 檢查成功的一般執行及其固定輸入。
 2. 以該次執行 ID 建立命名版本。
 3. 在研究記錄保留版本 ObjectId 及名稱。
 
@@ -33,12 +33,16 @@ tqx research strategy version-restore <strategy-id> <version-id> \
 ```
 
 ```typescript TypeScript SDK
-const current = await client.research.getStrategy(strategyId)
-const restored = await client.research.restoreStrategyVersion(strategyId, versionId, {
-  requestId: crypto.randomUUID(),
-  expectedSourceRevision: current.source_revision,
-  expectedConfigRevision: current.config_revision,
-})
+const current = await client.research.getStrategy(strategyId);
+const restored = await client.research.restoreStrategyVersion(
+  strategyId,
+  versionId,
+  {
+    requestId: crypto.randomUUID(),
+    expectedSourceRevision: current.source_revision,
+    expectedConfigRevision: current.config_revision,
+  },
+);
 ```
 
 </CodeGroup>

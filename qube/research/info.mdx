@@ -1,7 +1,12 @@
 ---
 title: "Your first research task"
 zh-Hant_link: /hk/qube/research/info
-related: ["/qube/research/factor", "/qube/research/strategy", "/qube/research/run-history"]
+related:
+  [
+    "/qube/research/factor",
+    "/qube/research/strategy",
+    "/qube/research/run-history",
+  ]
 description: "Turn a trading idea into clear rules, test it on past data, and learn how to read the result."
 keywords: ["Qube", "research guide"]
 ---
@@ -20,14 +25,15 @@ Buy when the closing price rises above the highest price of the previous
 20 trading days. Sell when the closing price falls below the average
 closing price of the latest 10 trading days.
 Study November 1, 2023 through November 17, 2026 using daily data.
-Before running anything, explain when orders would execute, how much to
-buy, the starting capital, and trading costs. Ask me about missing choices.
-Explain unfamiliar terms and wait for me to review the rules.
+Choose and document assumptions for missing research settings, including
+order timing, position size, starting capital, and trading costs.
+Save and validate the strategy and its settings, run the backtest,
+and explain the results and unfamiliar terms in plain language.
 ```
 
 A **trading day** is a day the market opens. Twenty trading days are roughly a month, rather than twenty calendar days. A **moving average** is the average price over a recent window; that window moves forward as each new day arrives.
 
-## 2. Check the rules before running
+## 2. Validate the rules before running
 
 Ask Qube to restate the rules in plain language. Check three questions:
 
@@ -41,7 +47,7 @@ Qube can help write the underlying code. You can ask it to explain how the code 
 
 A **backtest** simulates what the rules would have done in the past. It does not place a real order.
 
-Ask Qube to save and check the strategy and its settings, then run the backtest after your review. Choose a **benchmark**, a comparison such as the Hang Seng Index, so you can see whether the strategy did better than the wider market during the same period.
+Ask Qube to save and check the strategy and its settings, then run the backtest after those checks pass. Choose a **benchmark**, a comparison such as the Hang Seng Index, so the agent can measure whether the strategy did better than the wider market during the same period.
 
 Follow [Create a strategy](/qube/research/strategy/create) and [Backtest and results](/qube/research/strategy/backtest) for the screens and settings.
 

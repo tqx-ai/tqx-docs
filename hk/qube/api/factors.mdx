@@ -2,7 +2,8 @@
 title: 因子 API
 description: 使用 TQX CLI 或 TypeScript SDK 建立、更新、分析及搜尋因子。
 en_link: /qube/api/factors
-related: ["/hk/qube/cli/quickstart", "/hk/qube/api/runs", "/hk/qube/research/factor"]
+related:
+  ["/hk/qube/cli/quickstart", "/hk/qube/api/runs", "/hk/qube/research/factor"]
 ---
 
 使用 `tqx research factor` 或 `client.research` 操作同一套 Qube 因子。ID 是 24 位小寫 ObjectId。變更前先讀取目前原始碼及設定修訂。
@@ -81,7 +82,7 @@ related: ["/hk/qube/cli/quickstart", "/hk/qube/api/runs", "/hk/qube/research/fac
     }
     ```
 
-    候選必須有一個不帶覆寫的基準，`FACTOR_PARAMS` 只使用有限數值，包含基準最多 32 組，`warmupTradingDays` 為 0 至 5000。目標為 `rank_ic_mean`，不切分保留樣本。套用時提供目前預期修訂，然後先執行並審閱一般分析，再建立命名版本。
+    候選必須有一個不帶覆寫的基準，`FACTOR_PARAMS` 只使用有限數值，包含基準最多 32 組，`warmupTradingDays` 為 0 至 5000。目標為 `rank_ic_mean`，不切分保留樣本。套用時提供目前預期修訂，然後讓 Agent 執行及評估一般分析，再建立命名版本。
 
   </Tab>
   <Tab title="TypeScript SDK">

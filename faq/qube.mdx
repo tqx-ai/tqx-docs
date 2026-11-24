@@ -2,7 +2,7 @@
 title: Qube FAQ
 description: Qube FAQ — Qube research guide.
 zh-Hant_link: /hk/faq/qube
-related: ["/qube","/qube/research/info","/data/info","/cli"]
+related: ["/qube", "/qube/research/info", "/data/info", "/cli"]
 ---
 
 ## What is Qube? {#what-is-qube}
@@ -19,7 +19,7 @@ No. Saving source, saving configuration, executing a run, and creating a named v
 
 ## Can a generated strategy trade live? {#live-trading}
 
-A Qube backtest is research. Review signal timing, liquidity, costs, risk, and evidence on other periods. Trading-account queries and authorized orders belong to the independent [Trading workflow](/trading/info). Historical results cannot guarantee future performance.
+Yes. A coding agent can use `tqx research` to read and evaluate a Qube strategy and its backtest results, then use `tqx trading` to query a connected account and execute trades within its authorized scope. Configure the agent to assess signal timing, liquidity, costs, risk, and evidence on other periods. A backtest simulates trades; live execution uses the [Trading workflow](/trading/info). Historical results cannot guarantee future performance.
 
 ## Which data API should I use? {#data}
 

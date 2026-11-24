@@ -2,7 +2,8 @@
 title: 執行、版本與調優 API
 description: 使用 CLI 或 SDK 等待執行、管理版本及比較調優候選。
 en_link: /qube/api/runs
-related: ["/hk/qube/api/factors", "/hk/qube/api/strategies", "/hk/qube/sdk/streaming"]
+related:
+  ["/hk/qube/api/factors", "/hk/qube/api/strategies", "/hk/qube/sdk/streaming"]
 ---
 
 建立因子或策略後，使用以下 CLI 或 SDK 操作管理執行、版本及調優。每次執行會固定當時的原始碼及設定；保留執行 ID，之後仍可查詢同一次結果。
@@ -67,7 +68,7 @@ related: ["/hk/qube/api/factors", "/hk/qube/api/strategies", "/hk/qube/sdk/strea
     tqx research strategy tuning apply <tuning-id> <candidate-id> --expectedSourceRevision=<n> --expectedConfigRevision=<n>
     ```
 
-    JSON 檔使用 SDK 的 camelCase 欄位。因子調優必須有一個明確基準，候選總數最多 32；策略調優會去重基準，同樣最多 32。套用候選只更新目前設定，不會建立命名版本或一般執行，請自行執行及審閱套用後輸入。
+    JSON 檔使用 SDK 的 camelCase 欄位。因子調優必須有一個明確基準，候選總數最多 32；策略調優會去重基準，同樣最多 32。套用候選只更新目前設定，不會建立命名版本或一般執行，讓 Agent 另外執行並檢查套用後輸入，再建立命名版本。
 
     ## 輸出及退出碼
 
@@ -129,7 +130,7 @@ related: ["/hk/qube/api/factors", "/hk/qube/api/strategies", "/hk/qube/sdk/strea
 
     ## 建立與還原命名版本
 
-    審閱資產所屬的成功一般執行後，再建立版本。以下範例使用既有 `factorId` 和成功的 `analysisId`。
+    檢查資產所屬的成功一般執行後，再建立版本。以下範例使用既有 `factorId` 和成功的 `analysisId`。
 
     ```typescript
     const version = await client.research.createFactorVersion(factorId, {
@@ -200,7 +201,7 @@ related: ["/hk/qube/api/factors", "/hk/qube/api/strategies", "/hk/qube/sdk/strea
     | 重新執行研究 | `rerunFactorTuning(tuningId, { requestId })` | `rerunStrategyTuning(tuningId, { requestId })` |
     | 套用選定候選 | `applyFactorTuning(tuningId, { requestId, trialId, expectedSourceRevision, expectedConfigRevision })` | `applyStrategyTuning(tuningId, { requestId, candidateId, expectedSourceRevision, expectedConfigRevision })` |
 
-    因子套用回傳 `{ tuning, factor }`，策略套用回傳 `{ tuning, strategy }`。套用會更新已儲存原始碼或設定，不會建立一般執行或命名版本。請另外執行並審閱選定候選。調優結果是待審閱方案，不是自動投入生產的決策。
+    因子套用回傳 `{ tuning, factor }`，策略套用回傳 `{ tuning, strategy }`。套用會更新已儲存原始碼或設定，不會建立一般執行或命名版本。Agent 可另外執行及評估選定候選，在結果符合指示中的接受條件時，從成功的一般執行建立命名版本。
 
     ### 調優方法的輸入與輸出
 
