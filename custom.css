@@ -25,6 +25,11 @@ html:not(.dark) .sidebar-group .text-primary:hover {
   color: var(--tqx-ink) !important;
 }
 
+/* Keep code block copy controls visible before hover or keyboard focus. */
+.code-block [data-floating-buttons]:has(.code-block-copy-button) {
+  opacity: 1;
+}
+
 /* Give the desktop sidebar enough room for longer localized page titles. */
 @media (min-width: 64rem) {
   #sidebar-content {
