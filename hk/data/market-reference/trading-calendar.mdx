@@ -26,9 +26,9 @@ en_link: /data/market-reference/trading-calendar
 
 | 字段 | 類型 | 描述 |
 | :-- | :-- | :-- |
-| nature\_date | int | 日期，格式為YYYYMMDD |
+| nature\_date | int | 日期，格式為 YYYYMMDD |
 | exchange | str | 交易所代號 |
-| is\_trade | int | 是否為交易日，1表示交易日，0表示非交易日 |
+| is\_trade | int | 是否為交易日，1 表示交易日，0 表示非交易日 |
 | pretrade\_date | str | 目前日期前一個交易日 |
 | next\_trade\_date | str | 目前日期後一個交易日 |
 
@@ -69,7 +69,7 @@ nature_date exchange is_trade next_trade_date pretrade_date
 14 20250115 HK 1 20250116 20250114
 ```
 
-#### 取得一段時間內美股非交易日且使用fields
+#### 取得一段時間內美股非交易日且使用 fields
 
 ```python
 import tqx_data

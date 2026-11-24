@@ -16,7 +16,7 @@ en_link: /data/market-data/minute
 | :-- | :-- | :-- | :-- |
 | start\_date | str | 開始日期,eg:"20250702" | 必填 |
 | end\_date | str | 結束日期,eg:"20250702" | 必填 |
-| symbol | Optional\[Union\[str, List\[str\]\]\] | 股票代號, 當symbol為空時，開始與結束日期不能超過1個月 | 非必填 |
+| symbol | Optional\[Union\[str, List\[str\]\]\] | 股票代號, 當 symbol 為空時，開始與結束日期不能超過 1 個月 | 非必填 |
 | fields | Optional\[Union\[str, List\[str\]\]\] | 返回欄位,如果不傳,預設為 "open","high", "low","close","volume"和"amount" | 非必填 |
 | time\_zone | Optional\[tuple\] | 時段過濾,格式為("HH:MM", "HH:MM")，例如("10:00", "23:00") | 非必填 |
 | frequency | Optional\[str\] | 頻率, 支援 "1m", "5m", "10m", "60m",預設為"1m" | 非必填 |
@@ -58,7 +58,7 @@ en_link: /data/market-data/minute
 
 ### 使用範例
 
-#### 取得單一股票的1分鐘線資料並使用fields
+#### 取得單一股票的 1 分鐘線資料並使用 fields
 
 ```python
 import tqx_data
@@ -90,7 +90,7 @@ symbol date num_trades ... volume datetime minute
 1280 0700.HK 20260130 140.0 ... 62900.0 2026-01-30 11:00:00 110000
 ```
 
-#### 取得多支股票的10分鐘線數據
+#### 取得多支股票的 10 分鐘線數據
 
 ```python
 import tqx_data
@@ -132,7 +132,7 @@ symbol date datetime ... close volume amount
 | :-- | :-- | :-- | :-- |
 | start\_date | str | 開始日期,eg:"20250702"此為美國紐約日期） | 必填 |
 | end\_date | str | 結束日期,eg:"20250702"（此為美國紐約日期） | 必填 |
-| symbol | Optional\[Union\[str, List\[str\]\]\] | 股票代號, 當symbol為空時，開始與結束日期不能超過1個月 | 非必填 |
+| symbol | Optional\[Union\[str, List\[str\]\]\] | 股票代號, 當 symbol 為空時，開始與結束日期不能超過 1 個月 | 非必填 |
 | fields | Optional\[Union\[str, List\[str\]\]\] | 返回欄位,如果不傳,預設為 "open","high", "low","close","volume"和"amount" | 非必填 |
 | time\_zone | Optional\[tuple\] | 時段過濾,格式為("HH:MM", "HH:MM")，例如("10:00", "23:00") | 非必填 |
 | frequency | Optional\[str\] | 頻率, 支援 "1m", "5m", "10m", "60m",預設為"1m" | 非必填 |
@@ -173,7 +173,7 @@ symbol date datetime ... close volume amount
 
 ### 使用範例
 
-#### 取得單一股票的1分鐘線資料並使用fields
+#### 取得單一股票的 1 分鐘線資料並使用 fields
 
 ```python
 import tqx_data
@@ -205,7 +205,7 @@ symbol us_date num_trades ... volume us_datetime us_minute
 1219 AAPL 20260130 504.0 ... 100017.0 2026-01-30 11:00:00 110000
 ```
 
-#### 取得多檔股票的10分鐘線數據
+#### 取得多檔股票的 10 分鐘線數據
 
 ```python
 import tqx_data

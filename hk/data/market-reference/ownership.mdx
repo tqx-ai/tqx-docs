@@ -62,7 +62,7 @@ symbol currency ... total_sharehold total_holdings_value
 2711 9999.HK CNY ... 2.200467e+09 4.651509e+10
 ```
 
-## 取得公司前20投資者集中度
+## 取得公司前 20 投資者集中度
 
 ### 方法名稱：get\_company\_top\_concentration
 
@@ -82,10 +82,10 @@ symbol currency ... total_sharehold total_holdings_value
 | :-- | :-- | :-- |
 | symbol | str | 檔 |
 | currency | str | 交易幣種 |
-| top\_investors\_num | int | 前n個投資者數（對於此介面通常為20，不足20個投資者的會回傳小於20） |
+| top\_investors\_num | int | 前 n 個投資者數（對於此介面通常為 20，不足 20 個投資者的會回傳小於 20） |
 | investor\_outstanding\_ratio | double | 投資人持有佔總流通股比例 |
-| sharehold | double | 前n個投資者總持股 |
-| holdings\_value | double | 前n個投資人總持股市值 |
+| sharehold | double | 前 n 個投資者總持股 |
+| holdings\_value | double | 前 n 個投資人總持股市值 |
 
 ### 使用範例
 
@@ -131,7 +131,7 @@ symbol currency ... sharehold holdings_value
 | symbol | Optional\[Union\[str, List\[str\]\]\] | 股票代號 | 非必填 |
 | fields | Optional\[Union\[str, List\[str\]\]\] | 傳回欄位 | 非必填 |
 | market | str | 市場，使用 `hk` 或 `us`，預設為 `hk`。 | 非必填 |
-| max\_rank | Optional\[int\] | 最大回傳排名（小於等於20的正整數），預設為空白回傳前20名 | 非必填 |
+| max\_rank | Optional\[int\] | 最大回傳排名（小於等於 20 的正整數），預設為空白回傳前 20 名 | 非必填 |
 
 ### 回應參數
 
@@ -150,7 +150,7 @@ symbol currency ... sharehold holdings_value
 
 ### 使用範例
 
-#### 取得全港股公司前10投資者數據
+#### 取得全港股公司前 10 投資者數據
 
 ```python
 import tqx_data
@@ -205,7 +205,7 @@ symbol investor_name ... rank currency
 | investor\_type | str | 投資人類型 |
 | info\_date | str | 訊息日期（日期篩選依據） |
 | insider\_role | str | 內部人身分 |
-| is\_main\_role | int | 是否為主要人物（若某次內部交易涉及多個內部人，則此欄位為1的為主要人物） |
+| is\_main\_role | int | 是否為主要人物（若某次內部交易涉及多個內部人，則此欄位為 1 的為主要人物） |
 | insider\_active\_date | str | 成為內部人日期 |
 | insider\_inactive\_date | str | 不再視為內部人日期 |
 | transaction\_date | str | 交易發生日期 |
